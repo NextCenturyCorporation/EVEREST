@@ -1,4 +1,4 @@
-ccenturion-student-alerting
+centurion-student-alerting
 ==========================
 
-CCenturion
+Centurion
