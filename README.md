@@ -3,4 +3,4 @@ centurion-student-alerting
 
 Centurion
 
-[Wiki](wiki)
+[Wiki](https://github.com/ploats/centurion-student-alerting/wiki)
