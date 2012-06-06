@@ -4,9 +4,6 @@ function Event(id, name, time, place){
 	this.name = name;
 	this.time = time;
 	this.place = place;
-	this.toJSON = function(){
-		return {id: this.id, name: this.name, time: this.time, place: this.place};
-	};
 };
 
 
@@ -24,7 +21,7 @@ var router = bogart.router();
 
 router.get('/', function(req){
 	console.log('Request for /');
-	return bogart.json({modules: mods});
+	return bogart.json({events: "events"});
 });
 
 
@@ -38,7 +35,7 @@ router.get('/events/?', function(req){
 router.get('/events/:id', function(req){
 	console.log('Request for event # '+req.params.id);
 	if(req.params.id < events.length){
-		return bogart.json(events[req.params.id].toJSON());
+		return bogart.json(events[req.params.id]);
 	} else {
 		return bogart.error();
 	}
