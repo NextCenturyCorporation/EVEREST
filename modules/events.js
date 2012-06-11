@@ -31,7 +31,7 @@ this.load_mod = function(app){
 			console.log("Receiving new event");
 			console.log(req.body);
 		}
-		eventManager.addEvent(req.body);
+		eventManager.createEvent(req.body.title, req.body.description, req.body.location);
 		res.redirect('/events');
 	});
 	

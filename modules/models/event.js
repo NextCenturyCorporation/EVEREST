@@ -2,52 +2,70 @@
  * Model for an event
  */
 
+/**
+ * Set up database connection to use
+ */
+var mysql = require('mysql');
+/**
+ * We can either explicitly connect with connection.connect(), or running a query will implicitly connect
+ */
+var connection = mysql.createConnection({
+	host:'localhost',
+	user: 'centurion',
+	password: 'password',
+	database: 'centurion'
+	});
 
-function Event(id, title, message, location, time){
-	this.id = id;
-	this.title = title;
-	this.message = message;
-	this.location = location;
-	this.time = time;
-};
+connection.connect(function(err){
+	if(err)
+		console.log("Error connectiong: "+err);
+});
 
-var events = [new Event(0, 'Fire', 'Fire in building A', 'Building A', '12:00pm'),
-              new Event(1, 'Flood', 'Flod in building B', 'Building B', '12:01pm'),
-              new Event(2, 'Traffic', 'Heavy traffic on Drewry Lane', 'Drewry Lane', '12:02pm')
-              ];
+//Auto-reconnect
+connection.on('close', function(err){
+	if(err){
+		console.log("DB connection closed, reopening "+err);
+		connection = mysql.createConnection(connection.config);
+	} else {
+		//Expected it to close
+	}
+});
 
 this.listEvents = function(res){
-	var array = [];
-	for(cur in events)
-		array.push(cur[0]);
-	res.json({events: array});
+	connection.query('Select id from events', function(err, rows){
+		if(err){
+			console.log("Error: "+err);
+			res.send('Error');
+		} else {
+			res.json({events: rows});
+		}
+	});
 };
 
 this.getEvent = function(index, res){
-	if(index < events.length){
-		res.json(events[index]);
-	} else {
-		console.log("Out of range, redirecting to list");
-		res.redirect('/events');
-	}
+	connection.query('select * from events where id = '+connection.escape(index), function(err, rows){
+		if(err){
+			console.log("Error fetching event "+err);
+			res.send('Error');
+		} else {
+			res.json(rows);
+		}
+	});
 };
 
-this.createEvent = function(id, title, message, location, time){
-	events.push(new Event(id, title, message, location, time));
-};
-
-this.addEvent = function(event){
-	events.push(event);
+this.createEvent = function(title, message, location){
+	connection.query("insert into events (title, description, location) values ("+
+			connection.escape(title)+", "+connection.escape(message)+", "+connection.escape(location)+");", function(err, rows){
+		if(err){
+			console.log("Error inserting event: "+err);
+		}
+	});
 };
 
 this.deleteEvent = function(id){
-	var tmpEvents = [];
-	var i=0;
-	for(i =0; i< events.length; i++){
-		console.log(events[i].id);
-		if(events[i].id != id){
-			tmpEvents.push(events[i]);
+	connection.query('delete from events where id = '+connection.escape(id), function(err, rows){
+		if(err){
+			console.log("Error deleting event: "+err);
 		}
-	}
-	events = tmpEvents;
+	});
 };
