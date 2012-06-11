@@ -24,4 +24,14 @@ this.load_mod = function(app){
 		}
 		eventManager.getEvent(req.params.id, res);
 	});
+	
+	//Lets try to get and store new events
+	app.post('/events/new', function(req, res){
+		if(LOG){
+			console.log("Receiving new event");
+			console.log(req.body);
+		}
+		eventManager.addEvent(req.body);
+		res.redirect('/events');
+	});
 };

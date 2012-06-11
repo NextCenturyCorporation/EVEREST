@@ -20,9 +20,17 @@ this.listEvents = function(res){
 	var array = [];
 	for(cur in events)
 		array.push(cur[0]);
-	res.json(array);
+	res.json({events: array});
 };
 
 this.getEvent = function(index, res){
 	res.json(events[index]);
 };
+
+this.createEvent = function(id, title, message, location, time){
+	events.push(new Event(id, title, message, location, time));
+};
+
+this.addEvent = function(event){
+	events.push(event);
+}

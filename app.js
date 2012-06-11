@@ -34,15 +34,20 @@ fs.readdirSync("./modules").forEach(function(file) {
 	if(!fs.lstatSync('./modules/'+file).isDirectory()){
 		console.log('Loading '+file);
 		require("./modules/" + file).load_mod(app);
-		modules.push(file);
+		file = file + "";
+		//Cut off the extension, its not part of the URL
+		modules.push(file.substring(0, file.indexOf('.')));
 	}
 });
 
 
 //The index will list all modules
 app.get('/', function(req, res){
-	res.json(modules);
+	res.json({modules: modules});
 });
+
+//Need to use this body parser so it will get the properties for us
+app.use(express.bodyParser());
 
 app.listen(8080, function(){
   console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
