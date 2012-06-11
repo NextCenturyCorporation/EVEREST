@@ -34,4 +34,14 @@ this.load_mod = function(app){
 		eventManager.addEvent(req.body);
 		res.redirect('/events');
 	});
+	
+	//Now, lets enable deleting events
+	app.post('/events/delete',function(req, res){
+		if(LOG){
+			console.log("Request to delete event");
+			console.log(req.body);
+		}
+		eventManager.deleteEvent(req.body.id);
+		res.redirect('/events');
+	});
 };

@@ -24,7 +24,12 @@ this.listEvents = function(res){
 };
 
 this.getEvent = function(index, res){
-	res.json(events[index]);
+	if(index < events.length){
+		res.json(events[index]);
+	} else {
+		console.log("Out of range, redirecting to list");
+		res.redirect('/events');
+	}
 };
 
 this.createEvent = function(id, title, message, location, time){
@@ -33,4 +38,16 @@ this.createEvent = function(id, title, message, location, time){
 
 this.addEvent = function(event){
 	events.push(event);
-}
+};
+
+this.deleteEvent = function(id){
+	var tmpEvents = [];
+	var i=0;
+	for(i =0; i< events.length; i++){
+		console.log(events[i].id);
+		if(events[i].id != id){
+			tmpEvents.push(events[i]);
+		}
+	}
+	events = tmpEvents;
+};
