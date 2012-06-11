@@ -44,6 +44,7 @@ fs.readdirSync("./modules").forEach(function(file) {
 //The index will list all modules
 app.get('/', function(req, res){
 	res.json({modules: modules});
+	res.end();
 });
 
 //Need to use this body parser so it will get the properties for us

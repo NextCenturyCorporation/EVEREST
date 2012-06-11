@@ -21,6 +21,12 @@ connection.connect(function(err){
 		console.log("Error connectiong: "+err);
 });
 
+function sleep(milliSeconds) {
+    var startTime = new Date().getTime();
+    while (new Date().getTime() < startTime + milliSeconds);
+}
+
+
 //Auto-reconnect
 connection.on('close', function(err){
 	if(err){
@@ -36,8 +42,10 @@ this.listEvents = function(res){
 		if(err){
 			console.log("Error: "+err);
 			res.send('Error');
+			res.end();
 		} else {
 			res.json({events: rows});
+			res.end();
 		}
 	});
 };
@@ -47,8 +55,11 @@ this.getEvent = function(index, res){
 		if(err){
 			console.log("Error fetching event "+err);
 			res.send('Error');
+			res.end();
 		} else {
-			res.json(rows);
+			console.log(rows[0]);
+			res.json(rows[0]);
+			res.end();
 		}
 	});
 };
