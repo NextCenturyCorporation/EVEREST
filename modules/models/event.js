@@ -38,13 +38,13 @@ connection.on('close', function(err){
 });
 
 this.listEvents = function(res){
-	connection.query('Select max(id) as maxID from events', function(err, rows){
+	connection.query('Select id from events', function(err, rows){
 		if(err){
 			console.log("Error: "+err);
 			res.send('Error');
 			res.end();
 		} else {
-			res.json(rows[0]);
+			res.json(rows);
 			res.end();
 		}
 	});
@@ -57,8 +57,14 @@ this.getEvent = function(index, res){
 			res.send('Error');
 			res.end();
 		} else {
-			console.log(rows[0]);
-			res.json(rows[0]);
+			if(rows[0]){
+				console.log(rows[0]);
+				res.json(rows[0]);
+			} else {
+				console.log('Not found');
+				res.status(404);
+				res.json({error:'Not found'});
+			}
 			res.end();
 		}
 	});
