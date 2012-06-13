@@ -31,8 +31,7 @@ this.load_mod = function(app){
 			console.log("Receiving new event");
 			console.log(req.body);
 		}
-		eventManager.createEvent(req.body.title, req.body.description, req.body.location);
-		res.redirect('/events');
+		eventManager.createEvent(req.body.title, req.body.description, req.body.location, res);
 	});
 	
 	//Now, lets enable deleting events
@@ -41,9 +40,7 @@ this.load_mod = function(app){
 			console.log("Request to delete event");
 			console.log(req.body);
 		}
-		eventManager.deleteEvent(req.params.id);
-		res.send("OK");
-		res.end();
+		eventManager.deleteEvent(req.params.id, res);
 	});
 	
 	
@@ -56,7 +53,7 @@ this.load_mod = function(app){
 	});
 	
 	app.post('/events/:id([0-9]+)/comments', function(req,res){
-		eventManager.addComment(req.params.id, req.body.lat, req.body.long, req.body.text, req.body.uID);
+		eventManager.addComment(req.params.id, req.body.lat, req.body.long, req.body.text, req.body.uID, res);
 		res.send("OK");
 		res.end();
 	});

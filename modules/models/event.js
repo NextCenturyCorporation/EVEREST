@@ -170,11 +170,13 @@ this.getEvent = function(index, res){
 	});
 };
 
-this.createEvent = function(title, message, location){
-	res.json({todo: 'Todo'});
+this.createEvent = function(title, message, location, res){
+	res.send('Todo');
+	res.end();
 };
 
-this.deleteEvent = function(id){
+
+this.deleteEvent = function(id, res){
 	res.json({todo: 'Todo'});
 };
 
@@ -196,7 +198,7 @@ this.getComments = function(index, res){
 	});
 };
 
-this.addComment = function(eID, lat, long, text, uID){
+this.addComment = function(eID, lat, long, text, uID, res){
 	res.json({todo: 'Todo'});
 };
 
