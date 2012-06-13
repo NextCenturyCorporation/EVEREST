@@ -6,6 +6,13 @@
 var express = require('express'),
 	fs = require("fs");
 
+/**
+ * Needed modules:
+ * express, mysql
+ * npm install -g express
+ * npm install mysql@2.0.0-alpha2
+ */
+
 var app = module.exports = express.createServer();
 
 // Configuration
