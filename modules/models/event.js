@@ -153,7 +153,7 @@ this.listEvents = function(res){
 };
 
 this.getEvent = function(index, res){
-	event.find({GID:index}, function(err, docs){
+	event.find({GID:index}, null, {sort: {timestamp: -1}}, function(err, docs){
 		if(err){
 			console.log("Error: "+err);
 			res.status(500);
@@ -179,7 +179,7 @@ this.deleteEvent = function(id){
 };
 
 this.getComments = function(index, res){
-	event.find({GID:index}, ['comments'], function(err, docs){
+	event.find({GID:index}, ['comments'], {sort: {timestamp: -1}}, function(err, docs){
 		if(err){
 			console.log("Error: "+err);
 			res.status(500);
