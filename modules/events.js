@@ -49,6 +49,9 @@ this.load_mod = function(app){
 	
 	//Comments!!
 	app.get('/events/:id([0-9]+)/comments',function(req,res){
+		if(LOG){
+			console.log("Request for commetns of "+req.params.id);
+		}
 		eventManager.getComments(req.params.id, res);
 	});
 	

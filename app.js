@@ -8,9 +8,8 @@ var express = require('express'),
 
 /**
  * Needed modules:
- * express, mysql
+ * express
  * npm install -g express
- * npm install mysql@2.0.0-alpha2
  */
 
 var app = module.exports = express.createServer();
