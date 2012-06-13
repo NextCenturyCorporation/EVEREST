@@ -36,12 +36,25 @@ this.load_mod = function(app){
 	});
 	
 	//Now, lets enable deleting events
-	app.post('/events/delete',function(req, res){
+	app.del('/events/:id([0-9]+)',function(req, res){
 		if(LOG){
 			console.log("Request to delete event");
 			console.log(req.body);
 		}
-		eventManager.deleteEvent(req.body.id);
-		res.redirect('/events');
+		eventManager.deleteEvent(req.params.id);
+		res.send("OK");
+		res.end();
+	});
+	
+	
+	//Comments!!
+	app.get('/events/:id([0-9]+)/comments',function(req,res){
+		eventManager.getComments(req.params.id, res);
+	});
+	
+	app.post('/events/:id([0-9]+)/comments', function(req,res){
+		eventManager.addComment(req.params.id, req.body.lat, req.body.long, req.body.text, req.body.uID);
+		res.send("OK");
+		res.end();
 	});
 };

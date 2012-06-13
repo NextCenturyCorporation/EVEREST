@@ -10,7 +10,7 @@ var mysql = require('mysql');
  * We can either explicitly connect with connection.connect(), or running a query will implicitly connect
  */
 var connection = mysql.createConnection({
-	host:'localhost',
+	host:'10.10.10.169',
 	user: 'centurion',
 	password: 'password',
 	database: 'centurion'
@@ -38,13 +38,13 @@ connection.on('close', function(err){
 });
 
 this.listEvents = function(res){
-	connection.query('Select id from events', function(err, rows){
+	connection.query('Select max(id) as maxID from events', function(err, rows){
 		if(err){
 			console.log("Error: "+err);
 			res.send('Error');
 			res.end();
 		} else {
-			res.json({events: rows});
+			res.json(rows[0]);
 			res.end();
 		}
 	});
@@ -80,3 +80,24 @@ this.deleteEvent = function(id){
 		}
 	});
 };
+
+this.getComments = function(index, res){
+	connection.query('select text, time, lat, lon, userID from comments where eventId = '+connection.escape(index), function(err, rows){
+		if(err){
+			console.log("Error getting comments "+err);
+			res.json({});
+			res.end();
+		} else {
+			res.json(rows);
+			res.end();
+		}
+	});
+};
+
+this.addComment = function(eID, lat, long, text, uID){
+	connection.query('insert into comments (eventID, lat, lon, text, userID) values (?, ?, ?, ?, ?)', [parseInt(eID), lat, long, text, uID], function(err, rows){
+		if(err)
+			console.log("Error adding comment: "+err);
+	});
+};
+
