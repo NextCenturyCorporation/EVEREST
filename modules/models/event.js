@@ -74,7 +74,7 @@ var EventSchema = new Schema({
  */
 var comment = mongoose.model('Comment', CommentSchema);
 var location = mongoose.model('Location', LocationSchema);
-var contact = mongoose.model('Contact', ContactSchema);
+var contact = mongoose.model('Contacts', ContactSchema);
 var event = mongoose.model('Event', EventSchema);
 
 /**
@@ -138,20 +138,6 @@ newEvent.save(function(err){
 })
 */
 
-/*
- * 
-location.find({}, function(err, docs){
-	event.update({GID: 0}, {$set: {location: docs[0]._id}}, {},function(err){
-		console.log('Location set');
-	});
-});
-
-contact.find({}, function(err, docs){
-	event.update({GID: 0}, {$set: {contact: docs[0]._id}}, {},function(err){
-		console.log('Contact set');
-	});
-});*/
-
 this.listEvents = function(res){
 	event.find({}, ['GID'], function(err, docs){
 		if(err){
@@ -185,11 +171,11 @@ this.getEvent = function(index, res){
 };
 
 this.createEvent = function(title, message, location){
-
+	res.json({todo: 'Todo'});
 };
 
 this.deleteEvent = function(id){
-
+	res.json({todo: 'Todo'});
 };
 
 this.getComments = function(index, res){
@@ -211,6 +197,63 @@ this.getComments = function(index, res){
 };
 
 this.addComment = function(eID, lat, long, text, uID){
-
+	res.json({todo: 'Todo'});
 };
 
+this.getLocation = function(id, res){
+	location.findById(id, function(err, docs){
+		if(err) {
+			console.log("Error getting location "+err);
+			res.status(500);
+			res.json({error: 'Error'});
+		} else if(docs) {
+			res.json(docs);
+		} else {
+			res.status(404);
+			res.json({error: 'Not found'});
+		}
+		res.end();
+	});
+};
+
+this.listLocations = function(res){
+	location.find({},['_id', 'name'], function(err, docs){
+		if(err){
+			console.log("Error listing locations "+err);
+			res.status(500);
+			res.json({error: 'Error'});
+		} else {
+			res.json(docs);
+		}
+		res.end();
+	});
+};
+
+this.getContact = function(id, res){
+	contact.findById(id, function(err, docs){
+		if(err) {
+			console.log("Error getting contact "+err);
+			res.status(500);
+			res.json({error: 'Error'});
+		} else if(docs) {
+			res.json(docs);
+		} else {
+			res.status(404);
+			res.json({error: 'Not found'});
+		}
+		res.end();
+	});
+};
+
+this.listContacts = function(res){
+	contact.find({},['_id', 'name'], function(err, docs){
+		if(err){
+			console.log("Error listing contacts "+err);
+			res.status(500);
+			res.json({error: 'Error'});
+		} else {
+			res.json(docs);
+		}
+		res.end();
+	});
+};

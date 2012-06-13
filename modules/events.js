@@ -60,4 +60,36 @@ this.load_mod = function(app){
 		res.send("OK");
 		res.end();
 	});
+	
+	//Locations
+	app.get('/events/location/:id([0-9a-f]+)', function(req,res){
+		if(LOG){
+			console.log("Request for locaiton "+req.params.id);
+		}
+		eventManager.getLocation(req.params.id, res);
+	});
+	
+	//Get a list of all locations, which will just list their id and name
+	app.get('/events/location/list', function(req,res){
+		if(LOG){
+			console.log("Request for location list");
+		}
+		eventManager.listLocations(res);
+	});
+	
+	//Contacts
+	app.get('/events/contact/:id([0-9a-f]+)', function(req,res){
+		if(LOG){
+			console.log("Request for contact "+req.params.id);
+		}
+		eventManager.getContact(req.params.id, res);
+	});
+	
+	//Get a list of all the contacts in the system
+	app.get('/events/contact/list', function(req, res){
+		if(LOG){
+			console.log("Request for contact list");
+		}
+		eventManager.listContacts(res);
+	});
 };
