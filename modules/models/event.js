@@ -10,7 +10,7 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 //Connect to the database
-mongoose.connect('mongodb://10.10.10.169/centurion');
+mongoose.connect('mongodb://10.10.16.40/centurion');
 
 //Shorter name for the connection
 //var db = mongoose.connection;
