@@ -127,7 +127,7 @@ console.log(newLoc);
  * In DB as event with GID 0
 var newEvent = new event();
 newEvent.GID = 0;
-newEvent.title = "Edguardo!";
+newEvent.title = "Edgardo!";
 newEvent.type= 'Emergency';
 newEvent.group = 0;
 newEvent.status = 'Ongoing';
