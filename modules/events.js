@@ -29,9 +29,9 @@ this.load_mod = function(app){
 	app.post('/events/new', function(req, res){
 		if(LOG){
 			console.log("Receiving new event");
-			console.log(req.body);
+			//console.log(req.body);
 		}
-		eventManager.createEvent(req.body.title, req.body.description, req.body.location, res);
+		eventManager.createEvent(req.body, res);
 	});
 	
 	//Now, lets enable deleting events

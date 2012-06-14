@@ -79,12 +79,12 @@ var event = mongoose.model('Event', EventSchema);
 
 /**
  * At this point, creating new data should be as easy as:
- * var newEvent = new Event();
+ * var newEvent = new event();
  * newEvent.title = 'Test'
  * newEvent.save(function(err) {});
  * 
  * Finding events is as easy as:
- * Event.find({id:1}, function(err, docs){
+ * event.find({id:1}, function(err, docs){
  * 		//docs contains all Events with a matching id
  * });
  * More: http://mongoosejs.com/docs/finding-documents.html
@@ -170,9 +170,22 @@ this.getEvent = function(index, res){
 	});
 };
 
-this.createEvent = function(title, message, location, res){
-	res.send('Todo');
-	res.end();
+this.createEvent = function(req, res){
+	console.log(req);
+	var newEvent = new event(req);
+	console.log("Event to be saved:");
+	console.log(newEvent);
+	newEvent.save(function(err){
+		if(err){
+			console.log("Error creating event: "+err);
+			res.status(500);
+			res.json({error: 'Error saving'});
+			res.end();
+		} else {
+			res.json({status:'success'});
+			res.end();
+		}
+	});
 };
 
 
