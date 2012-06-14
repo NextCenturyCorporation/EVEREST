@@ -4,6 +4,24 @@
 <title>Create New Event</title>
 <!-- jQuery -->
 <script src="http://code.jquery.com/jquery-latest.js"></script>
+<script>
+$(document).ready(function(){
+
+	$.getJSON("/events/location/list", function(data) {
+		console.log(data);
+		$.each(data, function(i, item) {
+			$('#location').append('<option value="'+item._id+'">' + item.name+ '</option>');
+		});
+	});
+	
+	$.getJSON("/events/contact/list", function(data) {
+		console.log(data);
+		$.each(data, function(i, item) {
+			$('#contact').append('<option value="'+item._id+'">' + item.name+ '</option>');
+		});
+	});
+});
+</script>
 </head>
 <body>
 	<p>Enter event details:</p>
@@ -20,8 +38,7 @@
 			<tr>
 				<td>Event Location:</td>
 				<td>
-					<select name="location">
-						<option>TODO</option>
+					<select id="location" name="location">
 					</select>
 				</td>
 			</tr>
@@ -32,8 +49,7 @@
 			<tr>
 				<td>Contact:</td>
 				<td>
-					<select name="contact">
-						<option>TODO</option>
+					<select id="contact" name="contact">
 					</select>
 				</td>
 			</tr>
@@ -66,7 +82,7 @@
 		</table>
 	</form>
 
-	<div id="result" name="result"></div>
+	<div id="images"></div>
 	
 <script>
   /* attach a submit handler to the form */
@@ -81,6 +97,7 @@
         url = $form.attr( 'action' );
 
     /* Send the data using post and put the results in a div */
+    /*
     $.post( url, { s: term },
       function( data ) {
           var content = $( data ).find( '#content' );
@@ -88,6 +105,7 @@
           console.log('Got back: '+content);
       }
     );
+    */
   });
 </script>
 
