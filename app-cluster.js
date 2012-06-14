@@ -62,7 +62,11 @@ app.listen(8080, function(){
 });
 */
 
-//Using cluster to run this one
+/*
+ * Using cluster to run this one
+ * Note for windows with cygwin: After this is started and killed, you will need to go through the task manager and kill all the node.exe processes
+ * If you dont, it will crash with IPC error
+ */
 var cluster = require('cluster');
 if(cluster.isMaster){
 	//Expand to 4 cores
