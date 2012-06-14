@@ -7,6 +7,7 @@
 <script>
 $(document).ready(function(){
 
+	//Load the locations from the system
 	$.getJSON("/events/location/list", function(data) {
 		console.log(data);
 		$.each(data, function(i, item) {
@@ -14,6 +15,7 @@ $(document).ready(function(){
 		});
 	});
 	
+	//Load the contacts from the system
 	$.getJSON("/events/contact/list", function(data) {
 		console.log(data);
 		$.each(data, function(i, item) {
@@ -28,12 +30,19 @@ $(document).ready(function(){
 	<form action='/events/new' id="createForm">
 		<table border="0">
 			<tr>
-				<td>Event Title:</td>
+				<td>Event Title (Todo):</td>
 				<td><input type="text" name="title" /></td>
 			</tr>
 			<tr>
 				<td>Event Type:</td>
-				<td>TODO</td>
+				<td>
+					<select name="type" id="type">
+						<option value="Emergency">Emergency</option>
+						<option value="Warning">Warning</option>
+						<option value="Weather">Weather</option>
+						<option value="Traffic">Traffic</option>
+					</select>
+				</td>
 			</tr>
 			<tr>
 				<td>Event Location:</td>
@@ -64,7 +73,7 @@ $(document).ready(function(){
 				<td>Group:</td>
 				<td>
 					<select name="group">
-						<option>TODO</option>
+						<option value="0">TODO</option>
 					</select>
 				</td>
 			</tr>
