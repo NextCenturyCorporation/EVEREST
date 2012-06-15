@@ -190,7 +190,19 @@ this.createEvent = function(req, res){
 
 
 this.deleteEvent = function(id, res){
-	res.json({todo: 'Todo'});
+	event.find({GID:id}, function(err, docs){
+		if(err || docs.longth == 0){
+			console.log("Error or no event "+err);
+			res.status(500);
+			res.json({error: 'Error'});
+			res.end();
+		} else {
+			for(cur in docs)
+				cur.remove();
+			res.json({status:'OK'});
+			res.end();
+		}
+	});
 };
 
 this.getComments = function(index, res){
@@ -211,8 +223,28 @@ this.getComments = function(index, res){
 	});
 };
 
-this.addComment = function(eID, lat, long, text, uID, res){
-	res.json({todo: 'Todo'});
+this.addComment = function(eid, req, res){
+	event.find({_id:eid}, ['comments'], function(err,docs){
+		if(err || docs.length == 0){
+			console.log("Error or no event: "+err);
+			res.status(500);
+			res.json({error: 'Error'});
+			res.end();
+		} else {
+			var newComment = new comment(req);
+			docs[0].comments.push(newComment);
+			docs[0].save(function(err){
+				if(err){
+					res.status(500);
+					res.json({error: 'Error'});
+					res.end();
+				} else {
+					res.json({status: 'OK'});
+					res.end();
+				}
+			});
+		};
+	});
 };
 
 this.getLocation = function(id, res){
