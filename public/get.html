@@ -1,0 +1,120 @@
+      <!DOCTYPE html>
+      <html>
+      <head>
+  <style>img{ height: 100px; float: left; }</style>
+</head>
+<body>
+  <div id="images">
+
+</div>
+
+      <script type="text/javascript" src="jquery-1.7.2.js" ></script>
+      <script language="javascript">
+
+    
+
+	   function jQuery_get() {
+
+	 //        events/$("#event").val();
+	   
+//$.getJSON("http://localhost:8080/events/0",{john:"asdfsda"},
+$.getJSON("http://localhost:8081/events/"+$("#event").val(),{john:"asdfsda"},
+  function(data) {
+  
+	//console.log(data[0]);
+	//  alert(data[0]);
+	  
+	  //  event zero is the first event returned
+	 $('#GID').empty().append("Event ID : " +data[0].GID)  
+	 $('#timestmp').empty().append("Time  : " +data[0].timestmp);
+	 $('#title').empty().append("TItle : " +data[0].title);
+	 $('#type').empty().append("Type  : " +data[0].type);
+	 $('#group').empty().append("Group  : " +data[0].group);
+	 $('#status').empty().append("Status  : " +data[0].status);
+	 $('#userID').empty().append("User ID  : " +data[0].userID);
+	 $('#description').empty().append("Description  : " +data[0].description);
+	 $('#radius').empty().append("Radius  : " +data[0].radius);
+	 $('#comments').empty().append("Comments : " +data[0].comments);
+	 $('#location').empty().append("Location  : " +data[0].location);
+	 $('#contact').empty().append("Contact  : " +data[0].contact);
+	  
+	  
+    //});
+  })// end getJSON
+         
+      }
+	  
+     </script >
+	 
+	which event <input type = "text" id= "event"/>
+	
+	
+	
+	 <div id="GID"> 	
+     Event ID :
+	 </div>
+	 
+	 
+	 
+	  <div id="timestmp"> 
+	  Time : 
+	 </div>
+
+	  <div id="title"> 	
+     Title :
+	 </div>
+	 
+	
+	  <div id="type"> 	
+	   Type:
+	 </div>
+	 
+	
+	  <div id="group"> 
+	   Group :
+	 </div>
+	 
+     
+	  <div id="status"> 
+	  Status :
+	 </div>
+	 
+     
+	  <div id="userID"> 	
+	  User ID :
+	 </div>
+	 
+     
+	  <div id="description"> 
+	  Description :
+	 </div>
+	 
+    
+	  <div id="radius"> 
+	   Radius :
+	 </div>
+	 
+     
+	  <div id="comments"> 	
+	  comments :
+	 </div>
+	 
+    
+	  <div id="location"> 	
+	   Location :
+	 </div>
+	 
+     
+	  <div id="contact">
+	 Contact : 
+	 </div>
+	 
+      <body>
+      <button type="button" onclick="jQuery_get()">get page</button>
+      </body>
+	  
+	  
+	  <!--
+         
+      
+	  -->

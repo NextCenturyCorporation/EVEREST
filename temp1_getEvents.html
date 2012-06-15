@@ -1,0 +1,60 @@
+function log(text) {
+    $('div').append('<p>' + text + '</p>');
+}
+
+function makerequest(success) {
+
+    var deferred = new $.Deferred();
+    var promise = deferred.promise();
+    promise.success = promise.done;
+    promise.error = promise.fail;
+
+    var jqxhr = $.ajax({
+        url: '/echo/json/',
+        type: 'POST',
+        data: {
+            json: JSON.stringify({
+                success: success,
+                data: 'some data ...'
+            }),
+            delay: 0
+        }
+    });
+    var s = '[test ' + success + '] ';
+    jqxhr.success(function(data, status, xhr) {
+        if (!data || !data.success) {
+            log(s + 'ajax ok but bad data');
+            deferred.reject(jqxhr, 'error');
+        } else {
+            log(s + 'ajax ok and data ok');
+            deferred.resolve(data, status, xhr);
+        }
+    });
+    jqxhr.error(function(jqXHR, status, error) {
+        log('ajax error');
+        deferred.reject(jqXHR, status, error);
+    });
+    return promise;
+}
+
+function test(success) {
+    var s = '[test ' + success + '] ';
+    var r = makerequest(success);
+    r.success(function() {
+        log(s + "success handler 1");
+    });
+    r.success(function() {
+        log(s + "success handler 2");
+    });
+    r.error(function() {
+        log(s + "error handler 1");
+    });
+    r.error(function() {
+        log(s + "error handler 2");
+    });
+}
+
+test(true);
+test(false);
+
+log('end of script');

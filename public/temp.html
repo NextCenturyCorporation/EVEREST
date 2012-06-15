@@ -1,0 +1,47 @@
+
+      <!DOCTYPE html>
+      <html>
+
+<body>
+
+      <script type="text/javascript" src="jquery-1.7.2.js" ></script>
+      <script language="javascript">
+	  
+	  jQuery_get(){
+		
+		setTimeout(function() {
+		console.log("world");
+		},2000)
+		
+		console.log("hello");
+		
+		function foo() {
+		return 1+2;
+		}
+		foo();
+	
+	}//end jQuery_get
+	  
+      </script >
+
+
+      <body>
+
+
+      <button type="button" onclick="jQuery_get()">get page</button>
+
+      </body>
+	  
+	  
+	  <!--
+	     function jQuery_get() {
+
+      var  jqXHR =	jQuery.getJSON(   
+	  'http://localhost:8080/events/2', 
+	  { 
+		name: "John"
+	  },
+	  function() {  alert("finished call")})
+         
+      }
+	  -->
