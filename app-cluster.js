@@ -6,6 +6,8 @@
 var express = require('express'),
 	fs = require("fs");
 
+var numCPUs = require('os').cpus().length;
+
 /**
  * Needed modules:
  * express
@@ -69,8 +71,8 @@ app.listen(8080, function(){
  */
 var cluster = require('cluster');
 if(cluster.isMaster){
-	//Expand to 4 cores
-	for(var i = 0; i<4; i++)
+	//Expand to all cores
+	for(var i = 0; i<numCPUs; i++)
 		cluster.fork();
 } else {
 	app.listen(8081, function(){
