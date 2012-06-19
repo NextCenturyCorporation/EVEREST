@@ -92,10 +92,11 @@ var event = mongoose.model('Event', EventSchema);
  */
 
 /**
- * Insert a location, contact, and event into the DB
+ * Insert a location, contact, and event into the DB.
+ * Uncomment and start the server ONCE, then re-comment.
  */
 /*
- * NOTE: Stored in DB now, with _id  4fd8c807b55dece408000002
+//Initial contact
 var newContact = new contact();
 newContact.name = "George";
 newContact.email = "george@com.com";
@@ -106,10 +107,8 @@ newContact.save(function(err){
 
 console.log("Contact:");
 console.log(newContact);
-*/
 
-/*
- * NOTE: Stored in DB now, with _id 4fd8c807b55dece408000003
+//Initial Location
 var newLoc = new location();
 newLoc.name = "Building A";
 newLoc.radius = 50;
@@ -121,10 +120,8 @@ newLoc.save(function(err){
 
 console.log("Location:");
 console.log(newLoc);
-*/
 
-/*
- * In DB as event with GID 0
+//Initial Event
 var newEvent = new event();
 newEvent.GID = 0;
 newEvent.title = "Edgardo!";
@@ -133,9 +130,14 @@ newEvent.group = 0;
 newEvent.status = 'Ongoing';
 newEvent.description = 'Aah! Hes here!';
 newEvent.radius = 10;
+newEvent.location = newLocation._id;
+newEvent.contact = newContact._id;
 newEvent.save(function(err){
 	if(err) console.log("Error: "+err);
 })
+
+console.log("Event:");
+console.log(newEvent);
 */
 
 this.listEvents = function(res){
@@ -224,7 +226,7 @@ this.getComments = function(index, res){
 };
 
 this.addComment = function(eid, req, res){
-	event.find({_id:eid}, ['comments'], function(err,docs){
+	event.find({GID:eid}, ['comments'], {sort: {timestamp: 1}}, function(err,docs){
 		if(err || docs.length == 0){
 			console.log("Error or no event: "+err);
 			res.status(500);

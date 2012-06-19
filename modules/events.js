@@ -53,9 +53,7 @@ this.load_mod = function(app){
 	});
 	
 	app.post('/events/:id([0-9]+)/comments', function(req,res){
-		eventManager.addComment(req.params.id, req.body.lat, req.body.long, req.body.text, req.body.uID, res);
-		res.send("OK");
-		res.end();
+		eventManager.addComment(req.params.id, req.body, res);
 	});
 	
 	//Locations
