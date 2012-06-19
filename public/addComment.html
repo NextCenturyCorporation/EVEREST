@@ -39,7 +39,7 @@ $(document).ready(function(){
 			</tr>
 			<tr>
 				<td>Latitude:</td>
-				<td><input type="text" name="latitide" /></td>
+				<td><input type="text" name="latitude" /></td>
 			</tr>
 			<tr>
 				<td>Longitude:</td>
@@ -60,36 +60,66 @@ $(document).ready(function(){
 			</tr>
 		</table>
 </form>
+<br />
+<form id="getComments">
+	<input type="submit" value="Get Comments" />
+</form>
+<br />
+<br />
 
+<div id="comments"></div>
 <script>
-  /* attach a submit handler to the form */
-  $("#addComment").submit(function(event) {
-    /* stop form from submitting normally */
-    event.preventDefault();  
-    /* get some values from elements on the page: */
-    /*
-    var $form = $( this ),
-        term = $form.find( 'input[name="s"]' ).val(),
-        url = $form.attr( 'action' );
-	*/
-	var formData = form2js('addComment', '.', true);
-	console.log(formData);
-    /* Send the data using ajax post and put the results in a div */
-	$.ajax({
-		type: "POST",
-		url: '/events/'+$('#eventID').val()+'/comments',
-		dataType: 'json',
-		data: formData,
-		success: function(){
-			alert('Sent!');
-		},
-		error: function(){
-			alert('Error');
-		}
+	getComments = function() {
+		$.getJSON("/events/" + $('#eventID').val() + '/comments',
+				function(data) {
+					$('#comments').empty();
+					console.log('Comments:');
+					console.log(data);
+					$('#comments').append(data.length+' total comments<br />');
+					var i = 0;
+					for(i =0; i < data.length; i++) {
+						console.log(data[i]);
+						//$('#comments').append('UserID: ' + data[i].userID + '<br />');
+						$('#comments').append('Latitude: ' + data[i].latitude + '<br />');
+						$('#comments').append('Longitude: ' + data[i].longitude + '<br />');
+						$('#comments').append('Time: '+data[i].timestmp+"<br />");
+						$('#comments').append('Comment: ' + data[i].text + '<br />');
+						$('#comments').append('<br /><br />');
+					}
+					;
+				});
+	};
+	$("#getComments").submit(function(event) {
+		event.preventDefault();
+		getComments();
 	});
-    
-    
-  });
+	/* attach a submit handler to the form */
+	$("#addComment").submit(function(event) {
+		/* stop form from submitting normally */
+		event.preventDefault();
+		/* get some values from elements on the page: */
+		/*
+		var $form = $( this ),
+		    term = $form.find( 'input[name="s"]' ).val(),
+		    url = $form.attr( 'action' );
+		 */
+		var formData = form2js('addComment', '.', true);
+		console.log(formData);
+		/* Send the data using ajax post and put the results in a div */
+		$.ajax({
+			type : "POST",
+			url : '/events/' + $('#eventID').val() + '/comments',
+			dataType : 'json',
+			data : formData,
+			success : function() {
+				alert('Sent!');
+				getComments();
+			},
+			error : function() {
+				alert('Error');
+			}
+		});
+	});
 </script>
 
 </body>
