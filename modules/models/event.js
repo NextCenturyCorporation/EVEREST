@@ -141,7 +141,7 @@ console.log(newEvent);
 */
 
 this.listEvents = function(res){
-	event.find({}, ['GID', 'timestamp'], function(err, docs){
+	event.find({}, ['GID', 'timestmp'], function(err, docs){
 		if(err){
 			console.log("Error: "+err);
 			res.status(500);
