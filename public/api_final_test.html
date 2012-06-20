@@ -49,17 +49,19 @@ $.getJSON("http://localhost:8081/events/"+$("#event").val(),{john:"asdfsda"},			
 	 $('#contact').empty().append("Contact  : " +data[0].contact);
 	  myData = JSON.stringify(data[0]);
 	  
-//document.write(myData);
+document.write(myData);
 
 
  if(data[0].GID == 0){
-test("testing event 0", function() {
+ 
+ 
+ test("testing event 0", function() {
   ok( myData == JSON.stringify({"GID":0,"_id":"4fda1d7303ca976815000002","contact":"4fd8c807b55dece408000002","description":"Aah! Hes here!","location":"4fd8c807b55dece408000003","radius":10,"status":"Ongoing","title":"Edgardo!","type":"Emergency","timestmp":"2012-06-14T17:20:51.169Z"}), "check event0" );
 });} //end if
 
  if(data[0].GID == 1){
 test("testing event 1", function() {
-  ok( myData == JSON.stringify({"GID":1,"title":"Creating Works","type":"Warning","location":"4fd8c807b55dece408000003","radius":50,"contact":"4fd8c807b55dece408000002","status":"Ongoing","description":"Uh-oh, creating new events works. This isnt good.","_id":"4fda2cc60abf40140f000005","timestmp":"2012-06-14T18:26:14.415Z"}), "check event1" );
+  ok( myData == JSON.stringify({"GID":1,"_id":"4fda2cc60abf40140f000005","contact":"4fd8c807b55dece408000002","description":"Uh-oh, creating new events works. This isnt good.","location":"4fd8c807b55dece408000003","radius":50,"status":"Ongoing","title":"Creating Works","type":"Warning","timestmp":"2012-06-14T18:26:14.415Z"}), "check event1" );
 });} //end if	 
  
   })// end getJSON
@@ -98,17 +100,24 @@ $.getJSON(ipString,{john:"asdfsda"},
 	 
 	  myData = JSON.stringify(data[0]);
 	  
-	  	module("Module A");
-
+	  	//module("Module A");
+var stringEqual;
 //document.write(myData);
  if(data[0].GID == 0){
-test("testing event 0", function() {
-  ok( myData == JSON.stringify({"GID":0,"_id":"4fda1d7303ca976815000002","contact":"4fd8c807b55dece408000002","description":"Aah! Hes here!","location":"4fd8c807b55dece408000003","radius":10,"status":"Ongoing","title":"Edgardo!","type":"Emergency","timestmp":"2012-06-14T17:20:51.169Z"}), "check event0" );
+ 
+stringEqual = (myData == JSON.stringify({"GID":0,"_id":"4fda1d7303ca976815000002","contact":"4fd8c807b55dece408000002","description":"Aah! Hes here!","location":"4fd8c807b55dece408000003","radius":10,"status":"Ongoing","title":"Edgardo!","type":"Emergency","timestmp":"2012-06-14T17:20:51.169Z"}))
+ if(stringEqual == false){/** throw errors **/ alert("not equal json")}
+ test("testing event 0", function(anss) {
+ ok( stringEqual, "check event0" );
 });} //end if
 
+
  if(data[0].GID == 1){
+ stringEqual = ( myData == JSON.stringify({"GID":1,"_id":"4fda2cc60abf40140f000005","contact":"4fd8c807b55dece408000002","description":"Uh-oh, creating new events works. This isnt good.","location":"4fd8c807b55dece408000003","radius":50,"status":"Ongoing","title":"Creating Works","type":"Warning","timestmp":"2012-06-14T18:26:14.415Z"}))
+ if(stringEqual == false){/** throw errors **/  alert("not equal json")}
+ 
 test("testing event 1", function() {
-  ok( myData == JSON.stringify({"GID":1,"title":"Creating Works","type":"Warning","location":"4fd8c807b55dece408000003","radius":50,"contact":"4fd8c807b55dece408000002","status":"Ongoing","description":"Uh-oh, creating new events works. This isnt good.","_id":"4fda2cc60abf40140f000005","timestmp":"2012-06-14T18:26:14.415Z"}), "check event1" );
+  ok( stringEqual, "check event1" );
 });} //end if	 
  
   })// end getJSON
@@ -120,6 +129,7 @@ test("testing event 1", function() {
 	  function jQuery_getEvents(){
 	  jQuery_getEvent(0);
 	  jQuery_getEvent(1);
+	  console.log("IN SIDE OF THE HTML FILE");
 	  }
 	  
 	  //#####################################################################################################################################################################################################
@@ -146,15 +156,17 @@ test("testing event 1", function() {
 	 
 	Find An Event: <input type = "text" id= "event"/>
 	 <body>
-	 <button type="button" onclick="jQuery_getButton()">get event</button>
+	 <button id="cow" type="button" onclick="jQuery_getButton()">get event</button>
 	 </body>
 	 
 	 <!--
 	 get all events
 	 -->
 	 <body>
-	 <button type="button" onclick="jQuery_getEvents()">get all events</button>
+	 <button id=="haveAcow" type="button" onclick="jQuery_getEvents()">get all events</button>
 	 </body>
+	 
+	 <body onload="jQuery_getEvents()"></body>
 	 
 	 <body>
 	 <button type="button" onclick="checkIDs()">check all ID's</button>
