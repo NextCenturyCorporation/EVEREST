@@ -5,7 +5,6 @@
 	CALL THIS FILE FROM WEB BROWSWER AS:
 	
 	http://localhost:8081/api_final_test.html
-	file must be inside the public folder of the centurion project
 	
 	  -->
 
@@ -16,8 +15,6 @@
 
 	  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript"></script>
 		  <script src="http://code.jquery.com/jquery-latest.js"></script>
-		    <script type="text/javascript" src="jasmine.js"></script>
-  <script type="text/javascript" src="jasmine-html.js"></script>
 		   <!--
        
 	  -->
@@ -56,9 +53,7 @@ $.getJSON("http://localhost:8081/events/"+$("#event").val(),{john:"asdfsda"},			
 
 
  if(data[0].GID == 0){
- 
- 
- test("testing event 0", function() {
+test("testing event 0", function() {
   ok( myData == JSON.stringify({"GID":0,"_id":"4fda1d7303ca976815000002","contact":"4fd8c807b55dece408000002","description":"Aah! Hes here!","location":"4fd8c807b55dece408000003","radius":10,"status":"Ongoing","title":"Edgardo!","type":"Emergency","timestmp":"2012-06-14T17:20:51.169Z"}), "check event0" );
 });} //end if
 
@@ -144,15 +139,7 @@ test("testing event 1", function() {
     } // check IDs()
 	  
       //#####################################################################################################################################################################################################
-										 function _jasmine(){
-										 describe( "distance converter", function () {  
-									
-									it("converts inches to centimeters", function () {  
-        
-									expect(30.48).toEqual(30.48);  
-											})}  )}
-										 
-										
+ 
 
      </script >
 	 
@@ -160,11 +147,6 @@ test("testing event 1", function() {
 	Find An Event: <input type = "text" id= "event"/>
 	 <body>
 	 <button type="button" onclick="jQuery_getButton()">get event</button>
-	 </body>
-	 
-
-	 <body>
-	 <button type="button" onclick="_jasmine()">get jasmine</button>
 	 </body>
 	 
 	 <!--
