@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Get Everything</title>
+<!-- jQuery -->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript" ></script>
+</head>
+<body>
+<form id="getAll">
+<input type="submit" value="Get Everything!" />
+</form>
+
+<div id="out">
+
+</div>
+
+<script>
+getLocation = function(loc, id){
+	$.getJSON('/events/location/'+loc, function(data){
+		$("#location"+id).append('<tr><td>Location name:</td><td>'+data.name+'</td></tr>');
+		$("#location"+id).append('<tr><td>Location latitude:</td><td>'+data.latitude+'</td></tr>');
+		$("#location"+id).append('<tr><td>Location longitude:</td><td>'+data.longitude+'</td></tr>');
+	});
+};
+
+getContact = function(cont, id){
+	$.getJSON('/events/contact/'+cont, function(data){
+		$("#contact"+id).append('<tr><td>Contact name:</td><td>'+data.name+'</td></tr>');
+		$("#contact"+id).append('<tr><td>Contact Phone:</td><td>'+data.phone+'</td></tr>');
+		$("#contact"+id).append('<tr><td>Contact Email:</td><td>'+data.email+'</td></tr>');
+	});
+};
+
+getComments = function(GID, id){
+	$.getJSON('/events/'+GID+'/comments', function(data){
+		$("#comment"+id).append('<b>Comments:</b><br />');
+		$.each(data, function(i, item) {
+			$("#comment"+id).append(item.text+'<br />');
+			$("#comment"+id).append('Latitude: '+item.latitude+'<br />');
+			$("#comment"+id).append('Longitude: '+item.longitude+'<br />');
+			$("#comment"+id).append('Timestamp: '+item.timestmp+'<br />');
+			$("#comment"+id).append('<hr span="50%" ><br />');
+			
+		});
+	});
+};
+
+dispEvent = function(data){
+	$("#out").append('<table border="1" width="500" id="'+data._id+'"></table>');
+	$("#"+data._id).append('<tr><td>Event GID:</td><td>'+data.GID+'</td></tr>');
+	$("#"+data._id).append('<tr><td>Event Time:</td><td>'+data.timestmp+'</td></tr>');
+	$("#"+data._id).append('<tr><td>Event Title:</td><td>'+data.title+'</td></tr>');
+	$("#"+data._id).append('<tr><td>Event Type:</td><td>'+data.type+'</td></tr>');
+	$("#"+data._id).append('<tr><td>Event Status:</td><td>'+data.status+'</td></tr>');
+	$("#"+data._id).append('<tr><td>Event Description:</td><td>'+data.description+'</td></tr>');
+	$("#"+data._id).append('<tr><td>Event Radius:</td><td>'+data.radius+'</td></tr>');
+	$("#"+data._id).append('<tr><td colspan="2" id="location'+data._id+'"></td></tr>');
+	$("#"+data._id).append('<tr><td colspan="2" id="contact'+data._id+'"</td></tr>');
+	$("#"+data._id).append('<tr><td colspan="2" id="comment'+data._id+'"></td></tr>');
+	$("#out").append('<br /><br />');
+	getLocation(data.location, data._id);
+	getContact(data.contact, data._id);
+	getComments(data.GID, data._id);
+};
+
+/* attach a submit handler to the form */
+$("#getAll").submit(function(event) {
+	/* stop form from submitting normally */
+	event.preventDefault();
+	$("#out").empty();
+	/* Get the list of events */
+	$.getJSON("/events", function(data) {
+		//console.log(data);
+		$.each(data, function(i, item) {
+			//Get the details of each event
+			$.getJSON("/events/"+item.GID, function(data){
+				$.each(data, function(j, event) {
+					dispEvent(event);
+				});//End each event
+			});//End get event
+		}); //End each event
+	}); //End get events
+});
+</script>
+</body>
+</html>
