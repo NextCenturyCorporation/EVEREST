@@ -19,7 +19,7 @@ this.load_mod = function(app, logger){
 	
 	//And the route for getting individual events
 	app.get('/events/:id([0-9]+)', function(req, res){
-		if(LOG){
+		if(0 && LOG){
 			logger.info('Request for event '+req.params.id);
 		}
 		eventManager.getEvent(req.params.id, res);
@@ -29,7 +29,7 @@ this.load_mod = function(app, logger){
 	app.post('/events/new', function(req, res){
 		if(LOG){
 			logger.info("Receiving new event");
-			//console.info(req.body);
+			logger.info(req.body);
 		}
 		eventManager.createEvent(req.body, res);
 	});
@@ -47,20 +47,18 @@ this.load_mod = function(app, logger){
 	//Comments!!
 	app.get('/events/:id([0-9]+)/comments',function(req,res){
 		if(LOG){
-			logger.info("Request for commetns of "+req.params.id);
+			logger.info("Request for comments of "+req.params.id);
 		}
 		eventManager.getComments(req.params.id, res);
 	});
 	
 	app.post('/events/:id([0-9]+)/comments', function(req,res){
-		eventManager.addComment(req.params.id, req.body.lat, req.body.long, req.body.text, req.body.uID, res);
-		res.send("OK");
-		res.end();
+		eventManager.addComment(req.params.id, req.body, res);
 	});
 	
 	//Locations
 	app.get('/events/location/:id([0-9a-f]+)', function(req,res){
-		if(LOG){
+		if(0 && LOG){
 			logger.info("Request for locaiton "+req.params.id);
 		}
 		eventManager.getLocation(req.params.id, res);
