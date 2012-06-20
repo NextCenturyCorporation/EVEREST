@@ -56,6 +56,6 @@ app.get('/', function(req, res){
 //Need to use this body parser so it will get the properties for us
 app.use(express.bodyParser());
 
-app.listen(8081, function(){
+app.listen((process.env.port || 8081), function(){
   console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
 });
