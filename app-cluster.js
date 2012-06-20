@@ -4,7 +4,8 @@
  */
 
 var express = require('express'),
-	fs = require("fs");
+	fs = require("fs"),
+	winston = require('winston');
 
 var numCPUs = require('os').cpus().length;
 
@@ -35,13 +36,22 @@ app.configure('production', function(){
   app.use(express.errorHandler());
 });
 
+//Load and set up the logger
+var logger = new (winston.Logger)({
+	//Make it log to both the console and a file 
+	transports : [new (winston.transports.Console)(),
+	              new (winston.transports.File)({filename: 'logs/general.log'})],
+	//Log uncought exceptions to a seperate log
+	exceptionHandlers: [new winston.transports.File({filename: 'logs/exceptions.log'})]
+});
+
 var modules = [];
 // Routes
 //Load all the routes from the ./modules/ directory
 fs.readdirSync("./modules").forEach(function(file) {
 	if(!fs.lstatSync('./modules/'+file).isDirectory()){
-		console.log('Loading '+file);
-		require("./modules/" + file).load_mod(app);
+		logger.info('Loading '+file);
+		require("./modules/" + file).load_mod(app, logger);
 		file = file + "";
 		//Cut off the extension, its not part of the URL
 		modules.push(file.substring(0, file.indexOf('.')));
@@ -76,6 +86,6 @@ if(cluster.isMaster){
 		cluster.fork();
 } else {
 	app.listen((process.env.port || 8081), function(){
-		  console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
+		logger.info("Express server listening on port "+app.address().port+" in "+app.settings.env+" mode");
 		});
 }
