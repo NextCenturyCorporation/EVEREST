@@ -17,8 +17,16 @@ var numCPUs = require('os').cpus().length;
 
 var app = module.exports = express.createServer();
 
-// Configuration
+//Load and set up the logger
+var logger = new (winston.Logger)({
+	//Make it log to both the console and a file 
+	transports : [new (winston.transports.Console)(),
+	              new (winston.transports.File)({filename: 'logs/general.log'})],
+	//Log uncought exceptions to a seperate log
+	exceptionHandlers: [new winston.transports.File({filename: 'logs/exceptions.log'})]
+});
 
+// Configuration
 app.configure(function(){
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
@@ -29,20 +37,26 @@ app.configure(function(){
 });
 
 app.configure('development', function(){
-  app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
+  //app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
 });
 
 app.configure('production', function(){
-  app.use(express.errorHandler());
+  //app.use(express.errorHandler());
 });
 
-//Load and set up the logger
-var logger = new (winston.Logger)({
-	//Make it log to both the console and a file 
-	transports : [new (winston.transports.Console)(),
-	              new (winston.transports.File)({filename: 'logs/general.log'})],
-	//Log uncought exceptions to a seperate log
-	exceptionHandlers: [new winston.transports.File({filename: 'logs/exceptions.log'})]
+//Custom error handler
+//This is modeled off the connect errorHandler
+//https://github.com/senchalabs/connect/blob/master/lib/middleware/errorHandler.js
+// http://stackoverflow.com/questions/7151487/error-handling-principles-for-nodejs-express-apps
+app.use(function errorHandler(err, req, res, next){
+  if (err.status) res.statusCode = err.status;
+  if (res.statusCode < 400) res.statusCode = 500;
+  //Send back json
+  res.setHeader('Content-Type', 'application/json');
+  //Dont send the whole stack, could have security issues
+  res.end(JSON.stringify({error: err.message}));
+  //Log it
+  logger.log('error', 'Error ', {stack: err.stack});
 });
 
 var modules = [];
@@ -64,15 +78,6 @@ app.get('/', function(req, res){
 	res.json({modules: modules});
 	res.end();
 });
-
-//Need to use this body parser so it will get the properties for us
-app.use(express.bodyParser());
-
-/*
-app.listen(8080, function(){
-  console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
-});
-*/
 
 /*
  * Using cluster to run this one
