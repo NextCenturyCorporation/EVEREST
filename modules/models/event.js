@@ -10,7 +10,7 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 //Connect to the database
-mongoose.connect('mongodb://10.10.16.40/centurion');
+mongoose.connect('mongodb://10.10.20.16/centurion');
 
 //Shorter name for the connection
 //var db = mongoose.connection;
@@ -130,7 +130,7 @@ newEvent.group = 0;
 newEvent.status = 'Ongoing';
 newEvent.description = 'Aah! Hes here!';
 newEvent.radius = 10;
-newEvent.location = newLocation._id;
+newEvent.location = newLoc._id;
 newEvent.contact = newContact._id;
 newEvent.save(function(err){
 	if(err) console.log("Error: "+err);
