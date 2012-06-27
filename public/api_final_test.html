@@ -12,7 +12,11 @@
                     "http://www.w3.org/TR/html4/loose.dtd">
      
      <html>
-
+	 
+	 <head>
+		<title> HTML CRAZZY TITTLE</title>
+	 </head>
+	 
 	  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript"></script>
 		  <script src="http://code.jquery.com/jquery-latest.js"></script>
 		   <!--
@@ -21,6 +25,8 @@
 	  <link rel="stylesheet" href="http://code.jquery.com/qunit/git/qunit.css" type="text/css" media="screen" />
          <script type="text/javascript" src="http://code.jquery.com/qunit/git/qunit.js"></script>
 		<script language="javascript">  //lack of end scrpit here
+		
+		
 
  	  //##############################################################################################################################################################################################################################################################################
 
@@ -49,7 +55,7 @@ $.getJSON("http://localhost:8081/events/"+$("#event").val(),{john:"asdfsda"},			
 	 $('#contact').empty().append("Contact  : " +data[0].contact);
 	  myData = JSON.stringify(data[0]);
 	  
-document.write(myData);
+//document.write(myData);
 
 
  if(data[0].GID == 0){
@@ -103,18 +109,22 @@ $.getJSON(ipString,{john:"asdfsda"},
 	  	//module("Module A");
 var stringEqual;
 //document.write(myData);
+
  if(data[0].GID == 0){
  
-stringEqual = (myData == JSON.stringify({"GID":0,"_id":"4fda1d7303ca976815000002","contact":"4fd8c807b55dece408000002","description":"Aah! Hes here!","location":"4fd8c807b55dece408000003","radius":10,"status":"Ongoing","title":"Edgardo!","type":"Emergency","timestmp":"2012-06-14T17:20:51.169Z"}))
- if(stringEqual == false){/** throw errors **/ alert("not equal json")}
+///**THE BAD JSON**/  stringEqual = (myData == JSON.stringify({"jfdlskjflkdsjf_______________________GID":0,"_id":"4fda1d7303ca976815000002","contact":"4fd8c807b55dece408000002","description":"Aah! Hes here!","location":"4fd8c807b55dece408000003","radius":10,"status":"Ongoing","title":"Edgardo!","type":"Emergency","timestmp":"2012-06-14T17:20:51.169Z"}))
+stringEqual = (myData == JSON.stringify({"GID":0,"_id":"4fda1d7303ca976815000002","contact":"4fd8c807b55dece408000002","description":"Aah! Hes here!","location":"4fd8c807b55dece408000003","radius":10,"status":"Ongoing","title":"Edgardo!","type":"Emergency","timestmp":"2012-06-14T17:20:51.169Z"})) 
+ if(stringEqual == false){/** throw errors **/ $('#err').append("\nJson not equal for event #"+data[0].GID);}
  test("testing event 0", function(anss) {
  ok( stringEqual, "check event0" );
 });} //end if
 
 
  if(data[0].GID == 1){
- stringEqual = ( myData == JSON.stringify({"GID":1,"_id":"4fda2cc60abf40140f000005","contact":"4fd8c807b55dece408000002","description":"Uh-oh, creating new events works. This isnt good.","location":"4fd8c807b55dece408000003","radius":50,"status":"Ongoing","title":"Creating Works","type":"Warning","timestmp":"2012-06-14T18:26:14.415Z"}))
- if(stringEqual == false){/** throw errors **/  alert("not equal json")}
+///**THE BAD JSON**/ stringEqual = ( myData == JSON.stringify({"asdfasdf_______GID":1,"_id":"4fda2cc60abf40140f000005","contact":"4fd8c807b55dece408000002","description":"Uh-oh, creating new events works. This isnt good.","location":"4fd8c807b55dece408000003","radius":50,"status":"Ongoing","title":"Creating Works","type":"Warning","timestmp":"2012-06-14T18:26:14.415Z"}))
+stringEqual = ( myData == JSON.stringify({"GID":1,"_id":"4fda2cc60abf40140f000005","contact":"4fd8c807b55dece408000002","description":"Uh-oh, creating new events works. This isnt good.","location":"4fd8c807b55dece408000003","radius":50,"status":"Ongoing","title":"Creating Works","type":"Warning","timestmp":"2012-06-14T18:26:14.415Z"}))
+
+ if(stringEqual == false){/** throw errors **/  $('#err').append("\nJson not equal for event #"+data[0].GID);}
  
 test("testing event 1", function() {
   ok( stringEqual, "check event1" );
@@ -129,7 +139,13 @@ test("testing event 1", function() {
 	  function jQuery_getEvents(){
 	  jQuery_getEvent(0);
 	  jQuery_getEvent(1);
-	  console.log("IN SIDE OF THE HTML FILE");
+	 
+	  
+	  
+	  //$#^&#^%*^%#^%@&
+	//  throw "ERROR @  $%%^&% jQuery_getEvents"
+	  
+	  //return true;
 	  }
 	  
 	  //#####################################################################################################################################################################################################
@@ -150,7 +166,11 @@ test("testing event 1", function() {
 	  
       //#####################################################################################################################################################################################################
  
-
+ 
+ 
+document.write(JSON.stringify($('#err')));
+document.write($('#err'));
+document.write($('#err'));
      </script >
 	 
 	 
@@ -163,7 +183,8 @@ test("testing event 1", function() {
 	 get all events
 	 -->
 	 <body>
-	 <button id="id_for_get_all_events" type="button" onclick="jQuery_getEvents()">get all events</button>
+	 <input id="id_for_get_all_events" type="button" onclick="return jQuery_getEvents()" value= "get all events"></input>
+	<!-- <input id ="BIG" value= 5   >-->
 	 </body>
 	 
 	 <body onload="jQuery_getEvents()"></body>
@@ -173,10 +194,11 @@ test("testing event 1", function() {
 	 </body>
 	 
 	 
+	 <div id="err">Errors :</div>
+	 
 	 <div id="GID"> 	
      Event ID :
 	 </div>
-	 
 	 
 	 
 	  <div id="timestmp"> 
