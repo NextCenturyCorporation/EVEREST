@@ -7,24 +7,29 @@
 <!-- GMaps.js -->
 <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
 <script type="text/javascript" src="https://raw.github.com/HPNeo/gmaps/master/gmaps.js"></script>
+<script type="text/javascript" src="/socket.io/socket.io.js"></script>
 <script type="text/javascript">
-/*
-var map
-$(document).ready(function(){
-	new GMaps({
-			div : '#map',
-			lat : -12.043333,
-			lng : -77.028333,
-			height: '200px'
-		});
-	});
-*/
+var socket = io.connect();
+socket.on('hello', function(data){
+
+});
+socket.on('event', function(data){
+	//alert('New event!');
+	getall();
+	
+});
+
+socket.on('comment', function(data){
+	//alert("New comment!");
+	console.log(data);
+	getComments(data.GID, data.id, null);
+});
 </script>
 </head>
 <body>
-<form id="getAll">
+<!-- <form id="getAll">
 <input type="submit" value="Get Everything!" />
-</form>
+</form> -->
 
 <div id="out">
 
@@ -62,8 +67,8 @@ getContact = function(cont, id){
 };
 
 getComments = function(GID, id, map){
-	console.log(map);
 	$.getJSON('/events/'+GID+'/comments', function(data){
+		$("#comment"+id).empty();
 		$("#comment"+id).append('<b>Comments:</b><br />');
 		$.each(data, function(i, item) {
 			$("#comment"+id).append(item.text+'<br />');
@@ -71,13 +76,15 @@ getComments = function(GID, id, map){
 			$("#comment"+id).append('Longitude: '+item.longitude+'<br />');
 			$("#comment"+id).append('Timestamp: '+item.timestmp+'<br />');
 			$("#comment"+id).append('<hr span="50%" ><br />');
-			map.addMarker({
-				lat: item.latitude,
-				lng: item.longitude,
-				infoWindow: {
-					content: '<b>Comment:</b><br />'+item.text
-				}
-			});
+			if(map !== null && item.katitude != null){
+				map.addMarker({
+					lat: item.latitude,
+					lng: item.longitude,
+					infoWindow: {
+						content: '<b>Comment:</b><br />'+item.text
+					}
+				});
+			}
 		});
 	});
 };
@@ -100,10 +107,7 @@ dispEvent = function(data){
 	getContact(data.contact, data._id);
 };
 
-/* attach a submit handler to the form */
-$("#getAll").submit(function(event) {
-	/* stop form from submitting normally */
-	event.preventDefault();
+getall = function(){
 	$("#out").empty();
 	/* Get the list of events */
 	$.getJSON("/events", function(data) {
@@ -117,6 +121,17 @@ $("#getAll").submit(function(event) {
 			});//End get event
 		}); //End each event
 	}); //End get events
+};
+
+/* // attach a submit handler to the form
+$("#getAll").submit(function(event) {
+	//stop form from submitting normally
+	event.preventDefault();
+	getall();
+});  */
+
+$(document).ready(function(){
+	getall();
 });
 </script>
 </body>
