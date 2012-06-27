@@ -10,7 +10,7 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 //Connect to the database
-mongoose.connect('mongodb://10.10.20.12/centurion');
+mongoose.connect('mongodb://localhost/centurion');
 
 //Shorter name for the connection
 //var db = mongoose.connection;
@@ -154,7 +154,7 @@ this.listEvents = function(res){
 	});
 };
 
-this.getEvent = function(index, res){
+this.getEventGroup = function(index, res){
 	event.find({GID:index}, null, {sort: {timestamp: -1}}, function(err, docs){
 		if(err){
 			console.log("Error: "+err);
@@ -172,7 +172,25 @@ this.getEvent = function(index, res){
 	});
 };
 
-this.createEvent = function(req, res){
+this.getEvent = function(index, res){
+	event.findById(index, function(err, docs){
+		if(err){
+			console.log("Error: "+err);
+			res.status(500);
+			res.send('Error');
+			res.end();
+		} else if(docs){
+			res.json(docs);
+			res.end();			
+		} else {
+			res.status(404);
+			res.json({error:'Not Found'});
+			res.end();
+		}
+	});
+};
+
+this.createEvent = function(req, res, io){
 	console.log(req);
 	var newEvent = new event(req);
 	console.log("Event to be saved:");
@@ -184,15 +202,17 @@ this.createEvent = function(req, res){
 			res.json({error: 'Error saving'});
 			res.end();
 		} else {
-			res.json({status:'success'});
+			res.json({status:'success', id:newEvent._id});
 			res.end();
+			//Broadcast to clients?
+			io.sockets.emit('event', {'GID':newEvent.GID});
 		}
 	});
 };
 
 
 this.deleteEvent = function(id, res){
-	event.find({GID:id}, function(err, docs){
+	event.find({_id:id}, function(err, docs){
 		if(err || docs.longth == 0){
 			console.log("Error or no event "+err);
 			res.status(500);
@@ -207,7 +227,7 @@ this.deleteEvent = function(id, res){
 	});
 };
 
-this.getComments = function(index, res){
+this.getComments = function(index, res, io){
 	event.find({GID:index}, ['comments'], {sort: {timestamp: -1}}, function(err, docs){
 		if(err){
 			console.log("Error: "+err);
@@ -216,6 +236,7 @@ this.getComments = function(index, res){
 			res.end();
 		} else if(docs.length > 0){
 			res.json(docs[0].comments);
+			//io.sockets.emit('comment', {'GID':docs[0].GID});
 			res.end();			
 		} else {
 			res.status(404);
@@ -225,8 +246,8 @@ this.getComments = function(index, res){
 	});
 };
 
-this.addComment = function(eid, req, res){
-	event.find({GID:eid}, ['comments'], {sort: {timestamp: 1}}, function(err,docs){
+this.addComment = function(eid, req, res, io){
+	event.find({GID:eid}, ['comments','GID'], {sort: {timestamp: 1}}, function(err,docs){
 		if(err || docs.length == 0){
 			console.log("Error or no event: "+err);
 			res.status(500);
@@ -243,6 +264,7 @@ this.addComment = function(eid, req, res){
 				} else {
 					res.json({status: 'OK'});
 					res.end();
+					io.sockets.emit('comment', {'GID':docs[0].GID, 'id':docs[0]._id});
 				}
 			});
 		};

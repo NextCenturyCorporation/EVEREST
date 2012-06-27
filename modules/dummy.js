@@ -1,6 +1,6 @@
 
 
-this.load_mod = function(app){
+this.load_mod = function(app, logger, io){
 	app.get('/dummy/?', function(req, res){
 		res.json({dummies: ['0', '1', '2']});
 	});

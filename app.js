@@ -5,9 +5,13 @@
 
 var express = require('express'),
 	fs = require("fs"),
-	winston = require('winston');
+	winston = require('winston'),
+	socketio = require('socket.io'),
+	events = require('events');
 
 var app = module.exports = express.createServer();
+//Use Socket.IO
+var io = socketio.listen(app);
 
 //Load and set up the logger
 var logger = new (winston.Logger)({
@@ -15,7 +19,8 @@ var logger = new (winston.Logger)({
 	transports : [new (winston.transports.Console)(),
 	              new (winston.transports.File)({filename: 'logs/general.log'})],
 	//Log uncought exceptions to a seperate log
-	exceptionHandlers: [new winston.transports.File({filename: 'logs/exceptions.log'})]
+	//exceptionHandlers: [new winston.transports.File({filename: 'logs/exceptions.log'}),
+	//                    new (winston.transports.Console)()]
 });
 
 // Configuration
@@ -51,13 +56,28 @@ app.use(function errorHandler(err, req, res, next){
   logger.log('error', 'Error ', {stack: err.stack});
 });
 
+//Use a EventEmitter to broadcast to the clients
+var emitter = new events.EventEmitter();
+
+/*//Set up Socket.IO to actually send crap
+io.sockets.on('connection', function(socket){
+	socket.emit('Hello',{text:'this is text'});
+	
+	emitter.on('event', function(data){
+		socket.emit('event',data);
+	});
+	emitter.on('comment', function(data){
+		socket.emit('comment', data);
+	});
+});*/
+
 var modules = [];
 // Routes
 //Load all the routes from the ./modules/ directory
 fs.readdirSync("./modules").forEach(function(file) {
 	if(!fs.lstatSync('./modules/'+file).isDirectory()){
 		logger.info('Loading '+file);
-		require("./modules/" + file).load_mod(app, logger);
+		require("./modules/" + file).load_mod(app, logger, io);
 		file = file + "";
 		//Cut off the extension, its not part of the URL
 		modules.push(file.substring(0, file.indexOf('.')));
