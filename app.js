@@ -6,8 +6,7 @@
 var express = require('express'),
 	fs = require("fs"),
 	winston = require('winston'),
-	socketio = require('socket.io'),
-	events = require('events');
+	socketio = require('socket.io');
 
 var app = module.exports = express.createServer();
 //Use Socket.IO
@@ -19,8 +18,8 @@ var logger = new (winston.Logger)({
 	transports : [new (winston.transports.Console)(),
 	              new (winston.transports.File)({filename: 'logs/general.log'})],
 	//Log uncought exceptions to a seperate log
-	//exceptionHandlers: [new winston.transports.File({filename: 'logs/exceptions.log'}),
-	//                    new (winston.transports.Console)()]
+	exceptionHandlers: [new winston.transports.File({filename: 'logs/exceptions.log'}),
+	                    new (winston.transports.Console)()]
 });
 
 // Configuration
@@ -55,21 +54,6 @@ app.use(function errorHandler(err, req, res, next){
   //Log it
   logger.log('error', 'Error ', {stack: err.stack});
 });
-
-//Use a EventEmitter to broadcast to the clients
-var emitter = new events.EventEmitter();
-
-/*//Set up Socket.IO to actually send crap
-io.sockets.on('connection', function(socket){
-	socket.emit('Hello',{text:'this is text'});
-	
-	emitter.on('event', function(data){
-		socket.emit('event',data);
-	});
-	emitter.on('comment', function(data){
-		socket.emit('comment', data);
-	});
-});*/
 
 var modules = [];
 // Routes

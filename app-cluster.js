@@ -5,7 +5,8 @@
 
 var express = require('express'),
 	fs = require("fs"),
-	winston = require('winston');
+	winston = require('winston'),
+	socketio = require('socket.io');
 
 var numCPUs = require('os').cpus().length;
 
@@ -16,6 +17,8 @@ var numCPUs = require('os').cpus().length;
  */
 
 var app = module.exports = express.createServer();
+//Use Socket.IO
+var io = socketio.listen(app);
 
 //Load and set up the logger
 var logger = new (winston.Logger)({
@@ -65,7 +68,7 @@ var modules = [];
 fs.readdirSync("./modules").forEach(function(file) {
 	if(!fs.lstatSync('./modules/'+file).isDirectory()){
 		logger.info('Loading '+file);
-		require("./modules/" + file).load_mod(app, logger);
+		require("./modules/" + file).load_mod(app, logger, io);
 		file = file + "";
 		//Cut off the extension, its not part of the URL
 		modules.push(file.substring(0, file.indexOf('.')));
