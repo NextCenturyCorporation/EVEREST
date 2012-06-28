@@ -8,9 +8,10 @@
  */
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
+var config = require('../../config');
 
 //Connect to the database
-mongoose.connect('mongodb://10.10.20.12/centurion');
+mongoose.connect('mongodb://'+config.db_host+':'+config.db_port+'/'+config.db_collection);
 
 //Shorter name for the connection
 //var db = mongoose.connection;

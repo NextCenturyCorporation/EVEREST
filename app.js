@@ -6,7 +6,8 @@
 var express = require('express'),
 	fs = require("fs"),
 	winston = require('winston'),
-	socketio = require('socket.io');
+	socketio = require('socket.io'),
+	config = require('./config');
 
 var app = module.exports = express.createServer();
 //Use Socket.IO
@@ -75,6 +76,6 @@ app.get('/', function(req, res){
 	res.end();
 });
 
-app.listen((process.env.port || 8081), function(){
+app.listen(config.port, function(){
   logger.info("Express server listening on port "+app.address().port+" in "+app.settings.env+" mode");
 });
