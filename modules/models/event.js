@@ -11,8 +11,9 @@ var Schema = mongoose.Schema;
 var config = require('../../config');
 
 //Connect to the database
-mongoose.connect('mongodb://'+config.db_host+':'+config.db_port+'/'+config.db_collection);
-
+if(!config.noDB){
+	mongoose.connect('mongodb://'+config.db_host+':'+config.db_port+'/'+config.db_collection);
+};
 //Shorter name for the connection
 //var db = mongoose.connection;
 
@@ -92,67 +93,104 @@ var event = mongoose.model('Event', EventSchema);
  * 
  */
 
+/*
+ * Cache/No DB mode arrays
+ */
+var contactList = [];
+var locationList = [];
+var eventList = [];
+
+
 /**
  * Insert a location, contact, and event into the DB.
  * Uncomment and start the server ONCE, then re-comment.
  */
-/*
-//Initial contact
-var newContact = new contact();
-newContact.name = "George";
-newContact.email = "george@com.com";
-newContact.phone = "410-000-0000";
-newContact.save(function(err){
-	if(err) console.log("Error: "+err);
-});
+if(config.noDB){
+	//Initial contact
+	var newContact = new contact();
+	newContact.name = "George";
+	newContact.email = "george@com.com";
+	newContact.phone = "410-000-0000";
+	contactList.push(newContact);
+	/*
+	newContact.save(function(err){
+		if(err) console.log("Error: "+err);
+	});
+	*/
+	
+	console.log("Contact:");
+	console.log(newContact);
+	
+	//Initial Location
+	var newLoc = new location();
+	newLoc.name = "Building A";
+	newLoc.radius = 50;
+	newLoc.latitude = 39.168051;
+	newLoc.longitude = -76.809801;
+	locationList.push(location);
+	/*
+	newLoc.save(function(err){
+		if(err) console.log("Error: "+err);
+	});
+	*/
+	
+	console.log("Location:");
+	console.log(newLoc);
+	
+	//Initial Event
+	var newEvent = new event();
+	newEvent.GID = 0;
+	newEvent.title = "Edgardo!";
+	newEvent.type= 'Emergency';
+	newEvent.group = 0;
+	newEvent.status = 'Ongoing';
+	newEvent.description = 'Aah! Hes here!';
+	newEvent.radius = 10;
+	newEvent.location = newLoc._id;
+	newEvent.contact = newContact._id;
+	eventList.push(newEvent);
+	/*
+	newEvent.save(function(err){
+		if(err) console.log("Error: "+err);
+	});
+	*/
+	
+	console.log("Event:");
+	console.log(newEvent);
+} else {
+	console.log('Loading cache');
+	//Fill the cache arrays from the DB
+	location.find({}, function(error, docs){
+		console.log('Loaded locations');
+		locationList = docs;
+	});
+	
+	contact.find({}, function(err, docs){
+		console.log('Loaded contacts');
+		contactList = docs;
+	});
+	
+	
+}
 
-console.log("Contact:");
-console.log(newContact);
-
-//Initial Location
-var newLoc = new location();
-newLoc.name = "Building A";
-newLoc.radius = 50;
-newLoc.latitude = 39.168051;
-newLoc.longitude = -76.809801;
-newLoc.save(function(err){
-	if(err) console.log("Error: "+err);
-});
-
-console.log("Location:");
-console.log(newLoc);
-
-//Initial Event
-var newEvent = new event();
-newEvent.GID = 0;
-newEvent.title = "Edgardo!";
-newEvent.type= 'Emergency';
-newEvent.group = 0;
-newEvent.status = 'Ongoing';
-newEvent.description = 'Aah! Hes here!';
-newEvent.radius = 10;
-newEvent.location = newLoc._id;
-newEvent.contact = newContact._id;
-newEvent.save(function(err){
-	if(err) console.log("Error: "+err);
-})
-
-console.log("Event:");
-console.log(newEvent);
-*/
 
 this.listEvents = function(res){
-	event.find({}, ['GID', 'timestmp'], function(err, docs){
-		if(err){
-			console.log("Error: "+err);
-			res.status(500);
-			res.send('Error');
-			res.end();
-		} else {
-			res.json(docs);
-			res.end();
-		}
-	});
+	if(config.noDB){
+		
+	} else {
+		var q = event.find({}, ['GID', 'timestmp']).limit(10);
+		q.execFind(function(err, docs){
+			if(err){
+				console.log("Error: "+err);
+				res.status(500);
+				res.send('Error');
+				res.end();
+			} else {
+				res.json(docs);
+				res.end();
+			}
+		});
+	};
 };
 
 this.getEventGroup = function(index, res){
@@ -174,21 +212,37 @@ this.getEventGroup = function(index, res){
 };
 
 this.getEvent = function(index, res){
-	event.findById(index, function(err, docs){
-		if(err){
-			console.log("Error: "+err);
-			res.status(500);
-			res.send('Error');
+	for(cur in eventList){
+		if(cur._id == id){
+			console.log('Cached event');
+			res.json(cur);
 			res.end();
-		} else if(docs){
-			res.json(docs);
-			res.end();			
-		} else {
-			res.status(404);
-			res.json({error:'Not Found'});
-			res.end();
+			return;
 		}
-	});
+	}
+	//If DB is enabled, it may not be cached
+	if(!config.noDB){
+		event.findById(index, function(err, docs){
+			if(err){
+				console.log("Error: "+err);
+				res.status(500);
+				res.send('Error');
+				res.end();
+			} else if(docs){
+				res.json(docs);
+				res.end();			
+			} else {
+				res.status(404);
+				res.json({error:'Not Found'});
+				res.end();
+			}
+		});
+	} else {
+		//If there is no DB, and its not in memory, oops!
+		res.status(404);
+		rens.json({error:'Not found'});
+		res.end();
+	}
 };
 
 this.createEvent = function(req, res, io){
@@ -196,19 +250,22 @@ this.createEvent = function(req, res, io){
 	var newEvent = new event(req);
 	console.log("Event to be saved:");
 	console.log(newEvent);
-	newEvent.save(function(err){
-		if(err){
-			console.log("Error creating event: "+err);
-			res.status(500);
-			res.json({error: 'Error saving'});
-			res.end();
-		} else {
-			res.json({status:'success', id:newEvent._id});
-			res.end();
-			//Broadcast to clients?
-			io.sockets.emit('event', {'GID':newEvent.GID});
-		}
-	});
+	eventList.push(newEvent);
+	if(!config.noDB){
+		newEvent.save(function(err){
+			if(err){
+				console.log("Error creating event: "+err);
+				res.status(500);
+				res.json({error: 'Error saving'});
+				res.end();
+			} else {
+				res.json({status:'success', id:newEvent._id});
+				res.end();
+				//Broadcast to clients?
+				io.sockets.emit('event', {'GID':newEvent.GID});
+			}
+		});
+	}
 };
 
 
@@ -283,6 +340,18 @@ this.addComment = function(eid, req, res, io){
 };
 
 this.getLocation = function(id, res){
+	for(var i =0; i < locationList.length; i++){
+		var cur = locationList[i];
+		if(cur._id == id){
+			res.json(cur);
+			res.end();
+			return;
+		};
+	}
+	res.status(404);
+	res.json({error:'Not found'});
+	res.end();
+	/*
 	location.findById(id, function(err, docs){
 		if(err) {
 			console.log("Error getting location "+err);
@@ -296,9 +365,13 @@ this.getLocation = function(id, res){
 		}
 		res.end();
 	});
+	*/
 };
 
 this.listLocations = function(res){
+	res.json(locationList);
+	res.end();
+	/*
 	location.find({},['_id', 'name'], function(err, docs){
 		if(err){
 			console.log("Error listing locations "+err);
@@ -309,9 +382,23 @@ this.listLocations = function(res){
 		}
 		res.end();
 	});
+	*/
 };
 
 this.getContact = function(id, res){
+	for(var i =0; i < contactList.length; i++){
+		cur = contactList[i];
+		if(cur._id == id){
+			res.json(cur);
+			res.end();
+			return;
+		};
+	}
+	//Not found
+	res.status(404);
+	res.json({error:'Not found'});
+	res.end();
+	/*
 	contact.findById(id, function(err, docs){
 		if(err) {
 			console.log("Error getting contact "+err);
@@ -325,9 +412,13 @@ this.getContact = function(id, res){
 		}
 		res.end();
 	});
+	*/
 };
 
 this.listContacts = function(res){
+	res.json(contactList);
+	res.end();
+	/*
 	contact.find({},['_id', 'name'], function(err, docs){
 		if(err){
 			console.log("Error listing contacts "+err);
@@ -338,4 +429,5 @@ this.listContacts = function(res){
 		}
 		res.end();
 	});
+	*/
 };
