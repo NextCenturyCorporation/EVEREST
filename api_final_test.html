@@ -1,0 +1,238 @@
+  <!--
+ <!DOCTYPE html>         
+    
+	
+	CALL THIS FILE FROM WEB BROWSWER AS:
+	
+	http://localhost:8081/api_final_test.html
+	
+	  -->
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" 
+                    "http://www.w3.org/TR/html4/loose.dtd">
+     
+     <html>
+
+	  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript"></script>
+		  <script src="http://code.jquery.com/jquery-latest.js"></script>
+		   <!--
+       
+	  -->
+	  <link rel="stylesheet" href="http://code.jquery.com/qunit/git/qunit.css" type="text/css" media="screen" />
+         <script type="text/javascript" src="http://code.jquery.com/qunit/git/qunit.js"></script>
+		<script language="javascript">  //lack of end scrpit here
+
+ 	  //##############################################################################################################################################################################################################################################################################
+
+ 
+	   function jQuery_getButton() { 
+
+$.getJSON("http://localhost:8081/events/"+$("#event").val(),{john:"asdfsda"},					//$.getJSON("http://localhost:8080/events/0",{john:"asdfsda"},
+
+  function(data) {   // data returned from server
+  
+	//console.log(data[0]);
+	//  alert(data[0]);
+	  
+	  //  event zero is the first event returned
+	 $('#GID').empty().append("Event ID : " +data[0].GID)  
+	 $('#timestmp').empty().append("Time  : " +data[0].timestmp);
+	 $('#title').empty().append("TItle : " +data[0].title);
+	 $('#type').empty().append("Type  : " +data[0].type);
+	 $('#group').empty().append("Group  : " +data[0].group);
+	 $('#status').empty().append("Status  : " +data[0].status);
+	 $('#userID').empty().append("User ID  : " +data[0].userID);
+	 $('#description').empty().append("Description  : " +data[0].description);
+	 $('#radius').empty().append("Radius  : " +data[0].radius);
+	 $('#comments').empty().append("Comments : " +data[0].comments);
+	 $('#location').empty().append("Location  : " +data[0].location);
+	 $('#contact').empty().append("Contact  : " +data[0].contact);
+	  myData = JSON.stringify(data[0]);
+	  
+//document.write(myData);
+
+
+ if(data[0].GID == 0){
+test("testing event 0", function() {
+  ok( myData == JSON.stringify({"GID":0,"_id":"4fda1d7303ca976815000002","contact":"4fd8c807b55dece408000002","description":"Aah! Hes here!","location":"4fd8c807b55dece408000003","radius":10,"status":"Ongoing","title":"Edgardo!","type":"Emergency","timestmp":"2012-06-14T17:20:51.169Z"}), "check event0" );
+});} //end if
+
+ if(data[0].GID == 1){
+test("testing event 1", function() {
+  ok( myData == JSON.stringify({"GID":1,"title":"Creating Works","type":"Warning","location":"4fd8c807b55dece408000003","radius":50,"contact":"4fd8c807b55dece408000002","status":"Ongoing","description":"Uh-oh, creating new events works. This isnt good.","_id":"4fda2cc60abf40140f000005","timestmp":"2012-06-14T18:26:14.415Z"}), "check event1" );
+});} //end if	 
+ 
+  })// end getJSON
+         
+      } // end jQuery_get()
+	  
+	  //###############################################################################################################################################################################################################################################################################
+	  
+	     function jQuery_getEvent(arg) {  // end jQuery_get()
+
+	 //        events/$("#event").val();
+	   
+//$.getJSON("http://localhost:8080/events/0",{john:"asdfsda"},
+ipString ="http://localhost:8081/events/"+arg;
+$.getJSON(ipString,{john:"asdfsda"},
+
+  function(data) {
+  
+	//console.log(data[0]);
+	//  alert(data[0]);
+	  
+	  //  event zero is the first event returned
+	  
+	// $('#GID').empty().append("Event ID : " +data[0].GID)  
+	// $('#timestmp').empty().append("Time  : " +data[0].timestmp);
+	// $('#title').empty().append("TItle : " +data[0].title);
+	// $('#type').empty().append("Type  : " +data[0].type);
+	// $('#group').empty().append("Group  : " +data[0].group);
+	// $('#status').empty().append("Status  : " +data[0].status);
+	// $('#userID').empty().append("User ID  : " +data[0].userID);
+	// $('#description').empty().append("Description  : " +data[0].description);
+	// $('#radius').empty().append("Radius  : " +data[0].radius);
+	// $('#comments').empty().append("Comments : " +data[0].comments);
+	// $('#location').empty().append("Location  : " +data[0].location);
+	// $('#contact').empty().append("Contact  : " +data[0].contact);
+	 
+	  myData = JSON.stringify(data[0]);
+	  
+	  	module("Module A");
+
+//document.write(myData);
+ if(data[0].GID == 0){
+test("testing event 0", function() {
+  ok( myData == JSON.stringify({"GID":0,"_id":"4fda1d7303ca976815000002","contact":"4fd8c807b55dece408000002","description":"Aah! Hes here!","location":"4fd8c807b55dece408000003","radius":10,"status":"Ongoing","title":"Edgardo!","type":"Emergency","timestmp":"2012-06-14T17:20:51.169Z"}), "check event0" );
+});} //end if
+
+ if(data[0].GID == 1){
+test("testing event 1", function() {
+  ok( myData == JSON.stringify({"GID":1,"title":"Creating Works","type":"Warning","location":"4fd8c807b55dece408000003","radius":50,"contact":"4fd8c807b55dece408000002","status":"Ongoing","description":"Uh-oh, creating new events works. This isnt good.","_id":"4fda2cc60abf40140f000005","timestmp":"2012-06-14T18:26:14.415Z"}), "check event1" );
+});} //end if	 
+ 
+  })// end getJSON
+         
+      } // end jQuery_get()
+	  
+	  //#####################################################################################################################################################################################################
+	  
+	  function jQuery_getEvents(){
+	  jQuery_getEvent(0);
+	  jQuery_getEvent(1);
+	  }
+	  
+	  //#####################################################################################################################################################################################################
+    function checkIDs(){
+	  $.getJSON("http://localhost:8081/events/"+$("#event").val(),{john:"asdfsda"},					//$.getJSON("http://localhost:8080/events/0",{john:"asdfsda"},
+
+      function(data) {   // data returned from server
+  
+	  myData = JSON.stringify(data);	  //document.write(myData);
+
+		  test("checking all ids", function() {
+		  ok( myData == JSON.stringify([{"GID":0,"_id":"4fda1d7303ca976815000002"},{"GID":1,"_id":"4fda2cc60abf40140f000005"}]), "IDs match" );
+	      });
+
+      })// end getJSON
+         
+    } // check IDs()
+	  
+      //#####################################################################################################################################################################################################
+ 
+
+     </script >
+	 
+	 
+	Find An Event: <input type = "text" id= "event"/>
+	 <body>
+	 <button type="button" onclick="jQuery_getButton()">get event</button>
+	 </body>
+	 
+	 <!--
+	 get all events
+	 -->
+	 <body>
+	 <button type="button" onclick="jQuery_getEvents()">get all events</button>
+	 </body>
+	 
+	 <body>
+	 <button type="button" onclick="checkIDs()">check all ID's</button>
+	 </body>
+	 
+	 
+	 <div id="GID"> 	
+     Event ID :
+	 </div>
+	 
+	 
+	 
+	  <div id="timestmp"> 
+	  Time : 
+	 </div>
+
+	  <div id="title"> 	
+     Title :
+	 </div>
+	 
+	
+	  <div id="type"> 	
+	   Type:
+	 </div>
+	 
+	
+	  <div id="group"> 
+	   Group :
+	 </div>
+	 
+     
+	  <div id="status"> 
+	  Status :
+	 </div>
+	 
+     
+	  <div id="userID"> 	
+	  User ID :
+	 </div>
+	 
+     
+	  <div id="description"> 
+	  Description :
+	 </div>
+	 
+    
+	  <div id="radius"> 
+	   Radius :
+	 </div>
+	 
+     
+	  <div id="comments"> 	
+	  comments :
+	 </div>
+	 
+    
+	  <div id="location"> 	
+	   Location :
+	 </div>
+	 
+     
+	  <div id="contact">
+	 Contact : 
+	 </div>
+	 
+      <body>
+	
+  <h1 id="qunit-header">Centurion Project</h1>
+ <h2 id="qunit-banner"></h2>
+ <div id="qunit-testrunner-toolbar"></div>
+ <ol id="qunit-tests"></ol>
+ <div id="qunit-fixture">test markup, will be hidden</div>
+
+     
+      </body>
+	  </html>
+	  
+	  <!--
+         
+      
+	  -->
