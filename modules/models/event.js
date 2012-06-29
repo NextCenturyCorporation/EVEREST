@@ -247,6 +247,16 @@ this.getComments = function(index, res, io){
 	});
 };
 
+this.getOptions = function(index, res, io){
+	res.json({"Get Events": "/events" , "Get One Event":" events/Event_ID_# ",
+		"Post new event":"events/new","delete event (DEL)":"events/event_id_#","Get comments":"events/event_id_#/comments",
+		"post comments":"events/envent_id_#/comments",
+		"get a location":"events/location/event_id_#","Get all locations":"events/location/list",
+		"Get a contact":"events/contact/eventID_#","Get All Contacts":"events/contact/list","get options":"/options"});
+	res.end();
+};
+
+
 this.addComment = function(eid, req, res, io){
 	event.find({GID:eid}, ['comments','GID'], {sort: {timestamp: 1}}, function(err,docs){
 		if(err || docs.length == 0){

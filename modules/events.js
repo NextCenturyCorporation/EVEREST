@@ -95,4 +95,14 @@ this.load_mod = function(app, logger, io){
 		}
 		eventManager.listContacts(res);
 	});
+	
+	//Get all options for server
+	app.get('/options',function(req,res){
+		if(LOG){
+			logger.info("Request for all options");
+		}
+		eventManager.getOptions(req, res, io);
+	});
+	
+	
 };
