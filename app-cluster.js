@@ -8,7 +8,7 @@ var express = require('express'),
 	winston = require('winston'),
 	socketio = require('socket.io');
 
-var numCPUs = process.env.numThreads || require('os').cpus().length;
+var numThreads = process.env.numThreads || require('os').cpus().length;
 
 /**
  * Needed modules:
@@ -89,8 +89,9 @@ app.get('/', function(req, res){
  */
 var cluster = require('cluster');
 if(cluster.isMaster){
+	logger.info("Starting "+numThreads+" threads");
 	//Expand to all cores
-	for(var i = 0; i<numCPUs; i++)
+	for(var i = 0; i<numThreads; i++)
 		cluster.fork();
 } else {
 	app.listen((process.env.port || 8081), function(){
