@@ -170,9 +170,25 @@ if(config.noDB){
 		contactList = docs;
 	});
 	
-	
+	//TODO: Load events into cache
 }
 
+//General 404 error
+var send404 = function(res, err){
+	if(err){
+		console.log("Error: "+err);
+	}
+	res.status(404);
+	res.json({error: 'Not found'});
+	res.end();
+}
+
+//General 500 error
+var send500 = function(res){
+	res.status(500);
+	res.json({error:'Server error'});
+	res.end();
+}
 
 this.listEvents = function(res){
 	if(config.noDB){
@@ -181,10 +197,7 @@ this.listEvents = function(res){
 		var q = event.find({}, ['GID', 'timestmp']).limit(10);
 		q.execFind(function(err, docs){
 			if(err){
-				console.log("Error: "+err);
-				res.status(500);
-				res.send('Error');
-				res.end();
+				send500(res, err);
 			} else {
 				res.json(docs);
 				res.end();
@@ -196,17 +209,12 @@ this.listEvents = function(res){
 this.getEventGroup = function(index, res){
 	event.find({GID:index}, null, {sort: {timestamp: -1}}, function(err, docs){
 		if(err){
-			console.log("Error: "+err);
-			res.status(500);
-			res.send('Error');
-			res.end();
+			sned500(res, err);
 		} else if(docs.length > 0){
 			res.json(docs);
 			res.end();			
 		} else {
-			res.status(404);
-			res.json({error:'Not Found'});
-			res.end();
+			send404(res);
 		}
 	});
 };
@@ -224,24 +232,17 @@ this.getEvent = function(index, res){
 	if(!config.noDB){
 		event.findById(index, function(err, docs){
 			if(err){
-				console.log("Error: "+err);
-				res.status(500);
-				res.send('Error');
-				res.end();
+				send500(res,err);
 			} else if(docs){
 				res.json(docs);
 				res.end();			
 			} else {
-				res.status(404);
-				res.json({error:'Not Found'});
-				res.end();
+				send404(res);
 			}
 		});
 	} else {
 		//If there is no DB, and its not in memory, oops!
-		res.status(404);
-		rens.json({error:'Not found'});
-		res.end();
+		send404(res);
 	}
 };
 
@@ -254,10 +255,8 @@ this.createEvent = function(req, res, io){
 	if(!config.noDB){
 		newEvent.save(function(err){
 			if(err){
-				console.log("Error creating event: "+err);
-				res.status(500);
-				res.json({error: 'Error saving'});
-				res.end();
+				console.log("Error creating event");
+				send500(res,err);
 			} else {
 				res.json({status:'success', id:newEvent._id});
 				res.end();
@@ -272,10 +271,7 @@ this.createEvent = function(req, res, io){
 this.deleteEvent = function(id, res){
 	event.find({_id:id}, function(err, docs){
 		if(err || docs.longth == 0){
-			console.log("Error or no event "+err);
-			res.status(500);
-			res.json({error: 'Error'});
-			res.end();
+			send500(res,err);
 		} else {
 			for(cur in docs)
 				cur.remove();
@@ -286,22 +282,30 @@ this.deleteEvent = function(id, res){
 };
 
 this.getComments = function(index, res, io){
-	event.find({GID:index}, ['comments'], {sort: {timestamp: -1}}, function(err, docs){
-		if(err){
-			console.log("Error: "+err);
-			res.status(500);
-			res.send('Error');
+	for(var i =0; i < eventList.length; i++){
+		var cur = eventList[i];
+		if(cur.GID == id){
+			var newComment = new comment(req);
+			cur.comments.push(newComment);
+			res.json({status:'OK'});
 			res.end();
-		} else if(docs.length > 0){
-			res.json(docs[0].comments);
-			//io.sockets.emit('comment', {'GID':docs[0].GID});
-			res.end();			
-		} else {
-			res.status(404);
-			res.json({error:'Not Found'});
-			res.end();
-		}
-	});
+			io.sockets.emit('comment', {'GID':docs[0].GID, 'id':docs[0]._id});
+			return;
+		};
+	}
+	if(!config.noDB){
+		event.find({GID:index}, ['comments'], {sort: {timestamp: -1}}, function(err, docs){
+			if(err){
+				sned500(res,err);
+			} else if(docs.length > 0){
+				res.json(docs[0].comments);
+				//io.sockets.emit('comment', {'GID':docs[0].GID});
+				res.end();			
+			} else {
+				send404(res);
+			}
+		});
+	}
 };
 
 this.getOptions = function(index, res, io){
@@ -315,28 +319,38 @@ this.getOptions = function(index, res, io){
 
 
 this.addComment = function(eid, req, res, io){
-	event.find({GID:eid}, ['comments','GID'], {sort: {timestamp: 1}}, function(err,docs){
-		if(err || docs.length == 0){
-			console.log("Error or no event: "+err);
-			res.status(500);
-			res.json({error: 'Error'});
-			res.end();
-		} else {
+	for(var i =0; i < eventList.length; i++){
+		var cur = eventList[i];
+		if(cur.GID == id){
 			var newComment = new comment(req);
-			docs[0].comments.push(newComment);
-			docs[0].save(function(err){
-				if(err){
-					res.status(500);
-					res.json({error: 'Error'});
-					res.end();
-				} else {
-					res.json({status: 'OK'});
-					res.end();
-					io.sockets.emit('comment', {'GID':docs[0].GID, 'id':docs[0]._id});
-				}
-			});
+			cur.comments.push(newComment);
+			res.json({status:'OK'});
+			res.end();
+			io.sockets.emit('comment', {'GID':docs[0].GID, 'id':docs[0]._id});
+			return;
 		};
-	});
+	}
+	if(!config.noDB){
+		event.find({GID:eid}, ['comments','GID'], {sort: {timestamp: 1}}, function(err,docs){
+			if(err || docs.length == 0){
+				send500(res,err);
+			} else {
+				var newComment = new comment(req);
+				docs[0].comments.push(newComment);
+				docs[0].save(function(err){
+					if(err){
+						send500(res,err);
+					} else {
+						res.json({status: 'OK'});
+						res.end();
+						io.sockets.emit('comment', {'GID':docs[0].GID, 'id':docs[0]._id});
+					}
+				});
+			};
+		});
+	} else {
+		
+	}
 };
 
 this.getLocation = function(id, res){
@@ -348,9 +362,7 @@ this.getLocation = function(id, res){
 			return;
 		};
 	}
-	res.status(404);
-	res.json({error:'Not found'});
-	res.end();
+	send404(res);
 	/*
 	location.findById(id, function(err, docs){
 		if(err) {
@@ -395,9 +407,7 @@ this.getContact = function(id, res){
 		};
 	}
 	//Not found
-	res.status(404);
-	res.json({error:'Not found'});
-	res.end();
+	send404(res);
 	/*
 	contact.findById(id, function(err, docs){
 		if(err) {
