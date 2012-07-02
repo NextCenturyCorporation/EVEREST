@@ -8,7 +8,7 @@ var express = require('express'),
 	winston = require('winston'),
 	socketio = require('socket.io');
 
-var numCPUs = require('os').cpus().length;
+var numCPUs = process.env.numThreads || require('os').cpus().length;
 
 /**
  * Needed modules:
