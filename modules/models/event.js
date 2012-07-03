@@ -243,7 +243,7 @@ this.getEvent = function(index, res){
 	} else {
 		//If there is no DB, and its not in memory, oops!
 		send404(res);
-	}
+	};
 };
 
 this.createEvent = function(req, res, io){
@@ -251,7 +251,8 @@ this.createEvent = function(req, res, io){
 	var newEvent = new event(req);
 	console.log("Event to be saved:");
 	console.log(newEvent);
-	eventList.push(newEvent);
+	//Insert at the beginning of the list
+	eventList.splice(0,0,newEvent);
 	if(!config.noDB){
 		newEvent.save(function(err){
 			if(err){
@@ -264,48 +265,63 @@ this.createEvent = function(req, res, io){
 				io.sockets.emit('event', {'GID':newEvent.GID});
 			}
 		});
-	}
+	};
 };
 
 
 this.deleteEvent = function(id, res){
-	event.find({_id:id}, function(err, docs){
-		if(err || docs.longth == 0){
-			send500(res,err);
-		} else {
-			for(cur in docs)
-				cur.remove();
-			res.json({status:'OK'});
+	for(var i = 0; i<eventList.length; i++){
+		var cur = eventList[i];
+		if(cur._id == id){
+			eventList.splice(i,1);
+			res.send({status:'OK'});
 			res.end();
-		}
-	});
+			return;
+		};
+	}
+	if(!config.noDB){
+		event.find({_id:id}, function(err, docs){
+			if(err || docs.longth == 0){
+				send500(res,err);
+			} else {
+				for(cur in docs)
+					cur.remove();
+				res.json({status:'OK'});
+				res.end();
+			};
+		});
+	} else {
+		send404(res);
+	}
 };
 
 this.getComments = function(index, res, io){
 	for(var i =0; i < eventList.length; i++){
 		var cur = eventList[i];
-		if(cur.GID == id){
+		if(cur._id == id){
 			var newComment = new comment(req);
 			cur.comments.push(newComment);
 			res.json({status:'OK'});
 			res.end();
-			io.sockets.emit('comment', {'GID':docs[0].GID, 'id':docs[0]._id});
+			io.sockets.emit('comment', {'id':docs[0]._id});
 			return;
 		};
-	}
+	};
 	if(!config.noDB){
-		event.find({GID:index}, ['comments'], {sort: {timestamp: -1}}, function(err, docs){
+		event.find({_id:index}, ['comments'], {sort: {timestamp: -1}}, function(err, docs){
 			if(err){
-				sned500(res,err);
+				send500(res,err);
 			} else if(docs.length > 0){
 				res.json(docs[0].comments);
 				//io.sockets.emit('comment', {'GID':docs[0].GID});
 				res.end();			
 			} else {
 				send404(res);
-			}
+			};
 		});
-	}
+	} else {
+		send404(res);
+	};
 };
 
 this.getOptions = function(index, res, io){
@@ -318,20 +334,20 @@ this.getOptions = function(index, res, io){
 };
 
 
-this.addComment = function(eid, req, res, io){
+this.addComment = function(id, req, res, io){
 	for(var i =0; i < eventList.length; i++){
 		var cur = eventList[i];
-		if(cur.GID == id){
+		if(cur._id == id){
 			var newComment = new comment(req);
 			cur.comments.push(newComment);
 			res.json({status:'OK'});
 			res.end();
-			io.sockets.emit('comment', {'GID':docs[0].GID, 'id':docs[0]._id});
+			io.sockets.emit('comment', {'id':docs[0]._id});
 			return;
 		};
 	}
 	if(!config.noDB){
-		event.find({GID:eid}, ['comments','GID'], {sort: {timestamp: 1}}, function(err,docs){
+		event.find({_id:id}, ['comments','GID'], {sort: {timestamp: 1}}, function(err,docs){
 			if(err || docs.length == 0){
 				send500(res,err);
 			} else {
@@ -343,14 +359,14 @@ this.addComment = function(eid, req, res, io){
 					} else {
 						res.json({status: 'OK'});
 						res.end();
-						io.sockets.emit('comment', {'GID':docs[0].GID, 'id':docs[0]._id});
+						io.sockets.emit('comment', {'id':docs[0]._id});
 					}
 				});
 			};
 		});
 	} else {
-		
-	}
+		send404(res);
+	};
 };
 
 this.getLocation = function(id, res){

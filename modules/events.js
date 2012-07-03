@@ -53,14 +53,14 @@ this.load_mod = function(app, logger, io){
 	
 	
 	//Comments!!
-	app.get('/events/:id([0-9]+)/comments',function(req,res){
+	app.get('/events/:id([0-9a-f]+)/comments',function(req,res){
 		if(LOG){
 			logger.info("Request for comments of "+req.params.id);
 		}
 		eventManager.getComments(req.params.id, res, io);
 	});
 	
-	app.post('/events/:id([0-9]+)/comments', function(req,res){
+	app.post('/events/:id([0-9a-f]+)/comments', function(req,res){
 		eventManager.addComment(req.params.id, req.body, res, io);
 	});
 	

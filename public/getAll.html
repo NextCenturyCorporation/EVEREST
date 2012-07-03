@@ -22,7 +22,7 @@ socket.on('event', function(data){
 socket.on('comment', function(data){
 	//alert("New comment!");
 	console.log(data);
-	getComments(data.GID, data.id, null);
+	getComments(data.id, null);
 });
 </script>
 </head>
@@ -36,7 +36,7 @@ socket.on('comment', function(data){
 </div>
 
 <script>
-getLocation = function(loc, id, GID){
+getLocation = function(loc, id){
 	var map;
 	$.getJSON('/events/location/'+loc, function(data){
 		$("#location"+id).append('<tr><td>Location name:</td><td>'+data.name+'</td></tr>');
@@ -54,7 +54,7 @@ getLocation = function(loc, id, GID){
 			lng: data.longitude,
 			title: data.name
 		});
-		getComments(GID, id, map);
+		getComments(id, map);
 	});
 };
 
@@ -66,8 +66,8 @@ getContact = function(cont, id){
 	});
 };
 
-getComments = function(GID, id, map){
-	$.getJSON('/events/'+GID+'/comments', function(data){
+getComments = function(id, map){
+	$.getJSON('/events/'+id+'/comments', function(data){
 		$("#comment"+id).empty();
 		$("#comment"+id).append('<b>Comments:</b><br />');
 		$.each(data, function(i, item) {
@@ -103,7 +103,7 @@ dispEvent = function(data){
 	$("#"+data._id).append('<tr><td colspan="2" id="contact'+data._id+'"</td></tr>');
 	$("#"+data._id).append('<tr><td colspan="2" id="comment'+data._id+'"></td></tr>');
 	$("#out").append('<br /><br />');
-	getLocation(data.location, data._id, data.GID);
+	getLocation(data.location, data._id);
 	getContact(data.contact, data._id);
 };
 
