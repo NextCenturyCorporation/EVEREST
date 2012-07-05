@@ -19,6 +19,7 @@ var numThreads = process.env.numThreads || require('os').cpus().length;
 var app = module.exports = express.createServer();
 //Use Socket.IO
 var io = socketio.listen(app);
+io.set('log level', 1);
 
 //Load and set up the logger
 var logger = new (winston.Logger)({
