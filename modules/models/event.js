@@ -127,7 +127,7 @@ if(config.noDB){
 	newLoc.radius = 50;
 	newLoc.latitude = 39.168051;
 	newLoc.longitude = -76.809801;
-	locationList.push(location);
+	locationList.push(newLoc);
 	/*
 	newLoc.save(function(err){
 		if(err) console.log("Error: "+err);
@@ -160,17 +160,38 @@ if(config.noDB){
 } else {
 	console.log('Loading cache');
 	//Fill the cache arrays from the DB
-	location.find({}, function(error, docs){
-		console.log('Loaded locations');
-		locationList = docs;
+	location.find({}, function(err, docs){
+		if(err){
+			console.log('Error loading locations:');
+			console.log(err);
+		} else {
+			console.log('Loaded locations');
+			locationList = docs;
+		}
 	});
 	
 	contact.find({}, function(err, docs){
-		console.log('Loaded contacts');
-		contactList = docs;
+		if(err){
+			console.log('Error loading contacts:');
+			console.log(err);
+		} else {
+			console.log('Loaded contacts');
+			contactList = docs;
+		}
 	});
 	
 	//TODO: Load events into cache
+	event.find({},[	'GID', 'timestmp', 'title', 'type', 'group', 'status',
+	               	'userID','description', 'radius',
+	               	'comments', 'location', 'contact']).limit(10).exec(function(err, docs){
+		if(err){
+			console.log('Error loading events:');
+			console.log(err);
+		} else {
+			console.log('Loaded events');
+			eventList = docs;
+		}
+	});
 }
 
 //General 404 error
@@ -192,10 +213,18 @@ var send500 = function(res){
 
 this.listEvents = function(res){
 	if(config.noDB){
-		
+		var list = [];
+		for(var i = 0; i < eventList.length; i++){
+			var tmp = {};
+			tmp._id = eventList[i]._id;
+			tmp.GID = eventList[i].GID;
+			tmp.timestmp = eventList[i].timestmp;
+			list.push(tmp);
+		}
+		res.json(list);
+		res.end();
 	} else {
-		var q = event.find({}, ['GID', 'timestmp']).limit(10);
-		q.execFind(function(err, docs){
+		event.find({}, ['GID', 'timestmp']).limit(10).execFind(function(err, docs){
 			if(err){
 				send500(res, err);
 			} else {
@@ -207,21 +236,40 @@ this.listEvents = function(res){
 };
 
 this.getEventGroup = function(index, res){
-	event.find({GID:index}, null, {sort: {timestamp: -1}}, function(err, docs){
-		if(err){
-			sned500(res, err);
-		} else if(docs.length > 0){
-			res.json(docs);
-			res.end();			
+	//While using a database, it is much easier and probably faster to just let the DB handle it
+	if(!config.noDB){
+		event.find({GID:index}, null, {sort: {timestamp: -1}}, function(err, docs){
+			if(err){
+				send500(res, err);
+			} else if(docs.length > 0){
+				res.json(docs);
+				res.end();			
+			} else {
+				send404(res);
+			}
+		});
+	} else {
+		var group = [];
+		for(var i =0; i < eventList.length; i++){
+			var cur = eventList[i];
+			if(cur.GID == index){
+				group.splice(0,0,cur);
+			}
+		}
+		if(group.length > 0){
+			res.json(group);
+			res.end();
 		} else {
+			//Not found
 			send404(res);
 		}
-	});
+	}
 };
 
 this.getEvent = function(index, res){
-	for(cur in eventList){
-		if(cur._id == id){
+	for(var i =0; i < eventList.length; i++){
+		var cur = eventList[i];
+		if(cur._id == index){
 			console.log('Cached event');
 			res.json(cur);
 			res.end();
@@ -298,12 +346,9 @@ this.deleteEvent = function(id, res){
 this.getComments = function(index, res, io){
 	for(var i =0; i < eventList.length; i++){
 		var cur = eventList[i];
-		if(cur._id == id){
-			var newComment = new comment(req);
-			cur.comments.push(newComment);
-			res.json({status:'OK'});
+		if(cur._id == index){
+			res.json(cur.comments);
 			res.end();
-			io.sockets.emit('comment', {'id':docs[0]._id});
 			return;
 		};
 	};
@@ -343,6 +388,11 @@ this.addComment = function(id, req, res, io){
 			res.json({status:'OK'});
 			res.end();
 			io.sockets.emit('comment', {'id':docs[0]._id});
+			if(!config.noDB){
+				cur.save(function(err){
+					console.log("Error: "+err);
+				});
+			}
 			return;
 		};
 	}
