@@ -12,7 +12,7 @@ $(document).ready(function(){
 	$.getJSON("/events", function(data) {
 		console.log(data);
 		$.each(data, function(i, item) {
-			$('#eventID').append('<option value="'+item.GID+'">' +item.GID+ '</option>');
+			$('#eventID').append('<option value="'+item._id+'">' +item._id+ '</option>');
 		});
 	});
 });
