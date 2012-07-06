@@ -310,9 +310,13 @@ this.createEvent = function(req, res, io){
 				res.json({status:'success', id:newEvent._id});
 				res.end();
 				//Broadcast to clients?
-				io.sockets.emit('event', {'GID':newEvent.GID});
+				io.sockets.emit('event', {'GID':newEvent.GID, 'id':newEvent._id});
 			}
 		});
+	} else {
+		res.json({status:'ok'});
+		res.end();
+		io.sockets.emit('event', {'GID':newEvent.GID, 'id':newEvent._id});
 	};
 };
 
@@ -387,7 +391,7 @@ this.addComment = function(id, req, res, io){
 			cur.comments.push(newComment);
 			res.json({status:'OK'});
 			res.end();
-			io.sockets.emit('comment', {'id':docs[0]._id});
+			io.sockets.emit('comment', {'id':cur._id});
 			if(!config.noDB){
 				cur.save(function(err){
 					console.log("Error: "+err);
