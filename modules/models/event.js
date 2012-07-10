@@ -9,13 +9,19 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var config = require('../../config');
+var winston = require('winston');
 
 //Connect to the database
 if(!config.noDB){
 	mongoose.connect('mongodb://'+config.db_host+':'+config.db_port+'/'+config.db_collection);
 };
-//Shorter name for the connection
-//var db = mongoose.connection;
+
+//Load and set up the logger
+var logger = new (winston.Logger)({
+	//Make it log to both the console and a file 
+	transports : [new (winston.transports.Console)(),
+	              new (winston.transports.File)({filename: 'logs/general.log'})],
+});
 
 /**
  * Define the models
@@ -71,6 +77,19 @@ var EventSchema = new Schema({
 	contact		:	ObjectId
 });
 
+var ReportSchema = new Schema({
+	description	:	String,
+	type		:	{type: String, enum: ['Emergency', 'Warning', 'Weather', 'Traffic'] },
+	location	:	ObjectId,
+	submitter	:	ObjectId,
+	timestmp	:	{type: Date, default: Date.now},
+	reviewer	:	ObjectId,
+	status		:	{type: String, enum: ['Valid', 'Invalid']},
+	reviewComment	:	String,
+	reviewTimestmp	:	Date,
+	event		:	ObjectId
+});
+
 /**
  * Set the models up
  */
@@ -114,12 +133,12 @@ if(config.noDB){
 	contactList.push(newContact);
 	/*
 	newContact.save(function(err){
-		if(err) console.log("Error: "+err);
+		if(err) logger.info("Error: "+err);
 	});
 	*/
 	
-	console.log("Contact:");
-	console.log(newContact);
+	logger.info("Contact:");
+	logger.info(newContact);
 	
 	//Initial Location
 	var newLoc = new location();
@@ -130,12 +149,12 @@ if(config.noDB){
 	locationList.push(newLoc);
 	/*
 	newLoc.save(function(err){
-		if(err) console.log("Error: "+err);
+		if(err) logger.info("Error: "+err);
 	});
 	*/
 	
-	console.log("Location:");
-	console.log(newLoc);
+	logger.info("Location:");
+	logger.info(newLoc);
 	
 	//Initial Event
 	var newEvent = new event();
@@ -151,31 +170,31 @@ if(config.noDB){
 	eventList.push(newEvent);
 	/*
 	newEvent.save(function(err){
-		if(err) console.log("Error: "+err);
+		if(err) logger.info("Error: "+err);
 	});
 	*/
 	
-	console.log("Event:");
-	console.log(newEvent);
+	logger.info("Event:");
+	logger.info(newEvent);
 } else {
-	console.log('Loading cache');
+	logger.info('Loading cache');
 	//Fill the cache arrays from the DB
 	location.find({}, function(err, docs){
 		if(err){
-			console.log('Error loading locations:');
-			console.log(err);
+			logger.info('Error loading locations:');
+			logger.info(err);
 		} else {
-			console.log('Loaded locations');
+			logger.info('Loaded locations');
 			locationList = docs;
 		}
 	});
 	
 	contact.find({}, function(err, docs){
 		if(err){
-			console.log('Error loading contacts:');
-			console.log(err);
+			logger.info('Error loading contacts:');
+			logger.info(err);
 		} else {
-			console.log('Loaded contacts');
+			logger.info('Loaded contacts');
 			contactList = docs;
 		}
 	});
@@ -185,10 +204,10 @@ if(config.noDB){
 	               	'userID','description', 'radius',
 	               	'comments', 'location', 'contact']).limit(10).exec(function(err, docs){
 		if(err){
-			console.log('Error loading events:');
-			console.log(err);
+			logger.error('Error loading events:');
+			logger.error(err);
 		} else {
-			console.log('Loaded events');
+			logger.info('Loaded events');
 			eventList = docs;
 		}
 	});
@@ -197,7 +216,7 @@ if(config.noDB){
 //General 404 error
 var send404 = function(res, err){
 	if(err){
-		console.log("Error: "+err);
+		logger.error("Error: ",err);
 	}
 	res.status(404);
 	res.json({error: 'Not found'});
@@ -226,7 +245,8 @@ this.listEvents = function(res){
 	} else {
 		event.find({}, ['GID', 'timestmp']).limit(10).execFind(function(err, docs){
 			if(err){
-				send500(res, err);
+				logger.error("Error listing events",err);
+				send500(res);
 			} else {
 				res.json(docs);
 				res.end();
@@ -240,7 +260,8 @@ this.getEventGroup = function(index, res){
 	if(!config.noDB){
 		event.find({GID:index}, null, {sort: {timestamp: -1}}, function(err, docs){
 			if(err){
-				send500(res, err);
+				logger.error("Error getting event group",err);
+				send500(res);
 			} else if(docs.length > 0){
 				res.json(docs);
 				res.end();			
@@ -270,7 +291,7 @@ this.getEvent = function(index, res){
 	for(var i =0; i < eventList.length; i++){
 		var cur = eventList[i];
 		if(cur._id == index){
-			console.log('Cached event');
+			logger.info('Cached event');
 			res.json(cur);
 			res.end();
 			return;
@@ -280,7 +301,8 @@ this.getEvent = function(index, res){
 	if(!config.noDB){
 		event.findById(index, function(err, docs){
 			if(err){
-				send500(res,err);
+				logger.error('Error getting event',err);
+				send500(res);
 			} else if(docs){
 				res.json(docs);
 				res.end();			
@@ -295,17 +317,17 @@ this.getEvent = function(index, res){
 };
 
 this.createEvent = function(req, res, io){
-	console.log(req);
+	logger.info(req);
 	var newEvent = new event(req);
-	console.log("Event to be saved:");
-	console.log(newEvent);
+	logger.info("Event to be saved:");
+	logger.info(newEvent);
 	//Insert at the beginning of the list
 	eventList.splice(0,0,newEvent);
 	if(!config.noDB){
 		newEvent.save(function(err){
 			if(err){
-				console.log("Error creating event");
-				send500(res,err);
+				logger.error("Error creating event", err);
+				send500(res);
 			} else {
 				res.json({status:'success', id:newEvent._id});
 				res.end();
@@ -334,7 +356,8 @@ this.deleteEvent = function(id, res){
 	if(!config.noDB){
 		event.find({_id:id}, function(err, docs){
 			if(err || docs.longth == 0){
-				send500(res,err);
+				logger.error('Error deleting event', err);
+				send500(res);
 			} else {
 				for(cur in docs)
 					cur.remove();
@@ -359,7 +382,8 @@ this.getComments = function(index, res, io){
 	if(!config.noDB){
 		event.find({_id:index}, ['comments'], {sort: {timestamp: -1}}, function(err, docs){
 			if(err){
-				send500(res,err);
+				logger.error('Error getting comments',err);
+				send500(res);
 			} else if(docs.length > 0){
 				res.json(docs[0].comments);
 				//io.sockets.emit('comment', {'GID':docs[0].GID});
@@ -394,7 +418,7 @@ this.addComment = function(id, req, res, io){
 			io.sockets.emit('comment', {'id':cur._id});
 			if(!config.noDB){
 				cur.save(function(err){
-					console.log("Error: "+err);
+					logger.info("Error: "+err);
 				});
 			}
 			return;
@@ -403,7 +427,8 @@ this.addComment = function(id, req, res, io){
 	if(!config.noDB){
 		event.find({_id:id}, ['comments','GID'], {sort: {timestamp: 1}}, function(err,docs){
 			if(err || docs.length == 0){
-				send500(res,err);
+				logger.error('Error adding comment',err);
+				send500(res);
 			} else {
 				var newComment = new comment(req);
 				docs[0].comments.push(newComment);
@@ -436,7 +461,7 @@ this.getLocation = function(id, res){
 	/*
 	location.findById(id, function(err, docs){
 		if(err) {
-			console.log("Error getting location "+err);
+			logger.info("Error getting location "+err);
 			res.status(500);
 			res.json({error: 'Error'});
 		} else if(docs) {
@@ -456,7 +481,7 @@ this.listLocations = function(res){
 	/*
 	location.find({},['_id', 'name'], function(err, docs){
 		if(err){
-			console.log("Error listing locations "+err);
+			logger.info("Error listing locations "+err);
 			res.status(500);
 			res.json({error: 'Error'});
 		} else {
@@ -481,7 +506,7 @@ this.getContact = function(id, res){
 	/*
 	contact.findById(id, function(err, docs){
 		if(err) {
-			console.log("Error getting contact "+err);
+			logger.info("Error getting contact "+err);
 			res.status(500);
 			res.json({error: 'Error'});
 		} else if(docs) {
@@ -501,7 +526,7 @@ this.listContacts = function(res){
 	/*
 	contact.find({},['_id', 'name'], function(err, docs){
 		if(err){
-			console.log("Error listing contacts "+err);
+			logger.info("Error listing contacts "+err);
 			res.status(500);
 			res.json({error: 'Error'});
 		} else {
