@@ -6,7 +6,8 @@
 var express = require('express'),
 	fs = require("fs"),
 	winston = require('winston'),
-	socketio = require('socket.io');
+	socketio = require('socket.io'),
+	mongoose = require('mongoose');
 
 var numThreads = process.env.numThreads || require('os').cpus().length;
 

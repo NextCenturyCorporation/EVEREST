@@ -7,7 +7,8 @@ var express = require('express'),
 	fs = require("fs"),
 	winston = require('winston'),
 	socketio = require('socket.io'),
-	config = require('./config');
+	config = require('./config'),
+	mongoose = require('mongoose');
 
 var app = module.exports = express.createServer();
 //Use Socket.IO
