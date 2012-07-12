@@ -66,15 +66,15 @@ var EventSchema = new Schema({
 	GID			:	Number,
 	timestmp	:	{type: Date, default: Date.now},
 	title		:	String,
-	type		:	{type: String, enum: ['Emergency', 'Warning', 'Weather', 'Traffic'] },
-	group		:	{type: Number, select: false},
+	type		:	{type: String, enum: config.eventTypes },
+	group		:	Number,
 	status		:	{type: String, enum: ['Ongoing', 'Closed']},
 	userID		:	ObjectId,
 	description	:	String,
 	radius		:	Number,
 	comments	:	{type: [CommentSchema], select: false},
-	location	:	ObjectId,
-	contact		:	ObjectId
+	location	:	{type: ObjectId, ref: 'Location'},
+	contact		:	{type: ObjectId, ref: 'Contacts'}
 });
 
 var ReportSchema = new Schema({
@@ -175,7 +175,7 @@ if(config.noDB){
 	*/
 	
 	logger.info("Event:");
-	logger.info(newEvent);
+	console.log(newEvent);
 } else {
 	logger.info('Loading cache');
 	//Fill the cache arrays from the DB
@@ -258,7 +258,7 @@ this.listEvents = function(res){
 this.getEventGroup = function(index, res){
 	//While using a database, it is much easier and probably faster to just let the DB handle it
 	if(!config.noDB){
-		event.find({GID:index}, null, {sort: {timestamp: -1}}, function(err, docs){
+		event.find({GID:index}, null, {sort: {timestamp: -1}}).populate('contact').populate('location').exec(function(err, docs){
 			if(err){
 				logger.error("Error getting event group",err);
 				send500(res);
@@ -274,7 +274,27 @@ this.getEventGroup = function(index, res){
 		for(var i =0; i < eventList.length; i++){
 			var cur = eventList[i];
 			if(cur.GID == index){
-				group.splice(0,0,cur);
+				var tmp = {};
+				for(e in cur.toObject()){
+					tmp[e] = cur[e];
+				}
+				//Embed the contact
+				for(var j=0; j < contactList.length; j++){
+					if(contactList[j]._id == cur.contact){
+						tmp['contact'] = contactList[j];
+						break;
+					}
+				}
+				//Embed the location
+				for(var j=0; j < locationList.length; j++){
+					if(contactList[j]._id == cur.contact){
+						tmp['location'] = locationList[j];
+						break;
+					}
+				}
+				//Dont send comments
+				tmp.comments = [];
+				group.splice(0,0,tmp);
 			}
 		}
 		if(group.length > 0){
@@ -288,18 +308,9 @@ this.getEventGroup = function(index, res){
 };
 
 this.getEvent = function(index, res){
-	for(var i =0; i < eventList.length; i++){
-		var cur = eventList[i];
-		if(cur._id == index){
-			logger.info('Cached event');
-			res.json(cur);
-			res.end();
-			return;
-		}
-	}
 	//If DB is enabled, it may not be cached
 	if(!config.noDB){
-		event.findById(index, function(err, docs){
+		event.findById(index).populate('location').populate('contact').exec(function(err, docs){
 			if(err){
 				logger.error('Error getting event',err);
 				send500(res);
@@ -311,6 +322,35 @@ this.getEvent = function(index, res){
 			}
 		});
 	} else {
+		for(var i =0; i < eventList.length; i++){
+			var cur = eventList[i];
+			if(cur._id == index){
+				logger.info('Cached event');
+				var tmp = {};
+				for(e in cur.toObject()){
+					tmp[e] = cur[e];
+				}
+				//Embed the contact
+				for(var j=0; j < contactList.length; j++){
+					if(contactList[j]._id == cur.contact){
+						tmp['contact'] = contactList[j];
+						break;
+					}
+				}
+				//Embed the location
+				for(var j=0; j < locationList.length; j++){
+					if(contactList[j]._id == cur.contact){
+						tmp['location'] = locationList[j];
+						break;
+					}
+				}
+				//Dont send comments
+				tmp.comments = [];
+				res.json(tmp);
+				res.end();
+				return;
+			}
+		}
 		//If there is no DB, and its not in memory, oops!
 		send404(res);
 	};
@@ -490,6 +530,25 @@ this.listLocations = function(res){
 		res.end();
 	});
 	*/
+};
+
+this.createLocation = function(data, res){
+	var newLoc = new locaiton(data);
+	locationList.push(newLoc);
+	if(!config.noDB){
+		newLoc.save(function(err){
+			if(err){
+				logger.error('Error saving location', err);
+				send500(res);
+			} else {
+				res.json({status:'ok'});
+				res.end();
+			}
+		});
+	} else {
+		res.json({status:'ok'});
+		res.end();
+	}
 };
 
 this.getContact = function(id, res){

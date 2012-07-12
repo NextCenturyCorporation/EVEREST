@@ -36,36 +36,6 @@ socket.on('comment', function(data){
 </div>
 
 <script>
-getLocation = function(loc, id){
-	var map;
-	$.getJSON('/events/location/'+loc, function(data){
-		$("#location"+id).append('<tr><td>Location name:</td><td>'+data.name+'</td></tr>');
-		$("#location"+id).append('<tr><td>Location latitude:</td><td>'+data.latitude+'</td></tr>');
-		$("#location"+id).append('<tr><td>Location longitude:</td><td>'+data.longitude+'</td></tr>');
-		map = new GMaps({
-			div : '#map'+id,
-			lat : data.latitude,
-			lng : data.longitude,
-			height: '300px',
-			zoom: 10
-		});
-		map.addMarker({
-			lat: data.latitude,
-			lng: data.longitude,
-			title: data.name
-		});
-		getComments(id, map);
-	});
-};
-
-getContact = function(cont, id){
-	$.getJSON('/events/contact/'+cont, function(data){
-		$("#contact"+id).append('<tr><td>Contact name:</td><td>'+data.name+'</td></tr>');
-		$("#contact"+id).append('<tr><td>Contact Phone:</td><td>'+data.phone+'</td></tr>');
-		$("#contact"+id).append('<tr><td>Contact Email:</td><td>'+data.email+'</td></tr>');
-	});
-};
-
 getComments = function(id, map){
 	$.getJSON('/events/'+id+'/comments', function(data){
 		$("#comment"+id).empty();
@@ -90,7 +60,7 @@ getComments = function(id, map){
 };
 
 dispEvent = function(data){
-	$("#out").append('<table border="1" width="500" id="'+data._id+'"></table>');
+	$("#out").append('<table border="1" width="700" id="'+data._id+'"></table>');
 	$("#"+data._id).append('<tr><td>Event GID:</td><td>'+data.GID+'</td></tr>');
 	$("#"+data._id).append('<tr><td>Event Time:</td><td>'+data.timestmp+'</td></tr>');
 	$("#"+data._id).append('<tr><td>Event Title:</td><td>'+data.title+'</td></tr>');
@@ -98,13 +68,28 @@ dispEvent = function(data){
 	$("#"+data._id).append('<tr><td>Event Status:</td><td>'+data.status+'</td></tr>');
 	$("#"+data._id).append('<tr><td>Event Description:</td><td>'+data.description+'</td></tr>');
 	$("#"+data._id).append('<tr><td>Event Radius:</td><td>'+data.radius+'</td></tr>');
-	$("#"+data._id).append('<tr><td colspan="2" id="location'+data._id+'"></td></tr>');
+    $("#"+data._id).append('<tr><td>Location name:</td><td>'+data.location.name+'</td></tr>');
+	$("#"+data._id).append('<tr><td>Location latitude:</td><td>'+data.location.latitude+'</td></tr>');
+	$("#"+data._id).append('<tr><td>Location longitude:</td><td>'+data.location.longitude+'</td></tr>');
+	$("#"+data._id).append('<tr><td>Contact name:</td><td>'+data.contact.name+'</td></tr>');
+	$("#"+data._id).append('<tr><td>Contact Phone:</td><td>'+data.contact.phone+'</td></tr>');
+	$("#"+data._id).append('<tr><td>Contact Email:</td><td>'+data.contact.email+'</td></tr>');
 	$("#"+data._id).append('<tr><td colspan="2"><div id="map'+data._id+'"></div></td></tr>');
-	$("#"+data._id).append('<tr><td colspan="2" id="contact'+data._id+'"</td></tr>');
 	$("#"+data._id).append('<tr><td colspan="2" id="comment'+data._id+'"></td></tr>');
 	$("#out").append('<br /><br />');
-	getLocation(data.location, data._id);
-	getContact(data.contact, data._id);
+	var map = new GMaps({
+			div : '#map'+data._id,
+			lat : data.location.latitude,
+			lng : data.location.longitude,
+			height: '500px',
+			zoom: 13
+		});
+		map.addMarker({
+			lat: data.location.latitude,
+			lng: data.location.longitude,
+			title: data.location.name
+		});
+	getComments(data._id, map);
 };
 
 getall = function(){

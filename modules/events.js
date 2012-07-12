@@ -34,7 +34,7 @@ this.load_mod = function(app, logger, io){
 	});
 	
 	//Lets try to get and store new events
-	app.post('/events/new', function(req, res){
+	app.post('/events/?', function(req, res){
 		if(LOG){
 			logger.info("Receiving new event");
 			logger.info(req.body);
@@ -78,6 +78,14 @@ this.load_mod = function(app, logger, io){
 			logger.info("Request for location list");
 		}
 		eventManager.listLocations(res);
+	});
+	
+	//Create a new location
+	app.post('/events/location/?', function(req,res){
+		if(LOG){
+			logger.info("Receiving new location");
+		}
+		eventManager.createLocation(req.body, res);
 	});
 	
 	//Contacts

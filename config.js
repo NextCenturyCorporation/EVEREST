@@ -12,4 +12,6 @@ config.db_collection = process.env.collection || 'centurion';
 //Option to disable the database entirely, and run from memory
 config.noDB = process.env.disableDB || false;
 
+config.eventTypes = ['Emergency', 'Warning', 'Weather', 'Traffic', 'Information'];
+
 module.exports = config;
