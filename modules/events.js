@@ -104,6 +104,14 @@ this.load_mod = function(app, logger, io){
 		eventManager.listContacts(res);
 	});
 	
+	//Create a new contact
+	app.post('/events/contact/?', function(req, res){
+		if(LOG){
+			logger.info("Receiving new contact");
+		}
+		eventManager.createContact(req.body, res);
+	});
+	
 	//Get all options for server
 	app.get('/options',function(req,res){
 		if(LOG){

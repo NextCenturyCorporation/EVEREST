@@ -77,18 +77,20 @@ dispEvent = function(data){
 	$("#"+data._id).append('<tr><td colspan="2"><div id="map'+data._id+'"></div></td></tr>');
 	$("#"+data._id).append('<tr><td colspan="2" id="comment'+data._id+'"></td></tr>');
 	$("#out").append('<br /><br />');
-	var map = new GMaps({
-			div : '#map'+data._id,
-			lat : data.location.latitude,
-			lng : data.location.longitude,
-			height: '500px',
-			zoom: 13
-		});
+	if(data.location.latitude && data.location.longitude){
+		var map = new GMaps({
+				div : '#map'+data._id,
+				lat : data.location.latitude,
+				lng : data.location.longitude,
+				height: '500px',
+				zoom: 13
+			});
 		map.addMarker({
-			lat: data.location.latitude,
-			lng: data.location.longitude,
-			title: data.location.name
-		});
+				lat: data.location.latitude,
+				lng: data.location.longitude,
+				title: data.location.name
+			});
+		}
 	getComments(data._id, map);
 };
 

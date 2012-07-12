@@ -533,7 +533,7 @@ this.listLocations = function(res){
 };
 
 this.createLocation = function(data, res){
-	var newLoc = new locaiton(data);
+	var newLoc = new location(data);
 	locationList.push(newLoc);
 	if(!config.noDB){
 		newLoc.save(function(err){
@@ -594,4 +594,23 @@ this.listContacts = function(res){
 		res.end();
 	});
 	*/
+};
+
+this.createContact = function(data, res){
+	var newContact = new contact(data);
+	contactList.push(newContact);
+	if(!config.noDB){
+		newContact.save(function(err){
+			if(err){
+				logger.error('Error saving contact',err);
+				send500(res);
+			} else {
+				res.json({status:'ok'});
+				res.end();
+			}
+		});
+	} else {
+		res.json({status:'ok'});
+		res.end();
+	}
 };
