@@ -88,6 +88,14 @@ this.load_mod = function(app, logger, io){
 		eventManager.createLocation(req.body, res);
 	});
 	
+	//Update a location
+	app.post('/events/location/:id([0-9a-f]+)', function(req,res){
+		if(LOG){
+			logger.info("Update location "+req.params.id);
+		}
+		eventManager.updateLocation(req.params.id, req.body, res);
+	});
+	
 	//Contacts
 	app.get('/events/contact/:id([0-9a-f]+)', function(req,res){
 		if(LOG){
@@ -110,6 +118,14 @@ this.load_mod = function(app, logger, io){
 			logger.info("Receiving new contact");
 		}
 		eventManager.createContact(req.body, res);
+	});
+	
+	//Update a contact
+	app.post('/events/contact/:id([0-9a-f]+)', function(req,res){
+		if(LOG){
+			logger.info("Update contact "+req.params.id);
+		}
+		eventManager.updateContact(req.params.id, req.body, res);
 	});
 	
 	//Get all options for server

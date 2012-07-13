@@ -551,6 +551,37 @@ this.createLocation = function(data, res){
 	}
 };
 
+this.updateLocation = function(id, data, res){
+	for(var i = 0; i < locationList.length; i++){
+		var cur = locationList[i];
+		if(cur._id == id){
+			//Found the location to update
+			//Update original with the POSTed data
+			for(e in data){
+				//Make sure not to change _id
+				if(e != '_id'){
+					cur[e] = data[e];
+				}
+			}
+			if(!config.noDB){
+				cur.save(function(err){
+					if(err){
+						logger.err('Error updating location',err);
+						send500(res);
+					} else {
+						res.json({status:'ok'});
+						res.end();
+					}
+				});
+			} else {
+				res.json({status:'ok'});
+				res.end();
+			}
+			return;
+		}
+	}
+};
+
 this.getContact = function(id, res){
 	for(var i =0; i < contactList.length; i++){
 		cur = contactList[i];
@@ -612,5 +643,36 @@ this.createContact = function(data, res){
 	} else {
 		res.json({status:'ok'});
 		res.end();
+	}
+};
+
+this.updateContact = function(id, data, res){
+	for(var i = 0; i < contactList.length; i++){
+		var cur = contactList[i];
+		if(cur._id == id){
+			//Found the contact to update
+			//Update original with the POSTed data
+			for(e in data){
+				//Make sure not to change _id
+				if(e != '_id'){
+					cur[e] = data[e];
+				}
+			}
+			if(!config.noDB){
+				cur.save(function(err){
+					if(err){
+						logger.err('Error updating contact',err);
+						send500(res);
+					} else {
+						res.json({status:'ok'});
+						res.end();
+					}
+				});
+			} else {
+				res.json({status:'ok'});
+				res.end();
+			}
+			return;
+		}
 	}
 };
