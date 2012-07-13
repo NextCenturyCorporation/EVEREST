@@ -72,9 +72,14 @@ var EventSchema = new Schema({
 	userID		:	ObjectId,
 	description	:	String,
 	radius		:	Number,
-	comments	:	{type: [CommentSchema], select: false},
+	comments	:	{type: [CommentSchema]},
 	location	:	{type: ObjectId, ref: 'Location'},
 	contact		:	{type: ObjectId, ref: 'Contacts'}
+});
+
+//Virtual method to get the number of comments
+EventSchema.virtual('numComments').get(function(){
+	return this.comments.length;
 });
 
 var ReportSchema = new Schema({
@@ -263,7 +268,15 @@ this.getEventGroup = function(index, res){
 				logger.error("Error getting event group",err);
 				send500(res);
 			} else if(docs.length > 0){
-				res.json(docs);
+				var arr = [];
+				for(var i=0; i< docs.length; i++){
+					var tmp = docs[i].toObject();
+					//Hide comments
+					tmp.comments = [];
+					tmp.numComments = docs[i].numComments;
+					arr.push(tmp);
+				}
+				res.json(arr);
 				res.end();			
 			} else {
 				send404(res);
@@ -294,6 +307,7 @@ this.getEventGroup = function(index, res){
 				}
 				//Dont send comments
 				tmp.comments = [];
+				tmp.numcomments = cur.numComments;
 				group.splice(0,0,tmp);
 			}
 		}
@@ -315,7 +329,10 @@ this.getEvent = function(index, res){
 				logger.error('Error getting event',err);
 				send500(res);
 			} else if(docs){
-				res.json(docs);
+				var tmp = docs.toObject();
+				tmp.numComments = docs.numComments;
+				tmp.comments = [];
+				res.json(tmp);
 				res.end();			
 			} else {
 				send404(res);
@@ -326,10 +343,7 @@ this.getEvent = function(index, res){
 			var cur = eventList[i];
 			if(cur._id == index){
 				logger.info('Cached event');
-				var tmp = {};
-				for(e in cur.toObject()){
-					tmp[e] = cur[e];
-				}
+				var tmp = cur.toObject();
 				//Embed the contact
 				for(var j=0; j < contactList.length; j++){
 					if(contactList[j]._id == cur.contact){
@@ -346,6 +360,7 @@ this.getEvent = function(index, res){
 				}
 				//Dont send comments
 				tmp.comments = [];
+				tmp.numComments = cur.numComments;
 				res.json(tmp);
 				res.end();
 				return;
