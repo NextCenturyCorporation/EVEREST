@@ -7,6 +7,7 @@ var express = require('express'),
 	fs = require("fs"),
 	winston = require('winston'),
 	socketio = require('socket.io'),
+	config = require('./config'),
 	mongoose = require('mongoose');
 
 var numThreads = process.env.numThreads || require('os').cpus().length;
@@ -28,7 +29,8 @@ var logger = new (winston.Logger)({
 	transports : [new (winston.transports.Console)(),
 	              new (winston.transports.File)({filename: 'logs/general.log'})],
 	//Log uncought exceptions to a seperate log
-	exceptionHandlers: [new winston.transports.File({filename: 'logs/exceptions.log'})]
+	exceptionHandlers: [new winston.transports.File({filename: 'logs/exceptions.log'}),
+	                    new (winston.transports.Console)()]
 });
 
 // Configuration
