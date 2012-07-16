@@ -434,11 +434,20 @@ this.deleteEvent = function(id, res){
 	}
 };
 
-this.getComments = function(index, res, io){
-	for(var i =0; i < eventList.length; i++){
+this.getComments = function(index, req, res){
+	var count = 10;
+	if(req.query.count){
+		count = req.query.count;
+		//Limit to 100
+		if(count > 100){
+			count = 100;
+		}
+	}
+	for(var i =0; (i < eventList.length) && (i < count); i++){
 		var cur = eventList[i];
 		if(cur._id == index){
-			res.json(cur.comments);
+			//Reverse it, to get the most recent comments
+			res.json(cur.comments.reverse().slice(0,count));
 			res.end();
 			return;
 		};
@@ -449,8 +458,8 @@ this.getComments = function(index, res, io){
 				logger.error('Error getting comments',err);
 				send500(res);
 			} else if(docs.length > 0){
-				res.json(docs[0].comments);
-				//io.sockets.emit('comment', {'GID':docs[0].GID});
+				//reverse it, to get the most recent comments
+				res.json(docs[0].comments.reverse().slice(0,count));
 				res.end();			
 			} else {
 				send404(res);
