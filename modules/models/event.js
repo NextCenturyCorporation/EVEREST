@@ -235,10 +235,19 @@ var send500 = function(res){
 	res.end();
 }
 
-this.listEvents = function(res){
+this.listEvents = function(req, res){
+	var count = 10;
+	//If someone requests a different number than the default size
+	if(req.query.count){
+		count = req.query.count;
+		//Limit to 100
+		if(count > 100){
+			count = 100;
+		}
+	}
 	if(config.noDB){
 		var list = [];
-		for(var i = 0; i < eventList.length; i++){
+		for(var i = 0; (i < eventList.length) && (i < count); i++){
 			var tmp = {};
 			tmp._id = eventList[i]._id;
 			tmp.GID = eventList[i].GID;
@@ -248,7 +257,7 @@ this.listEvents = function(res){
 		res.json(list);
 		res.end();
 	} else {
-		event.find({}, ['GID', 'timestmp']).limit(10).execFind(function(err, docs){
+		event.find({}, ['GID', 'timestmp'], {sort: {timestmp: -1}}).limit(count).execFind(function(err, docs){
 			if(err){
 				logger.error("Error listing events",err);
 				send500(res);
@@ -263,7 +272,7 @@ this.listEvents = function(res){
 this.getEventGroup = function(index, res){
 	//While using a database, it is much easier and probably faster to just let the DB handle it
 	if(!config.noDB){
-		event.find({GID:index}, null, {sort: {timestamp: -1}}).populate('contact').populate('location').exec(function(err, docs){
+		event.find({GID:index}, null, {sort: {timestmp: -1}}).populate('contact').populate('location').exec(function(err, docs){
 			if(err){
 				logger.error("Error getting event group",err);
 				send500(res);

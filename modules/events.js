@@ -14,7 +14,7 @@ this.load_mod = function(app, logger, io){
 		if(LOG){
 			logger.info('Request for list of events');
 		}
-		eventManager.listEvents(res);
+		eventManager.listEvents(req, res);
 	});
 	
 	//And the route for getting event groups
