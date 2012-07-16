@@ -11,17 +11,18 @@ var Schema = mongoose.Schema;
 var config = require('../../config');
 var winston = require('winston');
 
-//Connect to the database
-if(!config.noDB){
-	mongoose.connect('mongodb://'+config.db_host+':'+config.db_port+'/'+config.db_collection);
-};
-
 //Load and set up the logger
 var logger = new (winston.Logger)({
 	//Make it log to both the console and a file 
 	transports : [new (winston.transports.Console)(),
 	              new (winston.transports.File)({filename: 'logs/general.log'})],
 });
+
+//Connect to the database
+if(!config.noDB){
+	mongoose.connect('mongodb://'+config.db_host+':'+config.db_port+'/'+config.db_collection);
+	logger.info('Connected to MongoDB on '+config.db_host);
+};
 
 /**
  * Define the models
@@ -235,7 +236,7 @@ var send500 = function(res){
 	res.end();
 }
 
-this.listEvents = function(res){
+this.listEvents = function(req, res){
 	if(config.noDB){
 		var list = [];
 		for(var i = 0; i < eventList.length; i++){
@@ -263,6 +264,7 @@ this.listEvents = function(res){
 this.getEventGroup = function(index, res){
 	//While using a database, it is much easier and probably faster to just let the DB handle it
 	if(!config.noDB){
+		//event.find({GID:index}, null, {sort: {timestamp: -1}}).populate('contact').populate('location').exec(function(err, docs){
 		event.find({GID:index}, null, {sort: {timestamp: -1}}).populate('contact').populate('location').exec(function(err, docs){
 			if(err){
 				logger.error("Error getting event group",err);
