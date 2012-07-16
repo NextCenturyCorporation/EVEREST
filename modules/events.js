@@ -5,14 +5,8 @@
 
 var LOG = true;
 
-var eventManager = require('./models/event.js');
 
-//Invalid data 500 error
-function invalid(res){
-	res.status(500);
-	res.json({error:'Invalid data'});
-	res.end();
-}
+var eventManager = require('./models/event.js');
 
 this.load_mod = function(app, logger, io){
 	//Set up the route for listing all events
@@ -45,11 +39,7 @@ this.load_mod = function(app, logger, io){
 			logger.info("Receiving new event");
 			logger.info(req.body);
 		}
-		if(req.is('json') || req.is('application/json')){
-			eventManager.createEvent(req.body, res, io);
-		} else {
-			invalid(res);
-		}
+		eventManager.createEvent(req.body, res, io);
 	});
 	
 	//Now, lets enable deleting events
@@ -71,11 +61,7 @@ this.load_mod = function(app, logger, io){
 	});
 	
 	app.post('/events/:id([0-9a-f]+)/comments', function(req,res){
-		if(req.is('json') || req.is('application/json')){
-			eventManager.addComment(req.params.id, req.body, res, io);
-		} else {
-			invalid(res);
-		}
+		eventManager.addComment(req.params.id, req.body, res, io);
 	});
 	
 	//Locations
@@ -99,11 +85,7 @@ this.load_mod = function(app, logger, io){
 		if(LOG){
 			logger.info("Receiving new location");
 		}
-		if(req.is('json') || req.is('application/json')){
-			eventManager.createLocation(req.body, res);
-		} else {
-			invalid(res);
-		}
+		eventManager.createLocation(req.body, res);
 	});
 	
 	//Update a location
@@ -111,11 +93,7 @@ this.load_mod = function(app, logger, io){
 		if(LOG){
 			logger.info("Update location "+req.params.id);
 		}
-		if(req.is('json') || req.is('application/json')){
-			eventManager.updateLocation(req.params.id, req.body, res);
-		} else {
-			invalid(res);
-		}
+		eventManager.updateLocation(req.params.id, req.body, res);
 	});
 	
 	//Contacts
@@ -139,11 +117,7 @@ this.load_mod = function(app, logger, io){
 		if(LOG){
 			logger.info("Receiving new contact");
 		}
-		if(req.is('json') || req.is('application/json')){
-			eventManager.createContact(req.body, res);
-		} else {
-			invalid(res);
-		}
+		eventManager.createContact(req.body, res);
 	});
 	
 	//Update a contact
@@ -151,11 +125,7 @@ this.load_mod = function(app, logger, io){
 		if(LOG){
 			logger.info("Update contact "+req.params.id);
 		}
-		if(req.is('json') || req.is('application/json')){
-			eventManager.updateContact(req.params.id, req.body, res);
-		} else {
-			invalid(res);
-		}
+		eventManager.updateContact(req.params.id, req.body, res);
 	});
 	
 	//Get all options for server
