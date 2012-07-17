@@ -251,13 +251,14 @@ this.listEvents = function(req, res){
 			var tmp = {};
 			tmp._id = eventList[i]._id;
 			tmp.GID = eventList[i].GID;
+			tmp.title = eventList[i].title;
 			tmp.timestmp = eventList[i].timestmp;
 			list.push(tmp);
 		}
 		res.json(list);
 		res.end();
 	} else {
-		event.find({}, ['GID', 'timestmp'], {sort: {timestmp: -1}}).limit(count).execFind(function(err, docs){
+		event.find({}, ['GID', 'title', 'timestmp'], {sort: {timestmp: -1}}).limit(count).execFind(function(err, docs){
 			if(err){
 				logger.error("Error listing events",err);
 				send500(res);
@@ -446,8 +447,8 @@ this.getComments = function(index, req, res){
 	for(var i =0; (i < eventList.length) && (i < count); i++){
 		var cur = eventList[i];
 		if(cur._id == index){
-			//Reverse it, to get the most recent comments
-			res.json(cur.comments.reverse().slice(0,count));
+			//Comments are sorted newest first
+			res.json(cur.comments.slice(0,count));
 			res.end();
 			return;
 		};
@@ -458,8 +459,8 @@ this.getComments = function(index, req, res){
 				logger.error('Error getting comments',err);
 				send500(res);
 			} else if(docs.length > 0){
-				//reverse it, to get the most recent comments
-				res.json(docs[0].comments.reverse().slice(0,count));
+				//Comments are sorted newest first
+				res.json(docs[0].comments.slice(0,count));
 				res.end();			
 			} else {
 				send404(res);
@@ -486,12 +487,23 @@ this.addComment = function(id, req, res, io){
 		if(cur._id == id){
 			var newComment = new comment(req);
 			cur.comments.push(newComment);
+			cur.comments.sort(function(a,b){
+				if(a.timestmp > b.timestmp){
+					return -1;
+				} else if(a.timestmp < b.timestmp){
+					return 1;
+				} else {
+					return 0;
+				}
+			});
 			res.json({status:'OK'});
 			res.end();
 			io.sockets.emit('comment', {'id':cur._id});
 			if(!config.noDB){
 				cur.save(function(err){
-					logger.info("Error: "+err);
+					if(err){
+						logger.info("Error adding comment: "+err);
+					}
 				});
 			}
 			return;
@@ -505,6 +517,15 @@ this.addComment = function(id, req, res, io){
 			} else {
 				var newComment = new comment(req);
 				docs[0].comments.push(newComment);
+				docs[0].comments.sort(function(a,b){
+					if(a.timestmp > b.timestmp){
+						return -1;
+					} else if(a.timestmp < b.timestmp){
+						return 1;
+					} else {
+						return 0;
+					}
+				});
 				docs[0].save(function(err){
 					if(err){
 						send500(res,err);
