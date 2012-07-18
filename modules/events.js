@@ -133,7 +133,7 @@ this.load_mod = function(app, logger, io){
 		if(LOG){
 			logger.info("Request for all options");
 		}
-		eventManager.getOptions(req, res, io);
+		eventManager.getOptions(res);
 	});
 	
 	

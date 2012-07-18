@@ -219,10 +219,7 @@ if(config.noDB){
 }
 
 //General 404 error
-var send404 = function(res, err){
-	if(err){
-		logger.error("Error: ",err);
-	}
+var send404 = function(res){
 	res.status(404);
 	res.json({error: 'Not found'});
 	res.end();
