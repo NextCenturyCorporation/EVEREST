@@ -4,7 +4,6 @@
  */
 
 var express = require('express'),
-	fs = require("fs"),
 	winston = require('winston'),
 	socketio = require('socket.io'),
 	config = require('./config'),
@@ -21,8 +20,8 @@ var logger = new (winston.Logger)({
 	transports : [new (winston.transports.Console)(),
 	              new (winston.transports.File)({filename: 'logs/general.log'})],
 	//Log uncought exceptions to a seperate log
-	exceptionHandlers: [new winston.transports.File({filename: 'logs/exceptions.log'}),
-	                    new (winston.transports.Console)()]
+//	exceptionHandlers: [new winston.transports.File({filename: 'logs/exceptions.log'}),
+//	                    new (winston.transports.Console)()]
 });
 
 // Configuration
@@ -58,18 +57,14 @@ app.use(function errorHandler(err, req, res, next){
   logger.log('error', 'Error ', {stack: err.stack});
 });
 
-var modules = [];
 // Routes
-//Load all the routes from the ./modules/ directory
-fs.readdirSync("./modules").forEach(function(file) {
-	if(!fs.lstatSync('./modules/'+file).isDirectory()){
-		logger.info('Loading '+file);
-		require("./modules/" + file).load_mod(app, logger, io);
-		file = file + "";
-		//Cut off the extension, its not part of the URL
-		modules.push(file.substring(0, file.indexOf('.')));
-	}
-});
+// Dummy routes
+logger.info('Loading dummy');
+require('./dummy/dummy.js').load(app);
+// Event routes
+logger.info('Loading events');
+require('./events/router.js').load(app, io);
+
 
 if(config.noDB){
 	logger.info("Running in no-database mode, all data will be cleared on exit.");
@@ -78,7 +73,7 @@ if(config.noDB){
 
 //The index will list all modules
 app.get('/', function(req, res){
-	res.json({modules: modules});
+	res.json({something:'Idk'});
 	res.end();
 });
 
