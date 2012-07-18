@@ -9,7 +9,7 @@
 $(document).ready(function(){
 
 	//Load the locations from the system
-	$.getJSON("/events/location/list", function(data) {
+	$.getJSON("/location/", function(data) {
 		console.log(data);
 		$.each(data, function(i, item) {
 			$('#location').append('<option value="'+item._id+'">' + item.name+ '</option>');
@@ -17,7 +17,7 @@ $(document).ready(function(){
 	});
 	
 	//Load the contacts from the system
-	$.getJSON("/events/contact/list", function(data) {
+	$.getJSON("/contact/", function(data) {
 		console.log(data);
 		$.each(data, function(i, item) {
 			$('#contact').append('<option value="'+item._id+'">' + item.name+ '</option>');
