@@ -64,11 +64,11 @@ console.log(newEvent);
  * Actual functions to return data
  */
 
-this.listEvents = function(req, res){
+this.listEvents = function(opts, res){
 	var count = 10;
 	//If someone requests a different number than the default size
-	if(req.query.count){
-		count = req.query.count;
+	if(opts.count){
+		count = opts.count;
 		//Limit to 100
 		if(count > 100){
 			count = 100;
@@ -125,16 +125,13 @@ this.getEventGroup = function(index, res){
 	}
 };
 
-this.getEvent = function(index, res){
+this.getEvent = function(index, opts, res){
 	for(var i =0; i < eventList.length; i++){
 		var cur = eventList[i];
 		if(cur._id == index){
 			var tmp = cur.toObject();
 			//Embed the contact
 			for(var j=0; j < contactList.length; j++){
-				console.log('Event contact: '+cur.contact);
-				console.log('Current contact: '+contactList[j]._id);
-				console.log(cur.contact.toString() == contactList[j]._id.toString());
 				if(contactList[j]._id.toString() == cur.contact.toString()){
 					tmp['contact'] = contactList[j];
 					break;
@@ -147,8 +144,16 @@ this.getEvent = function(index, res){
 					break;
 				}
 			}
-			//Dont send comments
-			tmp.comments = [];
+			//If comments were requested
+			if(opts.comments){
+				//Limit to 100
+				if(opts.comments > 100){
+					opts.comments = 100;
+				}
+				tmp.comments = cur.comments.slice(0,opts.comments);
+			} else {
+				tmp.comments = [];
+			}
 			tmp.numComments = cur.numComments;
 			res.json(tmp);
 			res.end();
@@ -160,10 +165,19 @@ this.getEvent = function(index, res){
 };
 
 this.createEvent = function(req, res, io){
-	logger.info(req);
 	var newEvent = new models.event(req);
-	logger.info("Event to be saved:");
-	logger.info(newEvent);
+	logger.info("Event to be saved:",newEvent);
+	//Insert at the beginning of the list
+	eventList.splice(0,0,newEvent);
+	res.json({status:'ok'});
+	res.end();
+	io.sockets.emit('event', {'GID':newEvent.GID, 'id':newEvent._id});
+};
+
+this.createGroupEvent = function(data, gid, res, io){
+	var newEvent = new models.event(data);
+	newEvent.GID = gid;
+	logger.info('New event posted to GID '+newEvent.GID, newEvent.toObject());
 	//Insert at the beginning of the list
 	eventList.splice(0,0,newEvent);
 	res.json({status:'ok'});
@@ -185,10 +199,10 @@ this.deleteEvent = function(id, res){
 	general.send404(res);
 };
 
-this.getComments = function(index, req, res){
+this.getComments = function(index, opts, res){
 	var count = 10;
-	if(req.query.count){
-		count = req.query.count;
+	if(opts.count){
+		count = opts.count;
 		//Limit to 100
 		if(count > 100){
 			count = 100;

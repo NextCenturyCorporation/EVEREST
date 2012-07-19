@@ -13,11 +13,11 @@ var logger = new (winston.Logger)({
 	              new (winston.transports.File)({filename: 'logs/general.log'})],
 });
 
-this.listEvents = function(req, res){
+this.listEvents = function(opts, res){
 	var count = 10;
 	//If someone requests a different number than the default size
-	if(req.query.count){
-		count = req.query.count;
+	if(opts.count){
+		count = opts.count;
 		//Limit to 100
 		if(count > 100){
 			count = 100;
@@ -34,7 +34,7 @@ this.listEvents = function(req, res){
 	});
 };
 
-this.getEventGroup = function(index, res){
+this.getEventGroup = function(index, opts, res){
 	models.event.find({GID:index}, null, {sort: {timestmp: -1}}).populate('contact').populate('location').exec(function(err, docs){
 		if(err){
 			logger.error("Error getting event group",err);
@@ -43,8 +43,16 @@ this.getEventGroup = function(index, res){
 			var arr = [];
 			for(var i=0; i< docs.length; i++){
 				var tmp = docs[i].toObject();
-				//Hide comments
-				tmp.comments = [];
+				//If comments were requested
+				if(opts.comments){
+					//Limit to 100
+					if(opts.comments > 100){
+						opts.comments = 100;
+					}
+					tmp.comments = docs[i].comments.slice(0,opts.comments);
+				} else {
+					tmp.comments = [];
+				}
 				tmp.numComments = docs[i].numComments;
 				arr.push(tmp);
 			}
@@ -56,7 +64,7 @@ this.getEventGroup = function(index, res){
 	});
 };
 
-this.getEvent = function(index, res){
+this.getEvent = function(index, opts, res){
 	models.event.findById(index).populate('location').populate('contact').exec(function(err, docs){
 		if(err){
 			logger.error('Error getting event',err);
@@ -64,7 +72,16 @@ this.getEvent = function(index, res){
 		} else if(docs){
 			var tmp = docs.toObject();
 			tmp.numComments = docs.numComments;
-			tmp.comments = [];
+			//If comments were requested to be included
+			if(opts.comments){
+				//Limit to 100
+				if(opts.comments > 100){
+					opts.comments = 100;
+				}
+				tmp.comments = tmp.comments.slice(0,opts.comments);
+			} else {
+				tmp.comments = [];
+			}
 			res.json(tmp);
 			res.end();			
 		} else {
@@ -73,19 +90,34 @@ this.getEvent = function(index, res){
 	});
 };
 
-this.createEvent = function(req, res, io){
-	logger.info(req);
-	var newEvent = new models.event(req);
-	logger.info("Event to be saved:");
-	logger.info(newEvent);
+this.createEvent = function(data, res, io){
+	var newEvent = new models.event(data);
+	logger.info("Event to be saved:",newEvent);
 	newEvent.save(function(err){
 		if(err){
 			logger.error("Error creating event", err);
-			send500(res);
+			general.send500(res);
 		} else {
 			res.json({status:'success', id:newEvent._id});
 			res.end();
 			//Broadcast to clients?
+			io.sockets.emit('event', {'GID':newEvent.GID, 'id':newEvent._id});
+		}
+	});
+};
+
+this.createGroupEvent = function(data, gid, res, io){
+	var newEvent = new models.event(data);
+	newEvent.GID = gid;
+	logger.info('New event posted to GID '+newEvent.GID, newEvent.toObject());
+	newEvent.save(function(err){
+		if(err){
+			logger.error('Error saving event', err);
+			general.send500(res);
+		} else {
+			res.json({status:'success',id:newEvent._id});
+			res.end();
+			//Broadcast
 			io.sockets.emit('event', {'GID':newEvent.GID, 'id':newEvent._id});
 		}
 	});
@@ -106,10 +138,10 @@ this.deleteEvent = function(id, res){
 	});
 };
 
-this.getComments = function(index, req, res){
+this.getComments = function(index, opts, res){
 	var count = 10;
-	if(req.query.count){
-		count = req.query.count;
+	if(opts.count){
+		count = opts.count;
 		//Limit to 100
 		if(count > 100){
 			count = 100;

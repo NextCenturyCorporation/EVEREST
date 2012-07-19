@@ -21,7 +21,6 @@ if(config.noDB){
 	eventManager = require('./local.js');
 } else {
 	//Connect to the database
-	//TODO: Fix this
 	eventManager = require('./connected.js');
 }
 
@@ -31,39 +30,39 @@ this.load = function(app, io){
 		if(LOG){
 			logger.info('Request for list of events');
 		}
-		eventManager.listEvents(req, res);
+		eventManager.listEvents(req.query, res);
 	});
 	
 	//And the route for getting event groups
 	app.get('/events/:id([0-9]+)', function(req, res){
-		if(0 && LOG){
-			logger.info('Request for event '+req.params.id);
-		}
-		eventManager.getEventGroup(req.params.id, res);
+		eventManager.getEventGroup(req.params.id, req.query, res);
 	});
 	
 	//And the route for getting individual events
 	app.get('/events/:id([0-9a-f]+)', function(req, res){
-		if(0 && LOG){
-			logger.info('Request for event '+req.params.id);
-		}
-		eventManager.getEvent(req.params.id, res);
+		eventManager.getEvent(req.params.id, req.query, res);
 	});
 	
-	//Lets try to get and store new events
+	//Create a new event
 	app.post('/events/?', function(req, res){
 		if(LOG){
-			logger.info("Receiving new event");
-			logger.info(req.body);
+			logger.info("Receiving new event", req.body);
 		}
 		eventManager.createEvent(req.body, res, io);
+	});
+	
+	//Add an event to a current group
+	app.post('/events/:id([0-9]+)', function(req,res){
+		if(LOG){
+			logger.info("New event for group "+req.params.id, req.body);
+		}
+		eventManager.createGroupEvent(req.body, req.params.id, res, io);
 	});
 	
 	//Now, lets enable deleting events
 	app.del('/events/:id([0-9a-f]+)',function(req, res){
 		if(LOG){
 			logger.info("Request to delete event");
-			logger.info(req.body);
 		}
 		eventManager.deleteEvent(req.params.id, res);
 	});
@@ -77,6 +76,7 @@ this.load = function(app, io){
 		eventManager.getComments(req.params.id, req, res);
 	});
 	
+	//Add a comment
 	app.post('/events/:id([0-9a-f]+)/comments', function(req,res){
 		eventManager.addComment(req.params.id, req.body, res, io);
 	});
@@ -132,7 +132,7 @@ this.load = function(app, io){
 	//Create a new contact
 	app.post('/contact/?', function(req, res){
 		if(LOG){
-			logger.info("Receiving new contact");
+			logger.info("Receiving new contact",req.body);
 		}
 		eventManager.createContact(req.body, res);
 	});
