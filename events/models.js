@@ -4,19 +4,11 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var config = require('../config.js');
-var winston = require('winston');
 
 //Connect to the database
 if(!config.noDB){
 	mongoose.connect('mongodb://'+config.db_host+':'+config.db_port+'/'+config.db_collection);
 };
-
-//Load and set up the logger
-var logger = new (winston.Logger)({
-	//Make it log to both the console and a file 
-	transports : [new (winston.transports.Console)(),
-	              new (winston.transports.File)({filename: 'logs/general.log'})],
-});
 
 /**
  * Define the models
