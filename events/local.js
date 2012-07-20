@@ -203,7 +203,7 @@ this.createEvent = function(req, res, io){
 	logger.info("Event to be saved:",newEvent.toObject());
 	//Insert at the beginning of the list
 	eventList.splice(0,0,newEvent);
-	res.json({status:'ok'});
+	res.json({'GID':newEvent.GID, 'id':newEvent._id});
 	res.end();
 	io.sockets.emit('event', {'GID':newEvent.GID, 'id':newEvent._id});
 };
@@ -222,7 +222,7 @@ this.createGroupEvent = function(data, gid, res, io){
 	logger.info('New event posted to GID '+newEvent.GID, newEvent.toObject());
 	//Insert at the beginning of the list
 	eventList.splice(0,0,newEvent);
-	res.json({status:'ok'});
+	res.json({'GID':newEvent.GID, 'id':newEvent._id});
 	res.end();
 	io.sockets.emit('event', {'GID':newEvent.GID, 'id':newEvent._id});
 };

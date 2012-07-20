@@ -115,7 +115,7 @@ saveEvent = function(newEvent, res, io){
 			logger.error("Error creating event", err);
 			general.send500(res);
 		} else {
-			res.json({status:'success', id:newEvent._id, GID:newEvent.GID});
+			res.json({id:newEvent._id, GID:newEvent.GID});
 			res.end();
 			//Broadcast to clients
 			io.sockets.emit('event', {'GID':newEvent.GID, 'id':newEvent._id});
@@ -171,7 +171,7 @@ this.createGroupEvent = function(data, gid, res, io){
 			logger.error('Error saving event', err);
 			general.send500(res);
 		} else {
-			res.json({status:'success',id:newEvent._id, GID:newEvent.GID});
+			res.json({id:newEvent._id, GID:newEvent.GID});
 			res.end();
 			//Broadcast
 			io.sockets.emit('event', {'GID':newEvent.GID, 'id':newEvent._id});
