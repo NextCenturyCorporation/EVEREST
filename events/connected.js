@@ -13,6 +13,10 @@ var logger = new (winston.Logger)({
 	              new (winston.transports.File)({filename: 'logs/general.log'})],
 });
 
+/**
+ * Returns a list of the last <count> events, where count = 10 or
+ * was specified in the URL with ?count=#, up to 100
+ */
 this.listEvents = function(opts, res){
 	var count = 10;
 	//If someone requests a different number than the default size
@@ -34,6 +38,11 @@ this.listEvents = function(opts, res){
 	});
 };
 
+/**
+ * Returns the series of events with the GID specified in the url:
+ * /events/{GID}
+ * Optionally, you can specify the number of comments to include with each event, up to 100
+ */
 this.getEventGroup = function(index, opts, res){
 	models.event.find({GID:index}, null, {sort: {timestmp: -1}}).populate('contact').populate('location').exec(function(err, docs){
 		if(err){
@@ -64,6 +73,11 @@ this.getEventGroup = function(index, opts, res){
 	});
 };
 
+/**
+ * This returns the event with the ID specified in the URL. ID is a hexidecimal hash.
+ * Optionally, cou can specify the number of comments to return with the event by adding
+ * ?comments=# in the URL, up to 100. The default is not to include any.
+ */
 this.getEvent = function(index, opts, res){
 	models.event.findById(index).populate('location').populate('contact').exec(function(err, docs){
 		if(err){
@@ -90,22 +104,64 @@ this.getEvent = function(index, opts, res){
 	});
 };
 
-this.createEvent = function(data, res, io){
-	var newEvent = new models.event(data);
+/**
+ * Helper function to handle event.save()
+ * (See createEvent)
+ */
+saveEvent = function(newEvent, res, io){
 	logger.info("Event to be saved:",newEvent);
 	newEvent.save(function(err){
 		if(err){
 			logger.error("Error creating event", err);
 			general.send500(res);
 		} else {
-			res.json({status:'success', id:newEvent._id});
+			res.json({status:'success', id:newEvent._id, GID:newEvent.GID});
 			res.end();
-			//Broadcast to clients?
+			//Broadcast to clients
 			io.sockets.emit('event', {'GID':newEvent.GID, 'id':newEvent._id});
 		}
 	});
 };
 
+/**
+ * This creates a new event based on the data POSTed.
+ * For details on what to post, see the Event schema in models.js
+ * All validation is handled through the schema.
+ * Including a GID is optional.
+ *
+ * On success, it returns the id and GID of the new event, and emits
+ * a Socket.io message with the ID and GID
+ */
+this.createEvent = function(data, res, io){
+	var newEvent = new models.event(data);
+	//Check if GID is set or not
+	if(newEvent.GID == undefined || newEvent.GID == null){
+		//Need to determine the GID now
+		models.event.findOne({},['GID'],{sort: {GID: -1}}, function(err,doc){
+			if(err || !doc){
+				//Uh-oh. Fail gracefully?
+				logger.error("Error getting GID for new event, not saving", err);
+				general.send500(res);
+			} else {
+				newEvent.GID = doc.GID + 1;
+				//Save it now
+				saveEvent(newEvent, res, io);
+			}
+		});
+	} else {
+		saveEvent(newEvent, res, io);
+	}
+};
+
+
+/**
+ * This creates a new event based on the data POSTed, with the GID specified in the URL
+ * For details on what to post, see the Event schema in models.js
+ * All validation is handled through the schema.
+ *
+ * On success, it returns the id and GID of the new event, and emits
+ * a Socket.io message with the ID and GID
+ */
 this.createGroupEvent = function(data, gid, res, io){
 	var newEvent = new models.event(data);
 	newEvent.GID = gid;
@@ -115,7 +171,7 @@ this.createGroupEvent = function(data, gid, res, io){
 			logger.error('Error saving event', err);
 			general.send500(res);
 		} else {
-			res.json({status:'success',id:newEvent._id});
+			res.json({status:'success',id:newEvent._id, GID:newEvent.GID});
 			res.end();
 			//Broadcast
 			io.sockets.emit('event', {'GID':newEvent.GID, 'id':newEvent._id});
@@ -123,7 +179,9 @@ this.createGroupEvent = function(data, gid, res, io){
 	});
 };
 
-
+/**
+ * This deletes the event with the id sepecified in the URL
+ */
 this.deleteEvent = function(id, res){
 	models.event.find({_id:id}, function(err, docs){
 		if(err || docs.longth == 0){
@@ -138,6 +196,10 @@ this.deleteEvent = function(id, res){
 	});
 };
 
+/**
+ * This gets the comments for the event wit the ID specified in the URL.
+ * By default it returns 10, but can be overridden with ?count=#, up to 100
+ */
 this.getComments = function(index, opts, res){
 	var count = 10;
 	if(opts.count){
@@ -161,11 +223,18 @@ this.getComments = function(index, opts, res){
 	});
 };
 
+/**
+ * Returns a general options message
+ */
 this.getOptions = function(res){
 	general.getOptions(res);
 };
 
-
+/**
+ * Adds a comment to the event with the id in the URL.
+ * On success, it returns status:'Success', and it emits a
+ * Socket.io message with the id of the event.
+ */
 this.addComment = function(id, req, res, io){
 	models.event.find({_id:id}, ['comments','GID'], {sort: {timestamp: 1}}, function(err,docs){
 		if(err || docs.length == 0){
@@ -196,6 +265,9 @@ this.addComment = function(id, req, res, io){
 	});
 };
 
+/**
+ * Returns the location with the id specified in the URL
+ */
 this.getLocation = function(id, res){
 	models.location.findById(id, function(err, docs){
 		if(err) {
@@ -212,6 +284,9 @@ this.getLocation = function(id, res){
 	});
 };
 
+/**
+ * Returns a list of all the location ids and names
+ */
 this.listLocations = function(res){
 	models.location.find({},['_id', 'name'], function(err, docs){
 		if(err){
@@ -225,6 +300,13 @@ this.listLocations = function(res){
 	});
 };
 
+/**
+ * Creates a new location from the data POSTed
+ * See the Location schema in models.js for details on the data to post.
+ * All validation is handled though the schema.
+ *
+ * On success, it returns id:<ID-hash>
+ */
 this.createLocation = function(data, res){
 	var newLoc = new models.location(data);
 	newLoc.save(function(err){
@@ -232,12 +314,18 @@ this.createLocation = function(data, res){
 			logger.error('Error saving location', err);
 			send500(res);
 		} else {
-			res.json({status:'ok'});
+			res.json({id:newLoc._id});
 			res.end();
 		}
 	});
 };
 
+
+/**
+ * This updates the location with id specified in the URL.
+ * It will not change the id.
+ * On success, it returns status:ok
+ */
 this.updateLocation = function(id, data, res){
 	models.location.findById(id, function(err, docs){
 		if(err) {
@@ -264,6 +352,9 @@ this.updateLocation = function(id, data, res){
 	});
 };
 
+/**
+ * Returns the contact object with id specified in the URL.
+ */
 this.getContact = function(id, res){
 	models.contact.findById(id, function(err, docs){
 		if(err) {
@@ -278,6 +369,9 @@ this.getContact = function(id, res){
 	});
 };
 
+/**
+ * Returns a list of all the contact names and ids
+ */
 this.listContacts = function(res){
 	models.contact.find({},['_id', 'name'], function(err, docs){
 		if(err){
@@ -290,6 +384,13 @@ this.listContacts = function(res){
 	});
 };
 
+/**
+ * Creates a new contact object based on the data POSTed.
+ * See the Contact schema for details on what to post.
+ * All validation is handled through the schema.
+ *
+ * On success, it returns id:<ID-hash>
+ */
 this.createContact = function(data, res){
 	var newContact = new models.contact(data);
 	newContact.save(function(err){
@@ -297,12 +398,17 @@ this.createContact = function(data, res){
 			logger.error('Error saving contact',err);
 			general.send500(res);
 		} else {
-			res.json({status:'ok'});
+			res.json({id:newContact._id});
 			res.end();
 		}
 	});
 };
 
+/**
+ * This updates the location with id specified in the URL.
+ * It will not change the id.
+ * On success, it returns status:ok
+ */
 this.updateContact = function(id, data, res){
 	models.contact.findById(id, function(err, docs){
 		if(err) {
