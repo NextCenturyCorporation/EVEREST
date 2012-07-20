@@ -109,7 +109,7 @@ this.getEvent = function(index, opts, res){
  * (See createEvent)
  */
 saveEvent = function(newEvent, res, io){
-	logger.info("Event to be saved:",newEvent);
+	logger.info("Event to be saved:",newEvent.toObject());
 	newEvent.save(function(err){
 		if(err){
 			logger.error("Error creating event", err);

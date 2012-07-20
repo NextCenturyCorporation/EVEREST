@@ -189,7 +189,6 @@ this.getEvent = function(index, opts, res){
  */
 this.createEvent = function(req, res, io){
 	var newEvent = new models.event(req);
-	logger.info("Event to be saved:",newEvent);
 	//Check if GID is set
 	if(newEvent.GID == undefined || newEvent.GID == null){
 		//Need to determine the GID
@@ -201,6 +200,7 @@ this.createEvent = function(req, res, io){
 		}
 		newEvent.GID = max + 1;
 	}
+	logger.info("Event to be saved:",newEvent.toObject());
 	//Insert at the beginning of the list
 	eventList.splice(0,0,newEvent);
 	res.json({status:'ok'});
