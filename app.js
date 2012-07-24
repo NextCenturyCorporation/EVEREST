@@ -70,13 +70,6 @@ if(config.noDB){
 	logger.info("Running in no-database mode, all data will be cleared on exit.");
 }
 
-
-//The index will list all modules
-app.get('/', function(req, res){
-	res.json({something:'Idk'});
-	res.end();
-});
-
 app.listen(config.port, function(){
   logger.info("Express server listening on port "+app.address().port+" in "+app.settings.env+" mode");
 });

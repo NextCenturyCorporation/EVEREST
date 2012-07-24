@@ -79,13 +79,6 @@ if(config.noDB){
 	logger.info("Running in no-database mode, all data will be cleared on exit.");
 }
 
-
-//The index will list all modules
-app.get('/', function(req, res){
-	res.json({something:'Idk'});
-	res.end();
-});
-
 /*
  * Using cluster to run this one
  * Note for windows with cygwin: After this is started and killed, you will need to go through the task manager and kill all the node.exe processes

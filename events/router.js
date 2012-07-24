@@ -33,6 +33,14 @@ this.load = function(app, io){
 		eventManager.listEvents(req.query, res);
 	});
 	
+	//Get the index too
+	app.get('/', function(req, res){
+		if(LOG){
+			logger.info('Request for list of events');
+		}
+		eventManager.listEvents(req.query, res);
+	});
+	
 	//And the route for getting event groups
 	app.get('/events/:id([0-9]+)', function(req, res){
 		eventManager.getEventGroup(req.params.id, req.query, res);
