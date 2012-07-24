@@ -96,7 +96,7 @@ this.listEvents = function(opts, res){
  * /events/{GID}
  * Optionally, you can specify the number of comments to include with each event, up to 100
  */
-this.getEventGroup = function(index, res){
+this.getEventGroup = function(index, opts, res){
 	var group = [];
 	for(var i =0; i < eventList.length; i++){
 		var cur = eventList[i];
@@ -119,13 +119,26 @@ this.getEventGroup = function(index, res){
 					break;
 				}
 			}
-			//Dont send comments
-			tmp.comments = [];
+			//Send comments if requested
+			if(opts.comments){
+				tmp.comments = cur.comments.slice(0, opts.comments);
+			} else {
+				tmp.comments = [];
+			}
 			tmp.numcomments = cur.numComments;
 			group.splice(0,0,tmp);
 		}
 	}
 	if(group.length > 0){
+		group.sort(function(a,b){
+			if(a.timestmp > b.timestmp){
+				return -1;
+			} else if(a.timestmp < b.timestmp){
+				return 1;
+			} else {
+				return 0;
+			}
+		});
 		res.json(group);
 		res.end();
 	} else {
