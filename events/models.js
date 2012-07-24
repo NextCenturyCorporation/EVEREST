@@ -24,45 +24,45 @@ var UserSchema = new Schema({
 			first	: String,
 			last	:	String
 			},
-	email	: { type: String, required: true, index: {unique: true, sparse: true}},
+	email	: { type: String, lowercase:true, required: true, index: {unique: true, sparse: true}},
 	
 });
 
 var CommentSchema = new Schema({
 	eventID		:	ObjectId,
 	userID		: 	ObjectId,
-	text		:	String,
+	text		:	{type: String, required:true},
 	timestmp	:	{type: Date, default: Date.now},
 	latitude	:	{type: Number, select: false},
 	longitude	: 	{type: Number, select: false}
 });
 
 var LocationSchema = new Schema({
-	name		:	String,
-	latitude	:	Number,
-	longitude	:	Number,
-	radius		:	Number
+	name		:	{type: String, required:true},
+	latitude	:	{type: Number, required:true},
+	longitude	:	{type: Number, required: true},
+	radius		:	{type: Number, required: true}
 });
 
 var ContactSchema = new Schema({
-	name		:	String,
-	email		:	String,
-	phone		:	String
+	name		:	{type: String, required:true},
+	email		:	{type: String, required:true},
+	phone		:	{type: String, required:true}
 });
 
 var EventSchema = new Schema({
-	GID			:	Number,
+	GID			:	{type: Number, min:0, required:true},
 	timestmp	:	{type: Date, default: Date.now},
-	title		:	String,
-	type		:	{type: String, enum: config.eventTypes },
-	group		:	Number,
-	status		:	{type: String, enum: ['Ongoing', 'Closed']},
+	title		:	{type: String, required:true},
+	type		:	{type: String, enum: config.eventTypes, required:true},
+	group		:	{type: Number, required:true},
+	status		:	{type: String, enum: ['Ongoing', 'Closed'], required:true},
 	userID		:	ObjectId,
-	description	:	String,
+	description	:	{type: String, required:true},
 	radius		:	Number,
 	comments	:	{type: [CommentSchema]},
-	location	:	{type: ObjectId, ref: 'Location'},
-	contact		:	{type: ObjectId, ref: 'Contacts'}
+	location	:	{type: ObjectId, ref: 'Location', required:true},
+	contact		:	{type: ObjectId, ref: 'Contacts', required:true}
 });
 
 //Virtual method to get the number of comments
