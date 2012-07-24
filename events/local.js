@@ -24,41 +24,43 @@ var eventList = [];
  * Insert a location, contact, and event into memory
  */
 //Initial contact
-var newContact = new models.contact();
-newContact.name = "George";
-newContact.email = "george@com.com";
-newContact.phone = "410-000-0000";
-contactList.push(newContact);
-
-logger.info("Contact:");
-logger.info(newContact);
-
-//Initial Location
-var newLoc = new models.location();
-newLoc.name = "Building A";
-newLoc.radius = 50;
-newLoc.latitude = 39.168051;
-newLoc.longitude = -76.809801;
-locationList.push(newLoc);
-
-logger.info("Location:");
-logger.info(newLoc);
-
-//Initial Event
-var newEvent = new models.event();
-newEvent.GID = 0;
-newEvent.title = "Edgardo!";
-newEvent.type= 'Emergency';
-newEvent.group = 0;
-newEvent.status = 'Ongoing';
-newEvent.description = 'Aah! Hes here!';
-newEvent.radius = 10;
-newEvent.location = newLoc._id;
-newEvent.contact = newContact._id;
-eventList.push(newEvent);
-
-logger.info("Event:");
-console.log(newEvent);
+if(!process.env.noData){
+	var newContact = new models.contact();
+	newContact.name = "George";
+	newContact.email = "george@com.com";
+	newContact.phone = "410-000-0000";
+	contactList.push(newContact);
+	
+	logger.info("Contact:");
+	logger.info(newContact);
+	
+	//Initial Location
+	var newLoc = new models.location();
+	newLoc.name = "Building A";
+	newLoc.radius = 50;
+	newLoc.latitude = 39.168051;
+	newLoc.longitude = -76.809801;
+	locationList.push(newLoc);
+	
+	logger.info("Location:");
+	logger.info(newLoc);
+	
+	//Initial Event
+	var newEvent = new models.event();
+	newEvent.GID = 0;
+	newEvent.title = "Edgardo!";
+	newEvent.type= 'Emergency';
+	newEvent.group = 0;
+	newEvent.status = 'Ongoing';
+	newEvent.description = 'Aah! Hes here!';
+	newEvent.radius = 10;
+	newEvent.location = newLoc._id;
+	newEvent.contact = newContact._id;
+	eventList.push(newEvent);
+	
+	logger.info("Event:");
+	console.log(newEvent);
+}
 
 /**
  * Actual functions to return data
