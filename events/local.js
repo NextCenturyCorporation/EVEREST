@@ -24,7 +24,7 @@ var eventList = [];
  * Insert a location, contact, and event into memory
  */
 //Initial contact
-if(!process.env.noData){
+if(!config.noData){
 	var newContact = new models.contact();
 	newContact.name = "George";
 	newContact.email = "george@com.com";
