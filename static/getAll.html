@@ -84,16 +84,21 @@ dispEvent = function(data, top){
 				div : '#map'+data._id,
 				lat : data.location.latitude,
 				lng : data.location.longitude,
-				height: '500px',
-				zoom: 13
+				height: '500px'
 			});
 		map.addMarker({
 				lat: data.location.latitude,
 				lng: data.location.longitude,
 				title: data.location.name
 			});
+		map.drawCircle({
+			lat: data.location.latitude,
+			lng: data.location.longitude,
+			radius: data.location.radius
+		});
 		}
 	$("#"+data._id).append('<tr><th colspan="2">Comments:</th></tr>');
+	$("#"+data._id).append('<div id="comment'+data._id+'">');
 	for(var i =0; i < data.comments.length; i++){
 		var item = data.comments[i];
 		$("#"+data._id).append('<tr><td colspan="2">'+
@@ -112,14 +117,15 @@ dispEvent = function(data, top){
 			});
 		}
 	}
+	$("#"+data._id).append('</div>');
 	
-	$("#out").append('</table><br /><br />');
+	$("#"+data._id).append('</table><br /><br />');
 };
 
 getall = function(){
 	$("#out").empty();
 	/* Get the list of events */
-	$.getJSON("/events", function(data) {
+	$.getJSON("/events/?count=20", function(data) {
 		//console.log(data);
 		$.each(data, function(i, item) {
 			//Get the details of each event
