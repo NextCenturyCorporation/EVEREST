@@ -116,7 +116,7 @@ this.getEventGroup = function(index, opts, res){
 			}
 			//Embed the location
 			for(var j=0; j < locationList.length; j++){
-				if(contactList[j]._id.toString() == cur.contact.toString()){
+				if(locationList[j]._id.toString() == cur.location.toString()){
 					tmp['location'] = locationList[j];
 					break;
 				}
@@ -168,7 +168,7 @@ this.getEvent = function(index, opts, res){
 			}
 			//Embed the location
 			for(var j=0; j < locationList.length; j++){
-				if(contactList[j]._id.toString() == cur.contact.toString()){
+				if(locationList[j]._id.toString() == cur.location.toString()){
 					tmp['location'] = locationList[j];
 					break;
 				}
