@@ -72,8 +72,6 @@ mylib.urlReq('http://mysite.local:82/newUser', function(body, res){
 
 });
 
-
-
 // More complex Example 2
 mylib.urlReq('http://mysite.local:82/newUser', {
     method: 'POST',
