@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Get Everything</title>
+<!-- jQuery -->
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+<!-- GMaps.js -->
+<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
+<script type="text/javascript" src="https://raw.github.com/HPNeo/gmaps/master/gmaps.js"></script>
+<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+<script type="text/javascript">
+var socket = io.connect();
+
+socket.on('event', function(data){
+	//alert('New event!');
+	//getall();
+	$.getJSON("/events/"+data.id+"?comments=20", function(data){
+		dispEvent(data, true);
+	});
+});
+
+socket.on('comment', function(data){
+	//alert("New comment!");
+	console.log(data);
+	getComments(data.id, null);
+});
+</script>
+</head>
+<body>
+<!-- <form id="getAll">
+<input type="submit" value="Get Everything!" />
+</form> -->
+
+<div id="out">
+
+</div>
+
+<script>
+getComments = function(id, map){
+	$.getJSON('/events/'+id+'/comments', function(data){
+		$("#comment"+id).empty();
+		$("#comment"+id).append('<b>Comments:</b><br />');
+		$.each(data, function(i, item) {
+			$("#comment"+id).append(item.text+'<br />');
+			$("#comment"+id).append('Latitude: '+item.latitude+'<br />');
+			$("#comment"+id).append('Longitude: '+item.longitude+'<br />');
+			$("#comment"+id).append('Timestamp: '+item.timestmp+'<br />');
+			$("#comment"+id).append('<hr span="50%" ><br />');
+			if(map !== null){
+				map.addMarker({
+					lat: item.latitude,
+					lng: item.longitude,
+					infoWindow: {
+						content: '<b>Comment:</b><br />'+item.text
+					}
+				});
+			}
+		});
+	});
+};
+
+dispEvent = function(data, top){
+	if(top){
+		$("#out").prepend('<table border="1" width="700" id="'+data._id+'"></table>');
+	} else {
+		$("#out").append('<table border="1" width="700" id="'+data._id+'"></table>');
+	}
+	$("#"+data._id).append('<tr><td>Event GID:</td><td>'+data.GID+'</td></tr>');
+	$("#"+data._id).append('<tr><td>Event Time:</td><td>'+data.timestmp+'</td></tr>');
+	$("#"+data._id).append('<tr><td>Event Title:</td><td>'+data.title+'</td></tr>');
+	$("#"+data._id).append('<tr><td>Event Type:</td><td>'+data.type+'</td></tr>');
+	$("#"+data._id).append('<tr><td>Event Status:</td><td>'+data.status+'</td></tr>');
+	$("#"+data._id).append('<tr><td>Event Description:</td><td>'+data.description+'</td></tr>');
+	$("#"+data._id).append('<tr><td>Event Radius:</td><td>'+data.radius+'</td></tr>');
+    $("#"+data._id).append('<tr><td>Location name:</td><td>'+data.location.name+'</td></tr>');
+	$("#"+data._id).append('<tr><td>Location latitude:</td><td>'+data.location.latitude+'</td></tr>');
+	$("#"+data._id).append('<tr><td>Location longitude:</td><td>'+data.location.longitude+'</td></tr>');
+	$("#"+data._id).append('<tr><td>Contact name:</td><td>'+data.contact.name+'</td></tr>');
+	$("#"+data._id).append('<tr><td>Contact Phone:</td><td>'+data.contact.phone+'</td></tr>');
+	$("#"+data._id).append('<tr><td>Contact Email:</td><td>'+data.contact.email+'</td></tr>');
+	$("#"+data._id).append('<tr><td colspan="2"><div id="map'+data._id+'"></div></td></tr>');
+	if(data.location.latitude && data.location.longitude){
+		var map = new GMaps({
+				div : '#map'+data._id,
+				lat : data.location.latitude,
+				lng : data.location.longitude,
+				height: '500px'
+			});
+		map.addMarker({
+				lat: data.location.latitude,
+				lng: data.location.longitude,
+				title: data.location.name
+			});
+		map.drawCircle({
+			lat: data.location.latitude,
+			lng: data.location.longitude,
+			radius: data.location.radius
+		});
+		}
+	$("#"+data._id).append('<tr><th colspan="2">Comments:</th></tr>');
+	$("#"+data._id).append('<div id="comment'+data._id+'">');
+	for(var i =0; i < data.comments.length; i++){
+		var item = data.comments[i];
+		$("#"+data._id).append('<tr><td colspan="2">'+
+		item.text+'<br />'+
+		'Latitude: '+item.latitude+'<br />'+
+		'Longitude: '+item.longitude+'<br />'+
+		'Timestamp: '+item.timestmp+'<br />'+
+		'</td></tr>');
+		if(map !== null){
+			map.addMarker({
+				lat: item.latitude,
+				lng: item.longitude,
+				infoWindow: {
+					content: '<b>Comment:</b><br />'+item.text
+				}
+			});
+		}
+	}
+	$("#"+data._id).append('</div>');
+	
+	$("#"+data._id).append('</table><br /><br />');
+};
+
+getall = function(){
+	$("#out").empty();
+	/* Get the list of events */
+	$.getJSON("/events/?count=20", function(data) {
+		//console.log(data);
+		$.each(data, function(i, item) {
+			//Get the details of each event
+			$.getJSON("/events/"+item._id+"?comments=20", function(event){
+					dispEvent(event, false);
+			});//End get event
+		}); //End each event
+	}); //End get events
+};
+
+/* // attach a submit handler to the form
+$("#getAll").submit(function(event) {
+	//stop form from submitting normally
+	event.preventDefault();
+	getall();
+});  */
+
+$(document).ready(function(){
+	getall();
+});
+</script>
+</body>
+</html>
