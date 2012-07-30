@@ -104,7 +104,7 @@ var data = [
 	"6 ATF agents are on campus, 20 others on standby. FBI rushing agents down also"}, //2:24pm
 {title:"Reported Gunshots", timestmp: new Date(baseDate+'14:30:00'), location:0, description:
 	"Reports of recent sounds ID'd as gunshots and suspicious activity on campus have been investigated and are unfounded. Stay where you are."}, //2:30pm
-{title:"Photos from Collegiate Times", timestmp: new Date(baseDate+'14:33:00'), location:0, descritpion:
+{title:"Photos from Collegiate Times", timestmp: new Date(baseDate+'14:33:00'), location:0, description:
 	"http://www.flickr.com/photos/geeknerd99/sets/72157628335925205/"}, //2:33pm
 {title:"More photos", timestmp: new Date(baseDate+'14:43:00'), location:0, description:
 	"http://imgur.com/a/1dH9z"}, //2:43pm
