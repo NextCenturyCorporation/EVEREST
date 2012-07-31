@@ -8,14 +8,38 @@
  */
 var assert = require('assert');
 var poster = require('./poster.js');
+// For checking the data, we need to load the config and make sure it wont connect
+var config = require('../config.js');
+config.noDB = true;
+// Now, load the data models
+var models = require('../events/models.js');
+
 
 var events = null;
 var locations = null;
 var contacts = null;
 
+/**
+ * This function checks that all data marked as required
+ * is not null.
+ * It checks against the model definition
+ */
+function checkData(dataType, data){
+	var model = models[dataType+'DataModel'];
+	for(var curElement in model){
+		if(model[curElement].required == true){
+			assert.equal(data[curElement] != null, true, curElement+' in '+dataType+' id '+data._id+' is null');
+			//If its a DBRef, check that it is also complete
+			if(model[curElement].ref){
+				checkData(model[curElement].ref, data[curElement]);
+			}
+		}
+	}
+}
+
 describe('Events:', function(){
 	describe('Event List', function(){
-		it('Should return 200 OK', function(done){
+		it('Getting event list', function(done){
 			poster.urlReq('http://localhost:8081/events/', function(body, res){
 				assert.equal(res.statusCode, 200);
 				events = JSON.parse(body);
@@ -34,7 +58,7 @@ describe('Events:', function(){
 			//Need to avoid closure here, otherwise it pulls the same thing 10 times
 			(function(curId){
 				var cur = null;
-				it('Should return status 200 -\t\t'+curId._id, function(done){
+				it('Getting event -\t'+curId._id, function(done){
 					poster.urlReq('http://localhost:8081/events/'+curId._id, function(body,res){
 						assert.equal(res.statusCode, 200);
 						cur = JSON.parse(body);
@@ -43,8 +67,9 @@ describe('Events:', function(){
 					});
 				});
 				//Now that the request has been completed, make sure it contains all the correct data
-				it('Should contain all the corrrect data -\t'+curId._id, function(done){
+				it('Checking data -\t'+curId._id, function(done){
 					assert(cur != null);
+					checkData('event', cur);
 					//TODO: Check that all the data is returned in the proper structure, IE
 					// all the required fields are not null. Its not possible to check the exact values
 					// simply because they are not known. A later test case should POST a full set of location/
@@ -59,7 +84,7 @@ describe('Events:', function(){
 
 describe('Locations:',function(){
 	describe('Location List', function(){
-		it('Should return 200 OK', function(done){
+		it('Getting location list', function(done){
 			poster.urlReq('http://localhost:8081/location/', function(body, res){
 				assert.equal(res.statusCode, 200);
 				locations = JSON.parse(body);
@@ -73,7 +98,7 @@ describe('Locations:',function(){
 			//Need to avoid closure here, otherwise it pulls the same thing 10 times
 			(function(curId){
 				var cur = null;
-				it('Should return status 200 -\t\t'+curId._id, function(done){
+				it('Getting location -\t'+curId._id, function(done){
 					poster.urlReq('http://localhost:8081/location/'+curId._id, function(body,res){
 						assert.equal(res.statusCode, 200);
 						cur = JSON.parse(body);
@@ -82,10 +107,11 @@ describe('Locations:',function(){
 					});
 				});
 				//Now that the request has been completed, make sure it contains all the correct data
-				it('Should contain all the corrrect data -\t'+curId._id, function(done){
+				it('Checking data -\t\t'+curId._id, function(done){
 					assert(cur != null);
 					//TODO: Check that all the data is returned in the proper structure, IE
 					// all the required fields are not null.
+					checkData('location', cur);
 					done();
 				});
 			})(locations[i]);
@@ -96,7 +122,7 @@ describe('Locations:',function(){
 
 describe('Contacts:',function(){
 	describe('Contact List', function(){
-		it('Should return 200 OK', function(done){
+		it('Getting contact list', function(done){
 			poster.urlReq('http://localhost:8081/contact/', function(body, res){
 				assert.equal(res.statusCode, 200);
 				contacts = JSON.parse(body);
@@ -110,7 +136,7 @@ describe('Contacts:',function(){
 			//Need to avoid closure here, otherwise it pulls the same thing 10 times
 			(function(curId){
 				var cur = null;
-				it('Should return status 200 -\t\t'+curId._id, function(done){
+				it('Getting contact -\t'+curId._id, function(done){
 					poster.urlReq('http://localhost:8081/contact/'+curId._id, function(body,res){
 						assert.equal(res.statusCode, 200);
 						cur = JSON.parse(body);
@@ -119,10 +145,11 @@ describe('Contacts:',function(){
 					});
 				});
 				//Now that the request has been completed, make sure it contains all the correct data
-				it('Should contain all the corrrect data -\t'+curId._id, function(done){
+				it('Checking data -\t'+curId._id, function(done){
 					assert(cur != null);
 					//TODO: Check that all the data is returned in the proper structure, IE
 					// all the required fields are not null.
+					checkData('contact', cur);
 					done();
 				});
 			})(contacts[i]);
