@@ -19,69 +19,74 @@ if(!config.noDB){
 var ObjectId = Schema.ObjectId;
 
 //Define basic first
-var UserSchema = new Schema({
-	name	: {
-			first	: String,
-			last	:	String
-			},
-	email	: { type: String, lowercase:true, required: true, index: {unique: true, sparse: true}},
-	
-});
+this.userDataModel = {
+		name	: {
+				first	: String,
+				last	:	String
+				},
+		email	: { type: String, lowercase:true, required: true, index: {unique: true, sparse: true}},
+	};
+var UserSchema = new Schema(this.userDataModel);
 
-var CommentSchema = new Schema({
-	eventID		:	ObjectId,
-	userID		: 	ObjectId,
-	text		:	{type: String, required:true},
-	timestmp	:	{type: Date, default: Date.now},
-	latitude	:	{type: Number, select: false},
-	longitude	: 	{type: Number, select: false}
-});
+this.commentDataModel = {
+		eventID		:	ObjectId,
+		userID		: 	ObjectId,
+		text		:	{type: String, required:true},
+		timestmp	:	{type: Date, default: Date.now},
+		latitude	:	{type: Number, select: false},
+		longitude	: 	{type: Number, select: false}
+	};
+var CommentSchema = new Schema(this.commentDataModel);
 
-var LocationSchema = new Schema({
-	name		:	{type: String, required:true},
-	latitude	:	{type: Number, required:true},
-	longitude	:	{type: Number, required: true},
-	radius		:	{type: Number, required: true}
-});
+this.locationDataModel = {
+		name		:	{type: String, required:true},
+		latitude	:	{type: Number, required:true},
+		longitude	:	{type: Number, required: true},
+		radius		:	{type: Number, required: true}
+	};
+var LocationSchema = new Schema(this.locationDataModel);
 
-var ContactSchema = new Schema({
-	name		:	{type: String, required:true},
-	email		:	{type: String, required:true},
-	phone		:	{type: String, required:true}
-});
+this,contactDataModel = {
+		name		:	{type: String, required:true},
+		email		:	{type: String, required:true},
+		phone		:	{type: String, required:true}
+	};
+var ContactSchema = new Schema(this.contactDataModel);
 
-var EventSchema = new Schema({
-	GID			:	{type: Number, min:0, required:true},
-	timestmp	:	{type: Date, default: Date.now},
-	title		:	{type: String, required:true},
-	type		:	{type: String, enum: config.eventTypes, required:true},
-	group		:	{type: Number, required:true},
-	status		:	{type: String, enum: ['Ongoing', 'Closed'], required:true},
-	userID		:	ObjectId,
-	description	:	{type: String, required:true},
-	radius		:	Number,
-	comments	:	{type: [CommentSchema]},
-	location	:	{type: ObjectId, ref: 'Location', required:true},
-	contact		:	{type: ObjectId, ref: 'Contacts', required:true}
-});
+this.eventDataModel = {
+		GID			:	{type: Number, min:0, required:true},
+		timestmp	:	{type: Date, default: Date.now},
+		title		:	{type: String, required:true},
+		type		:	{type: String, enum: config.eventTypes, required:true},
+		group		:	{type: Number, required:true},
+		status		:	{type: String, enum: ['Ongoing', 'Closed'], required:true},
+		userID		:	ObjectId,
+		description	:	{type: String, required:true},
+		radius		:	Number,
+		comments	:	{type: [CommentSchema]},
+		location	:	{type: ObjectId, ref: 'Location', required:true},
+		contact		:	{type: ObjectId, ref: 'Contacts', required:true}
+	};
+var EventSchema = new Schema(this.eventDataModel);
 
 //Virtual method to get the number of comments
 EventSchema.virtual('numComments').get(function(){
 	return this.comments.length;
 });
 
-var ReportSchema = new Schema({
-	description	:	String,
-	type		:	{type: String, enum: ['Emergency', 'Warning', 'Weather', 'Traffic'] },
-	location	:	ObjectId,
-	submitter	:	ObjectId,
-	timestmp	:	{type: Date, default: Date.now},
-	reviewer	:	ObjectId,
-	status		:	{type: String, enum: ['Valid', 'Invalid']},
-	reviewComment	:	String,
-	reviewTimestmp	:	Date,
-	event		:	ObjectId
-});
+this.reportDataModel = {
+		description	:	String,
+		type		:	{type: String, enum: ['Emergency', 'Warning', 'Weather', 'Traffic'] },
+		location	:	ObjectId,
+		submitter	:	ObjectId,
+		timestmp	:	{type: Date, default: Date.now},
+		reviewer	:	ObjectId,
+		status		:	{type: String, enum: ['Valid', 'Invalid']},
+		reviewComment	:	String,
+		reviewTimestmp	:	Date,
+		event		:	ObjectId
+	};
+var ReportSchema = new Schema(this.reportDataModel);
 
 /**
  * Set the models up
