@@ -44,6 +44,8 @@ this.locationDataModel = {
 		longitude	:	{type: Number, required: true},
 		radius		:	{type: Number, required: true}
 	};
+//Need this to make API testing DBRefs easier
+this.LocationDataModel = this.locationDataModel; 
 var LocationSchema = new Schema(this.locationDataModel);
 
 this,contactDataModel = {
@@ -51,6 +53,8 @@ this,contactDataModel = {
 		email		:	{type: String, required:true},
 		phone		:	{type: String, required:true}
 	};
+// For testing API DBRefs
+this.ContactsDataModel = this.contactDataModel;
 var ContactSchema = new Schema(this.contactDataModel);
 
 this.eventDataModel = {
