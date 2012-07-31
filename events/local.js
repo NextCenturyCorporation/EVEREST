@@ -128,7 +128,7 @@ this.getEventGroup = function(index, opts, res){
 			} else {
 				tmp.comments = [];
 			}
-			tmp.numcomments = cur.numComments;
+			tmp.numComments = cur.numComments;
 			group.splice(0,0,tmp);
 		}
 	}
