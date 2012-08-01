@@ -22,30 +22,28 @@ socket.on('event', function(data){
 socket.on('comment', function(data){
 	//alert("New comment!");
 	console.log(data);
-	getComments(data.id, null);
+	addComments(data.id, null, 1);
 });
 </script>
 </head>
 <body>
-<!-- <form id="getAll">
-<input type="submit" value="Get Everything!" />
-</form> -->
 
 <div id="out">
 
 </div>
 
 <script>
-getComments = function(id, map){
-	$.getJSON('/events/'+id+'/comments', function(data){
-		$("#comment"+id).empty();
-		$("#comment"+id).append('<b>Comments:</b><br />');
+addComments = function(id, map, count){
+	if(count == null || count <= 0){
+		count = 10;
+	}
+	$.getJSON('/events/'+id+'/comments?count='+count, function(data){
 		$.each(data, function(i, item) {
-			$("#comment"+id).append(item.text+'<br />');
-			$("#comment"+id).append('Latitude: '+item.latitude+'<br />');
-			$("#comment"+id).append('Longitude: '+item.longitude+'<br />');
-			$("#comment"+id).append('Timestamp: '+item.timestmp+'<br />');
-			$("#comment"+id).append('<hr span="50%" ><br />');
+			$("#comment"+id).prepend(item.text+'<br />'+
+			'Latitude: '+item.latitude+'<br />'+
+			'Longitude: '+item.longitude+'<br />'+
+			'Timestamp: '+item.timestmp+'<br />'+
+			+'<hr span="50%" ><br />');
 			if(map !== null){
 				map.addMarker({
 					lat: item.latitude,
@@ -98,15 +96,16 @@ dispEvent = function(data, top){
 		});
 		}
 	$("#"+data._id).append('<tr><th colspan="2">Comments:</th></tr>');
-	$("#"+data._id).append('<div id="comment'+data._id+'">');
+	$("#"+data._id).append('<tr><td colspan="2"><div id="comment'+data._id+'">');
 	for(var i =0; i < data.comments.length; i++){
 		var item = data.comments[i];
-		$("#"+data._id).append('<tr><td colspan="2">'+
-		item.text+'<br />'+
+		console.log('Comment:');
+		console.log(item);
+		$("#comment"+data._id).append(item.text+'<br />'+
 		'Latitude: '+item.latitude+'<br />'+
 		'Longitude: '+item.longitude+'<br />'+
 		'Timestamp: '+item.timestmp+'<br />'+
-		'</td></tr>');
+		'<hr />');
 		if(map !== null){
 			map.addMarker({
 				lat: item.latitude,
@@ -117,15 +116,14 @@ dispEvent = function(data, top){
 			});
 		}
 	}
-	$("#"+data._id).append('</div>');
-	
+	$("#"+data._id).append('</div></td></tr>');
 	$("#"+data._id).append('</table><br /><br />');
 };
 
 getall = function(){
 	$("#out").empty();
 	/* Get the list of events */
-	$.getJSON("/events/?count=20", function(data) {
+	$.getJSON("/events/?count=10", function(data) {
 		//console.log(data);
 		$.each(data, function(i, item) {
 			//Get the details of each event
