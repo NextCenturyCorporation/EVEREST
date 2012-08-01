@@ -113,7 +113,7 @@ describe('Locations:',function(){
 				});
 				//Now that the request has been completed, make sure it contains all the correct data
 				it('Checking data -\t\t'+curId._id, function(done){
-					assert(cur != null);
+					assert(cur != null, 'Location is null');
 					// Check the data
 					checkData('location', cur);
 					done();
