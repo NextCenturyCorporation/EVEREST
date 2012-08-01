@@ -146,7 +146,7 @@ this.getEventGroup = function(index, opts, res){
 		res.end();
 	} else {
 		//Not found
-		send404(res);
+		general.send404(res);
 	}
 };
 
