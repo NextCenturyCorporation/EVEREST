@@ -19,7 +19,8 @@ On Windows: use `SET VARNAME=value`, then run Node
 
 
 ## Running the API tests
-You need Mocha installed globally, run `sudo npm install -g mocha` to install it. Then either run `mocha` in the main directory, or
-use `npm test`
+Once the node modules are installed via `npm install`, you can run the tests with `npm test`.  
+You can also install mocha globally wiht `sudo npm install -g mocha` and run the tests by running `mocha` in the main directory  
+**Note:** Currently, the API tests are hardcoded to run against localhost:8081. Currently looking for a way to specify at runtime
 
 Check the [System Setup](https://github.com/ploats/centurion-student-alerting/wiki/System-Setup) wiki page for more information
