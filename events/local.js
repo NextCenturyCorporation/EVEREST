@@ -272,7 +272,8 @@ this.getComments = function(index, opts, res){
 			count = 100;
 		}
 	}
-	for(var i =0; (i < eventList.length) && (i < count); i++){
+	console.log('Count: '+count);
+	for(var i =0; i < eventList.length; i++){
 		var cur = eventList[i];
 		if(cur._id == index){
 			//Comments are sorted newest first

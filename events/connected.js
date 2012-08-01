@@ -218,7 +218,7 @@ this.getComments = function(index, opts, res){
 			res.json(docs[0].comments.slice(0,count));
 			res.end();			
 		} else {
-			send404(res);
+			general.send404(res);
 		};
 	});
 };

@@ -81,7 +81,7 @@ this.load = function(app, io){
 		if(LOG){
 			logger.info("Request for comments of "+req.params.id);
 		}
-		eventManager.getComments(req.params.id, req, res);
+		eventManager.getComments(req.params.id, req.query, res);
 	});
 	
 	//Add a comment
