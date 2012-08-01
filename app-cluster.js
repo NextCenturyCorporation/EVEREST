@@ -85,13 +85,21 @@ if(config.noDB){
  * If you dont, it will crash with IPC error
  */
 var cluster = require('cluster');
-if(cluster.isMaster){
-	logger.info("Starting "+numThreads+" threads");
-	//Expand to all cores
-	for(var i = 0; i<numThreads; i++)
-		cluster.fork();
+if(!config.noDB){
+	if(cluster.isMaster){
+		logger.info("Starting "+numThreads+" threads");
+		//Expand to all cores
+		for(var i = 0; i<numThreads; i++)
+			cluster.fork();
+	} else {
+		app.listen(config.port, function(){
+			logger.info("Express server listening on port "+app.address().port+" in "+app.settings.env+" mode");
+			});
+	}
 } else {
-	app.listen((process.env.port || 8081), function(){
+	logger.warn('Sorry, can not use multiple threads in no database mode. Because Node.js doesn\'t support shared memory, the threads'+
+			' will have inconsistant data. Falling back to one thread.');
+	app.listen(config.port, function(){
 		logger.info("Express server listening on port "+app.address().port+" in "+app.settings.env+" mode");
 		});
 }
