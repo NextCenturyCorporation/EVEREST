@@ -11,25 +11,43 @@
 <script type="text/javascript">
 var socket = io.connect();
 
+var map = null;
+
+//List of all the events displayed on the page
+var events = [];
+
+//List of all the locations displayed on the map
+var locations = [];
+
 socket.on('event', function(data){
+	//Only display 10 events on a page, if there are 10, clear the first one
+	if(events.length >= 10){
+		var toRemove = events.splice(0, 1);
+		console.log('Clearing event '+toRemove)
+		$('#'+toRemove).empty();
+	}
 	//alert('New event!');
 	//getall();
 	$.getJSON("/events/"+data.id+"?comments=20", function(data){
+		events.push(data.id);
 		dispEvent(data, true);
 	});
 });
 
 socket.on('comment', function(data){
 	//alert("New comment!");
-	console.log(data);
 	addComments(data.id, null, 1);
 });
 </script>
 </head>
 <body>
 
-<div id="out">
-
+<div>
+	<div id="out" style="position:relative;width:50%;padding:0;float:left">
+	</div>
+	
+	<div id="map" style="position:relative;width:50%;padding:0;float:right">
+	</div>
 </div>
 
 <script>
@@ -44,7 +62,8 @@ addComments = function(id, map, count){
 			'Longitude: '+item.longitude+'<br />'+
 			'Timestamp: '+item.timestmp+'<br />'+
 			+'<hr span="50%" ><br />');
-			if(map !== null){
+			//Disable, since all the events are on one map now
+			if(false && map !== null){
 				map.addMarker({
 					lat: item.latitude,
 					lng: item.longitude,
@@ -57,11 +76,13 @@ addComments = function(id, map, count){
 	});
 };
 
-dispEvent = function(data, top){
-	if(top){
-		$("#out").prepend('<table border="1" width="700" id="'+data._id+'"></table>');
-	} else {
-		$("#out").append('<table border="1" width="700" id="'+data._id+'"></table>');
+dispEvent = function(data, top, noTable){
+	if(!noTable){
+		if(top){
+			$("#out").prepend('<table border="1" width="700" id="'+data._id+'"></table><br /><br />');
+		} else {
+			$("#out").append('<table border="1" width="700" id="'+data._id+'"></table><br /><br />');
+		}
 	}
 	$("#"+data._id).append('<tr><td>Event GID:</td><td>'+data.GID+'</td></tr>');
 	$("#"+data._id).append('<tr><td>Event Time:</td><td>'+data.timestmp+'</td></tr>');
@@ -76,37 +97,51 @@ dispEvent = function(data, top){
 	$("#"+data._id).append('<tr><td>Contact name:</td><td>'+data.contact.name+'</td></tr>');
 	$("#"+data._id).append('<tr><td>Contact Phone:</td><td>'+data.contact.phone+'</td></tr>');
 	$("#"+data._id).append('<tr><td>Contact Email:</td><td>'+data.contact.email+'</td></tr>');
-	$("#"+data._id).append('<tr><td colspan="2"><div id="map'+data._id+'"></div></td></tr>');
+	//$("#"+data._id).append('<tr><td colspan="2"><div id="map'+data._id+'"></div></td></tr>');
 	if(data.location.latitude && data.location.longitude){
-		var map = new GMaps({
-				div : '#map'+data._id,
-				lat : data.location.latitude,
-				lng : data.location.longitude,
-				height: '500px'
-			});
-		map.addMarker({
+		var addToMap = true;
+		//Only map each location once
+		for(var i = 0; i < locations.length; i++){
+			if(locations[i] == data.location._id.toString()){
+				addToMap = false;
+			}
+		}
+		if(map == null){
+			map = new GMaps({
+					div : '#map',
+					lat : data.location.latitude,
+					lng : data.location.longitude,
+					height: '1000px'
+				});
+		}
+		if(addToMap){
+			map.addMarker({
+					lat: data.location.latitude,
+					lng: data.location.longitude,
+					title: data.location.name,
+					infoWindow: {
+						  content: '<p>'+data.location.name+'</p>'
+						}
+				});
+			map.drawCircle({
 				lat: data.location.latitude,
 				lng: data.location.longitude,
-				title: data.location.name
+				radius: data.location.radius
 			});
-		map.drawCircle({
-			lat: data.location.latitude,
-			lng: data.location.longitude,
-			radius: data.location.radius
-		});
+			locations.push(data.location._id);
+		}
 		}
 	$("#"+data._id).append('<tr><th colspan="2">Comments:</th></tr>');
 	$("#"+data._id).append('<tr><td colspan="2"><div id="comment'+data._id+'">');
 	for(var i =0; i < data.comments.length; i++){
 		var item = data.comments[i];
-		console.log('Comment:');
-		console.log(item);
 		$("#comment"+data._id).append(item.text+'<br />'+
 		'Latitude: '+item.latitude+'<br />'+
 		'Longitude: '+item.longitude+'<br />'+
 		'Timestamp: '+item.timestmp+'<br />'+
 		'<hr />');
-		if(map !== null){
+		//Disable for now
+		if(false && map !== null){
 			map.addMarker({
 				lat: item.latitude,
 				lng: item.longitude,
@@ -117,7 +152,6 @@ dispEvent = function(data, top){
 		}
 	}
 	$("#"+data._id).append('</div></td></tr>');
-	$("#"+data._id).append('</table><br /><br />');
 };
 
 getall = function(){
@@ -126,9 +160,12 @@ getall = function(){
 	$.getJSON("/events/?count=10", function(data) {
 		//console.log(data);
 		$.each(data, function(i, item) {
+			//Create all the tables now, otherwise they will appear out of order
+			$("#out").append('<table border="1" width="700" id="'+item._id+'"></table><br /><br />');
+			events.push(item._id);
 			//Get the details of each event
 			$.getJSON("/events/"+item._id+"?comments=20", function(event){
-					dispEvent(event, false);
+					dispEvent(event, false, true);
 			});//End get event
 		}); //End each event
 	}); //End get events
