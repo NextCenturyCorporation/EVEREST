@@ -19,6 +19,11 @@ var events = [];
 //List of all the locations displayed on the map
 var locations = [];
 
+/**
+ * Socket.io listener for a new event emmitter
+ * When a new event broadcast is received, it displays it, and
+ * limits the page to a max of 10 events displayed
+ */
 socket.on('event', function(data){
 	//Only display 10 events on a page, if there are 10, clear the first one
 	if(events.length >= 10){
@@ -34,6 +39,11 @@ socket.on('event', function(data){
 	});
 });
 
+/**
+ * Socket.io listener for a new comment
+ * When a new comment broadcast is received, it loads
+ * a single comment for the given event, and displays it
+ */
 socket.on('comment', function(data){
 	//alert("New comment!");
 	addComments(data.id, null, 1);
@@ -51,6 +61,9 @@ socket.on('comment', function(data){
 </div>
 
 <script>
+/**
+ * Fetches and displays a specified number of comments for an event
+ */
 addComments = function(id, map, count){
 	if(count == null || count <= 0){
 		count = 10;
@@ -76,6 +89,10 @@ addComments = function(id, map, count){
 	});
 };
 
+/**
+ * Displays an event, optionally insterting a table to the top of the out div,
+ * or appending to the bottom, or not creating a table at all
+ */
 dispEvent = function(data, top, noTable){
 	if(!noTable){
 		if(top){
@@ -97,7 +114,6 @@ dispEvent = function(data, top, noTable){
 	$("#"+data._id).append('<tr><td>Contact name:</td><td>'+data.contact.name+'</td></tr>');
 	$("#"+data._id).append('<tr><td>Contact Phone:</td><td>'+data.contact.phone+'</td></tr>');
 	$("#"+data._id).append('<tr><td>Contact Email:</td><td>'+data.contact.email+'</td></tr>');
-	//$("#"+data._id).append('<tr><td colspan="2"><div id="map'+data._id+'"></div></td></tr>');
 	if(data.location.latitude && data.location.longitude){
 		var addToMap = true;
 		//Only map each location once
@@ -154,6 +170,10 @@ dispEvent = function(data, top, noTable){
 	$("#"+data._id).append('</div></td></tr>');
 };
 
+/**
+ * Pulls the list of events, then gets the details for each event
+ * and displays it.
+ */
 getall = function(){
 	$("#out").empty();
 	/* Get the list of events */
@@ -164,19 +184,12 @@ getall = function(){
 			$("#out").append('<table border="1" width="700" id="'+item._id+'"></table><br /><br />');
 			events.push(item._id);
 			//Get the details of each event
-			$.getJSON("/events/"+item._id+"?comments=20", function(event){
+			$.getJSON("/events/"+item._id+"?comments=10", function(event){
 					dispEvent(event, false, true);
 			});//End get event
 		}); //End each event
 	}); //End get events
 };
-
-/* // attach a submit handler to the form
-$("#getAll").submit(function(event) {
-	//stop form from submitting normally
-	event.preventDefault();
-	getall();
-});  */
 
 $(document).ready(function(){
 	getall();
