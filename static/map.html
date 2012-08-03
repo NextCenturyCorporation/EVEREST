@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script type="text/javascript"
+     	src="http://maps.googleapis.com/maps/api/js?key=AIzaSyD__9YMgk4Vo4B9oWP0flBlYop5JjEhO_U&sensor=false">
+    </script>
+	<title>Centurion</title>
+	<link href="stylesheets/style.css" rel="stylesheet" type="text/css" />
+	<script type="text/javascript">
+	function showMap(){
+		var options = {
+				center: new google.maps.LatLng(-34.397, 150.644),
+		          zoom: 8,
+		          mapTypeId: google.maps.MapTypeId.ROADMAP
+		        };
+		
+		var map = new google.maps.Map(document.getElementById("map"), options);
+	}
+	</script>
+</head>
+<body onload="showMap()">
+<div id="topbar">
+	<div id="TopSection">
+		<h1 id="sitename">Centurion Alert System</h1>
+		<div id="topbarnav"></div>
+		<div class="clear"></div>
+		<ul id="topmenu">
+			<li class="active"><a href="#">Map and Alert Status</a></li>
+		</ul>
+	</div>
+</div>
+<div id="wrap">
+	<div id="contents">
+		<div style="height:600px;width:100%">
+			<div id="map" style="height:500px;width:74%;float:left;" ></div>
+			<div id="event" style="width:25%;float:right;"><b>Event details</b></div>
+		</div>
+	</div>
+</div>
+
+
+<div id="footer">
+	<div id="footercontent">
+		<div id="previews">
+			<div class="clear"></div>
+		</div>
+		<div id="copyright">&copy;2012 - Next Century Corperation</div>
+	</div>
+</div>
+</body>
+</html>
