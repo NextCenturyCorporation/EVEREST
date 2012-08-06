@@ -4,21 +4,107 @@
 	<script type="text/javascript"
      	src="http://maps.googleapis.com/maps/api/js?key=AIzaSyD__9YMgk4Vo4B9oWP0flBlYop5JjEhO_U&sensor=false">
     </script>
+    <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
 	<title>Centurion</title>
 	<link href="stylesheets/style.css" rel="stylesheet" type="text/css" />
-	<script type="text/javascript">
-	function showMap(){
-		var options = {
-				center: new google.maps.LatLng(-34.397, 150.644),
-		          zoom: 8,
-		          mapTypeId: google.maps.MapTypeId.ROADMAP
-		        };
-		
-		var map = new google.maps.Map(document.getElementById("map"), options);
+<script type="text/javascript">
+//This will contain the 
+var events = [];
+//This will contain the event data, accessible by eventData.{id}
+var eventData = {};
+//This will contain all the locations, accessible by locations.{id}
+var locations = {};
+
+//Map object
+var map = null;
+
+function showMap(){
+	var options = {
+			center: new google.maps.LatLng(12, 0),
+	          zoom: 2,
+	          mapTypeId: google.maps.MapTypeId.ROADMAP
+	        };
+	map = new google.maps.Map(document.getElementById("map"), options);
+}
+
+function addMarker(location){
+	var loc = new google.maps.LatLng(location.latitude, location.longitude);
+	//Only add a location once
+	if(locations[location._id] == null){
+		var marker = new google.maps.Marker({
+			map:map,
+			draggable:false,
+			animation: google.maps.Animation.DROP,
+			position:loc,
+		    title:location.name
+		});
+		var circleOpts = {
+			      strokeColor: "#FF0000",
+			      strokeOpacity: 0.8,
+			      strokeWeight: 2,
+			      fillColor: "#FF0000",
+			      fillOpacity: 0.35,
+			      map: map,
+			      center: loc,
+			      radius: location.radius
+			    };
+		var circle = new google.maps.Circle(circleOpts);
+		locations[location._id] = location;
+		locations[location._id].marker = marker;
+		locations[location._id].circle = circle;
 	}
-	</script>
+	map.panTo(loc);
+	map.setZoom(14);
+	google.maps.event.addListener(locations[location._id].marker, 'click', function(){
+		clearEvents();
+		for(var i = 0; i < events.length; i++){
+			if(eventData[events[i]].location._id == location._id){
+				displayEvent(eventData[events[i]]);
+			}
+		}
+	});
+}
+
+function clearEvents(){
+	$('#event').empty();
+}
+
+function displayEvent(event){
+	$("#event").append('<table border="0">');
+	$("#event").append('<tr><td><b>Title:</b></td><td><b>'+event.title+'</b></td></tr>');
+	$("#event").append('<tr><td>Description:&nbsp;</td><td>'+event.description+'</td></tr>');
+	$("#event").append('<tr><td>Type:</td><td>'+event.type+'</td></tr>');
+	$("#event").append('<tr><td>Status:</td><td>'+event.status+'</td></tr>');
+	$("#event").append('<tr><td>Time:</td><td>'+event.timestmp+'</td></tr>');
+	$("#event").append('<tr><td>GID:</td><td>'+event.GID+'</td></tr>');
+	$("#event").append('<tr><td>Radius:</td><td>'+event.radius+'</td></tr>');
+    $("#event").append('<tr><td>Location:</td><td>'+event.location.name+'</td></tr>');
+	$("#event").append('<tr><td>Contact:</td><td>'+event.contact.name+'</td></tr>');
+	$("#event").append('<tr><td>Phone:</td><td>'+event.contact.phone+'</td></tr>');
+	$("#event").append('<tr><td>Email:</td><td>'+event.contact.email+'</td></tr>');
+	$("#event").append("</table><br/><hr/><br/>");
+}
+
+
+function getAll(){
+	showMap();
+	/* Get the list of events */
+	$.getJSON("/events/?count=10", function(data) {
+		$.each(data, function(i, item) {
+			//Keep the IDs in order, so we know which ones to remove first
+			events.push(item._id);
+			//Get the details of each event
+			$.getJSON("/events/"+item._id, function(event){
+					eventData[event._id] = event;
+					addMarker(event.location);
+			});//End get event
+		}); //End each event
+	}); //End get events
+};
+</script>
 </head>
-<body onload="showMap()">
+<body onload="getAll()">
 <div id="topbar">
 	<div id="TopSection">
 		<h1 id="sitename">Centurion Alert System</h1>
@@ -32,9 +118,10 @@
 <div id="wrap">
 	<div id="contents">
 		<div style="height:600px;width:100%">
-			<div id="map" style="height:500px;width:74%;float:left;" ></div>
-			<div id="event" style="width:25%;float:right;"><b>Event details</b></div>
+			<div id="map" style="height:600px;width:74%;float:left;" ></div>
+			<div id="event" style="width:25%;float:right;height:600px;overflow:auto"></div>
 		</div>
+		<div style="height:200px;width:100%;overflow:auto" id="timeline"><b>Timeline goes here</b></div>
 	</div>
 </div>
 
@@ -44,7 +131,7 @@
 		<div id="previews">
 			<div class="clear"></div>
 		</div>
-		<div id="copyright">&copy;2012 - Next Century Corperation</div>
+		<div id="copyright">&copy;2012 - Next Century Corporation</div>
 	</div>
 </div>
 </body>
