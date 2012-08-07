@@ -44,7 +44,7 @@ a:visited,active {color:#666666;}
 
 /*Footer*/
 
-#footer {background: url(/images/footer.jpg) repeat-x; padding:60px 0px 0px 5px; background-color:#333333; position:fixed; bottom:0; width:100%}
+#footer {background: url(/images/footer.jpg) repeat-x; padding:60px 0px 0px 5px; background-color:#333333; position:relative; bottom:0; width:100%;}
 #footercontent {width:85%; margin:auto; padding:10px;}
 #copyright {margin:20px 0xp 20px 0px; padding:20px 0px 20px 0px; color:#FFFFFF; border-top:solid 1px #333333; }
 #footer a,#footer a:visited, #footer a:active, #footer a:hover {color:#FFFFCC;}

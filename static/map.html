@@ -76,7 +76,7 @@ function showMap(){
 function attachClick(locationId, bounce){
 	google.maps.event.addListener(locations[locationId].marker, 'click', function(){
 		clearEvents();
-		for(var i = 0; i <events.length; i++){
+		for(var i = events.length -1; i >= 0; i--){
 			if(eventData[events[i]].location._id == locationId){
 				if(bounce){
 					locations[locationId].marker.setAnimation(null);
@@ -160,7 +160,7 @@ function getAll(){
 	$.getJSON("/events/?count=10", function(data) {
 		$.each(data, function(i, item) {
 			//Keep the IDs in order, so we know which ones to remove first
-			events.push(item._id);
+			events.splice(0,0,item._id);
 			//Get the details of each event
 			$.getJSON("/events/"+item._id, function(event){
 					eventData[event._id] = event;
@@ -183,12 +183,12 @@ function getAll(){
 	</div>
 </div>
 <div id="wrap">
-	<div id="contents">
-		<div style="height:600px;width:100%">
+	<div id="contents" style="height:850px">
+		<div style="height:620px;width:100%">
 			<div id="map" style="height:600px;width:74%;float:left;" ></div>
 			<div id="event" style="width:25%;float:right;height:600px;overflow:auto"></div>
 		</div>
-		<div style="height:200px;width:100%;overflow:auto" id="timeline"><b>Timeline goes here</b></div>
+		<div style="height:200px;width:100%" id="timeline"></div>
 	</div>
 </div>
 
