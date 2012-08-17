@@ -27,15 +27,37 @@ this.listEvents = function(opts, res){
 			count = 100;
 		}
 	}
-	models.event.find({}, ['GID', 'title', 'timestmp'], {sort: {timestmp: -1}}).limit(count).execFind(function(err, docs){
-		if(err){
-			logger.error("Error listing events",err);
-			send500(res);
-		} else {
-			res.json(docs);
-			res.end();
-		}
-	});
+	if(opts.after){
+		// Finding events after a provided ID while using mongo is a little more complicated
+		// Query to find the date of said event, then query for all where the date is > the first date
+		models.event.findById(opts.after, 'timestmp', function(err1, doc){
+			if(err1){
+				logger.error("Error finding event", err1);
+				general.send500(res);
+				return;
+			}
+			models.event.find({timestmp: {$gt: doc.timestmp}}, 'GID title timestmp', {sort: {timestmp: -1}}).
+					limit(count).execFind(function(err, docs){
+				if(err){
+					logger.error("Error listing events",err);
+					send500(res);
+				} else {
+					res.json(docs);
+					res.end();
+				}
+			});
+		});
+	} else {
+		models.event.find({}, 'GID title timestmp', {sort: {timestmp: -1}}).limit(count).execFind(function(err, docs){
+			if(err){
+				logger.error("Error listing events",err);
+				send500(res);
+			} else {
+				res.json(docs);
+				res.end();
+			}
+		});
+	}
 };
 
 /**
@@ -68,7 +90,7 @@ this.getEventGroup = function(index, opts, res){
 			res.json(arr);
 			res.end();			
 		} else {
-			send404(res);
+			general.send404(res);
 		}
 	});
 };
@@ -99,7 +121,7 @@ this.getEvent = function(index, opts, res){
 			res.json(tmp);
 			res.end();			
 		} else {
-			send404(res);
+			general.send404(res);
 		}
 	});
 };
@@ -137,7 +159,7 @@ this.createEvent = function(data, res, io){
 	//Check if GID is set or not
 	if(newEvent.GID == undefined || newEvent.GID == null){
 		//Need to determine the GID now
-		models.event.findOne({},['GID'],{sort: {GID: -1}}, function(err,doc){
+		models.event.findOne({},'GID',{sort: {GID: -1}}, function(err,doc){
 			if(err || !doc){
 				//Uh-oh. Fail gracefully?
 				logger.error("Error getting GID for new event, not saving", err);
@@ -209,7 +231,7 @@ this.getComments = function(index, opts, res){
 			count = 100;
 		}
 	}
-	models.event.find({_id:index}, ['comments'], {sort: {timestamp: -1}}, function(err, docs){
+	models.event.find({_id:index}, 'comments', {sort: {timestamp: -1}}, function(err, docs){
 		if(err){
 			logger.error('Error getting comments',err);
 			send500(res);
@@ -236,7 +258,7 @@ this.getOptions = function(res){
  * Socket.io message with the id of the event.
  */
 this.addComment = function(id, req, res, io){
-	models.event.find({_id:id}, ['comments','GID'], {sort: {timestamp: 1}}, function(err,docs){
+	models.event.find({_id:id}, 'comments GID', {sort: {timestamp: 1}}, function(err,docs){
 		if(err || docs.length == 0){
 			logger.error('Error adding comment',err);
 			send500(res);
@@ -288,7 +310,7 @@ this.getLocation = function(id, res){
  * Returns a list of all the location ids and names
  */
 this.listLocations = function(res){
-	models.location.find({},['_id', 'name'], function(err, docs){
+	models.location.find({},'_id name', function(err, docs){
 		if(err){
 			logger.info("Error listing locations "+err);
 			res.status(500);
@@ -373,7 +395,7 @@ this.getContact = function(id, res){
  * Returns a list of all the contact names and ids
  */
 this.listContacts = function(res){
-	models.contact.find({},['_id', 'name'], function(err, docs){
+	models.contact.find({},'_id name', function(err, docs){
 		if(err){
 			logger.info("Error listing contacts "+err);
 			general.send500(res);

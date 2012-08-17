@@ -83,12 +83,16 @@ this.listEvents = function(opts, res){
 	}
 	var list = [];
 	for(var i = 0; (i < eventList.length) && (i < count); i++){
-		var tmp = {};
-		tmp._id = eventList[i]._id;
-		tmp.GID = eventList[i].GID;
-		tmp.title = eventList[i].title;
-		tmp.timestmp = eventList[i].timestmp;
-		list.push(tmp);
+		//If querying for events after a certain ID without a DB connection,
+		//the IDs are almost certainly sequential
+		if(!opts.after || eventList[i]._id > opts.after){
+			var tmp = {};
+			tmp._id = eventList[i]._id;
+			tmp.GID = eventList[i].GID;
+			tmp.title = eventList[i].title;
+			tmp.timestmp = eventList[i].timestmp;
+			list.push(tmp);
+		}
 	}
 	res.json(list);
 	res.end();
