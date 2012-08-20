@@ -7,7 +7,8 @@ var express = require('express'),
 	winston = require('winston'),
 	socketio = require('socket.io'),
 	config = require('./config'),
-	mongoose = require('mongoose');
+	mongoose = require('mongoose'),
+	gcm = require('node-gcm');
 
 var app = module.exports = express.createServer();
 //Use Socket.IO
@@ -64,6 +65,8 @@ require('./dummy/dummy.js').load(app);
 // Event routes
 logger.info('Loading events');
 require('./events/router.js').load(app, io);
+logger.info('Loading GCM');
+require('./gcm/gcm.js').load(app);
 
 
 if(config.noDB){
