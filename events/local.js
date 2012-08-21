@@ -207,7 +207,7 @@ this.getEvent = function(index, opts, res){
  * On success, it returns the id and GID of the new event, and emits
  * a Socket.io message with the ID and GID
  */
-this.createEvent = function(req, res, io){
+this.createEvent = function(req, res, io, gcm){
 	var newEvent = new models.event(req);
 	//Check if GID is set
 	if(newEvent.GID == undefined || newEvent.GID == null){
@@ -226,6 +226,7 @@ this.createEvent = function(req, res, io){
 	res.json({'GID':newEvent.GID, 'id':newEvent._id});
 	res.end();
 	io.sockets.emit('event', {'GID':newEvent.GID, 'id':newEvent._id});
+	gcm.sendEvent(newEvent.title, newEvent._id, newEvent.GID);
 };
 
 /**
@@ -236,7 +237,7 @@ this.createEvent = function(req, res, io){
  * On success, it returns the id and GID of the new event, and emits
  * a Socket.io message with the ID and GID
  */
-this.createGroupEvent = function(data, gid, res, io){
+this.createGroupEvent = function(data, gid, res, io, gcm){
 	var newEvent = new models.event(data);
 	newEvent.GID = gid;
 	logger.info('New event posted to GID '+newEvent.GID, newEvent.toObject());
@@ -245,6 +246,7 @@ this.createGroupEvent = function(data, gid, res, io){
 	res.json({'GID':newEvent.GID, 'id':newEvent._id});
 	res.end();
 	io.sockets.emit('event', {'GID':newEvent.GID, 'id':newEvent._id});
+	gcm.sendEvent(newEvent.title, newEvent._id, newEvent.GID);
 };
 
 /**

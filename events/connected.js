@@ -130,7 +130,7 @@ this.getEvent = function(index, opts, res){
  * Helper function to handle event.save()
  * (See createEvent)
  */
-saveEvent = function(newEvent, res, io){
+saveEvent = function(newEvent, res, io, gcm){
 	logger.info("Event to be saved:",newEvent.toObject());
 	newEvent.save(function(err){
 		if(err){
@@ -154,7 +154,7 @@ saveEvent = function(newEvent, res, io){
  * On success, it returns the id and GID of the new event, and emits
  * a Socket.io message with the ID and GID
  */
-this.createEvent = function(data, res, io){
+this.createEvent = function(data, res, io, gcm){
 	var newEvent = new models.event(data);
 	//Check if GID is set or not
 	if(newEvent.GID == undefined || newEvent.GID == null){
@@ -167,11 +167,11 @@ this.createEvent = function(data, res, io){
 			} else {
 				newEvent.GID = doc.GID + 1;
 				//Save it now
-				saveEvent(newEvent, res, io);
+				saveEvent(newEvent, res, io, gcm);
 			}
 		});
 	} else {
-		saveEvent(newEvent, res, io);
+		saveEvent(newEvent, res, io, gcm);
 	}
 };
 
@@ -184,7 +184,7 @@ this.createEvent = function(data, res, io){
  * On success, it returns the id and GID of the new event, and emits
  * a Socket.io message with the ID and GID
  */
-this.createGroupEvent = function(data, gid, res, io){
+this.createGroupEvent = function(data, gid, res, io, gcm){
 	var newEvent = new models.event(data);
 	newEvent.GID = gid;
 	logger.info('New event posted to GID '+newEvent.GID, newEvent.toObject());
@@ -197,6 +197,7 @@ this.createGroupEvent = function(data, gid, res, io){
 			res.end();
 			//Broadcast
 			io.sockets.emit('event', {'GID':newEvent.GID, 'id':newEvent._id});
+			gcm.sendEvent(newEvent.title, newEvent._id, newEvent.GID);
 		}
 	});
 };

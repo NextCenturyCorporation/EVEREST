@@ -58,15 +58,28 @@ app.use(function errorHandler(err, req, res, next){
   logger.log('error', 'Error ', {stack: err.stack});
 });
 
+/*
+ * Connect to the DB now, if we should at all.
+ * Mongoose only needs to connect once, it will be shared
+ * between all files
+ */
+if(!config.noDB){
+	mongoose.connect('mongodb://'+config.db_host+':'+config.db_port+'/'+config.db_collection);
+	console.log('Connected to '+config.db_host+':'+config.db_port+'/'+config.db_collection);
+};
+
 // Routes
 // Dummy routes
 logger.info('Loading dummy');
 require('./dummy/dummy.js').load(app);
-// Event routes
-logger.info('Loading events');
-require('./events/router.js').load(app, io);
+//Load GCM
 logger.info('Loading GCM');
-require('./gcm/gcm.js').load(app);
+var gcm = require('./gcm/gcm.js');
+gcm.load(app);
+//Event routes
+logger.info('Loading events');
+require('./events/router.js').load(app, io, gcm);
+
 
 
 if(config.noDB){

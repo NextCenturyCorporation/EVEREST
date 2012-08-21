@@ -24,7 +24,7 @@ if(config.noDB){
 	eventManager = require('./connected.js');
 }
 
-this.load = function(app, io){
+this.load = function(app, io, gcm){
 	//Set up the route for listing all events
 	app.get('/events/?', function(req, res){
 		if(LOG){
@@ -56,7 +56,7 @@ this.load = function(app, io){
 		if(LOG){
 			logger.info("Receiving new event", req.body);
 		}
-		eventManager.createEvent(req.body, res, io);
+		eventManager.createEvent(req.body, res, io, gcm);
 	});
 	
 	//Add an event to a current group
@@ -64,7 +64,7 @@ this.load = function(app, io){
 		if(LOG){
 			logger.info("New event for group "+req.params.id, req.body);
 		}
-		eventManager.createGroupEvent(req.body, req.params.id, res, io);
+		eventManager.createGroupEvent(req.body, req.params.id, res, io, gcm);
 	});
 	
 	//Now, lets enable deleting events

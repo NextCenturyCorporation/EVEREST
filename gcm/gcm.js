@@ -5,16 +5,6 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var config = require('../config.js');
 var gcm = require('node-gcm');
-var API_KEY = 'AIzaSyAHKuZ6cEvASflzMoc_Mmb_rPoiZLTzLXE';
-
-
-//Connect to the database
-/*
-if(!config.noDB){
-	mongoose.connect('mongodb://'+config.db_host+':'+config.db_port+'/'+config.db_collection);
-	console.log('Connected to '+config.db_host+':'+config.db_port+'/'+config.db_collection);
-};
-*/
 
 //Maybe store the email too?
 RegisteredDataSchema = new Schema({
@@ -117,7 +107,7 @@ this.load = function(app){
 
 this.sendEvent = function(title, id, gid){
     var message = new gcm.Message();
-    var sender = new gcm.Sender(API_KEY);
+    var sender = new gcm.Sender(confg.gcmApiKey);
     var ids = [];
     
     //Add the title and ID data
@@ -129,7 +119,7 @@ this.sendEvent = function(title, id, gid){
     message.timeToLive = 2;
     
     //Need to get all the IDs now, up to 1000 at a time
-    if(cofig.noDB){
+    if(config.noDB){
         for(var i = 0; i < registeredIds.length && i < 1000; i++){
             ids.push(registeredIds[i].registrationId);
         }

@@ -5,12 +5,6 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var config = require('../config.js');
 
-//Connect to the database
-if(!config.noDB){
-	mongoose.connect('mongodb://'+config.db_host+':'+config.db_port+'/'+config.db_collection);
-	console.log('Connected to '+config.db_host+':'+config.db_port+'/'+config.db_collection);
-};
-
 /**
  * Define the models
  */
