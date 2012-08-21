@@ -106,6 +106,7 @@ this.load = function(app){
 };
 
 this.sendEvent = function(title, id, gid){
+	console.log("Sending GCM message about "+title);
     var message = new gcm.Message();
     var sender = new gcm.Sender(confg.gcmApiKey);
     var ids = [];
