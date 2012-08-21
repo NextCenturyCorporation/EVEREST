@@ -211,8 +211,9 @@ this.deleteEvent = function(id, res){
 			logger.error('Error deleting event', err);
 			send500(res);
 		} else {
-			for(cur in docs)
-				cur.remove();
+			for(var i = 0; i < docs.length; i++){
+				docs[i].remove();
+			}
 			res.json({status:'OK'});
 			res.end();
 		};
