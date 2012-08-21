@@ -115,7 +115,7 @@ this.sendEvent = function(title, id, gid){
     message.addData('title', title);
     message.addData('id', id);
     //This allows the GCM servers to deliver only 1 message per key if a device is offline or something
-    message.collapseKey = gid;
+    message.collapseKey = 'gid'+gid;
     //Not sure what unit this is, but 2 sounds like a good choice
     message.timeToLive = 2;
     
