@@ -26,7 +26,7 @@ registeredData = mongoose.model('GCM', RegisteredDataSchema);
 var registeredIds = [];
 
 function saveRegistration(body, res){
-	var registration = new RegisteredData({registrationId: body.id});
+	var registration = new registeredData({registrationId: body.id});
 	if(!config.noDB){
 		registration.save(function(err){
 			if(err){
