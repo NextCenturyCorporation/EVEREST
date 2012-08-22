@@ -266,7 +266,7 @@ this.addComment = function(id, req, res, io){
 			logger.error('Error adding comment',err);
 			send500(res);
 		} else {
-			var newComment = new comment(req);
+			var newComment = new models.comment(req);
 			docs[0].comments.push(newComment);
 			docs[0].comments.sort(function(a,b){
 				if(a.timestmp > b.timestmp){
