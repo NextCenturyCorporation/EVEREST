@@ -278,12 +278,25 @@ this.getComments = function(index, opts, res){
 			count = 100;
 		}
 	}
-	console.log('Count: '+count);
 	for(var i =0; i < eventList.length; i++){
 		var cur = eventList[i];
 		if(cur._id == index){
 			//Comments are sorted newest first
-			res.json(cur.comments.slice(0,count));
+			if(opts.after){
+				//They are requesting only comments after a certain ID, so
+				//send all the comments until you hit that ID or you hit $count
+				//comments processed
+				var comments = [];
+				var i = 0;
+				while(i < cur.comments.length && cur.comments[i]._id != opts.after && i < count){
+					comments.push(cur.comments[i]);
+					i++;
+				}
+				res.json(comments);
+			} else {
+				//Just return the last $count comments
+				res.json(cur.comments.slice(0,count));
+			}
 			res.end();
 			return;
 		};

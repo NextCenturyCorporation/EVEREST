@@ -240,7 +240,21 @@ this.getComments = function(index, opts, res){
 			send500(res);
 		} else if(docs.length > 0){
 			//Comments are sorted newest first
-			res.json(docs[0].comments.slice(0,count));
+			if(opts.after){
+				//They are requesting only comments after a certain ID, so
+				//send all the comments until you hit that ID or you hit $count
+				//comments processed
+				var comments = [];
+				var i = 0;
+				while(i < docs[0].comments.length && docs[0].comments[i]._id != opts.after && i < count){
+					comments.push(docs[0].comments[i]);
+					i++;
+				}
+				res.json(comments);
+			} else {
+				//Just return the last $count comments
+				res.json(docs[0].comments.slice(0,count));
+			}
 			res.end();			
 		} else {
 			general.send404(res);
