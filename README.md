@@ -3,7 +3,7 @@
 * Install the modules - run `npm install` in the Centurion directory
 * Run `node app.js` to start the single threaded version, or `node app-cluster.js` to start the threaded version
 
-### Envornment variables
+### Environment variables
 
 | Name | Description |
 |------|-------------|
