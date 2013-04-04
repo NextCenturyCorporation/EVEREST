@@ -17,7 +17,7 @@ config.noData = process.env.NODATA || false;
 
 config.eventTypes = ['Emergency', 'Warning', 'Weather', 'Traffic', 'Information'];
 
-//The Google Could Messaging API key
+//The Google Cloud Messaging API key
 config.gcmApiKey = 'AIzaSyAHKuZ6cEvASflzMoc_Mmb_rPoiZLTzLXE';
 
 module.exports = config;
