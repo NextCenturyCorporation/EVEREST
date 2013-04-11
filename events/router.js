@@ -40,17 +40,7 @@ this.load = function(app, io, gcm){
 		}
 		eventManager.listEvents(req.query, res);
 	});
-	
-	//And the route for getting event groups
-	app.get('/events/:id([0-9]+)', function(req, res){
-		eventManager.getEventGroup(req.params.id, req.query, res);
-	});
-	
-	//And the route for getting individual events
-	app.get('/events/:id([0-9a-f]+)', function(req, res){
-		eventManager.getEvent(req.params.id, req.query, res);
-	});
-	
+
 	//Create a new event
 	app.post('/events/?', function(req, res){
 		if(LOG){
@@ -59,12 +49,11 @@ this.load = function(app, io, gcm){
 		eventManager.createEvent(req.body, res, io, gcm);
 	});
 	
-	//Add an event to a current group
-	app.post('/events/:id([0-9]+)', function(req,res){
-		if(LOG){
-			logger.info("New event for group "+req.params.id, req.body);
-		}
-		eventManager.createGroupEvent(req.body, req.params.id, res, io, gcm);
+	//TODO update event
+	
+	//And the route for getting individual events
+	app.get('/events/:id([0-9a-f]+)', function(req, res){
+		eventManager.getEvent(req.params.id, req.query, res);
 	});
 	
 	//Now, lets enable deleting events
@@ -73,10 +62,25 @@ this.load = function(app, io, gcm){
 			logger.info("Request to delete event");
 		}
 		eventManager.deleteEvent(req.params.id, res);
+	});	
+	
+	//Add an event to a current group //FIXME does it make sense to take a event for a group based on url with id or to update the event
+	app.post('/events/:id([0-9]+)', function(req,res){
+		if(LOG){
+			logger.info("New event for group "+req.params.id, req.body);
+		}
+		eventManager.createGroupEvent(req.body, req.params.id, res, io, gcm);
+	});
+	
+	//And the route for getting event groups
+	app.get('/events/:id([0-9]+)', function(req, res){
+		eventManager.getEventGroup(req.params.id, req.query, res);
 	});
 	
 	
-	//Comments!!
+	/*************
+	**Comments!!**
+	*************/
 	app.get('/events/:id([0-9a-f]+)/comments',function(req,res){
 		if(LOG){
 			logger.info("Request for comments of "+req.params.id);
@@ -88,6 +92,8 @@ this.load = function(app, io, gcm){
 	app.post('/events/:id([0-9a-f]+)/comments', function(req,res){
 		eventManager.addComment(req.params.id, req.body, res, io);
 	});
+	
+
 	
 	
 	/************

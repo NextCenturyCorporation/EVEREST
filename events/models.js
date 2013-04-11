@@ -52,7 +52,7 @@ this.ContactsDataModel = this.contactDataModel;
 var ContactSchema = new Schema(this.contactDataModel);
 
 this.eventDataModel = {
-		GID			:	{type: Number, min:0, required:true},
+		GID			:	ObjectId,
 		timestmp	:	{type: Date, default: Date.now},
 		title		:	{type: String, required:true},
 		type		:	{type: String, enum: config.eventTypes, required:true},

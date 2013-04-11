@@ -160,7 +160,7 @@ this.createEvent = function(data, res, io, gcm){
 	//Check if GID is set or not
 	if(newEvent.GID == undefined || newEvent.GID == null){
 		//Need to determine the GID now
-		models.event.findOne({},'GID',{sort: {GID: -1}}, function(err,doc){
+		/*models.event.findOne({},'GID',{sort: {GID: -1}}, function(err,doc){
 			if(err || !doc){
 				//Uh-oh. Fail gracefully?
 				logger.error("Error getting GID for new event, not saving", err);
@@ -170,7 +170,10 @@ this.createEvent = function(data, res, io, gcm){
 				//Save it now
 				saveEvent(newEvent, res, io, gcm);
 			}
-		});
+		});*/
+		
+		newEvent.GID = newEvent._id;
+		saveEvent(newEvent, res, io, gcm);
 	} else {
 		saveEvent(newEvent, res, io, gcm);
 	}
