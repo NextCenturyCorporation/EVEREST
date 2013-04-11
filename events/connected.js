@@ -208,7 +208,7 @@ this.createGroupEvent = function(data, gid, res, io, gcm){
  */
 this.deleteEvent = function(id, res){
 	models.event.find({_id:id}, function(err, docs){
-		if(err || docs.longth == 0){
+		if(err || docs.length == 0){
 			logger.error('Error deleting event', err);
 			send500(res);
 		} else {
@@ -474,3 +474,18 @@ this.updateContact = function(id, data, res){
 		res.end();
 	});
 };
+
+this.deleteContact = function(id, data, res) {
+	models.contact.find({_id:id}, function(err, docs){
+		if(err || docs.length == 0){
+			logger.error('Error deleting contact', err);
+			send500(res);
+		} else {
+			for(var i = 0; i < docs.length; i++){
+				docs[i].remove();
+			}
+			res.json({status:'ok'});
+			res.end();
+		};
+	});
+}

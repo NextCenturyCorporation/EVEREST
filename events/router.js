@@ -153,6 +153,13 @@ this.load = function(app, io, gcm){
 		eventManager.updateContact(req.params.id, req.body, res);
 	});
 	
+	app.del('/contact/:id([]+)', function(req, res){
+		if(LOG) {
+			logger.info("Deleting contact " + req.params.id);
+		}
+		eventManager.deleteContact(req.params.id, req.body, res);
+	}
+	
 	//Get all options for server
 	app.get('/options',function(req,res){
 		if(LOG){
