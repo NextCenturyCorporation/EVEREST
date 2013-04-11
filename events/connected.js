@@ -488,4 +488,4 @@ this.deleteContact = function(id, data, res) {
 			res.end();
 		};
 	});
-}
+};

@@ -158,7 +158,7 @@ this.load = function(app, io, gcm){
 			logger.info("Deleting contact " + req.params.id);
 		}
 		eventManager.deleteContact(req.params.id, req.body, res);
-	}
+	});
 	
 	//Get all options for server
 	app.get('/options',function(req,res){
