@@ -89,15 +89,11 @@ this.load = function(app, io, gcm){
 		eventManager.addComment(req.params.id, req.body, res, io);
 	});
 	
-	//Locations
-	app.get('/location/:id([0-9a-f]+)', function(req,res){
-		if(0 && LOG){
-			logger.info("Request for locaiton "+req.params.id);
-		}
-		eventManager.getLocation(req.params.id, res);
-	});
 	
-	//Get a list of all locations, which will just list their id and name
+	/************
+	**Locations**
+	************/
+	//list - lists name and id
 	app.get('/location/', function(req,res){
 		if(LOG){
 			logger.info("Request for location list");
@@ -105,7 +101,7 @@ this.load = function(app, io, gcm){
 		eventManager.listLocations(res);
 	});
 	
-	//Create a new location
+	//Create
 	app.post('/location/?', function(req,res){
 		if(LOG){
 			logger.info("Receiving new location");
@@ -113,7 +109,15 @@ this.load = function(app, io, gcm){
 		eventManager.createLocation(req.body, res);
 	});
 	
-	//Update a location
+	//review
+	app.get('/location/:id([0-9a-f]+)', function(req,res){
+		if(0 && LOG){
+			logger.info("Request for locaiton "+req.params.id);
+		}
+		eventManager.getLocation(req.params.id, res);
+	});
+	
+	//Update
 	app.post('/location/:id([0-9a-f]+)', function(req,res){
 		if(LOG){
 			logger.info("Update location "+req.params.id);
@@ -121,7 +125,18 @@ this.load = function(app, io, gcm){
 		eventManager.updateLocation(req.params.id, req.body, res);
 	});
 	
-	//Contacts
+	//delete
+	app.del('/location/:id([0-9a-f]+)', function(req, res) {
+		if(LOG) {
+			logger.info("Deleting location with id: " + req.params.id);
+		}
+		eventManager.deleteLocation(req.params.id, req.body, res);
+	});
+	
+	
+	/***********
+	**Contacts**
+	***********/
 	app.get('/contact/:id([0-9a-f]+)', function(req,res){
 		if(LOG){
 			logger.info("Request for contact "+req.params.id);

@@ -40,7 +40,7 @@ this.listEvents = function(opts, res){
 					limit(count).execFind(function(err, docs){
 				if(err){
 					logger.error("Error listing events",err);
-					send500(res);
+					general.send500(res);
 				} else {
 					res.json(docs);
 					res.end();
@@ -51,7 +51,7 @@ this.listEvents = function(opts, res){
 		models.event.find({}, 'GID title timestmp', {sort: {timestmp: -1}}).limit(count).execFind(function(err, docs){
 			if(err){
 				logger.error("Error listing events",err);
-				send500(res);
+				general.send500(res);
 			} else {
 				res.json(docs);
 				res.end();
@@ -69,7 +69,7 @@ this.getEventGroup = function(index, opts, res){
 	models.event.find({GID:index}, null, {sort: {timestmp: -1}}).populate('contact').populate('location').exec(function(err, docs){
 		if(err){
 			logger.error("Error getting event group",err);
-			send500(res);
+			general.send500(res);
 		} else if(docs.length > 0){
 			var arr = [];
 			for(var i=0; i< docs.length; i++){
@@ -104,7 +104,7 @@ this.getEvent = function(index, opts, res){
 	models.event.findById(index).populate('location').populate('contact').exec(function(err, docs){
 		if(err){
 			logger.error('Error getting event',err);
-			send500(res);
+			general.send500(res);
 		} else if(docs){
 			var tmp = docs.toObject();
 			tmp.numComments = docs.numComments;
@@ -210,7 +210,7 @@ this.deleteEvent = function(id, res){
 	models.event.find({_id:id}, function(err, docs){
 		if(err || docs.length == 0){
 			logger.error('Error deleting event', err);
-			send500(res);
+			general.send500(res);
 		} else {
 			for(var i = 0; i < docs.length; i++){
 				docs[i].remove();
@@ -237,7 +237,7 @@ this.getComments = function(index, opts, res){
 	models.event.find({_id:index}, 'comments', {sort: {timestamp: -1}}, function(err, docs){
 		if(err){
 			logger.error('Error getting comments',err);
-			send500(res);
+			general.send500(res);
 		} else if(docs.length > 0){
 			//Comments are sorted newest first
 			if(opts.after){
@@ -278,7 +278,7 @@ this.addComment = function(id, req, res, io){
 	models.event.find({_id:id}, 'comments GID', {sort: {timestamp: 1}}, function(err,docs){
 		if(err || docs.length == 0){
 			logger.error('Error adding comment',err);
-			send500(res);
+			general.send500(res);
 		} else {
 			var newComment = new models.comment(req);
 			docs[0].comments.push(newComment);
@@ -293,7 +293,7 @@ this.addComment = function(id, req, res, io){
 			});
 			docs[0].save(function(err){
 				if(err){
-					send500(res,err);
+					general.send500(res,err);
 				} else {
 					res.json({status: 'OK'});
 					res.end();
@@ -304,25 +304,7 @@ this.addComment = function(id, req, res, io){
 	});
 };
 
-/**
- * Returns the location with the id specified in the URL
- */
-this.getLocation = function(id, res){
-	models.location.findById(id, function(err, docs){
-		if(err) {
-			logger.info("Error getting location "+err);
-			res.status(500);
-			res.json({error: 'Error'});
-		} else if(docs) {
-			res.json(docs);
-		} else {
-			res.status(404);
-			res.json({error: 'Not found'});
-		}
-		res.end();
-	});
-};
-
+/*******************locations*******************/
 /**
  * Returns a list of all the location ids and names
  */
@@ -351,7 +333,7 @@ this.createLocation = function(data, res){
 	newLoc.save(function(err){
 		if(err){
 			logger.error('Error saving location', err);
-			send500(res);
+			general.send500(res);
 		} else {
 			res.json({id:newLoc._id});
 			res.end();
@@ -359,6 +341,24 @@ this.createLocation = function(data, res){
 	});
 };
 
+/**
+ * Returns the location with the id specified in the URL
+ */
+this.getLocation = function(id, res){
+	models.location.findById(id, function(err, docs){
+		if(err) {
+			logger.info("Error getting location "+err);
+			res.status(500);
+			res.json({error: 'Error'});
+		} else if(docs) {
+			res.json(docs);
+		} else {
+			res.status(404);
+			res.json({error: 'Not found'});
+		}
+		res.end();
+	});
+};
 
 /**
  * This updates the location with id specified in the URL.
@@ -392,22 +392,25 @@ this.updateLocation = function(id, data, res){
 };
 
 /**
- * Returns the contact object with id specified in the URL.
- */
-this.getContact = function(id, res){
-	models.contact.findById(id, function(err, docs){
-		if(err) {
-			logger.info("Error getting contact "+err);
+ * Deletes the location with the given ID
+**/
+this.deleteLocation = function(id, data, res) {
+	models.location.find({_id:id}, function(err, docs){
+		if(err || docs.length == 0){
+			logger.error('Error deleting location', err);
 			general.send500(res);
-		} else if(docs) {
-			res.json(docs);
 		} else {
-			general.send404(res);
-		}
-		res.end();
+			for(var i = 0; i < docs.length; i++){
+				docs[i].remove();
+			}
+			res.json({status:'ok'});
+			res.end();
+		};
 	});
 };
 
+
+/*********contacts**********/
 /**
  * Returns a list of all the contact names and ids
  */
@@ -444,6 +447,23 @@ this.createContact = function(data, res){
 };
 
 /**
+ * Returns the contact object with id specified in the URL.
+ */
+this.getContact = function(id, res){
+	models.contact.findById(id, function(err, docs){
+		if(err) {
+			logger.info("Error getting contact "+err);
+			general.send500(res);
+		} else if(docs) {
+			res.json(docs);
+		} else {
+			general.send404(res);
+		}
+		res.end();
+	});
+};
+
+/**
  * This updates the location with id specified in the URL.
  * It will not change the id.
  * On success, it returns status:ok
@@ -475,11 +495,14 @@ this.updateContact = function(id, data, res){
 	});
 };
 
+/**
+ * Deletes the contact with the given id
+**/
 this.deleteContact = function(id, data, res) {
 	models.contact.find({_id:id}, function(err, docs){
 		if(err || docs.length == 0){
 			logger.error('Error deleting contact', err);
-			send500(res);
+			general.send500(res);
 		} else {
 			for(var i = 0; i < docs.length; i++){
 				docs[i].remove();
