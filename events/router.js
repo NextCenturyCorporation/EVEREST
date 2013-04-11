@@ -153,7 +153,7 @@ this.load = function(app, io, gcm){
 		eventManager.updateContact(req.params.id, req.body, res);
 	});
 	
-	app.del('/contact/:id([]+)', function(req, res){
+	app.del('/contact/:id([0-9a-f]+)', function(req, res){
 		if(LOG) {
 			logger.info("Deleting contact " + req.params.id);
 		}
