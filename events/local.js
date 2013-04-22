@@ -10,7 +10,7 @@ var config = require('../config.js');
 var logger = new (winston.Logger)({
 	//Make it log to both the console and a file 
 	transports : [new (winston.transports.Console)(),
-	              new (winston.transports.File)({filename: 'logs/general.log'})],
+					new (winston.transports.File)({filename: 'logs/general.log'})] //,
 });
 
 /*
@@ -109,7 +109,7 @@ this.getEventGroup = function(index, opts, res){
 		var cur = eventList[i];
 		if(cur.GID == index){
 			var tmp = {};
-			for(e in cur.toObject()){
+			for(var e in cur.toObject()){
 				tmp[e] = cur[e];
 			}
 			//Embed the contact
@@ -120,7 +120,8 @@ this.getEventGroup = function(index, opts, res){
 				}
 			}
 			//Embed the location
-			for(var j=0; j < locationList.length; j++){
+			//for(var j=0; j < locationList.length; j++){
+			for(j=0; j < locationList.length; j++){
 				if(locationList[j]._id.toString() == cur.location.toString()){
 					tmp['location'] = locationList[j];
 					break;
@@ -172,7 +173,8 @@ this.getEvent = function(index, opts, res){
 				}
 			}
 			//Embed the location
-			for(var j=0; j < locationList.length; j++){
+			//for(var j=0; j < locationList.length; j++){
+			for(j=0; j < locationList.length; j++){
 				if(locationList[j]._id.toString() == cur.location.toString()){
 					tmp['location'] = locationList[j];
 					break;
@@ -210,7 +212,7 @@ this.getEvent = function(index, opts, res){
 this.createEvent = function(req, res, io, gcm){
 	var newEvent = new models.event(req);
 	//Check if GID is set
-	if(newEvent.GID == undefined || newEvent.GID == null){
+	if(newEvent.GID === undefined || newEvent.GID === null){
 		//Need to determine the GID
 		var max = 0;
 		for(var i =0; i < eventList.length; i++){
@@ -260,7 +262,7 @@ this.deleteEvent = function(id, res){
 			res.send({status:'OK'});
 			res.end();
 			return;
-		};
+		}
 	}
 	general.send404(res);
 };
@@ -287,10 +289,10 @@ this.getComments = function(index, opts, res){
 				//send all the comments until you hit that ID or you hit $count
 				//comments processed
 				var comments = [];
-				var i = 0;
-				while(i < cur.comments.length && cur.comments[i]._id != opts.after && i < count){
-					comments.push(cur.comments[i]);
-					i++;
+				var j = 0;
+				while(j < cur.comments.length && cur.comments[j]._id != opts.after && j < count){
+					comments.push(cur.comments[j]);
+					j++;
 				}
 				res.json(comments);
 			} else {
@@ -299,8 +301,8 @@ this.getComments = function(index, opts, res){
 			}
 			res.end();
 			return;
-		};
-	};
+		}
+	}
 	general.send404(res);
 };
 
@@ -335,7 +337,7 @@ this.addComment = function(id, req, res, io){
 			res.end();
 			io.sockets.emit('comment', {'id':cur._id});
 			return;
-		};
+		}
 	}
 	general.send404(res);
 };
@@ -350,7 +352,7 @@ this.getLocation = function(id, res){
 			res.json(cur);
 			res.end();
 			return;
-		};
+		}
 	}
 	//Not found
 	general.send404(res);
@@ -389,7 +391,7 @@ this.updateLocation = function(id, data, res){
 		if(cur._id == id){
 			//Found the location to update
 			//Update original with the POSTed data
-			for(e in data){
+			for(var e in data){
 				//Make sure not to change _id
 				if(e != '_id'){
 					cur[e] = data[e];
@@ -413,7 +415,7 @@ this.getContact = function(id, res){
 			res.json(cur);
 			res.end();
 			return;
-		};
+		}
 	}
 	//Not found
 	general.send404(res);
@@ -452,7 +454,7 @@ this.updateContact = function(id, data, res){
 		if(cur._id == id){
 			//Found the contact to update
 			//Update original with the POSTed data
-			for(e in data){
+			for(var e in data){
 				//Make sure not to change _id
 				if(e != '_id'){
 				}

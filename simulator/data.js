@@ -109,7 +109,7 @@ var data = [
 {title:"More photos", timestmp: new Date(baseDate+'14:43:00'), location:0, description:
 	"http://imgur.com/a/1dH9z"}, //2:43pm
 {title:"SWAT done searching Squires", timestmp: new Date(baseDate+'14:45:00'), location:0, description:
-	"SWAT team has left after searching Squires Student Center. No suspicious persons inside."}, //2:45pm
+	"SWAT team has left after searching Squires Student Center. No suspicious persons inside."} //, //2:45pm
 ];
 
 /**
@@ -120,7 +120,7 @@ this.getEvent= function(index){
 		return null;
 	}
 	var toRet = data[index];
-	for(e in defaults){
+	for(var e in defaults){
 		toRet[e] = defaults[e];
 	}
 	return toRet;

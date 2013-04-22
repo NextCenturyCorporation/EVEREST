@@ -119,16 +119,16 @@ var js2form = (function()
 		{
 			name = '';
 
-			if (currNode.name && currNode.name != '')
+			if (currNode.name && currNode.name !== '')
 			{
 				name = currNode.name;
 			}
-			else if (useIdIfEmptyName && currNode.id && currNode.id != '')
+			else if (useIdIfEmptyName && currNode.id && currNode.id !== '')
 			{
 				name = currNode.id;
 			}
 
-			if (name == '')
+			if (name === '')
 			{
 				var subFields = getFields(currNode, useIdIfEmptyName, delimiter, arrayIndexes, shouldClean);
 				for (subFieldName in subFields)
@@ -214,7 +214,7 @@ var js2form = (function()
 			currChunk = nameChunks[i];
 			nameChunksNormalized.push(currChunk);
 			nameMatches = currChunk.match(_lastIndexedArrayRegexp);
-			if (nameMatches != null)
+			if (nameMatches !== null)
 			{
 				nameNormalized = nameChunksNormalized.join(delimiter);
 				currIndex = nameNormalized.replace(_lastIndexedArrayRegexp, '$3');
@@ -228,7 +228,7 @@ var js2form = (function()
 					};
 				}
 
-				if (currIndex == '' || typeof arrayIndexes[nameNormalized].indexes[currIndex] == 'undefined')
+				if (currIndex === '' || typeof arrayIndexes[nameNormalized].indexes[currIndex] == 'undefined')
 				{
 					arrayIndexes[nameNormalized].lastIndex++;
 					arrayIndexes[nameNormalized].indexes[currIndex] = arrayIndexes[nameNormalized].lastIndex;
@@ -250,7 +250,7 @@ var js2form = (function()
 
 		if (arguments.length == 1) lvl = 0;
 
-        if (obj == null)
+        if (obj === null)
         {
             result = [{ name: "", value: null }];
         }

@@ -19,10 +19,10 @@ io.set('log level', 1);
 var logger = new (winston.Logger)({
 	//Make it log to both the console and a file 
 	transports : [new (winston.transports.Console)(),
-	              new (winston.transports.File)({filename: 'logs/general.log'})],
+					new (winston.transports.File)({filename: 'logs/general.log'})] //,
 	//Log uncaught exceptions to a seperate log
 //	exceptionHandlers: [new winston.transports.File({filename: 'logs/exceptions.log'}),
-//	                    new (winston.transports.Console)()]
+//							new (winston.transports.Console)()]
 });
 
 // Configuration
@@ -64,7 +64,7 @@ app.use(function errorHandler(err, req, res, next){
 if(!config.noDB){
 	mongoose.connect('mongodb://' + config.db_host + ':' + config.db_port + '/' + config.db_collection);
 	console.log('Connected to ' + config.db_host + ':' + config.db_port + '/' + config.db_collection);
-};
+}//;
 
 // Routes
 // Dummy routes

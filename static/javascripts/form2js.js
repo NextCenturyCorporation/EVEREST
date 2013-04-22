@@ -41,8 +41,8 @@ var form2js = (function()
 	 */
 	function form2js(rootNode, delimiter, skipEmpty, nodeCallback, useIdIfEmptyName)
 	{
-		if (typeof skipEmpty == 'undefined' || skipEmpty == null) skipEmpty = true;
-		if (typeof delimiter == 'undefined' || delimiter == null) delimiter = '.';
+		if (typeof skipEmpty == 'undefined' || skipEmpty === null) skipEmpty = true;
+		if (typeof delimiter == 'undefined' || delimiter === null) delimiter = '.';
 		if (arguments.length < 5) useIdIfEmptyName = false;
 
 		rootNode = typeof rootNode == 'string' ? document.getElementById(rootNode) : rootNode;
@@ -54,7 +54,8 @@ var form2js = (function()
 		/* If rootNode is array - combine values */
 		if (rootNode.constructor == Array || (typeof NodeList != "undefined" && rootNode.constructor == NodeList))
 		{
-			while(currNode = rootNode[i++])
+			//while(currNode = rootNode[i++])
+			while(currNode == rootNode[i++])
 			{
 				formValues = formValues.concat(getFormValues(currNode, nodeCallback, useIdIfEmptyName));
 			}
@@ -107,7 +108,7 @@ var form2js = (function()
 				{
 					for(k = 0; k < namePart.length; k++)
 					{
-						if (k == 0)
+						if (k === 0)
 						{
 							namePart[k] = namePart[k] + ']';
 						}
@@ -165,11 +166,11 @@ var form2js = (function()
 					 */
 
 					if (!arrays[arrNameFull]) arrays[arrNameFull] = {};
-					if (arrName != '' && !currResult[arrName]) currResult[arrName] = [];
+					if (arrName !== '' && !currResult[arrName]) currResult[arrName] = [];
 
 					if (j == nameParts.length - 1)
 					{
-						if (arrName == '')
+						if (arrName === '')
 						{
 							currResult.push(value);
 							arrays[arrNameFull][arrIdx] = currResult[currResult.length - 1];
@@ -241,13 +242,13 @@ var form2js = (function()
         if (callbackResult && callbackResult.name) {
             result = [callbackResult];
         }
-        else if (fieldName != '' && node.nodeName.match(/INPUT|TEXTAREA/i)) {
+        else if (fieldName !== '' && node.nodeName.match(/INPUT|TEXTAREA/i)) {
             fieldValue = getFieldValue(node);
 			result = [ { name: fieldName, value: fieldValue} ];
         }
-        else if (fieldName != '' && node.nodeName.match(/SELECT/i)) {
-	        fieldValue = getFieldValue(node);
-	        result = [ { name: fieldName.replace(/\[\]$/, ''), value: fieldValue } ];
+        else if (fieldName !== '' && node.nodeName.match(/SELECT/i)) {
+			fieldValue = getFieldValue(node);
+			result = [ { name: fieldName.replace(/\[\]$/, ''), value: fieldValue } ];
         }
         else {
             result = getSubFormValues(node, nodeCallback, useIdIfEmptyName);
@@ -258,8 +259,8 @@ var form2js = (function()
 
 	function getFieldName(node, useIdIfEmptyName)
 	{
-		if (node.name && node.name != '') return node.name;
-		else if (useIdIfEmptyName && node.id && node.id != '') return node.id;
+		if (node.name && node.name !== '') return node.name;
+		else if (useIdIfEmptyName && node.id && node.id !== '') return node.id;
 		else return '';
 	}
 
@@ -284,17 +285,17 @@ var form2js = (function()
 					case 'submit':
 					case 'image':
 						return '';
-						break;
+						//break;
 
 					default:
 						return fieldNode.value;
-						break;
+						//break;
 				}
 				break;
 
 			case 'SELECT':
 				return getSelectedOptionValue(fieldNode);
-				break;
+				//break;
 
 			default:
 				break;

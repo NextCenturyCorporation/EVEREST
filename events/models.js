@@ -18,17 +18,17 @@ this.userDataModel = {
 				first	: String,
 				last	:	String
 				},
-		email	: { type: String, lowercase:true, required: true, index: {unique: true, sparse: true}},
+		email	: { type: String, lowercase:true, required: true, index: {unique: true, sparse: true}}
 	};
 var UserSchema = new Schema(this.userDataModel);
 
 this.commentDataModel = {
 		eventID		:	ObjectId,
-		userID		: 	ObjectId,
+		userID		:	ObjectId,
 		text		:	{type: String, required:true},
 		timestmp	:	{type: Date, default: Date.now},
 		latitude	:	{type: Number, select: false},
-		longitude	: 	{type: Number, select: false}
+		longitude	:	{type: Number, select: false}
 	};
 var CommentSchema = new Schema(this.commentDataModel);
 
@@ -102,7 +102,7 @@ this.event = mongoose.model('Event', EventSchema);
  * 
  * Finding events is as easy as:
  * event.find({id:1}, function(err, docs){
- * 		//docs contains all Events with a matching id
+ *		//docs contains all Events with a matching id
  * });
  * More: http://mongoosejs.com/docs/finding-documents.html
  * 

@@ -18,6 +18,7 @@ var registeredIds = [];
 function saveRegistration(body, res){
 	var registration = new registeredData({registrationId: body.id});
 	if(!config.noDB){
+		var err;
 		registration.save(function(err){
 			if(err){
 				res.status(500);
@@ -37,31 +38,34 @@ function saveRegistration(body, res){
 
 function unregister(id, res){
 	if(config.noDB){
+		var err;
 		registeredData.find({registrationId:id}, function(err, docs){
-		    if(err){
-		        res.status(500);
-		        res.json({status:'Error'});
-		        res.end();
-		        return;
-		    }
-		    for(cur in docs){
-    		    cur.remove();
-    		}
-    		res.json({status:'OK'});
-    		res.end();
+			
+			if(err){
+				res.status(500);
+				res.json({status:'Error'});
+				res.end();
+				return;
+			}
+
+			for(var cur in docs){
+				cur.remove();
+			}
+			res.json({status:'OK'});
+			res.end();
 		});
 	} else {
 		for(var i =0; i < registeredIds.length; i++){
-		    if(registeredIds[i].registationId == id){
-		        registeredIds.splice(i,1);
-		        res.json({status:'OK'});
-		        res.end();
-		        return;
-		    }
+			if(registeredIds[i].registationId == id){
+				registeredIds.splice(i,1);
+				res.json({status:'OK'});
+				res.end();
+				return;
+			}
 		}
 		res.status(404);
-    	res.json({error:"Not found"});
-    	res.end();
+		res.json({error:"Not found"});
+		res.end();
 	}
 }
 
@@ -101,7 +105,7 @@ this.load = function(app){
 	});
 	
 	app.get('/gcm/', function(req, res){
-	    listAll(res);
+		listAll(res);
 	});
 };
 
@@ -142,5 +146,5 @@ this.sendEvent = function(title, id, gid){
             });
         });
     }
-}
+};
 

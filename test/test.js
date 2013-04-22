@@ -30,8 +30,8 @@ var contacts = null;
 function checkData(dataType, data){
 	var model = models[dataType+'DataModel'];
 	for(var curElement in model){
-		if(model[curElement].required == true){
-			assert(data[curElement] != null, curElement+' in '+dataType+' id '+data._id+' is null');
+		if(model[curElement].required === true){
+			assert(data[curElement] !== null, curElement+' in '+dataType+' id '+data._id+' is null');
 			//If its a DBRef, check that it is also complete
 			if(model[curElement].ref){
 				checkData(model[curElement].ref, data[curElement]);
@@ -74,7 +74,7 @@ describe('Test Getting Data:', function(){
 				});
 				//Now that the request has been completed, make sure it contains all the correct data
 				it('Checking data -\t'+curId._id, function(done){
-					assert(cur != null, 'Event data null');
+					assert(cur !== null, 'Event data null');
 					checkData('event', cur);
 					done();
 				});
@@ -113,7 +113,7 @@ describe('Locations:',function(){
 				});
 				//Now that the request has been completed, make sure it contains all the correct data
 				it('Checking data -\t\t'+curId._id, function(done){
-					assert(cur != null, 'Location is null');
+					assert(cur !== null, 'Location is null');
 					// Check the data
 					checkData('location', cur);
 					done();
@@ -153,7 +153,7 @@ describe('Contacts:',function(){
 				});
 				//Now that the request has been completed, make sure it contains all the correct data
 				it('Checking data -\t'+curId._id, function(done){
-					assert(cur != null, 'Contact data null');
+					assert(cur !== null, 'Contact data null');
 					// Check the data
 					checkData('contact', cur);
 					done();
@@ -190,7 +190,7 @@ describe('Test Sending Data', function(){
 			});
 		});
 		it('Checking for id in response', function(done){
-			assert(locationResponse.id != null, 'No id in location response');
+			assert(locationResponse.id !== null, 'No id in location response');
 			//Add the id to the event
 			testData.event.location = locationResponse.id;
 			done();
@@ -206,7 +206,7 @@ describe('Test Sending Data', function(){
 			});
 		});
 		it('Checking for id in response', function(done){
-			assert(contactResponse.id != null, 'No id in contact response');
+			assert(contactResponse.id !== null, 'No id in contact response');
 			//Add the ID to the event
 			testData.event.contact = contactResponse.id;
 			done();
@@ -222,8 +222,8 @@ describe('Test Sending Data', function(){
 			});
 		});
 		it('Checking for id and GID in response', function(done){
-			assert(eventResponse.id != null, 'No id in event response');
-			assert(eventResponse.GID != null, 'No GID in event response');
+			assert(eventResponse.id !== null, 'No id in event response');
+			assert(eventResponse.GID !== null, 'No GID in event response');
 			done();
 		});
 	});

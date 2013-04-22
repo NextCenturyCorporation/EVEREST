@@ -33,7 +33,8 @@ this.event = {
 		group		:	0,
 		status		:	'Ongoing',
 		description	:	"This will be POSTed to test the API",
-		radius		:	5,
+		radius		:	5
+//		radius		:	5,
 	};
 
 /**
@@ -53,7 +54,8 @@ this.compareLocations = function(location1, location2){
 		assert.equal(location1[curElement], location2[curElement], curElement+' is not the same in both locations');
 	}
 	//Check all elements in location2, in case something is missing
-	for(var curElement in location2){
+	//for(var curElement in location2){
+	for(curElement in location2){
 		assert.equal(location1[curElement], location2[curElement], curElement+' is not the same in both locations');
 	}
 };
@@ -75,7 +77,8 @@ this.compareContacts = function(contact1, contact2){
 		assert.equal(contact1[curElement], contact2[curElement], curElement+' is not the same in both contacts');
 	}
 	//Check all elements in contact2, in case something is missing
-	for(var curElement in contact2){
+	//for(var curElement in contact2){
+	for(curElement in contact2){
 		assert.equal(contact1[curElement], contact2[curElement], curElement+' is not the same in both contacts');
 	}
 };
@@ -112,7 +115,8 @@ this.compareEvents = function(event1, event2){
 		}
 	}
 	//Check everything in event2, in case something is missing
-	for(var curElement in event2){
+	//for(var curElement in event2){
+	for(curElement in event2){
 		if(curElement == 'contact'){
 			this.compareContacts(event1.contact, event2.contact);
 		} else if(curElement == 'location'){

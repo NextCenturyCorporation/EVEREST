@@ -3,7 +3,7 @@ var config = {};
 //Port to listen on
 config.port = process.env.PORT || 8081;
 //Database address
-config.db_host = process.env.DB_HOST || '10.10.20.12';
+config.db_host = process.env.DB_HOST || '192.168.1.140';
 //Database port
 config.db_port = process.env.DB_PORT || 27017;
 //Collection name

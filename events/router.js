@@ -8,7 +8,7 @@ var config = require('../config.js');
 var logger = new (winston.Logger)({
 	//Make it log to both the console and a file 
 	transports : [new (winston.transports.Console)(),
-	              new (winston.transports.File)({filename: 'logs/general.log'})],
+					new (winston.transports.File)({filename: 'logs/general.log'})]
 });
 
 var LOG = true;

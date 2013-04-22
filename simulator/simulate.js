@@ -13,7 +13,7 @@ var count = data.numEvents();
  * if it hasn't, it will send the location before the new event.
  */
 var sendEvent = function(curEvent){
-	if(data.location[curEvent.location].id == null){
+	if(data.location[curEvent.location].id === null){
 		//Need to send the location, then the event
 		poster.urlReq('http://localhost:8081/location/',
 				{method: 'POST',params: data.location[curEvent.location]},
@@ -82,7 +82,7 @@ poster.urlReq('http://localhost:8081/contact/',
 			cur.contact = contactInfo.id;
 			//Now, sleep for the time between this and the next event
 			var next = data.getEvent(i+1);
-			if(next != null){
+			if(next !== null){
 				//Start a timer to send the event
 				setTimeout(sendEvent, totalWait, cur);
 				//Keep tack of all the wait times

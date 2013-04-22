@@ -46,4 +46,4 @@ this.load = function(){
 	
 	console.log("Event:");
 	console.log(newEvent);
-}
+};

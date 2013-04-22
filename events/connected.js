@@ -10,7 +10,7 @@ var models = require('./models');
 var logger = new (winston.Logger)({
 	//Make it log to both the console and a file 
 	transports : [new (winston.transports.Console)(),
-	              new (winston.transports.File)({filename: 'logs/general.log'})],
+		new (winston.transports.File)({filename: 'logs/general.log'})] //,
 });
 
 /**
@@ -158,7 +158,7 @@ saveEvent = function(newEvent, res, io, gcm){
 this.createEvent = function(data, res, io, gcm){
 	var newEvent = new models.event(data);
 	//Check if GID is set or not
-	if(newEvent.GID == undefined || newEvent.GID == null){
+	if(newEvent.GID === undefined || newEvent.GID === null){
 		//Need to determine the GID now
 		/*models.event.findOne({},'GID',{sort: {GID: -1}}, function(err,doc){
 			if(err || !doc){
@@ -211,7 +211,7 @@ this.createGroupEvent = function(data, gid, res, io, gcm){
  */
 this.deleteEvent = function(id, res){
 	models.event.find({_id:id}, function(err, docs){
-		if(err || docs.length == 0){
+		if(err || docs.length === 0){
 			logger.error('Error deleting event', err);
 			general.send500(res);
 		} else {
@@ -220,7 +220,7 @@ this.deleteEvent = function(id, res){
 			}
 			res.json({status:'OK'});
 			res.end();
-		};
+		}//;
 	});
 };
 
@@ -261,7 +261,7 @@ this.getComments = function(index, opts, res){
 			res.end();			
 		} else {
 			general.send404(res);
-		};
+		}//;
 	});
 };
 
@@ -279,7 +279,7 @@ this.getOptions = function(res){
  */
 this.addComment = function(id, req, res, io){
 	models.event.find({_id:id}, 'comments GID', {sort: {timestamp: 1}}, function(err,docs){
-		if(err || docs.length == 0){
+		if(err || docs.length === 0){
 			logger.error('Error adding comment',err);
 			general.send500(res);
 		} else {
@@ -303,7 +303,7 @@ this.addComment = function(id, req, res, io){
 					io.sockets.emit('comment', {'id':docs[0]._id});
 				}
 			});
-		};
+		}//;
 	});
 };
 
@@ -374,7 +374,7 @@ this.updateLocation = function(id, data, res){
 			logger.info("Error getting location "+err);
 			general.send500(res);
 		} else if(docs) {
-			for(e in data){
+			for(var e in data){
 				//Make sure not to change _id
 				if(e != '_id'){
 					docs[e] = data[e];
@@ -399,7 +399,7 @@ this.updateLocation = function(id, data, res){
 **/
 this.deleteLocation = function(id, data, res) {
 	models.location.find({_id:id}, function(err, docs){
-		if(err || docs.length == 0){
+		if(err || docs.length === 0){
 			logger.error('Error deleting location', err);
 			general.send500(res);
 		} else {
@@ -408,7 +408,7 @@ this.deleteLocation = function(id, data, res) {
 			}
 			res.json({status:'ok'});
 			res.end();
-		};
+		}//;
 	});
 };
 
@@ -477,7 +477,7 @@ this.updateContact = function(id, data, res){
 			logger.info("Error getting contact "+err);
 			general.send500(res);
 		} else if(docs) {
-			for(e in data){
+			for(var e in data){
 				//Make sure not to change _id
 				if(e != '_id'){
 					docs[e] = data[e];
@@ -503,7 +503,7 @@ this.updateContact = function(id, data, res){
 **/
 this.deleteContact = function(id, data, res) {
 	models.contact.find({_id:id}, function(err, docs){
-		if(err || docs.length == 0){
+		if(err || docs.length === 0){
 			logger.error('Error deleting contact', err);
 			general.send500(res);
 		} else {
@@ -512,6 +512,6 @@ this.deleteContact = function(id, data, res) {
 			}
 			res.json({status:'ok'});
 			res.end();
-		};
+		}//;
 	});
 };
