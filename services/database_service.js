@@ -3,8 +3,8 @@
  */
 var config = require('../config');
 var winston = require('winston');
-var general = require('./general');
-var models = require('./models');
+var general = require('./wizard_service');
+var models = require('../models/models');
 
 //Load and set up the logger
 var logger = new (winston.Logger)({

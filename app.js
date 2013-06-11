@@ -19,26 +19,15 @@ io.set('log level', 1);
 var logger = new (winston.Logger)({
 	//Make it log to both the console and a file 
 	transports : [new (winston.transports.Console)(),
-					new (winston.transports.File)({filename: 'logs/general.log'})] //,
-	//Log uncaught exceptions to a seperate log
-//	exceptionHandlers: [new winston.transports.File({filename: 'logs/exceptions.log'}),
-//							new (winston.transports.Console)()]
+					new (winston.transports.File)({filename: 'logs/general.log'})]
 });
 
 // Configuration
 app.configure(function(){
-  app.use(express.bodyParser());
-  app.use(express.methodOverride());
-  app.use(app.router);
-  app.use(express.static(__dirname + '/static'));
-});
-
-app.configure('development', function(){
-  //app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
-});
-
-app.configure('production', function(){
-  //app.use(express.errorHandler());
+	app.use(express.bodyParser());
+	app.use(express.methodOverride());
+	app.use(app.router);
+	app.use(express.static(__dirname + '/static'));
 });
 
 //Custom error handler
@@ -74,9 +63,12 @@ require('./dummy/dummy.js').load(app);
 logger.info('Loading GCM');
 var gcm = require('./gcm/gcm.js');
 gcm.load(app);
+
+//Config Data
+var dataManager = require('./services/data_configuration_service.js').load()
 //Event routes
 logger.info('Loading events');
-require('./events/router.js').load(app, io, gcm);
+require('./services/router_service.js').load(app, io, gcm, dataManager);
 
 
 
