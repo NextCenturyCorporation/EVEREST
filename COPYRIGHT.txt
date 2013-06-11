@@ -12,5 +12,5 @@ legend must also reproduce these markings.
 This product further may include software developed by other individuals, entities, or agencies.  These groups have granted rights to include in the code baseline, without further claim or copyright.
 
 The product further references the following libraries or capabilities which are NOT included as part of this copyright statement, and are hereby listed with their license terms.
-* Stanford coreNLP, developde by Stanford University, licensed under GNU General Public License, Version 2 or later, http:http://nlp.stanford.edu/software/corenlp.shtml 
+* Stanford coreNLP, developed by Stanford University, licensed under GNU General Public License, Version 2 or later, http:http://nlp.stanford.edu/software/corenlp.shtml 
 
