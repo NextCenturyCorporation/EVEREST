@@ -1,16 +1,12 @@
-
-/**
- * Module dependencies.
- */
-
-var express = require('express'),
-	winston = require('winston'),
-	socketio = require('socket.io'),
-	config = require('./config'),
-	mongoose = require('mongoose'),
-	gcm = require('node-gcm');
+var express = require('express');
+var winston = require('winston');
+var socketio = require('socket.io');
+var config = require('./config');
+var mongoose = require('mongoose');
+var gcm = require('node-gcm');
 
 var app = module.exports = express.createServer();
+
 //Use Socket.IO
 var io = socketio.listen(app);
 io.set('log level', 1);
@@ -22,6 +18,8 @@ var logger = new (winston.Logger)({
 					new (winston.transports.File)({filename: 'logs/general.log'})]
 });
 
+logger.DO_LOG = true;
+
 // Configuration
 app.configure(function(){
 	app.use(express.bodyParser());
@@ -30,10 +28,12 @@ app.configure(function(){
 	app.use(express.static(__dirname + '/static'));
 });
 
-//Custom error handler
-//This is modeled off the connect errorHandler
-//https://github.com/senchalabs/connect/blob/master/lib/middleware/errorHandler.js
-// http://stackoverflow.com/questions/7151487/error-handling-principles-for-nodejs-express-apps
+/**
+ * Custom error handler
+ * This is modeled off the connect errorHandler
+ * https://github.com/senchalabs/connect/blob/master/lib/middleware/errorHandler.js
+ * http://stackoverflow.com/questions/7151487/error-handling-principles-for-nodejs-express-apps
+**/
 app.use(function errorHandler(err, req, res, next){
   if (err.status) res.statusCode = err.status;
   if (res.statusCode < 400) res.statusCode = 500;
@@ -41,41 +41,32 @@ app.use(function errorHandler(err, req, res, next){
   res.setHeader('Content-Type', 'application/json');
   //Dont send the whole stack, could have security issues
   res.end(JSON.stringify({error: err.message}));
-  //Log it
   logger.log('error', 'Error ', {stack: err.stack});
 });
 
-/*
+/**
  * Connect to the DB now, if we should at all.
  * Mongoose only needs to connect once, it will be shared
  * between all files
- */
+**/
 if(!config.noDB){
 	mongoose.connect('mongodb://' + config.db_host + ':' + config.db_port + '/' + config.db_collection);
 	console.log('Connected to ' + config.db_host + ':' + config.db_port + '/' + config.db_collection);
-}//;
+}
 
-// Routes
-// Dummy routes
-logger.info('Loading dummy');
-require('./dummy/dummy.js').load(app);
 //Load GCM
 logger.info('Loading GCM');
 var gcm = require('./gcm/gcm.js');
 gcm.load(app);
 
-//Config Data
-var dataManager = require('./services/data_configuration_service.js').load()
 //Event routes
 logger.info('Loading events');
-require('./services/router_service.js').load(app, io, gcm, dataManager);
-
-
+require('./services/router_service.js').load(app, io, gcm, logger);
 
 if(config.noDB){
-	logger.info("Running in no-database mode, all data will be cleared on exit.");
+	logger.warn("Running in no-database mode, all data will be cleared on exit.");
 }
 
 app.listen(config.port, function(){
-  logger.info("Express server listening on port " + app.address().port + " in " + app.settings.env + " mode");
+  logger.debug("Express server listening on port " + app.address().port + " in " + app.settings.env + " mode");
 });

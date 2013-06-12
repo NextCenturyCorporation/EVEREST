@@ -2,7 +2,7 @@
  * Handles the routing
  */
 var winston = require('winston');
-var config = require('../config.js');
+var config = require('../../config.js');
 
 //Load and set up the logger
 var logger = new (winston.Logger)({

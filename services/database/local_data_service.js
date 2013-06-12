@@ -2,9 +2,9 @@
  * File to run without a database, and store everything in memory
  */
 var winston = require('winston');
-var models = require('./models.js');
-var general = require('./general.js');
-var config = require('../config.js');
+var models = require('../../models/models.js');
+var general = require('../wizard.js');
+var config = require('../../config.js');
 
 //Load and set up the logger
 var logger = new (winston.Logger)({
