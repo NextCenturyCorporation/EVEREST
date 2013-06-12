@@ -3,8 +3,8 @@ var Schema = mongoose.Schema;
 var config = require('../../config.js');
 
 this.rawFeedModel = {
-	date	: Date,
-	text	: String
+	timestamp: {type: Date, default: Date.now},
+	text: String
 };
 
 var rawFeedSchema = new Schema(this.rawFeedModel);

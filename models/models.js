@@ -1,14 +1,3 @@
-/**
- * Set up database connection to use
- */
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var config = require('../config.js');
-
-//raw feed
-var rawFeedModel = require('./raw_feed/model.js');
-this.rawFeed = rawFeedModel.rawFeed;
-
 //location
 var locationModel = require('./location/model.js');
 this.location = locationModel.location;
@@ -17,3 +6,26 @@ this.location = locationModel.location;
 var commentModel = require('./comment/model.js');
 this.comment = commentModel.comment;
 
+//raw feed
+var rawFeedModel = require('./raw_feed/model.js');
+this.rawFeed = rawFeedModel.rawFeed;
+
+//alpha report
+var alphaReportModel = require('./alpha_report/model.js');
+this.alphaReport = alphaReportModel.alphaReport;
+
+//confirmed report
+var confirmedReportModel = require('./confirmed_report/model.js');
+this.confirmedReport = confirmedReportModel.confirmedReport;
+
+//event
+var eventModel = require('./event/model.js');
+this.event = eventModel.event;
+
+//incident
+var incidentModel = require('./incident/model.js');
+this.incident = incidentModel.incident;
+
+//user
+var userModel = require('./user/model.js');
+this.user = userModel.user;
