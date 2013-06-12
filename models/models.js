@@ -14,6 +14,10 @@ this.rawFeed = rawFeedModel.rawFeed;
 var alphaReportModel = require('./alpha_report/model.js');
 this.alphaReport = alphaReportModel.alphaReport;
 
+//assertion
+var assertionModel = require('./assertion/model.js');
+this.assertion = assertionModel.assertion;
+
 //confirmed report
 var confirmedReportModel = require('./confirmed_report/model.js');
 this.confirmedReport = confirmedReportModel.confirmedReport;
