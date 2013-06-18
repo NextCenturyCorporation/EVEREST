@@ -26,7 +26,7 @@ this.commentDataModel = {
 		eventID		:	ObjectId,
 		userID		:	ObjectId,
 		text		:	{type: String, required:true},
-		timestmp	:	{type: Date, default: Date.now},
+		timestmp	:	{type: Date, "default": Date.now},
 		latitude	:	{type: Number, select: false},
 		longitude	:	{type: Number, select: false}
 	};
@@ -53,7 +53,7 @@ var ContactSchema = new Schema(this.contactDataModel);
 
 this.eventDataModel = {
 		GID			:	ObjectId,
-		timestmp	:	{type: Date, default: Date.now},
+		timestmp	:	{type: Date, "default": Date.now},
 		title		:	{type: String, required:true},
 		type		:	{type: String, enum: config.eventTypes, required:true},
 		group		:	{type: Number, required:true},
@@ -77,7 +77,7 @@ this.reportDataModel = {
 		type		:	{type: String, enum: ['Emergency', 'Warning', 'Weather', 'Traffic'] },
 		location	:	ObjectId,
 		submitter	:	ObjectId,
-		timestmp	:	{type: Date, default: Date.now},
+		timestmp	:	{type: Date, "default": Date.now},
 		reviewer	:	ObjectId,
 		status		:	{type: String, enum: ['Valid', 'Invalid']},
 		reviewComment	:	String,
