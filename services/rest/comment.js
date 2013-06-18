@@ -13,4 +13,4 @@ this.load = function(app, io, gcm, logger) {
 	app.post('/comment/', function(req,res){
 		commentService.addComment(req.params.id, req.body, res, io);
 	});
-}
+};

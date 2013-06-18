@@ -27,4 +27,4 @@ this.load = function() {
 	}
 	
 	return this.dataManager;
-}
+};

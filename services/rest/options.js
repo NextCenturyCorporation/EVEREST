@@ -8,4 +8,4 @@ this.load = function(app, io, gcm, logger) {
 		}
 		optionsService.getOptions(res);
 	});
-}
+};

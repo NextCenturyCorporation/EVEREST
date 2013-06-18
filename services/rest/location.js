@@ -40,4 +40,4 @@ this.load = function(app, io, gcm, logger) {
 		}
 		locationService.deleteLocation(req.params.id, req.body, res);
 	});
-}
+};

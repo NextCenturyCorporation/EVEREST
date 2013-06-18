@@ -38,4 +38,4 @@ this.load = function(app, io, gcm, logger) {
 		}
 		contactService.deleteContact(req.params.id, req.body, res);
 	});
-}
+};

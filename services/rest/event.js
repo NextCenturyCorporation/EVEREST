@@ -44,4 +44,4 @@ this.load = function(app, io, gcm, logger) {
 	app.get('/events/:id([0-9]+)', function(req, res){
 		eventService.getEventGroup(req.params.id, req.query, res);
 	});
-}
+};
