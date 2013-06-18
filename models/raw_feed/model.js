@@ -4,7 +4,8 @@ var config = require('../../config.js');
 
 this.rawFeedModel = {
 	timestamp: {type: Date, default: Date.now},
-	text: String
+	text: String,
+	feedSource: {type: String, enum: ['Twitter', 'Email']}
 };
 
 var rawFeedSchema = new Schema(this.rawFeedModel);
