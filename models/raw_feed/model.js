@@ -3,7 +3,7 @@ var Schema = mongoose.Schema;
 var config = require('../../config.js');
 
 this.rawFeedModel = {
-	timestamp: {type: Date, default: Date.now},
+	timestamp: {type: Date, "default": Date.now},
 	text: String,
 	feedSource: {type: String, enum: ['Twitter', 'Email']}
 };
