@@ -34,6 +34,6 @@ this.load = function(app, io, gcm, logger) {
 		if(logger.DO_LOG){
 			logger.info("Request to delete feed");
 		}
-		rawFeedService.deleteEvent(req.params.id, res);
+		rawFeedService.deleteFeed(req.params.id, res);
 	});
 };
