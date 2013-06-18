@@ -3,7 +3,7 @@ var commentService = require('../database/comment.js');
 this.load = function(app, io, gcm, logger) {
 	//get a specific comment
 	app.get('/comment/:id([0-9a-f]+)',function(req,res){
-		if(LOG){
+		if(logger.DO_LOG){
 			logger.info("Request for comments of "+req.params.id);
 		}
 		commentService.getComments(req.params.id, req.query, res);

@@ -9,7 +9,7 @@ this.load = function(app, io, gcm, logger){
 	require('./rest/options.js').load(app, io, gcm, logger);
 	
 	app.get('/', function(req, res){
-		if(LOG){
+		if(logger.DO_LOG){
 			logger.info('Request for list of events');
 		}
 		dataManager.listEvents(req.query, res);
