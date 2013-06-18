@@ -5,7 +5,7 @@ var config = require('../../config.js');
 //Define basic first
 this.commentDataModel = {
 	text: {type: String, required:true},
-	timestmp: {type: Date, default: Date.now},
+	timestmp: {type: Date, "default": Date.now},
 	date: Date,
 	latitude: {type: Number, select: false},
 	longitude: {type: Number, select: false}
