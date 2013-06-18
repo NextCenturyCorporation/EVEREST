@@ -9,6 +9,6 @@ this.load = function(app, io, gcm, logger){
 	require('./rest/options.js').load(app, io, gcm, logger);
 	
 	app.get('/', function(req, res){
-		res.redirect('/event');
+		res.redirect('/events');
 	});
 };
