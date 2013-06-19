@@ -1,3 +1,6 @@
+/*global require */
+// require is a global node function/keyword
+
 /**
  * Set up database connection to use
  */

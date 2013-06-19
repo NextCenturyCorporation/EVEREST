@@ -1,6 +1,10 @@
 /**
  * Runs while connected to a database
  */
+
+/*global require */
+// require is a global node function/keyword
+
 var winston = require('winston');
 var general = require('../wizard_service');
 var models = require('../../models/models');

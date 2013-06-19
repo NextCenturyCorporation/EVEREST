@@ -3,6 +3,9 @@
  * https://gist.github.com/1393666
  */
 
+/*global require */
+// require is a global node function/keyword
+
 // module dependencies
 var http = require('http'),
     url = require('url');

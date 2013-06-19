@@ -4,6 +4,9 @@
  */
 
 // module dependencies
+/*global require */
+// require is a global node function/keyword
+
 var http = require('http'),
     url = require('url');
 

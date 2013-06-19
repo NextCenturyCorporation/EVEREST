@@ -1,3 +1,6 @@
+/*global require */
+// require is a global node function/keyword
+
 var express = require('express');
 var winston = require('winston');
 var socketio = require('socket.io');
@@ -39,7 +42,7 @@ app.use(function errorHandler(err, req, res, next){
   if (res.statusCode < 400) res.statusCode = 500;
   //Send back json
   res.setHeader('Content-Type', 'application/json');
-  //Dont send the whole stack, could have security issues
+  //Do not send the whole stack, could have security issues
   res.end(JSON.stringify({error: err.message}));
   logger.log('error', 'Error ', {stack: err.stack});
 });

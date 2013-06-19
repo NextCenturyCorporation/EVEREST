@@ -2,6 +2,8 @@
  * File to run without a database, and store everything in memory
  */
 /*jshint loopfunc: true */
+/*global require */
+// require is a global node function/keyword
 
 var winston = require('winston');
 var models = require('../../models/models.js');

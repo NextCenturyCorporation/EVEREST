@@ -1,3 +1,6 @@
+/*global require */
+// require is a global node function/keyword
+
 this.load = function(app, io, gcm, logger){
 	require('./rest/raw_feed.js').load(app, io, gcm, logger);
 	require('./rest/alpha_report.js').load(app, io, gcm, logger);

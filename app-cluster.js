@@ -3,6 +3,9 @@
  * Module dependencies.
  */
 
+/*global require */
+// require is a global node function/keyword
+
 var express = require('express'),
 	fs = require("fs"),
 	winston = require('winston'),

@@ -1,6 +1,9 @@
 /**
  * This handles new GCM registrations, and saves them into a collection
  */
+/*global require */
+// require is a global node function/keyword
+
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var config = require('../config.js');

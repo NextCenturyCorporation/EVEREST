@@ -6,6 +6,9 @@
  * Then either run mocha in the main Centurion directory, or
  * run 'npm test' in the main directory.
  */
+/*global require */
+// require is a global node function/keyword
+
 var assert = require('assert');
 var poster = require('./poster.js');
 // For checking the data, we need to load the config and make sure it wont connect
@@ -47,7 +50,7 @@ describe('Test Getting Data:', function(){
 	describe('Event List', function(){
 		it('Getting event list', function(done){
 			poster.urlReq('http://localhost:8081/events/', function(body, res){
-				assert.equal(res.statusCode, 200, 'Didnt get a 200 response getting the event list');
+				assert.equal(res.statusCode, 200, 'Did not get a 200 response getting the event list');
 				events = JSON.parse(body);
 				done();
 			});
@@ -66,7 +69,7 @@ describe('Test Getting Data:', function(){
 				var cur = null;
 				it('Getting event -\t'+curId._id, function(done){
 					poster.urlReq('http://localhost:8081/events/'+curId._id, function(body,res){
-						assert.equal(res.statusCode, 200, 'Didnt get a 200 response getting event '+curId._id);
+						assert.equal(res.statusCode, 200, 'Did not get a 200 response getting event '+curId._id);
 						cur = JSON.parse(body);
 						//console.log(cur);
 						done();

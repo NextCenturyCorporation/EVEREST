@@ -1,6 +1,8 @@
 /**
  * Program to run a simulation
  */
+/*global require */
+// require is a global node function/keyword
 
 var data = require('./data.js');
 var poster = require('./poster.js');

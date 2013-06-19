@@ -1,6 +1,9 @@
 /**
  * This contains the data that will be POSTed to the server while running API tests
  */
+/*global require */
+// require is a global node function/keyword
+
 var assert = require('assert');
 
 

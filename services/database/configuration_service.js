@@ -1,6 +1,10 @@
 /**
  * Handles the routing
  */
+
+/*global require */
+// require is a global node function/keyword
+
 var winston = require('winston');
 var config = require('../../config.js');
 
