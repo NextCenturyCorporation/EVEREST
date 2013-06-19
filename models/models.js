@@ -1,3 +1,6 @@
+/*global require*/
+// require is a node.js keyword, not a part of standard JavaScript
+
 //location
 var locationModel = require('./location/model.js');
 this.location = locationModel.location;
