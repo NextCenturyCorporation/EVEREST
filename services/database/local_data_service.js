@@ -1,6 +1,8 @@
 /**
  * File to run without a database, and store everything in memory
  */
+/*jshint loopfunc: true */
+
 var winston = require('winston');
 var models = require('../../models/models.js');
 var general = require('../wizard.js');
@@ -115,7 +117,8 @@ this.getEventGroup = function(index, opts, res){
 			//Embed the contact
 			for(var j=0; j < contactList.length; j++){
 				if(contactList[j]._id.toString() == cur.contact.toString()){
-					tmp['contact'] = contactList[j];
+					//tmp['contact'] = contactList[j];
+					tmp.contact = contactList[j];
 					break;
 				}
 			}
@@ -123,7 +126,8 @@ this.getEventGroup = function(index, opts, res){
 			//for(var j=0; j < locationList.length; j++){
 			for(j=0; j < locationList.length; j++){
 				if(locationList[j]._id.toString() == cur.location.toString()){
-					tmp['location'] = locationList[j];
+					//tmp['location'] = locationList[j];
+					tmp.location = locationList[j];
 					break;
 				}
 			}
@@ -168,7 +172,8 @@ this.getEvent = function(index, opts, res){
 			//Embed the contact
 			for(var j=0; j < contactList.length; j++){
 				if(contactList[j]._id.toString() == cur.contact.toString()){
-					tmp['contact'] = contactList[j];
+					//tmp['contact'] = contactList[j];
+					tmp.contact = contactList[j];
 					break;
 				}
 			}
@@ -176,7 +181,8 @@ this.getEvent = function(index, opts, res){
 			//for(var j=0; j < locationList.length; j++){
 			for(j=0; j < locationList.length; j++){
 				if(locationList[j]._id.toString() == cur.location.toString()){
-					tmp['location'] = locationList[j];
+					//tmp['location'] = locationList[j];
+					tmp.location = locationList[j];
 					break;
 				}
 			}
@@ -252,7 +258,7 @@ this.createGroupEvent = function(data, gid, res, io, gcm){
 };
 
 /**
- * This deletes the event with the id sepecified in the URL
+ * This deletes the event with the id specified in the URL
  */
 this.deleteEvent = function(id, res){
 	for(var i = 0; i<eventList.length; i++){
@@ -333,6 +339,8 @@ this.addComment = function(id, req, res, io){
 					return 0;
 				}
 			});
+			
+			/* Following line flagged by JSHint as creating a function within a loop */
 			res.json({status:'OK'});
 			res.end();
 			io.sockets.emit('comment', {'id':cur._id});
