@@ -42,7 +42,7 @@ this.createFeed = function(data, res, io, gcm){
 	});
 };
 
-this.getFeed = function(index, opts, res){
+this.getFeed = function(id, opts, res){
 	models.rawFeed.findById(id, function(err, docs){
 		if(err) {
 			logger.info("Error getting raw feed "+err);
@@ -58,7 +58,7 @@ this.getFeed = function(index, opts, res){
 	});
 };
 
-this.updateFeed = function(index, data, res){
+this.updateFeed = function(id, data, res){
 	models.rawFeed.findById(id, function(err, docs){
 		if(err) {
 			logger.info("Error getting raw feed "+err);
@@ -84,7 +84,7 @@ this.updateFeed = function(index, data, res){
 	});
 };
 
-this.deleteFeed = function(index, res){
+this.deleteFeed = function(id, res){
 	models.rawFeed.find({_id:id}, function(err, docs){
 		if(err || docs.length === 0){
 			logger.error('Error deleting raw feed', err);
