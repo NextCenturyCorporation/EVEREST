@@ -103,7 +103,9 @@ this.updateContact = function(id, data, res){
 /**
  * Deletes the contact with the given id
 **/
-this.deleteContact = function(id, data, res) {
+// bbn 20-JUN-13  changed calling signature
+//this.deleteContact = function(id, data, res) {
+this.deleteContact = function(id, res) {
 	models.contact.find({_id:id}, function(err, docs){
 		if(err || docs.length === 0){
 			logger.error('Error deleting contact', err);
