@@ -80,7 +80,9 @@ if(!config.noData){
  * subject to change.
  */
 this.listEvents = function(opts, res){
-	var count = undefined;
+	var count = void 0; 
+	// var count = undefined
+	
 	//If someone requests a different number than the default size
 	if(opts.count){
 		count = opts.count;
@@ -92,10 +94,10 @@ this.listEvents = function(opts, res){
 	var list = [];
 	var length = 0;
 
-	if(count != undefined && count < eventList.length){
+	if(count !== undefined && count < eventList.length){
 		length = count;
 	} else {
-		length = eventList.length
+		length = eventList.length;
 	}
 
 	for(var i = 0; i < length; i++){

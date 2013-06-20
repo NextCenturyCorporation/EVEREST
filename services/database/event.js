@@ -25,7 +25,9 @@ var logger = new (winston.Logger)({
  * subject to change.
  */
 this.listEvents = function(opts, res){
-	var count = undefined;
+	var count = void 0;
+	// var count = undefined;
+	
 	//If someone requests a different number than the default size
 	if(opts.count){
 		count = opts.count;
@@ -43,7 +45,7 @@ this.listEvents = function(opts, res){
 				general.send500(res);
 				return;
 			}
-			if(count == undefined){
+			if(count === undefined){
 				models.event.find({timestmp: {$gt: doc.timestmp}}, 'GID title timestmp', {sort: {timestmp: -1}}).
 					execFind(function(err, docs){
 						if(err){
