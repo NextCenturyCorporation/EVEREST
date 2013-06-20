@@ -1,3 +1,6 @@
+/*global require*/
+// Identify require as a global function/keyword for JSHint
+
 var rawFeedService = require('../database/raw_feed.js');
 
 this.load = function(app, io, gcm, logger) {
