@@ -1,3 +1,6 @@
+/*global require*/
+// Identify require as a global function/keyword for JSHint
+
 var eventService = require('../database/event.js');
 
 //FIXME need io and gcm

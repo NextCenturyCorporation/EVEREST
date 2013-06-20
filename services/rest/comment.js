@@ -1,3 +1,6 @@
+/*global require*/
+// Identify require as a global function/keyword for JSHint
+
 var commentService = require('../database/comment.js');
 
 this.load = function(app, io, gcm, logger) {
