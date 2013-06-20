@@ -144,7 +144,7 @@ saveEvent = function(newEvent, res, io, gcm){
 			res.end();
 			//Broadcast to clients
 			io.sockets.emit('event', {'GID':newEvent.GID, 'id':newEvent._id});
-			gcm.sendEvent(newEvent.title, newEvent._id, newEvent.GID);
+			//gcm.sendEvent(newEvent.title, newEvent._id, newEvent.GID);
 		}
 	});
 };
