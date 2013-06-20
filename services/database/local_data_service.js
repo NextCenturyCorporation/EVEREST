@@ -74,9 +74,13 @@ if(!config.noData){
 /**
  * Returns a list of the last <count> events, where count = 10 or
  * was specified in the URL with ?count=#, up to 100
+ *
+ * EDIT: Instead of returning 10 events by default, we decided that for now,
+ * having all events returned by default is more appropriate. This code is
+ * subject to change.
  */
 this.listEvents = function(opts, res){
-	var count = 10;
+	var count = undefined;
 	//If someone requests a different number than the default size
 	if(opts.count){
 		count = opts.count;
@@ -86,7 +90,15 @@ this.listEvents = function(opts, res){
 		}
 	}
 	var list = [];
-	for(var i = 0; (i < eventList.length) && (i < count); i++){
+	var length = 0;
+
+	if(count != undefined && count < eventList.length){
+		length = count;
+	} else {
+		length = eventList.length
+	}
+
+	for(var i = 0; i < length; i++){
 		//If querying for events after a certain ID without a DB connection,
 		//the IDs are almost certainly sequential
 		if(!opts.after || eventList[i]._id > opts.after){

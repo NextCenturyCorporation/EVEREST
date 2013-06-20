@@ -19,9 +19,13 @@ var logger = new (winston.Logger)({
 /**
  * Returns a list of the last <count> events, where count = 10 or
  * was specified in the URL with ?count=#, up to 100
+ *
+ * EDIT: Instead of returning 10 events by default, we decided that for now,
+ * having all events returned by default is more appropriate. This code is
+ * subject to change.
  */
 this.listEvents = function(opts, res){
-	var count = 10;
+	var count = undefined;
 	//If someone requests a different number than the default size
 	if(opts.count){
 		count = opts.count;
@@ -39,16 +43,29 @@ this.listEvents = function(opts, res){
 				general.send500(res);
 				return;
 			}
-			models.event.find({timestmp: {$gt: doc.timestmp}}, 'GID title timestmp', {sort: {timestmp: -1}}).
+			if(count == undefined){
+				models.event.find({timestmp: {$gt: doc.timestmp}}, 'GID title timestmp', {sort: {timestmp: -1}}).
+					execFind(function(err, docs){
+						if(err){
+							logger.error("Error listing events",err);
+							general.send500(res);
+						} else {
+							res.json(docs);
+							res.end();
+						}
+					});
+			} else {
+				models.event.find({timestmp: {$gt: doc.timestmp}}, 'GID title timestmp', {sort: {timestmp: -1}}).
 					limit(count).execFind(function(err, docs){
-				if(err){
-					logger.error("Error listing events",err);
-					general.send500(res);
-				} else {
-					res.json(docs);
-					res.end();
-				}
-			});
+						if(err){
+							logger.error("Error listing events",err);
+							general.send500(res);
+						} else {
+							res.json(docs);
+							res.end();
+						}
+					});
+			}
 		});
 	} else {
 		models.event.find({}, 'GID title timestmp', {sort: {timestmp: -1}}).limit(count).execFind(function(err, docs){

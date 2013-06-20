@@ -18,9 +18,13 @@ var logger = new (winston.Logger)({
 /**
  * This gets the comments for the event wit the ID specified in the URL.
  * By default it returns 10, but can be overridden with ?count=#, up to 100
+ *
+ * EDIT: Instead of returning 10 events by default, we decided that for now,
+ * having all events returned by default is more appropriate. This code is
+ * subject to change.
  */
 this.getComments = function(index, opts, res){
-	var count = 10;
+	var count = undefined;
 	if(opts.count){
 		count = opts.count;
 		//Limit to 100
@@ -40,14 +44,22 @@ this.getComments = function(index, opts, res){
 				//comments processed
 				var comments = [];
 				var i = 0;
-				while(i < docs[0].comments.length && docs[0].comments[i]._id != opts.after && i < count){
+				var length;
+
+				if(count != undefined && count < docs[0].comments.length){
+					length = count;
+				} else {
+					length = eventList.length
+				}
+
+				while(i < length && docs[0].comments[i]._id != opts.after){
 					comments.push(docs[0].comments[i]);
 					i++;
 				}
 				res.json(comments);
 			} else {
 				//Just return the last $count comments
-				res.json(docs[0].comments.slice(0,count));
+				res.json(docs[0].comments);
 			}
 			res.end();			
 		} else {
