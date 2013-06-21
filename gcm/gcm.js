@@ -1,8 +1,6 @@
 /**
  * This handles new GCM registrations, and saves them into a collection
  */
-/*global require */
-// require is a global node function/keyword
 
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
@@ -21,7 +19,8 @@ var registeredIds = [];
 function saveRegistration(body, res){
 	var registration = new registeredData({registrationId: body.id});
 	if(!config.noDB){
-		var err;
+//TODO: remove the var err; statement if testing checks out
+		//var err;  // err is not in scope for the function
 		registration.save(function(err){
 			if(err){
 				res.status(500);
@@ -41,7 +40,8 @@ function saveRegistration(body, res){
 
 function unregister(id, res){
 	if(config.noDB){
-		var err;
+		//TODO: remove the var err; statement if testing checks out
+		//var err;  // err is not in scope for the function
 		registeredData.find({registrationId:id}, function(err, docs){
 			
 			if(err){
