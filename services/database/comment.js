@@ -24,7 +24,7 @@ var logger = new (winston.Logger)({
  * subject to change.
  */
 this.getComments = function(index, opts, res){
-	var count = undefined;
+	var count = void 0;   // undefined;
 	if(opts.count){
 		count = opts.count;
 		//Limit to 100
@@ -46,10 +46,12 @@ this.getComments = function(index, opts, res){
 				var i = 0;
 				var length;
 
-				if(count != undefined && count < docs[0].comments.length){
+				if(count !== undefined && count < docs[0].comments.length){
 					length = count;
 				} else {
-					length = eventList.length
+// TODO: Don't think that eventList is within scope of this function
+//       and/or is being assumed to be global.  Investigate.
+					length = eventList.length;
 				}
 
 				while(i < length && docs[0].comments[i]._id != opts.after){
