@@ -3,7 +3,7 @@
 
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-var config = require('../../config.js');
+//var config = require('../../config.js');
 
 this.userModel = {
 	user_created: {type: Date, "default": Date.now},

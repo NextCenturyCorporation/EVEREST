@@ -3,7 +3,7 @@
 
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-var config = require('../../config.js');
+//var config = require('../../config.js');
 
 this.locationDataModel = {
 	name: {type: String, required:true},

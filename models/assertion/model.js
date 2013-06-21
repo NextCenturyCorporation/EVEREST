@@ -4,7 +4,7 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var ObjectId = Schema.ObjectId;
-var config = require('../../config.js');
+//var config = require('../../config.js');
 
 this.assertionModel = {
 		timestamp: {type: Date, "default": Date.now},
