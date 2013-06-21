@@ -1,7 +1,7 @@
 {
 	"boss":      true,
 	"node":      true,
-	"strict":    true,
+	"strict":    false,
 	"white":     true,
 	"smarttabs": true,
 	"maxlen":    100,
