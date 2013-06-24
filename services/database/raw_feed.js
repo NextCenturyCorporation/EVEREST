@@ -35,7 +35,7 @@ this.createFeed = function(data, res, io, gcm){
 			logger.error('Error saving raw feed', err);
 			general.send500(res);
 		} else {
-			res.json({id:newFeed._id});
+			res.json({id:newfeed._id});
 			res.end();
 		}
 	});
@@ -70,7 +70,7 @@ this.updateFeed = function(id, data, res){
 		} else if(docs) {
 			for(var e in data){
 				//Make sure not to change _id
-				if(e != '_id'){
+				if(e !== '_id'){
 					docs[e] = data[e];
 				}
 			}

@@ -48,7 +48,6 @@ me.ingest = function(query, res) {
 	}
 	
 	if(filters.length > 0) {
-		var i = 0;
 		twit.stream('statuses/filter', { track: filters }, function(stream) {
 			stream.on('data', function (data) {
 				logger.debug("Saving feed item: " + data.user.screen_name + ": " + data.text);
