@@ -30,16 +30,20 @@ this.listFeeds = function(opts, res){
 };
 
 this.createFeed = function(data, res, io, gcm){
-	var newFeed = new models.rawFeed(data);
-	newFeed.save(function(err){
+	this.saveFeed(data, function(err, newfeed){
 		if(err){
 			logger.error('Error saving raw feed', err);
 			general.send500(res);
 		} else {
-			res.json({id:newFeed._id});
+			res.json({id:newfeed._id});
 			res.end();
 		}
 	});
+};
+
+this.saveFeed = function(data, saveCallback) {
+	var newFeed = new models.rawFeed(data);
+	newFeed.save(saveCallback);
 };
 
 this.getFeed = function(id, opts, res){
@@ -66,7 +70,7 @@ this.updateFeed = function(id, data, res){
 		} else if(docs) {
 			for(var e in data){
 				//Make sure not to change _id
-				if(e != '_id'){
+				if(e !== '_id'){
 					docs[e] = data[e];
 				}
 			}

@@ -1,18 +1,19 @@
 {
-    "name": "EVEREST"
-  , "version": "0.0.1"
-  , "private": true
-  , "dependencies": {
-      "express": "2.5.8"
-    , "jade": ">= 0.0.1"
-	, "winston": ">=0.6.1"
-	, "mongoose": ">=2.1.7"
-	, "cluster": ">=0.7.7"
-	, "socket.io": ">=0.9.6"
-	, "mocha": ">=1.3.0"
-	, "node-gcm": ">=0.9.2"
-  },
-  "scripts": {
-     "test": "./node_modules/.bin/mocha"
-     }
+    "name": "EVEREST",
+    "version": "0.0.1",
+    "private": true,
+    "dependencies": {
+    	"express": "2.5.8",
+    	"jade": ">= 0.0.1",
+    	"winston": ">=0.6.1",
+    	"mongoose": ">=2.1.7",
+    	"cluster": ">=0.7.7",
+    	"socket.io": ">=0.9.6",
+    	"mocha": ">=1.3.0",
+    	"node-gcm": ">=0.9.2",
+    	"ntwitter":">=0.2.10"
+    },
+    "scripts": {
+    	"test": "./node_modules/.bin/mocha"
+    }
 }

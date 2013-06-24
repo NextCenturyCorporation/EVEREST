@@ -17,7 +17,7 @@ io.set('log level', 1);
 //Load and set up the logger
 var logger = new (winston.Logger)({
 	//Make it log to both the console and a file 
-	transports : [new (winston.transports.Console)(),
+	transports : [new (winston.transports.Console)({level:'info'}),
 					new (winston.transports.File)({filename: 'logs/general.log'})]
 });
 
@@ -44,7 +44,7 @@ app.use(function errorHandler(err, req, res, next){
   res.setHeader('Content-Type', 'application/json');
   //Do not send the whole stack, could have security issues
   res.end(JSON.stringify({error: err.message}));
-  logger.log('error', 'Error ', {stack: err.stack});
+  logger.error('Error ', {stack: err.stack});
 });
 
 /**
@@ -54,16 +54,16 @@ app.use(function errorHandler(err, req, res, next){
 **/
 if(!config.noDB){
 	mongoose.connect('mongodb://' + config.db_host + ':' + config.db_port + '/' + config.db_collection);
-	console.log('Connected to ' + config.db_host + ':' + config.db_port + '/' + config.db_collection);
+	logger.warn('Connected to ' + config.db_host + ':' + config.db_port + '/' + config.db_collection);
 }
 
 //Load GCM
-logger.info('Loading GCM');
+logger.debug('Loading GCM');
 var gcm = require('./gcm/gcm.js');
 gcm.load(app);
 
 //Event routes
-logger.info('Loading events');
+logger.debug('Loading events');
 require('./services/router_service.js').load(app, io, gcm, logger);
 
 if(config.noDB){
