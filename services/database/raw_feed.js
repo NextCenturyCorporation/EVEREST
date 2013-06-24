@@ -17,7 +17,7 @@ var logger = new (winston.Logger)({
 });
 
 this.listFeeds = function(opts, res){
-	models.rawFeed.find({},'_id timestamp text feedSource', function(err, docs){
+	models.rawFeed.find({}, function(err, docs){
 		if(err){
 			logger.info("Error listing raw feeds "+err);
 			res.status(500);
