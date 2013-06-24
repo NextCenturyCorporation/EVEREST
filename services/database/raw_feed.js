@@ -30,8 +30,7 @@ this.listFeeds = function(opts, res){
 };
 
 this.createFeed = function(data, res, io, gcm){
-	var newFeed = new models.rawFeed(data);
-	newFeed.save(function(err){
+	this.saveFeed(data, function(err, newfeed){
 		if(err){
 			logger.error('Error saving raw feed', err);
 			general.send500(res);
@@ -40,6 +39,11 @@ this.createFeed = function(data, res, io, gcm){
 			res.end();
 		}
 	});
+};
+
+this.saveFeed = function(data, saveCallback) {
+	var newFeed = new models.rawFeed(data);
+	newFeed.save(saveCallback);
 };
 
 this.getFeed = function(id, opts, res){
