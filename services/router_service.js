@@ -10,6 +10,7 @@ this.load = function(app, io, gcm, logger){
 	require('./rest/incident.js').load(app, io, gcm, logger);
 	require('./rest/comment.js').load(app, io, gcm, logger);
 	require('./rest/options.js').load(app, io, gcm, logger);
+	require('./rest/location.js').load(app, io, gcm, logger);
 	require('./rest/twitter_ingest_service.js').load(app, io, gcm, logger);
 	
 	app.get('/', function(req, res){
