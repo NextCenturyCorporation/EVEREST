@@ -2,6 +2,8 @@
 // Identify require as a global function/keyword for JSHint
 
 var locationService = require('../database/location.js');
+var locationModel = require('../../models/location/model.js');
+var revalidator = require('revalidator');
 
 this.load = function(app, io, gcm, logger) {
 	//list - lists name and id
@@ -17,7 +19,19 @@ this.load = function(app, io, gcm, logger) {
 		if(logger.DO_LOG){
 			logger.info("Receiving new location");
 		}
-		locationService.createLocation(req.body, res);
+
+		var validation = revalidator.validate(req.body, locationValidation);
+		if (validation.valid) {
+			locationService.createLocation(req.body, res);
+		}
+		else {
+			if(logger.DO_LOG){
+				logger.info(validation.valid, validation.errors);
+			}
+			res.status(500);
+			res.json({error: validation.errors});
+		}
+		
 	});
 	
 	//review
