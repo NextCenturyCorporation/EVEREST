@@ -17,10 +17,10 @@ var logger = new (winston.Logger)({
 });
 
 /**
- * Returns a list of all the location ids and names
+ * Returns a list of all the locations
  */
 this.listLocations = function(res){
-	models.location.find({},'_id name', function(err, docs){
+	models.location.find({}, function(err, docs){
 		if(err){
 			logger.info("Error listing locations "+err);
 			res.status(500);
@@ -31,6 +31,23 @@ this.listLocations = function(res){
 		res.end();
 	});
 };
+
+/**
+ * Returns a list of all the location ids and names
+ */
+this.listLocationNames = function(res){
+	models.location.find({},'_id name', function(err, docs){
+		if(err){
+			logger.info("Error listing location id - name "+err);
+			res.status(500);
+			res.json({error: 'Error'});
+		} else {
+			res.json(docs);
+		}
+		res.end();
+	});
+};
+
 
 /**
  * Creates a new location from the data POSTed
