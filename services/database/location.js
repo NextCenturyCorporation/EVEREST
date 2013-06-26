@@ -125,8 +125,10 @@ this.updateLocation = function(id, data, res){
 this.deleteLocation = function(id, data, res) {
 	models.location.find({_id:id}, function(err, docs){
 		if(err || docs.length === 0){
-			logger.error('Error deleting location', err);
-			general.send500(res);
+			logger.error('Error deleting location '+id, err);
+			res.status('500');
+			res.json({error:'Invalid location '+id});
+			res.end();
 		} else {
 			for(var i = 0; i < docs.length; i++){
 				docs[i].remove();
