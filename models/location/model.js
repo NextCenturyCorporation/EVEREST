@@ -2,6 +2,7 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 this.locationDataModel = {
+	createdDate: {type: Date, "default": Date.now},
 	name: {type: String, required:true},
 	latitude: {type: Number, required:true},
 	longitude:	{type: Number, required: true},
@@ -13,6 +14,10 @@ this.location = mongoose.model('Location', LocationSchema);
 
 locationValidation = {
 	properties: {
+		createdDate: {
+			description: 'Date this location was created in datastore',
+			type: 'date'
+		},
 		name: {
 			description: 'Name of the location',
 			type: 'string',
@@ -43,6 +48,7 @@ locationValidation = {
 		radius: {
 			description: 'Radius in units of degrees',
 			type: 'number',
+			"default": 0,
 			required: true
 		}
 	}	
