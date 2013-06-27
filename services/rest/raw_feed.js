@@ -50,7 +50,7 @@ this.load = function(app, io, gcm, logger) {
 	// Delete
 	app.del('/rawfeed/:id([0-9a-f]+)',function(req, res){
 		if(logger.DO_LOG){
-			logger.info("Deleting location with id: " + req.params.id);
+			logger.info("Deleting raw feed with id: " + req.params.id);
 		}
 		rawFeedService.deleteFeed(req.params.id, res);
 	});
