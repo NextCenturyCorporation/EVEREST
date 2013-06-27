@@ -2,6 +2,8 @@
 // Identify require as a global function/keyword for JSHint
 
 var rawFeedService = require('../database/raw_feed.js');
+var rawFeedModel = require('../../models/location/model.js');
+var revalidator = require('revalidator');
 
 this.load = function(app, io, gcm, logger) {
 	app.get('/rawfeed/?', function(req, res){
@@ -16,11 +18,24 @@ this.load = function(app, io, gcm, logger) {
 		if(logger.DO_LOG){
 			logger.info("Receiving new feed", req.body);
 		}
-		rawFeedService.createFeed(req.body, res, io, gcm);
+		var validation = revalidator.validate(req.body, rawFeedValidation);
+		if(validation.valid) {
+			rawFeedService.createFeed(req.body, res, io, gcm);
+		}
+		else {
+			if(logger.DO_LOG){
+				logger.info(validation.errors);
+			}
+			res.status(500);
+			res.json({error: validation.errors}, req.body);
+		}
 	});
 
 	// Review
 	app.get('/rawfeed/:id([0-9a-f]+)', function(req, res){
+		if(0 && logger.DO_LOG){
+			logger.info("Request for raw feed " + req.params.id);
+		}
 		rawFeedService.getFeed(req.params.id, req.query, res);
 	});
 
@@ -35,7 +50,7 @@ this.load = function(app, io, gcm, logger) {
 	// Delete
 	app.del('/rawfeed/:id([0-9a-f]+)',function(req, res){
 		if(logger.DO_LOG){
-			logger.info("Request to delete feed");
+			logger.info("Deleting location with id: " + req.params.id);
 		}
 		rawFeedService.deleteFeed(req.params.id, res);
 	});

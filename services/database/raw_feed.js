@@ -91,8 +91,10 @@ this.updateFeed = function(id, data, res){
 this.deleteFeed = function(id, res){
 	models.rawFeed.find({_id:id}, function(err, docs){
 		if(err || docs.length === 0){
-			logger.error('Error deleting raw feed', err);
-			general.send500(res);
+			logger.error('Error deleting raw feed ' + id, err);
+			res.status('500');
+			res.json({error: 'Invalid raw feed ' + id});
+			res.end();
 		} else {
 			for(var i = 0; i < docs.length; i++){
 				docs[i].remove();
