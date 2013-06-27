@@ -40,7 +40,7 @@ this.load = function(app, io, gcm, logger) {
 	//review
 	app.get('/location/:id([0-9a-f]+)', function(req,res){
 		if(0 && logger.DO_LOG){
-			logger.info("Request for locaiton "+req.params.id);
+			logger.info("Request for location "+req.params.id);
 		}
 		locationService.getLocation(req.params.id, res);
 	});
