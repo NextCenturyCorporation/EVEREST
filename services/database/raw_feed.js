@@ -42,6 +42,11 @@ this.createFeed = function(data, res, io, gcm){
 	});
 };
 
+this.saveFeed = function(data, saveCallback) {
+	var newFeed = new models.rawFeed(data);
+	newFeed.save(saveCallback);
+};
+
 this.getFeed = function(id, opts, res){
 	models.rawFeed.findById(id, function(err, docs){
 		if(err) {
