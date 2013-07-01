@@ -2,9 +2,6 @@
  * Runs while connected to a database
  */
 
-/*global require */
-// require is a global node function/keyword
-
 var winston = require('winston');
 var general = require('../wizard_service');
 var models = require('../../models/models');
@@ -93,7 +90,7 @@ this.getLocation = function(id, res){
 /**
  * This updates the location with id specified in the URL.
  * It will not change the id.
- * On success, it returns status:ok
+ * On success, it returns the _id value (just like on create)
  */
 this.updateLocation = function(id, data, res){
 	models.location.findById(id, function(err, docs){
