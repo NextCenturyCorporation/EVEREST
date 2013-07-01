@@ -1,5 +1,5 @@
 var locationService = require('../database/location.js');
-var locationModel = require('../../models/location/model.js');
+var locationValidation = require('../../models/location/model.js');
 var revalidator = require('revalidator');
 
 this.load = function(app, io, gcm, logger) {

@@ -13,7 +13,7 @@ this.locationDataModel = {
 var LocationSchema = new Schema(this.locationDataModel);
 this.location = mongoose.model('Location', LocationSchema);
 
-locationValidation = {
+this.locationValidation = {
 	properties: {
 		createdDate: {
 			description: 'Date this location was created in datastore',
