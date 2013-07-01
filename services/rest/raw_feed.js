@@ -1,8 +1,5 @@
-/*global require*/
-// Identify require as a global function/keyword for JSHint
-
 var rawFeedService = require('../database/raw_feed.js');
-var rawFeedModel = require('../../models/location/model.js');
+var rawFeedValidation = require('../../models/raw_feed/model.js');
 var revalidator = require('revalidator');
 
 this.load = function(app, io, gcm, logger) {
@@ -40,18 +37,27 @@ this.load = function(app, io, gcm, logger) {
 	});
 
 	// Update
-	app.post('/rawfeed/:id([0-9]+)', function(req,res){
+	app.post('/rawfeed/:id([0-9a-f]+)', function(req,res){
 		if(logger.DO_LOG){
 			logger.info("Update feed " + req.params.id, req.body);
 		}
 		rawFeedService.updateFeed(req.params.id, req.body, res);
 	});
 
-	// Delete
+	// Delete an individual raw_feed
 	app.del('/rawfeed/:id([0-9a-f]+)',function(req, res){
 		if(logger.DO_LOG){
 			logger.info("Deleting raw feed with id: " + req.params.id);
 		}
-		rawFeedService.deleteFeed(req.params.id, res);
+		rawFeedService.deleteFeed(req.params.id, req.body, res);
 	});
+	
+	// Delete all raw_feed entries
+	app.del('/rawfeed/',function(req, res){
+		if(logger.DO_LOG){
+			logger.info("Deleting all raw feed entries");
+		}
+		rawFeedService.deleteFeeds(res);
+	});
+	
 };

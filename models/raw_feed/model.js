@@ -1,28 +1,30 @@
-/*global require*/
-// Identify require as a global function/keyword for JSHint
-
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-//var config = require('../../config.js');
 
 this.rawFeedModel = {
-	timestamp: {type: Date, "default": Date.now},
-	text: String,
-	feedSource: {type: String, enum: ['Twitter', 'Email']}
+	createdDate: {type: Date},
+	updatedDate: {type: Date},
+	text: {type: String, required: true},
+	feedSource: {type: String, enum: ['Twitter', 'Email'], required: true}
 };
 
 var rawFeedSchema = new Schema(this.rawFeedModel);
 this.rawFeed = mongoose.model('rawFeed', rawFeedSchema);
 
-rawFeedValidation = {
+this.rawFeedValidation = {
 	properties: {
-		timestamp: {
-			description: 'Time this raw feed was created in datastore',
+		createdDate: {
+			description: 'Date created in datastore',
+			type: 'date'
+		},
+		updatedDate: {
+			description: 'Date last updated in datastore',
 			type: 'date'
 		},
 		text: {
 			description: 'The contents of the raw feed',
-			type: 'string'
+			type: 'string',
+			required: true
 		},
 		feedSource: {
 			description: 'The source of the raw feed',
@@ -30,7 +32,8 @@ rawFeedValidation = {
 			enum: ['Twitter', 'Email'],
 			messages: {
 				enum: 'Expected a source of Twitter or Email'
-			}
+			},
+			required: true
 		}
 	}
 };

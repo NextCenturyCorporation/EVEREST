@@ -1,10 +1,6 @@
 /**
  * Runs while connected to a database
  */
-
-/*global require */
-// require is a global node function/keyword
-
 var winston = require('winston');
 var general = require('../wizard_service');
 var models = require('../../models/models');
@@ -16,6 +12,9 @@ var logger = new (winston.Logger)({
 		new (winston.transports.File)({filename: 'logs/general.log'})] //,
 });
 
+/**
+ * Returns a list of all raw feeds
+**/
 this.listFeeds = function(opts, res){
 	models.rawFeed.find({}, function(err, docs){
 		if(err){
@@ -29,8 +28,17 @@ this.listFeeds = function(opts, res){
 	});
 };
 
+/**
+ * Creates a new raw_feed from the data POSTed
+ * See the schema in raw_feed/model.js for details on the data to post.
+ * All validation is handled though the schema.
+ *
+ * On success, it returns id:<ID-hash>
+**/
 this.createFeed = function(data, res, io, gcm){
 	var newFeed = new models.rawFeed(data);
+	newFeed.createdDate = new Date();
+	newFeed.updatedDate = new Date();
 	newFeed.save(function(err){
 		if(err){
 			logger.error('Error saving raw feed', err);
@@ -47,6 +55,9 @@ this.saveFeed = function(data, saveCallback) {
 	newFeed.save(saveCallback);
 };
 
+/**
+ * Returns the raw_feed with the id specified in the URL
+**/
 this.getFeed = function(id, opts, res){
 	models.rawFeed.findById(id, function(err, docs){
 		if(err) {
@@ -63,6 +74,11 @@ this.getFeed = function(id, opts, res){
 	});
 };
 
+/**
+ * This updates the raw_feed with id specified in the URL.
+ * It will not change the id.
+ * On success, it returns the _id value (just like on create)
+**/
 this.updateFeed = function(id, data, res){
 	models.rawFeed.findById(id, function(err, docs){
 		if(err) {
@@ -75,11 +91,12 @@ this.updateFeed = function(id, data, res){
 					docs[e] = data[e];
 				}
 			}
+			docs.updatedDate = new Date();
 			docs.save(function(err){
 				if(err){
 					general.send500(res);
 				} else {
-					res.json({status:'ok'});
+					res.json({id:docs._id});
 					res.end();
 				}
 			});
@@ -89,7 +106,10 @@ this.updateFeed = function(id, data, res){
 	});
 };
 
-this.deleteFeed = function(id, res){
+/**
+ * Deletes the raw_feed with the given ID
+**/
+this.deleteFeed = function(id, data, res){
 	models.rawFeed.find({_id:id}, function(err, docs){
 		if(err || docs.length === 0){
 			logger.error('Error deleting raw feed ' + id, err);
@@ -103,5 +123,18 @@ this.deleteFeed = function(id, res){
 			res.json({status:'ok'});
 			res.end();
 		}//;
+	});
+};
+
+/**
+ * Deletes all raw_feeds
+**/
+this.deleteFeeds = function(res){
+	models.rawFeed.find({}, function(err, docs){
+		for(var i = 0; i < docs.length; i++){
+			docs[i].remove();
+		}
+		res.json({status:'ok'});
+		res.end();
 	});
 };
