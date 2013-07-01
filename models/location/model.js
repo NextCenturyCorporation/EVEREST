@@ -2,7 +2,8 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 this.locationDataModel = {
-	createdDate: {type: Date, "default": Date.now},
+	createdDate: {type: Date},
+	updatedDate: {type: Date},
 	name: {type: String, required:true},
 	latitude: {type: Number, required:true},
 	longitude:	{type: Number, required: true},
@@ -16,6 +17,10 @@ locationValidation = {
 	properties: {
 		createdDate: {
 			description: 'Date this location was created in datastore',
+			type: 'date'
+		},
+		updatedDate: {
+			description: 'Date this location was last updated in datastore',
 			type: 'date'
 		},
 		name: {

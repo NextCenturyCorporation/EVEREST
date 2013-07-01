@@ -63,11 +63,20 @@ this.load = function(app, io, gcm, logger) {
 		}
 	});
 	
-	//delete
+	//delete by id
 	app.del('/location/:id([0-9a-f]+)', function(req, res) {
 		if(logger.DO_LOG) {
 			logger.info("Deleting location with id: " + req.params.id);
 		}
 		locationService.deleteLocation(req.params.id, req.body, res);
 	});
+	
+	//delete all
+	app.del('/location/', function(req, res) {
+		if(logger.DO_LOG) {
+			logger.info("Deleting all locations");
+		}
+		locationService.deleteLocations(res);
+	});
+
 };

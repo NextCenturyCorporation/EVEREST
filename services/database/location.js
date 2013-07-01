@@ -58,6 +58,8 @@ this.listLocationNames = function(res){
  */
 this.createLocation = function(data, res){
 	var newLoc = new models.location(data);
+	newLoc.createdDate = new Date();
+	newLoc.updatedDate = new Date();
 	newLoc.save(function(err){
 		if(err){
 			logger.error('Error saving location', err);
@@ -105,14 +107,15 @@ this.updateLocation = function(id, data, res){
 					docs[e] = data[e];
 				}
 			}
+			docs.updatedDate = new Date();
 			docs.save(function(err){
 				if(err){
 					general.send500(res);
 				} else {
-					res.end({status:'ok'});
+					res.json({id:docs._id});
 					res.end();
 				}
-			});
+			});			
 		} else {
 			general.send404(res);
 		}
@@ -136,5 +139,18 @@ this.deleteLocation = function(id, data, res) {
 			res.json({status:'ok'});
 			res.end();
 		}//;
+	});
+};
+
+/**
+ * Deletes all locations
+**/
+this.deleteLocations = function(res) {
+	models.location.find({}, function(err, docs){
+		for(var i = 0; i < docs.length; i++){
+			docs[i].remove();
+		}
+		res.json({status:'ok'});
+		res.end();
 	});
 };
