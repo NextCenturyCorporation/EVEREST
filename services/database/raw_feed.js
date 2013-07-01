@@ -79,7 +79,7 @@ this.updateFeed = function(id, data, res){
 				if(err){
 					general.send500(res);
 				} else {
-					res.end({status:'ok'});
+					res.json({status:'ok'});
 					res.end();
 				}
 			});
