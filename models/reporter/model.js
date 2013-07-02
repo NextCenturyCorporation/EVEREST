@@ -8,7 +8,7 @@ this.reporterDataModel = {
 	createdDate: {type: Date},
 	updatedDate: {type: Date},
 	name: {type: String, required: true},
-	source_name: {type: String, enum:['Twitter', 'Email'], required:true},
+	source_name: {type: String, enum:['Twitter', 'Email'], required: true},
 	source_id: {type: String},
 	screen_name: {type: String},
 	location_name: {type: String}, 
@@ -44,7 +44,7 @@ this.reporterValidation = {
 			description: 'The reporters source name',
 			type: 'string', 
 			enum:['Twitter', 'Email'], 
-			required:true
+			required: true
 		},
 		source_id: {
 			description: 'The reporters twitter source id',
@@ -66,7 +66,7 @@ this.reporterValidation = {
 		phone: {
 			description: 'The reporters phone number',
 			type: 'string',
-			pattern: '/([0-9]{9})|([0-9]{3}[-\/][0-9]{3}-{0,1}[0-9]{4})/'
+			pattern: /([0-9]{10})|([0-9]{3}[-\/][0-9]{3}-{0,1}[0-9]{4})/
 			//pattern: '/(\d{9})|(\d{3}[-\/]\d{3}-{0,1}\d{4})/' bad or unecessary escaping, doesn't like \d
 		},
 		ip: {
@@ -78,7 +78,7 @@ this.reporterValidation = {
 		url: {
 			description: 'The url of the object should be stored at',
 			type: 'string',
-			pattern: '^/[^#%&*{}\\:<>?\/+]+$',
+			//pattern: '^/[^#%&*{}\\:<>?\/+]+$',
 			format: 'url'
 		},
 		description: {
