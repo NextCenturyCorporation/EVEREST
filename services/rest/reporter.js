@@ -1,4 +1,4 @@
-var reporterService = require('../database/location.js');
+var reporterService = require('../database/reporter.js');
 var reporterValidation = require('../../models/reporter/model.js');
 var revalidator = require('revaliator');
 
@@ -74,4 +74,5 @@ this.load = function(app, io, gcm, logger){
 			logger.info('Deleting all reporter entries');
 		}
 		reporterService.deleteReporters(res);
+	});
 };

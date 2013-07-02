@@ -99,7 +99,7 @@ this.updateReporter = function(id, data, res){
 			}
 			docs.save(function(err){
 				if(err){
-					logger.error('Error updating contact', err);
+					logger.error('Error updating reporter', err);
 					general.send500(res);
 				}
 				res.json({id:docs._id});

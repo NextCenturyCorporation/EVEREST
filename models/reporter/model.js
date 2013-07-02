@@ -5,21 +5,21 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 this.reporterDataModel = {
-	createdDate:	{type: Date},
-	updatedDate:	{type: Date},
-	name:			{type: String, required: true},
-	source_name:	{type: String, enum:['Twitter', 'Email'], required:true},
-	source_id:		{type: String},
-	screen_name:	{type: String},
-	location_name:	{type: String}, 
-	email:			{type: String},
-	phone:			{type: String},
-	ip:				{type: String},
-	url:			{type: String},
-	description:	{type: String},
-	utc_offset:		{type: Number},
-	time_zone:		{type: String},
-	lang:			{type: String}
+	createdDate: {type: Date},
+	updatedDate: {type: Date},
+	name: {type: String, required: true},
+	source_name: {type: String, enum:['Twitter', 'Email'], required:true},
+	source_id: {type: String},
+	screen_name: {type: String},
+	location_name: {type: String}, 
+	email: {type: String},
+	phone: {type: String},
+	ip: {type: String},
+	url: {type: String},
+	description: {type: String},
+	utc_offset: {type: Number},
+	time_zone: {type: String},
+	lang: {type: String}
 };
 
 var ReporterSchema = new Schema(this.reporterDataModel);
