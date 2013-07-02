@@ -36,3 +36,7 @@ this.incident = incidentModel.incident;
 //user
 var userModel = require('./user/model.js');
 this.user = userModel.user;
+
+//reporter
+var reporterModel = require('./reporter/model.js');
+this.reporter = reporterModel.reporter;

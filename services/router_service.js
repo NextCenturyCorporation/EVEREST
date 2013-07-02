@@ -12,6 +12,7 @@ this.load = function(app, io, gcm, logger){
 	require('./rest/options.js').load(app, io, gcm, logger);
 	require('./rest/location.js').load(app, io, gcm, logger);
 	require('./rest/twitter_ingest_service.js').load(app, io, gcm, logger);
+	require('./rest/reporter.js').load(app, io, gcm, logger);
 	
 	app.get('/', function(req, res){
 		res.redirect('/events');
