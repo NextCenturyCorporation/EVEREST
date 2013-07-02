@@ -1,6 +1,6 @@
 var reporterService = require('../database/reporter.js');
 var reporterValidation = require('../../models/reporter/model.js');
-var revalidator = require('revaliator');
+var revalidator = require('revalidator');
 
 this.load = function(app, io, gcm, logger){
 	//list - lists full object
@@ -29,19 +29,27 @@ this.load = function(app, io, gcm, logger){
 			reporterService.createReporter(req.body, res);
 		} else { 
 			if(logger.DO_LOG){
-				logger.info(validation.errors); //dbl check this, seems odd
+				logger.info(validation.errors); 
 			}
 			res.status(500);
 			res.json({error: validation.errors}, req.body);
+			console.log(validation.errors);
 		}
 	});
 	
-	//Review
-	app.get('/reporter/:id([0-9a-f]+)', function(req,res){
-		if( 0 && logger.DO_LOG){ //if(!logger.DO_LOG){// ??
+	//Review  '/reporter/:{param_name}(contents to go in param_name)'
+	app.get('/reporter/:id([0-9a-f]+)', function(req,res){     
+		if(logger.DO_LOG ){
 			logger.info('Request for reporter ' + req.params.id);
 		}
 		reporterService.getReporter(req.params.id, res);
+	});
+	
+	app.get('/reporter/:source_name(Twitter|Email)', function(req,res){
+		if(logger.DO_LOG){
+			logger.info('Request for reporter source of' + req.params.source_name);
+		}
+		reporterService.getReporterBySource(req.params.source_name, res);
 	});
 	
 	//Update
@@ -49,7 +57,7 @@ this.load = function(app, io, gcm, logger){
 		if(logger.DO_LOG){
 			logger.info('Update reporter ' + req.params.id);
 		}
-		var validation = revalidatior.validate(req.body, reporterValidation);
+		var validation = revalidator.validate(req.body, reporterValidation);
 		if(validation.valid){
 			reporterService.updateReporter(req.params.id, req.body, res);
 		} else {
