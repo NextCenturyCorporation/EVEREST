@@ -6,7 +6,7 @@ var models = require('../../models/models');
 var logger = new (winston.Logger)({
 	//Make it log to both the console and a file
 	transports: [new (winston.transports.Console)(),
-		new (winston.transports.File)({filename: 'logs/general.log'})]//,
+		new (winston.transports.File)({filename: 'logs/general.log'})]
 });
 
 /**
@@ -48,6 +48,8 @@ this.listReporterNames = function(res){
  */
 this.createReporter = function(data, res){
 	var newReporter = new models.reporter(data);
+	newReporter.createdDate = new Date();
+	newReporter.updatedDate = new Date();
 	newReporter.save(function(err){
 		if(err){
 			logger.error('Error saving reporter', err);
@@ -81,34 +83,49 @@ this.getReporter = function(id, res){
 	});
 };
 
+this.getReporterBySource = function(source, res){
+	models.reporter.find({"source_name":source}, function(err, docs){
+		if(err){
+			logger.info('Error getting reporter ' + err);
+			general.send500(res);
+		} else if(docs) {
+			res.json(docs);
+			res.end();
+		} else {
+			general.send404(res);
+		}
+	});
+};
+
 /**
  * This updates the reporter with id specified in the URL.
  * It will not change the id.
  * On success, it returns the _id value (just like on create)
  */
 this.updateReporter = function(id, data, res){
-	models.reporter.findById(id, function(err, docs){
+		models.reporter.findById(id, function(err, docs){
 		if(err) {
-			logger.info('Error getting reporter ' + err);
+			logger.info("Error getting raw feed "+err);
 			general.send500(res);
 		} else if(docs) {
-			for (var e in data){
-				//change all elements besides _id
-				if(e != '_id')
+			for(var e in data){
+				//Make sure not to change _id
+				if(e !== '_id'){
 					docs[e] = data[e];
+				}
 			}
+			docs.updatedDate = new Date();
 			docs.save(function(err){
 				if(err){
-					logger.error('Error updating reporter', err);
 					general.send500(res);
+				} else {
+					res.json({id:docs._id});
+					res.end();
 				}
-				res.json({id:docs._id});
-				res.end();
 			});
 		} else {
 			general.send404(res);
 		}
-		res.end();
 	});
 };
 
