@@ -1,5 +1,5 @@
 var locationService = require('../database/location.js');
-var locationValidation = require('../../models/location/model.js');
+var validationModel = require('../../models/location/model.js');
 var revalidator = require('revalidator');
 
 this.load = function(app, io, gcm, logger) {
@@ -24,16 +24,16 @@ this.load = function(app, io, gcm, logger) {
 		if(logger.DO_LOG){
 			logger.info("Receiving new location");
 		}
-		var validation = revalidator.validate(req.body, locationValidation);
-		if (validation.valid) {
+		var locVal = revalidator.validate(req.body, validationModel.locationValidation);
+		if (locVal.valid) {
 			locationService.createLocation(req.body, res);
 		}
 		else {
 			if(logger.DO_LOG){
-				logger.info(validation.errors);
+				logger.info(locVal.errors);
 			}
 			res.status(500);
-			res.json({error: validation.errors}, req.body);
+			res.json({error: locVal.errors}, req.body);
 		}
 	});
 	
@@ -50,16 +50,16 @@ this.load = function(app, io, gcm, logger) {
 		if(logger.DO_LOG){
 			logger.info("Update location "+req.params.id);
 		}
-		var validation = revalidator.validate(req.body, locationValidation);
-		if (validation.valid) {
+		var locVal = revalidator.validate(req.body, validationModel.locationValidation);
+		if (locVal.valid) {
 			locationService.updateLocation(req.params.id, req.body, res);
 		}
 		else {
 			if(logger.DO_LOG){
-				logger.info(validation.errors);
+				logger.info(locVal.errors);
 			}
 			res.status(500);
-			res.json({error: validation.errors});
+			res.json({error: locVal.errors});
 		}
 	});
 	
