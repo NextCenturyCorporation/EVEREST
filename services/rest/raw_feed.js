@@ -1,5 +1,5 @@
 var rawFeedService = require('../database/raw_feed.js');
-var rawFeedValidation = require('../../models/raw_feed/model.js');
+var validationModel = require('../../models/raw_feed/model.js');
 var revalidator = require('revalidator');
 
 this.load = function(app, io, gcm, logger) {
@@ -15,7 +15,7 @@ this.load = function(app, io, gcm, logger) {
 		if(logger.DO_LOG){
 			logger.info("Receiving new feed", req.body);
 		}
-		var validation = revalidator.validate(req.body, rawFeedValidation);
+		var validation = revalidator.validate(req.body, validationModel.rawFeedValidation);
 		if(validation.valid) {
 			rawFeedService.createFeed(req.body, res, io, gcm);
 		}
@@ -41,7 +41,17 @@ this.load = function(app, io, gcm, logger) {
 		if(logger.DO_LOG){
 			logger.info("Update feed " + req.params.id, req.body);
 		}
-		rawFeedService.updateFeed(req.params.id, req.body, res);
+		var validation = revalidator.validate(req.body, validationModel.rawFeedValidation);
+		if(validation.valid) {
+			rawFeedService.updateFeed(req.params.id, req.body, res);
+		}
+		else {
+			if(logger.DO_LOG){
+				logger.info(validation.errors);
+			}
+			res.status(500);
+			res.json({error: validation.errors}, req.body);
+		}
 	});
 
 	// Delete an individual raw_feed
