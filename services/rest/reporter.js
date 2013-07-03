@@ -1,5 +1,5 @@
 var reporterService = require('../database/reporter.js');
-var reporterValidation = require('../../models/reporter/model.js');
+var validationModel = require('../../models/reporter/model.js');
 var revalidator = require('revalidator');
 
 this.load = function(app, io, gcm, logger){
@@ -25,7 +25,7 @@ this.load = function(app, io, gcm, logger){
 		if(logger.DO_LOG){
 			logger.info('Receiving new reporter', req.body);
 		}
-		var validation = revalidator.validate(req.body, reporterValidation);
+		var validation = revalidator.validate(req.body, validationModel.reporterValidation);
 		if(validation.valid){
 			reporterService.createReporter(req.body, res);
 		} else { 
@@ -59,7 +59,7 @@ this.load = function(app, io, gcm, logger){
 		if(logger.DO_LOG){
 			logger.info('Update reporter ' + req.params.id);
 		}
-		var validation = revalidator.validate(req.body, reporterValidation);
+		var validation = revalidator.validate(req.body, validationModel.reporterValidation);
 		if(validation.valid){
 			logger.info(req.body);
 			reporterService.updateReporter(req.params.id, req.body, res);
