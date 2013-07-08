@@ -105,7 +105,7 @@ this.getReporterBySource = function(source, res){
 this.updateReporter = function(id, data, res){
 		models.reporter.findById(id, function(err, docs){
 		if(err) {
-			logger.info("Error getting raw feed "+err);
+			logger.info("Error getting reporter "+err);
 			general.send500(res);
 		} else if(docs) {
 			for(var e in data){
