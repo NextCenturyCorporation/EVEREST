@@ -53,6 +53,9 @@ app.configure('production', function(){
   //app.use(express.errorHandler());
 });
 
+//allow jsonp to be used with a callback on REST calls
+app.enable("jsonp callback");
+
 //Custom error handler
 //This is modeled off the connect errorHandler
 //https://github.com/senchalabs/connect/blob/master/lib/middleware/errorHandler.js

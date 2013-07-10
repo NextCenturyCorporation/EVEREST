@@ -31,6 +31,9 @@ app.configure(function(){
 	app.use(express.static(__dirname + '/static'));
 });
 
+// allow jsonp to be used with a callback on REST calls
+app.enable("jsonp callback");
+
 /**
  * Custom error handler
  * This is modeled off the connect errorHandler

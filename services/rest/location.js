@@ -4,7 +4,7 @@ var revalidator = require('revalidator');
 
 this.load = function(app, io, gcm, logger) {
 	//list - lists full object
-	app.get('/location/', function(req,res){
+	app.get('/location/?', function(req,res){
 		if(logger.DO_LOG){
 			logger.info("Request for location list");
 		}
