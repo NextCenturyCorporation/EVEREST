@@ -58,8 +58,8 @@ this.saveFeed = function(data, saveCallback) {
 /**
  * Returns the raw_feed with the id specified in the URL
 **/
-this.getFeed = function(id, opts, res){
-	models.rawFeed.findById(id, function(err, docs){
+this.getFeedRequest = function(id, opts, res){
+	this.getFeed(id, function(err, docs){
 		if(err) {
 			logger.info("Error getting raw feed "+err);
 			res.status(500);
@@ -72,6 +72,10 @@ this.getFeed = function(id, opts, res){
 		}
 		res.end();
 	});
+};
+
+this.getFeed = function(id, callback) {
+	models.rawFeed.findById(id, callback);
 };
 
 /**

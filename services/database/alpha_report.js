@@ -47,15 +47,12 @@ this.listAlphaReportSourceIds = function(res){
  * On success, it returns the new id 
  */
 this.createAlphaReport = function(data, res){
-	var newAlphaReport = new models.alphaReport(data);
-	newAlphaReport.createdDate = new Date();
-	newAlphaReport.updatedDate = new Date();
-	newAlphaReport.save(function(err){
+	saveAlphaReport(dat, function(err, resultObject){
 		if(err){
 			logger.error('Error saving alpha report', err);
 			general.send500(res);
 		} else {
-			res.json({id:newAlphaReport._id});
+			res.json({id:resultObject._id});
 			res.end();
 		}
 	});
@@ -63,7 +60,9 @@ this.createAlphaReport = function(data, res){
 
 this.saveAlphaReport = function(data, saveCallback){
 	var newAlphaReport = new models.alphaReport(data);
-	newAlphaReport.save(saveCallback);
+	newAlphaReport.save(function(err) {
+		saveCallback(err, newAlphaReport);
+	});
 };
 
 /**

@@ -33,7 +33,7 @@ this.load = function(app, io, gcm, logger) {
 		if(0 && logger.DO_LOG){
 			logger.info("Request for raw feed " + req.params.id);
 		}
-		rawFeedService.getFeed(req.params.id, req.query, res);
+		rawFeedService.getFeedRequest(req.params.id, req.query, res);
 	});
 
 	// Update
