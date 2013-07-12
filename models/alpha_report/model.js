@@ -11,11 +11,11 @@ this.alphaReportModel = {
 	updatedDate: {type: Date, default: Date.now},
 	raw_data_id: {type: ObjectId},
 	source_name: {type: String, enum: ['Twitter', 'Email'], required: true},
-	source_id: {type: String, required: true}, //FIXME   what is this?
+	source_id: {type: String, required: true}, //FIXME   what is this? id from source
 	message_date: {type: Date},
 	message_body: {type: String}, 
 	reporter_id: {type: ObjectId},
-	location_name: {type: String}, //FIXME   why is this here?
+	location_name: {type: String}, //FIXME   why is this here? name from twitter
 	longitude: {type: Number},
 	latitude: {type: Number},
 	radius: {type: Number},

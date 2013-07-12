@@ -37,8 +37,6 @@ this.listFeeds = function(opts, res){
 **/
 this.createFeed = function(data, res, io, gcm){
 	var newFeed = new models.rawFeed(data);
-	newFeed.createdDate = new Date();
-	newFeed.updatedDate = new Date();
 	newFeed.save(function(err){
 		if(err){
 			logger.error('Error saving raw feed', err);
