@@ -44,7 +44,7 @@ this.createAssertion = function(data, res){
 			logger.error('Error saving assertion', err);
 			general.send500(res);
 		} else {
-			res.json({id:newLoc._id});
+			res.json({id:newAssertion._id});
 			res.end();
 		}
 	});
