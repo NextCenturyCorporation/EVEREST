@@ -65,7 +65,7 @@ me.ingest = function(query, res) {
 				stream.on('data', function (data) {
 					logger.debug("Saving feed item: " + data.user.screen_name + ": " + data.text);
 					
-					raw_feed_service.saveFeed({text:JSON.stringify(data)}, function(err, newfeed){
+					raw_feed_service.saveFeed({feedSource: 'Twitter', text:JSON.stringify(data)}, function(err, newfeed){
 						if(err){
 							logger.error('Error saving raw feed', err);
 						} else {
