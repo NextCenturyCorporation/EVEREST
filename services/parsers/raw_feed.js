@@ -4,7 +4,7 @@ var alpha_report_service = require('../database/alpha_report.js');
 var logger = null;
 
 var parsers = {
-	"twitter": 
+	"twitter": twitter_parser
 };
 
 this.load = function(log) {
