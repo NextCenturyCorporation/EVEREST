@@ -30,6 +30,15 @@ this.load = function(app, io, gcm, logger) {
 			res.json({error: assertionVal.errors}, req.body);
 		}
 	});
+
+
+	//Review
+	app.get('/assertion/:id([0-9a-f]+)', function(req,res){
+		if(0 && logger.DO_LOG){
+			logger.info("Request for assertion "+req.params.id);
+		}
+		assertionService.getAssertion(req.params.id, res);
+	});
 	
 	//Update
 	app.post('/assertion/:id([0-9a-f]+)', function(req,res){
@@ -51,11 +60,19 @@ this.load = function(app, io, gcm, logger) {
 		}
 	});
 	
-	//Delete (by id)
+	//Delete and individual assertion
 	app.del('/assertion/:id([0-9a-f]+)', function(req, res) {
 		if(logger.DO_LOG) {
 			logger.info("Deleting assertion with id: " + req.params.id);
 		}
 		assertionService.deleteAssertion(req.params.id, req.body, res);
+	});
+
+	//Delete all assertions
+	app.del('/assertion/', function(req, res){
+		if(logger.DO_LOG){
+			logger.info("Deleting all assertion entries");
+		}
+		assertionService.deleteAssertions(res);
 	});
 };

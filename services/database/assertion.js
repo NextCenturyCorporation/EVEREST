@@ -120,3 +120,13 @@ this.deleteAssertion = function(id, data, res) {
 		}//;
 	});
 };
+
+this.deleteAssertions = function(res){
+	models.assertion.find({}, function(err, docs){
+		for(var i = 0; i < docs.length; i++){
+			docs[i].remove();
+		}
+		res.json({status:'ok'});
+		res.end();
+	});
+};
