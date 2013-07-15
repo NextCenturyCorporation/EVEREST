@@ -13,7 +13,7 @@ this.load = function(app, io, gcm, logger){
 	});
 	
 	//list all reporters, only showing name and id
-	app.get('/reporter/names', function(req,res){
+	app.get('/reporter/names/?', function(req,res){
 		if(logger.DO_LOG){
 			logger.info('Request for reporter name list');
 		} 

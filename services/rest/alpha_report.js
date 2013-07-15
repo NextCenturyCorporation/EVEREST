@@ -15,8 +15,8 @@ this.load = function(app, io, gcm, logger){
 		alphaReportService.listAlphaReports(res);
 	});
 	
-	//list all alpha reports, only showing name and id
-	app.get('/alpha_report/source_ids', function(req,res){
+	//list all alpha reports, only showing source_id and id
+	app.get('/alpha_report/source_ids/?', function(req,res){
 		if(logger.DO_LOG){
 			logger.info('Request for alpha report source_id list');
 		} 
