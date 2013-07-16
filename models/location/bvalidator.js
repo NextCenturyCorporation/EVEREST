@@ -5,31 +5,6 @@
   exports.validate = validate;
   exports.mixin = mixin;
 
-/**
-  //
-  // ### function validate (object, schema, options)
-  // #### {Object} object the object to validate.
-  // #### {Object} schema (optional) the JSON Schema to validate against.
-  // #### {Object} options (optional) options controlling the validation
-  //      process. See {@link #validate.defaults) for details.
-  // Validate <code>object</code> against a JSON Schema.
-  // If <code>object</code> is self-describing (i.e. has a
-  // <code>$schema</code> property), it will also be validated
-  // against the referenced schema. [TODO]: This behavior may be
-  // suppressed by setting the {@link #validate.options.???}
-  // option to <code>???</code>.[/TODO]
-  //
-  // If <code>schema</code> is not specified, and <code>object</code>
-  // is not self-describing, validation always passes.
-  //
-  // <strong>Note:</strong> in order to pass options but no schema,
-  // <code>schema</code> <em>must</em> be specified in the call to
-  // <code>validate()</code>; otherwise, <code>options</code> will
-  // be interpreted as the schema. <code>schema</code> may be passed
-  // as <code>null</code>, <code>undefined</code>, or the empty object
-  // (<code>{}</code>) in this case.
-  //
-**/
   
   function validate(object, schema, options) {
     options = mixin({}, options, validate.defaults);
@@ -89,6 +64,7 @@
    * Default messages to include with validation errors.
    */
   validate.messages = {
+      name:				"Name attribute / property value message",
       required:         "is required",
       minLength:        "is too short (minimum is %{expected} characters)",
       maxLength:        "is too long (maximum is %{expected} characters)",
@@ -165,10 +141,9 @@
   }
 
   function validateObject(object, schema, options, errors) {
-    var props, allProps = Object.keys(object),
-        visitedProps = [];
+    var props,
+    	visitedProps = [];    // allProps = Object.keys(object),
 
-    // see 5.2
     if (schema.properties) {
       props = schema.properties;
       for (var p2 in props) {
@@ -178,49 +153,6 @@
         }
       }
     }
-
-    // see 5.3
-    if (schema.patternProperties) {
-      props = schema.patternProperties;
-      for (var p3 in props) {
-        if (props.hasOwnProperty(p3)) {
-          var re = new RegExp(p3);
-
-          // Find all object properties that are matching `re`
-          for (var k in object) {
-            if (object.hasOwnProperty(k)) {
-              visitedProps.push(k);
-              if (re.exec(k) !== null) {
-                validateProperty(object, object[k], p3, props[p3], options, errors);
-              }
-            }
-          }
-        }
-      }
-    }
-
-    // see 5.4
-    if (undefined !== schema.additionalProperties) {
-      var i, l;
-
-      var unvisitedProps = allProps.filter(function(k){
-        return -1 === visitedProps.indexOf(k);
-      });
-
-      // Prevent additional properties; each unvisited property is therefore an error
-      if (schema.additionalProperties === false && unvisitedProps.length > 0) {
-        for (i = 0, l = unvisitedProps.length; i < l; i++) {
-          error("additionalProperties", unvisitedProps[i], object[unvisitedProps[i]], false, errors);
-        }
-      }
-      // additionalProperties is a schema and validate unvisited properties against that schema
-      else if (typeof schema.additionalProperties == "object" && unvisitedProps.length > 0) {
-        for (i = 0, l = unvisitedProps.length; i < l; i++) {
-          validateProperty(object, object[unvisitedProps[i]], unvisitedProps[i], schema.unvisitedProperties, options, errors);
-        }
-      }
-    }
-
   }
 
   function validateProperty(object, value, property, schema, options, errors) {
@@ -229,7 +161,24 @@
     //    spec,
     //    type;
 
-    var format, spec;
+	  var errorFound = false;
+      switch (property) {
+      case 'name':
+          if (errorFound) { error('name', property, value, schema, errors); }
+        break;
+      case 'longitude':
+          if (errorFound) { error('longitude', property, value, schema, errors); }
+          break;
+      case 'latitude':
+          if (errorFound) { error('latitude', property, value, schema, errors); }
+        break;
+      case 'radius':
+          if (errorFound) { error('radius', property, value, schema, errors); }
+        break;
+    }
+
+/*
+	var format, spec;
     
     function constrain(name, value, assert) {
       if (schema[name] !== undefined && !assert(value, schema[name])) {
@@ -356,6 +305,7 @@
           break;
       }
     });
+  */
   }
 
   function checkType(val, type, callback) {

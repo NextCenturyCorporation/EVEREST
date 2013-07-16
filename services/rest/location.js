@@ -1,5 +1,6 @@
 var locationService = require('../database/location.js');
 var validationModel = require('../../models/location/model.js');
+var bvalidator = require('../../models/location/bvalidator.js');
 var revalidator = require('revalidator');
 
 this.load = function(app, io, gcm, logger) {
@@ -24,13 +25,25 @@ this.load = function(app, io, gcm, logger) {
 		if(logger.DO_LOG){
 			logger.info("Receiving new location");
 		}
+		// is the JSON semantically valid for the location object?
 		var locVal = revalidator.validate(req.body, validationModel.locationValidation);
 		if (locVal.valid) {
-			locationService.createLocation(req.body, res);
+			// does the location object comply with business validation logic?
+			var bVal = bvalidator.validate(req.body, validationModel.locationValidation);
+			if (bVal.valid) {
+				locationService.createLocation(req.body, res);				
+			}
+			else {
+				if(logger.DO_LOG){
+					logger.error(bVal.errors);
+				}
+				res.status(500);
+				res.json({error: bVal.errors}, req.body);
+			}
 		}
 		else {
 			if(logger.DO_LOG){
-				logger.info(locVal.errors);
+				logger.error(locVal.errors);
 			}
 			res.status(500);
 			res.json({error: locVal.errors}, req.body);
