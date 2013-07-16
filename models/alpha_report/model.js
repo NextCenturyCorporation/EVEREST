@@ -7,8 +7,8 @@ var ObjectId = Schema.ObjectId;
 //var config = require('../../config.js');
 
 this.alphaReportModel = {
-	createdDate: {type: Date, default: Date.now},
-	updatedDate: {type: Date, default: Date.now},
+	createdDate: {type: Date, "default": Date.now},
+	updatedDate: {type: Date, "default": Date.now},
 	raw_data_id: {type: ObjectId},
 	source_name: {type: String, enum: ['Twitter', 'Email'], required: true},
 	source_id: {type: String, required: true}, //FIXME   what is this? id from source
