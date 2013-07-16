@@ -58,7 +58,7 @@ me.ingest = function(query, res) {
 	}
 	
 	if(filters.length > 0) {
-		if(activeStream == null) {
+		if(activeStream === null) {
 			twit.stream('statuses/filter', { track: filters }, function(stream) {
 				activeStream = stream;
 				
@@ -78,14 +78,14 @@ me.ingest = function(query, res) {
 				if(time !== null) {
 					setTimeout(function() {
 						//stream.destroy();
-						me.stopIngest()
+						me.stopIngest();
 						logger.info("Stream closed; timeout reached");
 					}, time);
 				}
 			});
 			
-			logger.info("Spawned feed ingest on filter: '" + filters +"' to run " + (time == null ? "indefinitely" : "for " + time + "ms"));
-			res.json({success:true, message:"Spawned Twitter feed ingest on filter: '" + filters +"' to run " + (time == null ? "indefinitely" : "for " + time + "ms")});
+			logger.info("Spawned feed ingest on filter: '" + filters +"' to run " + (time === null ? "indefinitely" : "for " + time + "ms"));
+			res.json({success:true, message:"Spawned Twitter feed ingest on filter: '" + filters +"' to run " + (time === null ? "indefinitely" : "for " + time + "ms")});
 			res.end();
 		} else {
 			console.log("Active stream already set");
@@ -103,7 +103,7 @@ me.callParser = function(id) {
 	process.nextTick(function() {
 		raw_feed_parser.parse(id);
 	});
-}
+};
 
 me.stopIngest = function(query, res) {
 	if(activeStream !== null) {
@@ -116,5 +116,5 @@ me.stopIngest = function(query, res) {
 		logger.debug("No active stream to kill");
 		res.json({success:false, message:"No active twitter stream to stop"});
 	}	
-}
+};
 
