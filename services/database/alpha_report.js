@@ -47,7 +47,7 @@ this.listAlphaReportSourceIds = function(res){
  * On success, it returns the new id 
  */
 this.createAlphaReport = function(data, res){
-	saveAlphaReport(dat, function(err, resultObject){
+	saveAlphaReport(data, function(err, resultObject){
 		if(err){
 			logger.error('Error saving alpha report', err);
 			general.send500(res);
@@ -70,7 +70,7 @@ this.saveAlphaReport = function(data, saveCallback){
  */
 this.getAlphaReport = function(id, res){
 	models.alphaReport.findById(id, function(err, docs){
-		if(err) {
+		if(err){
 			logger.info('Error getting alpha report ' + err);
 			general.send500(res);
 		} else if(docs) {
@@ -116,7 +116,7 @@ this.getAlphaReportBySourceId = function(source_id, res){
  * On success, it returns the _id value (just like on create)
  */
 this.updateAlphaReport = function(id, data, res){
-		models.alphaReport.findById(id, function(err, docs){
+	models.alphaReport.findById(id, function(err, docs){
 		if(err) {
 			logger.info("Error getting alpha report "+err);
 			general.send500(res);
@@ -152,9 +152,9 @@ this.deleteAlphaReport = function(id, res){
 			res.status('500');
 			res.json({error: 'Invalid alpha report ' + id});
 		} else { 
-			for (var i = 0; i < docs.length; i++)
+			for (var i = 0; i < docs.length; i++){
 				docs[i].remove();
-				
+			}
 			res.json({status:'ok'});
 		}
 		res.end();
