@@ -13,6 +13,7 @@ this.locationDataModel = {
 var LocationSchema = new Schema(this.locationDataModel);
 this.location = mongoose.model('Location', LocationSchema);
 
+// Describe the JSON semantic validation schema
 this.locationValidation = {
 		properties: {
 			createdDate: {
@@ -58,3 +59,27 @@ this.locationValidation = {
 			}
 		}	
 	};
+
+// Describe the business logic validation schema
+
+this.businessValidation = {
+	properties: {
+		name: {
+			operations: {
+				post: {
+					unique: true,
+					messages: {
+						unique: "Location name must be unique."
+					}
+				},
+				get: {},
+				put: {},
+				del: {}
+			},
+		},
+		record: {
+			unique: true,
+			messages: { unique: "Location record already exists."}
+		}
+	}
+};

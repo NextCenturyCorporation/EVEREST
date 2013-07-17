@@ -87,6 +87,35 @@ this.getLocation = function(id, res){
 	});
 };
 
+
+this.getLocationByName = function(value){
+	models.location.find({name:value}, function(err, docs){
+		if(err) {
+			return null;
+		} else if (docs.length !== 0){
+			return docs;
+		} else {
+			return null;
+		}
+	});
+};
+
+this.searchLocation = function(data, res){
+	models.location.find({name:data.name}, function(err, docs){
+		if(err) {
+			logger.info("Error getting location "+err);
+			res.status(500);
+			res.json({error: 'Error'});
+		} else if(docs.length !== 0) {
+			res.json(docs);
+		} else {
+			res.status(404);
+			res.json({error: 'Not found'});
+		}
+		res.end();
+	});
+};
+
 /**
  * This updates the location with id specified in the URL.
  * It will not change the id.

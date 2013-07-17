@@ -1,34 +1,30 @@
 /**
  * New node file
  */
+var locationService = require('../../services/database/location.js');
+
 (function (exports) {
   exports.validate = validate;
   exports.mixin = mixin;
 
   
-  function validate(object, schema, options) {
-    options = mixin({}, options, validate.defaults);
-    var errors = [];
-
-    validateObject(object, schema, options, errors);
-
-    //
-    // TODO: self-described validation
-    // if (! options.selfDescribing) { ... }
-    //
-
-    return {
-      valid: !(errors.length),
-      errors: errors
-    };
-  }
+	function validate(object, schema, options) {
+		options = mixin({}, options, validate.defaults);
+		var errors = [];
+	
+		validateObject(object, schema, options, errors);
+	
+		return {
+			valid : !(errors.length),
+			errors : errors
+		};
+	}
 
   /**
-   * Default validation options. Defaults can be overridden by
-   * passing an 'options' hash to {@link #validate}. They can
-   * also be set globally be changing the values in
-   * <code>validate.defaults</code> directly.
-   */
+	 * Default validation options. Defaults can be overridden by passing an
+	 * 'options' hash to {@link #validate}. They can also be set globally be
+	 * changing the values in <code>validate.defaults</code> directly.
+	 */
   validate.defaults = {
       /**
        * <p>
@@ -64,24 +60,12 @@
    * Default messages to include with validation errors.
    */
   validate.messages = {
-      name:				"Name attribute / property value message",
-      required:         "is required",
-      minLength:        "is too short (minimum is %{expected} characters)",
-      maxLength:        "is too long (maximum is %{expected} characters)",
-      pattern:          "invalid input",
-      minimum:          "must be greater than or equal to %{expected}",
-      maximum:          "must be less than or equal to %{expected}",
-      exclusiveMinimum: "must be greater than %{expected}",
-      exclusiveMaximum: "must be less than %{expected}",
-      divisibleBy:      "must be divisible by %{expected}",
-      minItems:         "must contain more than %{expected} items",
-      maxItems:         "must contain less than %{expected} items",
-      uniqueItems:      "must hold a unique set of values",
-      format:           "is not a valid %{expected}",
-      conform:          "must conform to given constraint",
-      type:             "must be of %{expected} type"
+      name:					"Name attribute / property value is incorrect",
+      latitude:			"Latitude attribute value is incorrect",
+      longitude:		"Longitude attribute value is incorrect",
+      radius:				"Radius attribute value is incorrect",
+      object:				"There is a record-level error"
   };
-  validate.messages['enum'] = "must be present in given enumerator";
 
   /**
    *
@@ -135,48 +119,75 @@
           obj[p] = source[p];
         }
       }
-    }
 
+    }
     return obj;
   }
 
-  function validateObject(object, schema, options, errors) {
-    var props,
-    	visitedProps = [];    // allProps = Object.keys(object),
+function validateObject(object, schema, options, errors) {
+		var props, visitedProps = []; // allProps = Object.keys(object),
 
-    if (schema.properties) {
-      props = schema.properties;
-      for (var p2 in props) {
-        if (props.hasOwnProperty(p2)) {
-          visitedProps.push(p2);
-          validateProperty(object, object[p2], p2, props[p2], options, errors);
-        }
-      }
-    }
-  }
+		if (schema.properties) {
+			props = schema.properties;
+			for ( var p2 in props) {
+				if (props.hasOwnProperty(p2)) {
+					visitedProps.push(p2);
+					validateProperty(object, object[p2], p2, props[p2],	options, errors);
+				}
+			}
+		}
+}
 
   function validateProperty(object, value, property, schema, options, errors) {
-    //var format,
-    //    valid,
-    //    spec,
-    //    type;
 
-	  var errorFound = false;
-      switch (property) {
-      case 'name':
-          if (errorFound) { error('name', property, value, schema, errors); }
-        break;
-      case 'longitude':
-          if (errorFound) { error('longitude', property, value, schema, errors); }
-          break;
-      case 'latitude':
-          if (errorFound) { error('latitude', property, value, schema, errors); }
-        break;
-      case 'radius':
-          if (errorFound) { error('radius', property, value, schema, errors); }
-        break;
-    }
+		var errorFound = handleStandard(object, value, property, schema, options, errors);
+		if (errorFound) {
+			error(property, property, value, schema, errors);
+		}
 
+		switch (property) {
+		case 'name':
+			errorFound = !validateName(value);
+			if (errorFound) {
+				error('name', property, value, schema, errors);
+			}
+			break;
+		case 'longitude':
+			if (errorFound) {
+				error('longitude', property, value, schema, errors);
+			}
+			break;
+		case 'latitude':
+			if (errorFound) {
+				error('latitude', property, value, schema, errors);
+			}
+			break;
+		case 'radius':
+			if (errorFound) {
+				error('radius', property, value, schema, errors);
+			}
+			break;
+		case 'record':
+			if (errorFound) {
+				error('radius', property, value, schema, errors);
+			}
+			break;
+		}
+  }
+  
+  function validateName(value) {
+		var loc = locationService.getLocationByName(value);
+		return (loc !== null);
+  }
+  
+  function handleStandard(object, value, property, schema, options, errors) {
+
+		if(schema.operations !== undefined) {
+			switch(schema.operations) {
+			case 'post' :
+				break;
+			}
+		}
 /*
 	var format, spec;
     
@@ -306,6 +317,7 @@
       }
     });
   */
+		return false;
   }
 
   function checkType(val, type, callback) {
@@ -334,18 +346,28 @@
     callback(true);
   }
 
-  function error(attribute, property, actual, schema, errors) {
-    var lookup = { expected: schema[attribute], attribute: attribute, property: property };
-    var message = schema.messages && schema.messages[attribute] || schema.message || validate.messages[attribute] || "no default message";
-    message = message.replace(/%\{([a-z]+)\}/ig, function (_, match) { return lookup[match.toLowerCase()] || ""; });
-    errors.push({
-      attribute: attribute,
-      property:  property,
-      expected:  schema[attribute],
-      actual:    actual,
-      message:   message
-    });
-  }
+function error(attribute, property, actual, schema, errors) {
+
+	var lookup = {
+		expected : schema[attribute],
+		attribute : attribute,
+		property : property
+	};
+
+	var message = schema.messages && schema.messages[attribute] || schema.message || validate.messages[attribute] || "no default message";
+
+	message = message.replace(/%\{([a-z]+)\}/ig, function(_, match) {
+		var msg = lookup[match.toLowerCase()] || "";
+		return msg;
+	});
+	errors.push({
+		attribute : attribute,
+		property : property,
+		expected : schema[attribute],
+		actual : actual,
+		message : message
+	});
+}
 
   function isArray(value) {
     var s = typeof value;
