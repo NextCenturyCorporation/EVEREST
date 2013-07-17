@@ -103,7 +103,7 @@ this.getReporterBySource = function(source, res){
  * On success, it returns the _id value (just like on create)
  */
 this.updateReporter = function(id, data, res){
-		models.reporter.findById(id, function(err, docs){
+	models.reporter.findById(id, function(err, docs){
 		if(err) {
 			logger.info("Error getting reporter "+err);
 			general.send500(res);
@@ -139,8 +139,9 @@ this.deleteReporter = function(id, res){
 			res.status('500');
 			res.json({error: 'Invalid reporter ' + id});
 		} else { 
-			for (var i = 0; i < docs.length; i++)
+			for (var i = 0; i < docs.length; i++){
 				docs[i].remove();
+			}
 			res.json({status:'ok'});
 		}
 		res.end();
