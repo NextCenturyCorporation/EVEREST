@@ -1,6 +1,5 @@
 var twitter_parser = require('./twitter_to_alpha_report.js');
 var raw_feed_service = require('../database/raw_feed.js');
-var alpha_report_service = require('../database/alpha_report.js');
 var logger = null;
 
 var parsers = {
@@ -21,12 +20,11 @@ this.parseAndSave = function(id, callback) {
 			logger.error("There was an error finding the feed to parse");
 			callback(err, null);
 		} else {
-			var alpha_report = twitter_parser.parse(docs[0]);
-			if(alpha_report.err) {
-				log.error("There was an error parsing the raw_feed; " + alpha_report.err);
-				callback(err, null);
+			if(Object.keys(parsers).indexOf(docs[0].feedSource)) {
+				twitter_parser.parseAndSave(docs[0], callback);
 			} else {
-				alpha_report_service.saveAlphaReport(alpha_report, callback);
+				var msg = "Cannot find a parser for the raw feed type " + docs[0].feedSource;
+				callback(msg, null);
 			}
 		}
 	});

@@ -47,10 +47,7 @@ this.listReporterNames = function(res){
  * On success, it returns the new id 
  */
 this.createReporter = function(data, res){
-	var newReporter = new models.reporter(data);
-	newReporter.createdDate = new Date();
-	newReporter.updatedDate = new Date();
-	newReporter.save(function(err){
+	this.saveReporter(data, function(err, newReporter){
 		if(err){
 			logger.error('Error saving reporter', err);
 			general.send500(res);
@@ -63,7 +60,13 @@ this.createReporter = function(data, res){
 
 this.saveReporter = function(data, saveCallback){
 	var newReporter = new models.reporter(data);
-	newReporter.save(saveCallback);
+	
+	newReporter.createdDate = new Date();
+	newReporter.updatedDate = new Date();
+	
+	newReporter.save(function(err) {
+		saveCallback(err, newReporter);
+	});
 };
 
 /**

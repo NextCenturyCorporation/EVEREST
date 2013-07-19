@@ -47,7 +47,7 @@ this.listAlphaReportSourceIds = function(res){
  * On success, it returns the new id 
  */
 this.createAlphaReport = function(data, res){
-	saveAlphaReport(data, function(err, resultObject){
+	this.saveAlphaReport(data, function(err, resultObject){
 		if(err){
 			logger.error('Error saving alpha report', err);
 			general.send500(res);
