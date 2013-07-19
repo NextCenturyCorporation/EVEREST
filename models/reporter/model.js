@@ -1,12 +1,13 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
+var ObjectId = Schema.ObjectId;
 
 this.reporterDataModel = {
 	createdDate: {type: Date},
 	updatedDate: {type: Date},
 	name: {type: String, required: true},
 	source_name: {type: String, enum:['Twitter', 'Email'], required: true},
-	source_id: {type: String},
+	source_id: {type: ObjectId},//needs to be object id
 	screen_name: {type: String},
 	location_name: {type: String}, 
 	email: {type: String},
