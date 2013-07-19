@@ -3,7 +3,6 @@
  */
 
 var winston = require('winston');
-var general = require('../wizard_service');
 var models = require('../../models/models');
 
 //Load and set up the logger
@@ -88,16 +87,36 @@ this.getLocation = function(id, res){
 };
 
 
-this.getLocationByName = function(value){
+this.getLocationByName = function(value, res){
 	models.location.find({name:value}, function(err, docs){
 		if(err) {
-			return null;
-		} else if (docs.length !== 0){
-			return docs;
+			logger.info("Error getting locationByName "+err);
+			res.status(500);
+			res.json({error: 'Error'});
+		} else if(0 !== docs.length) {
+			res.json(docs);
 		} else {
-			return null;
+			res.status(404);
+			res.json({error: 'Not found'});
 		}
+		res.end();
 	});
+};
+
+
+this.readLocationByProperty = function(property, value, readCallback){
+	var query = models.location.find({});
+	query.where(property, value);
+	query.exec(readCallback);
+//	query.exec(function(err, docs){
+//		if(err) {
+//			logger.info({error: "Error getting locationByName "+err});
+//		} else if(0 !== docs.length) {
+//			logger.info("Location found " + JSON.stringify(docs));
+//		} else {
+//			logger.info({error: "Not found"});
+//		}
+//	});
 };
 
 this.searchLocation = function(data, res){

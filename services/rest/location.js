@@ -58,6 +58,13 @@ this.load = function(app, io, gcm, logger) {
 		locationService.getLocation(req.params.id, res);
 	});
 
+	app.get('/location/:name', function(req,res){
+		if(logger.DO_LOG){
+			logger.info("Request for locationByName "+req.params.name);
+		}
+		locationService.getLocationByName(req.params.name, res);
+	});
+
 	// search
 	app.search('/location/?', function(req,res){
 		if (logger.DO_LOG){
@@ -101,3 +108,4 @@ this.load = function(app, io, gcm, logger) {
 	});
 
 };
+

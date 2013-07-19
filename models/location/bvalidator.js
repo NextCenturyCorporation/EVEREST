@@ -1,19 +1,29 @@
 /**
  * New node file
  */
-var locationService = require('../../services/database/location.js');
+var winston = require('winston');
+
+//Load and set up the logger
+var logger = new (winston.Logger)({
+	//Make it log to both the console and a file 
+	transports : [new (winston.transports.Console)(),
+		new (winston.transports.File)({filename: 'logs/general.log'})] //,
+});
+
+
+var dataLayer = require('../../services/database/location.js');
 
 (function (exports) {
   exports.validate = validate;
   exports.mixin = mixin;
 
   
-	function validate(object, schema, options) {
+	function validate(object, schema, options, errors) {
 		options = mixin({}, options, validate.defaults);
 		var errors = [];
 	
-		validateObject(object, schema, options, errors);
-	
+		validateObject( object, schema, options, errors);
+
 		return {
 			valid : !(errors.length),
 			errors : errors
@@ -125,20 +135,21 @@ var locationService = require('../../services/database/location.js');
   }
 
 function validateObject(object, schema, options, errors) {
-		var props, visitedProps = []; // allProps = Object.keys(object),
+		var props;
 
 		if (schema.properties) {
 			props = schema.properties;
 			for ( var p2 in props) {
 				if (props.hasOwnProperty(p2)) {
-					visitedProps.push(p2);
-					validateProperty(object, object[p2], p2, props[p2],	options, errors);
+					validateProperty(object, object[p2], p2, props[p2],	options, function(errors) {
+						errors.push(errors);
+					});
 				}
 			}
 		}
 }
 
-  function validateProperty(object, value, property, schema, options, errors) {
+  function validateProperty(object, value, property, schema, options, callback) {
 
 		var errorFound = handleStandard(object, value, property, schema, options, errors);
 		if (errorFound) {
@@ -147,10 +158,10 @@ function validateObject(object, schema, options, errors) {
 
 		switch (property) {
 		case 'name':
-			errorFound = !validateName(value);
-			if (errorFound) {
-				error('name', property, value, schema, errors);
-			}
+				if (true === nameExists(value)) { error('name', property, value, schema, errors, property + " already exists."); }
+//			if (true === nameExists(value, found)) {
+//				error('name', property, value, schema, errors);
+//			}
 			break;
 		case 'longitude':
 			if (errorFound) {
@@ -173,12 +184,24 @@ function validateObject(object, schema, options, errors) {
 			}
 			break;
 		}
+		callback(errors);
   }
   
-  function validateName(value) {
-		var loc = locationService.getLocationByName(value);
-		return (loc !== null);
-  }
+  this.nameExists = function (value) {
+		dataLayer.readLocationByProperty('name', value, function(err, locs) {
+			if (err) {
+				error('name', 'name', value, schema, errors, 'Error reading location name ' + err);
+				logger.info({ error : "Error getting locationByName " + err });
+				return false;
+			} else if (0 !== locs.length) {
+				logger.info("Location found " + JSON.stringify(locs));
+				return true;
+			} else {
+				logger.info("Not found " + value);
+				return false;
+			}
+		});
+  };
   
   function handleStandard(object, value, property, schema, options, errors) {
 
@@ -346,7 +369,7 @@ function validateObject(object, schema, options, errors) {
     callback(true);
   }
 
-function error(attribute, property, actual, schema, errors) {
+function error(attribute, property, actual, schema, errors, msg) {
 
 	var lookup = {
 		expected : schema[attribute],
@@ -354,7 +377,7 @@ function error(attribute, property, actual, schema, errors) {
 		property : property
 	};
 
-	var message = schema.messages && schema.messages[attribute] || schema.message || validate.messages[attribute] || "no default message";
+	var message = msg || (schema.messages && schema.messages[attribute]) || schema.message || validate.messages[attribute] || "no default message";
 
 	message = message.replace(/%\{([a-z]+)\}/ig, function(_, match) {
 		var msg = lookup[match.toLowerCase()] || "";
