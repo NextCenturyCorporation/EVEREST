@@ -17,12 +17,13 @@ var dataLayer = require('../../services/database/location.js');
   exports.validate = validate;
   exports.mixin = mixin;
 
-  
-	function validate(object, schema, options, errors) {
+	function validate(object, schema, options) {
 		options = mixin({}, options, validate.defaults);
 		var errors = [];
 	
-		validateObject( object, schema, options, errors);
+		validateObject( object, schema, options, errors, function(err) {
+			logger.info("errorCallback " + errors);			
+		});
 
 		return {
 			valid : !(errors.length),
@@ -134,22 +135,23 @@ var dataLayer = require('../../services/database/location.js');
     return obj;
   }
 
-function validateObject(object, schema, options, errors) {
+function validateObject(object, schema, options, errors, callback) {
 		var props;
 
 		if (schema.properties) {
 			props = schema.properties;
 			for ( var p2 in props) {
 				if (props.hasOwnProperty(p2)) {
-					validateProperty(object, object[p2], p2, props[p2],	options, function(errors) {
-						errors.push(errors);
+					validateProperty(object, object[p2], p2, props[p2],	options, errors, function(err) {
+						logger.info("validateProperty callback " +JSON.stringify(errors));
 					});
 				}
 			}
 		}
+		callback(errors);
 }
 
-  function validateProperty(object, value, property, schema, options, callback) {
+  function validateProperty(object, value, property, schema, options, errors, callback) {
 
 		var errorFound = handleStandard(object, value, property, schema, options, errors);
 		if (errorFound) {
@@ -158,7 +160,13 @@ function validateObject(object, schema, options, errors) {
 
 		switch (property) {
 		case 'name':
-				if (true === nameExists(value)) { error('name', property, value, schema, errors, property + " already exists."); }
+				nameExists( value, function (err, found) {
+					if (found) {
+						error('name', property, value, schema, errors, property + " already exists.");
+						logger.info("nameExists callback/closure " + JSON.stringify(errors));
+					}
+					callback(errors);
+				});
 //			if (true === nameExists(value, found)) {
 //				error('name', property, value, schema, errors);
 //			}
@@ -184,21 +192,20 @@ function validateObject(object, schema, options, errors) {
 			}
 			break;
 		}
-		callback(errors);
   }
   
-  this.nameExists = function (value) {
+  this.nameExists = function (value, callback) {
 		dataLayer.readLocationByProperty('name', value, function(err, locs) {
 			if (err) {
 				error('name', 'name', value, schema, errors, 'Error reading location name ' + err);
 				logger.info({ error : "Error getting locationByName " + err });
-				return false;
+				callback(err, false);
 			} else if (0 !== locs.length) {
 				logger.info("Location found " + JSON.stringify(locs));
-				return true;
+				callback(err, true);
 			} else {
 				logger.info("Not found " + value);
-				return false;
+				callback(err, false);
 			}
 		});
   };
