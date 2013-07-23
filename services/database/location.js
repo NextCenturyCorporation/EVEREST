@@ -119,6 +119,16 @@ this.readLocationByProperty = function(property, value, readCallback){
 //	});
 };
 
+this.readLocationByObject = function(object, readCallback){
+	var query = models.location.find({});
+	for (var key in object) {
+		if (object.hasOwnProperty(key)) {
+			query.where(key, object[key]);
+		}
+	}
+	query.exec(readCallback);
+};
+
 this.searchLocation = function(data, res){
 	models.location.find({name:data.name}, function(err, docs){
 		if(err) {
