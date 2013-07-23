@@ -21,9 +21,12 @@ var dataLayer = require('../../services/database/location.js');
 		options = mixin({}, options, validate.defaults);
 		var errors = [];
 	
-		validateObject( object, schema, options, errors, function(err) {
-			logger.info("errorCallback " + errors);			
-		});
+		function done() {
+			logger.info("validate " + errors);			
+		}
+
+		validateObject( object, schema, options, errors, done);
+
 
 		return {
 			valid : !(errors.length),
@@ -135,76 +138,135 @@ var dataLayer = require('../../services/database/location.js');
     return obj;
   }
 
-function validateObject(object, schema, options, errors, callback) {
+	function validateObject(object, schema, options, errors, callback) {
 		var props;
-
-		if (schema.properties) {
-			props = schema.properties;
-			for ( var p2 in props) {
-				if (props.hasOwnProperty(p2)) {
-					validateProperty(object, object[p2], p2, props[p2],	options, errors, function(err) {
-						logger.info("validateProperty callback " +JSON.stringify(errors));
-					});
+		
+			function done() {
+					logger.info("validateProperty callback " +JSON.stringify(errors));
+					callback();
+			}
+	
+			if (schema.properties) {
+				props = schema.properties;
+				for ( var p2 in props) {
+					if (props.hasOwnProperty(p2)) {
+						validateProperty(object, object[p2], p2, props[p2],	options, errors, done);
+					}
 				}
 			}
-		}
-		callback(errors);
-}
+	}
 
-  function validateProperty(object, value, property, schema, options, errors, callback) {
+//	var properties;
+//	var props = [];
+//				for ( var p2 in properties) {
+//					if (properties.hasOwnProperty(p2)) {
+//						props.push(p2);
+//					}
+//				}
+//				
+//				forEachProp(props, object, options, errors, function(property, index, next) {
+//					logger.info("Property " + property);
+//					next();
+//				}, function() {
+//					logger.info("validateProperty done?");					
+//				});
+//			}
+//	}
+//	
+//	function forEachProp(props, object, options, errors, visitor, done) {
+//		forEachPropRec(0, props, object, options, errors, visitor, done);
+//	}
+//	
+//	function forEachPropRec(index, props, object, options, errors, visitor, done) {
+//		if (index < props.length) {
+//			visitor(props[index], index, function (){
+//				var p2 = props[index];
+//				//if (props.hasOwnProperty(p2)) {
+//					validateProperty(object, object[p2], p2, props[p2],	options, errors, done);
+//				//}
+//				forEachPropRec(index+1, props, object, options, errors, visitor, done);
+//			});
+//		} else {
+//			done();
+//		}
+//	}
 
-		var errorFound = handleStandard(object, value, property, schema, options, errors);
-		if (errorFound) {
-			error(property, property, value, schema, errors);
-		}
+  function validateProperty(object, value, property, schema, options, errors, done) {
+
+//		var errorFound = handleStandard(object, value, property, schema, options, errors);
+//		if (errorFound) {
+//			error(property, property, value, schema, errors);
+//		}
 
 		switch (property) {
+		
 		case 'name':
 				nameExists( value, function (err, found) {
 					if (found) {
 						error('name', property, value, schema, errors, property + " already exists.");
 						logger.info("nameExists callback/closure " + JSON.stringify(errors));
 					}
-					callback(errors);
+					done();
 				});
-//			if (true === nameExists(value, found)) {
-//				error('name', property, value, schema, errors);
-//			}
 			break;
+
 		case 'longitude':
 			if (errorFound) {
 				error('longitude', property, value, schema, errors);
 			}
 			break;
+		
 		case 'latitude':
 			if (errorFound) {
 				error('latitude', property, value, schema, errors);
 			}
 			break;
+		
 		case 'radius':
 			if (errorFound) {
 				error('radius', property, value, schema, errors);
 			}
 			break;
+		
 		case 'record':
-			if (errorFound) {
-				error('radius', property, value, schema, errors);
-			}
+			locationExists( object, function (err, found) {
+				if (found) {
+					error('record', property, value, schema, errors, property + " already exists.");
+					logger.info("locationExists callback/closure " + JSON.stringify(errors));
+				}
+				done();
+			});
 			break;
 		}
   }
-  
-  this.nameExists = function (value, callback) {
+ 
+  var nameExists = function (value, callback) {
 		dataLayer.readLocationByProperty('name', value, function(err, locs) {
 			if (err) {
 				error('name', 'name', value, schema, errors, 'Error reading location name ' + err);
 				logger.info({ error : "Error getting locationByName " + err });
 				callback(err, false);
 			} else if (0 !== locs.length) {
-				logger.info("Location found " + JSON.stringify(locs));
+				logger.info("Location found for nameExists" + JSON.stringify(locs));
 				callback(err, true);
 			} else {
-				logger.info("Not found " + value);
+				logger.info("Location name not found " + value);
+				callback(err, false);
+			}
+		});
+  };
+  
+  var locationExists = function(object, callback) {
+		dataLayer.readLocationByObject(object, function(err, locs){
+			if (err) {
+				error('object', 'record', object, schema, errors, 'Error reading location ' + err);
+				logger.info({ error : "Error getting locationByObject " + err });
+				callback(err, false);
+			} else if (0 !== locs.length) {
+				logger.info("Location found for locationExists" + JSON.stringify(locs));
+				callback(err, true);
+			} else {
+				logger.info("Location not found " + JSON.stringify(object));
 				callback(err, false);
 			}
 		});
