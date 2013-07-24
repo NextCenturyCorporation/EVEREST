@@ -81,9 +81,10 @@
     "passfail"      : false,    // true: Stop on first error
     "white"         : false,    // true: Check against strict whitespace and indentation rules
 
+    // Suppressing specific error messages
+    "-W099"			: true,		// allow mixed tabs and spaces 
+
     // Custom Globals
     "predef"        : [ ]       // additional predefined global variables
     
-    // Suppressing specific error messages
-    "-W099"			: true		// allow mixed tabs and spaces 
 }
