@@ -59,7 +59,8 @@ this.createLocation = function(data, res){
 	newLoc.save(function(err){
 		if(err){
 			logger.error('Error saving location', err);
-			general.send500(res);
+			res.status(500);
+			res.json({error: 'Error'});
 		} else {
 			res.json({id:newLoc._id});
 			res.end();
@@ -154,26 +155,28 @@ this.updateLocation = function(id, data, res){
 	models.location.findById(id, function(err, docs){
 		if(err) {
 			logger.info("Error getting location "+err);
-			general.send500(res);
+			res.status(500);
+			res.json({error: 'Error'});
 		} else if(docs) {
 			for(var e in data){
 				//Make sure not to change _id
-				if(e != '_id'){
+				if(e !== '_id'){
 					docs[e] = data[e];
 				}
 			}
 			docs.updatedDate = new Date();
 			docs.save(function(err){
 				if(err){
-					general.send500(res);
+					res.status(500);
+					res.json({error: 'Error'});
 				} else {
 					res.json({id:docs._id});
-					res.end();
 				}
 			});			
 		} else {
-			general.send404(res);
+			res.status(404);
 		}
+		res.end();
 	});
 };
 
