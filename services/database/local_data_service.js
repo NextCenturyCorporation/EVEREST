@@ -125,14 +125,14 @@ this.getEventGroup = function(index, opts, res){
 	var group = [];
 	for(var i =0; i < eventList.length; i++){
 		var cur = eventList[i];
-		if(cur.GID == index){
+		if(cur.GID === index){
 			var tmp = {};
 			for(var e in cur.toObject()){
 				tmp[e] = cur[e];
 			}
 			//Embed the contact
 			for(var j=0; j < contactList.length; j++){
-				if(contactList[j]._id.toString() == cur.contact.toString()){
+				if(contactList[j]._id.toString() === cur.contact.toString()){
 					//tmp['contact'] = contactList[j];
 					tmp.contact = contactList[j];
 					break;
@@ -141,7 +141,7 @@ this.getEventGroup = function(index, opts, res){
 			//Embed the location
 			//for(var j=0; j < locationList.length; j++){
 			for(j=0; j < locationList.length; j++){
-				if(locationList[j]._id.toString() == cur.location.toString()){
+				if(locationList[j]._id.toString() === cur.location.toString()){
 					//tmp['location'] = locationList[j];
 					tmp.location = locationList[j];
 					break;
@@ -183,11 +183,11 @@ this.getEventGroup = function(index, opts, res){
 this.getEvent = function(index, opts, res){
 	for(var i =0; i < eventList.length; i++){
 		var cur = eventList[i];
-		if(cur._id == index){
+		if(cur._id === index){
 			var tmp = cur.toObject();
 			//Embed the contact
 			for(var j=0; j < contactList.length; j++){
-				if(contactList[j]._id.toString() == cur.contact.toString()){
+				if(contactList[j]._id.toString() === cur.contact.toString()){
 					//tmp['contact'] = contactList[j];
 					tmp.contact = contactList[j];
 					break;
@@ -196,7 +196,7 @@ this.getEvent = function(index, opts, res){
 			//Embed the location
 			//for(var j=0; j < locationList.length; j++){
 			for(j=0; j < locationList.length; j++){
-				if(locationList[j]._id.toString() == cur.location.toString()){
+				if(locationList[j]._id.toString() === cur.location.toString()){
 					//tmp['location'] = locationList[j];
 					tmp.location = locationList[j];
 					break;
@@ -279,7 +279,7 @@ this.createGroupEvent = function(data, gid, res, io, gcm){
 this.deleteEvent = function(id, res){
 	for(var i = 0; i<eventList.length; i++){
 		var cur = eventList[i];
-		if(cur._id == id){
+		if(cur._id === id){
 			eventList.splice(i,1);
 			res.send({status:'OK'});
 			res.end();
@@ -304,7 +304,7 @@ this.getComments = function(index, opts, res){
 	}
 	for(var i =0; i < eventList.length; i++){
 		var cur = eventList[i];
-		if(cur._id == index){
+		if(cur._id === index){
 			//Comments are sorted newest first
 			if(opts.after){
 				//They are requesting only comments after a certain ID, so
@@ -312,7 +312,7 @@ this.getComments = function(index, opts, res){
 				//comments processed
 				var comments = [];
 				var j = 0;
-				while(j < cur.comments.length && cur.comments[j]._id != opts.after && j < count){
+				while(j < cur.comments.length && cur.comments[j]._id !== opts.after && j < count){
 					comments.push(cur.comments[j]);
 					j++;
 				}
@@ -343,7 +343,7 @@ this.getOptions = function(res){
 this.addComment = function(id, req, res, io){
 	for(var i =0; i < eventList.length; i++){
 		var cur = eventList[i];
-		if(cur._id == id){
+		if(cur._id === id){
 			var newComment = new models.comment(req);
 			cur.comments.push(newComment);
 			cur.comments.sort(function(a,b){
@@ -372,7 +372,7 @@ this.addComment = function(id, req, res, io){
 this.getLocation = function(id, res){
 	for(var i =0; i < locationList.length; i++){
 		var cur = locationList[i];
-		if(cur._id == id){
+		if(cur._id === id){
 			res.json(cur);
 			res.end();
 			return;
@@ -412,12 +412,12 @@ this.createLocation = function(data, res){
 this.updateLocation = function(id, data, res){
 	for(var i = 0; i < locationList.length; i++){
 		var cur = locationList[i];
-		if(cur._id == id){
+		if(cur._id === id){
 			//Found the location to update
 			//Update original with the POSTed data
 			for(var e in data){
 				//Make sure not to change _id
-				if(e != '_id'){
+				if(e !== '_id'){
 					cur[e] = data[e];
 				}
 			}
@@ -434,8 +434,8 @@ this.updateLocation = function(id, data, res){
  */
 this.getContact = function(id, res){
 	for(var i =0; i < contactList.length; i++){
-		cur = contactList[i];
-		if(cur._id == id){
+		var cur = contactList[i];
+		if(cur._id === id){
 			res.json(cur);
 			res.end();
 			return;
@@ -475,15 +475,15 @@ this.createContact = function(data, res){
 this.updateContact = function(id, data, res){
 	for(var i = 0; i < contactList.length; i++){
 		var cur = contactList[i];
-		if(cur._id == id){
+		if(cur._id === id){
 			//Found the contact to update
 			//Update original with the POSTed data
 			for(var e in data){
 				//Make sure not to change _id
-				if(e != '_id'){
+				if(e !== '_id'){
+					cur[e] = data[e];
 				}
 			}
-			cur[e] = data[e];
 			res.json({status:'ok'});
 			res.end();
 			return;
