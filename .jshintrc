@@ -82,7 +82,8 @@
     "white"         : false,    // true: Check against strict whitespace and indentation rules
 
     // Suppressing specific error messages
-    "-W099"			: true,		// allow mixed tabs and spaces 
+    "-W099"			: true,		// allow mixed tabs and spaces
+    "-W015"			: true,		// allow staggered indentation 
 
     // Custom Globals
     "predef"        : [ ]       // additional predefined global variables
