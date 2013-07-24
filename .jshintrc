@@ -83,4 +83,7 @@
 
     // Custom Globals
     "predef"        : [ ]       // additional predefined global variables
+    
+    // Suppressing specific error messages
+    "-W099"			: true		// allow mixed tabs and spaces 
 }
