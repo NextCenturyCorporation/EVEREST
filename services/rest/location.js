@@ -28,18 +28,20 @@ this.load = function(app, io, gcm, logger) {
 		// is the JSON semantically valid for the location object?
 		var locVal = revalidator.validate(req.body, validationModel.locationValidation);
 		if (locVal.valid) {
-			// does the location object comply with business validation logic?
-			var bVal = bvalidator.validate(req.body, validationModel.businessValidation);
-			if (bVal.valid) {
-				locationService.createLocation(req.body, res);				
-			}
-			else {
-				if(logger.DO_LOG){
-					logger.error(bVal.errors);
+			// does the location object comply with business validation logic
+			bvalidator.validate(req.body, function(bVal) {
+				if (bVal.valid) {
+					logger.info("Valid location");
+					locationService.createLocation(req.body, res);				
 				}
-				res.status(500);
-				res.json({error: bVal.errors}, req.body);
-			}
+				else {
+					if(logger.DO_LOG){
+						logger.error(bVal.errors);
+					}
+					res.status(500);
+					res.json({error: bVal.errors}, req.body);
+				}
+			});
 		}
 		else {
 			if(logger.DO_LOG){
