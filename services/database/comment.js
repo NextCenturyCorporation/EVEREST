@@ -49,12 +49,10 @@ this.getComments = function(index, opts, res){
 				if(count !== undefined && count < docs[0].comments.length){
 					length = count;
 				} else {
-// TODO: Don't think that eventList is within scope of this function
-//       and/or is being assumed to be global.  Investigate.
-					length = eventList.length;
+					length = comments.length;
 				}
 
-				while(i < length && docs[0].comments[i]._id != opts.after){
+				while(i < length && docs[0].comments[i]._id !== opts.after){
 					comments.push(docs[0].comments[i]);
 					i++;
 				}
