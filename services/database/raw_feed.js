@@ -35,7 +35,7 @@ this.listFeeds = function(opts, res){
  *
  * On success, it returns id:<ID-hash>
 **/
-this.createFeed = function(data, res, io, gcm){
+this.createFeed = function(data, res){
 	var newFeed = new models.rawFeed(data);
 	newFeed.save(function(err){
 		if(err){

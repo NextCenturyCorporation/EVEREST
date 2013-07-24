@@ -17,7 +17,7 @@ this.load = function(app, io, gcm, logger) {
 		}
 		var validation = revalidator.validate(req.body, validationModel.rawFeedValidation);
 		if(validation.valid) {
-			rawFeedService.createFeed(req.body, res, io, gcm);
+			rawFeedService.createFeed(req.body, res);
 		}
 		else {
 			if(logger.DO_LOG){

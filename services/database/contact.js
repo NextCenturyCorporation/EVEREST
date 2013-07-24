@@ -81,7 +81,7 @@ this.updateContact = function(id, data, res){
 		} else if(docs) {
 			for(var e in data){
 				//Make sure not to change _id
-				if(e != '_id'){
+				if(e !== '_id'){
 					docs[e] = data[e];
 				}
 			}
