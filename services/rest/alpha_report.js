@@ -3,6 +3,7 @@
 
 var alphaReportService = require('../database/alpha_report.js');
 var validationModel = require('../../models/alpha_report/model.js');
+var bvalidator = require('../../models/alpha_report/bvalidator.js');
 var revalidator = require('revalidator');
 
 this.load = function(app, io, gcm, logger){
@@ -30,7 +31,20 @@ this.load = function(app, io, gcm, logger){
 		}
 		var validation = revalidator.validate(req.body, validationModel.alphaReportValidation);
 		if(validation.valid){
-			alphaReportService.createAlphaReport(req.body, res);
+			// does the alpha_report object comply with business validation logic
+			bvalidator.validate(req.body, function(bVal) {
+				if (bVal.valid) {
+					logger.info("Valid alpha_report");
+					alphaReportService.createAlphaReport(req.body, res);
+				}
+				else {
+					if(logger.DO_LOG){
+						logger.error(bVal.errors);
+					}
+					res.status(500);
+					res.json({error: bVal.errors}, req.body);
+				}
+			});
 		} else { 
 			if(logger.DO_LOG){
 				logger.info(validation.errors); 
@@ -39,6 +53,7 @@ this.load = function(app, io, gcm, logger){
 			res.json({error: validation.errors}, req.body);
 			console.log(validation.errors);
 		}
+		
 	});
 	
 	//Review  '/alpha_report/:{param_name}(contents to go in param_name)'
@@ -73,7 +88,21 @@ this.load = function(app, io, gcm, logger){
 		var validation = revalidator.validate(req.body, validationModel.alphaReportValidation);
 		if(validation.valid){
 			logger.info(req.body);
-			alphaReportService.updateAlphaReport(req.params.id, req.body, res);
+			// does the alpha_report object comply with business validation logic
+			// TODO: May need to address the "already exists" business logic check
+			bvalidator.validate(req.body, function(bVal) {
+				if (bVal.valid) {
+					logger.info("Valid alpha_report");
+					alphaReportService.updateAlphaReport(req.params.id, req.body, res);
+				}
+				else {
+					if(logger.DO_LOG){
+						logger.error(bVal.errors);
+					}
+					res.status(500);
+					res.json({error: bVal.errors}, req.body);
+				}
+			});
 		} else {
 			if (logger.DO_LOG){
 				logger.info(validation.errors);

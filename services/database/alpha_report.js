@@ -111,6 +111,35 @@ this.getAlphaReportBySourceId = function(source_id, res){
 };
 
 /**
+ * readAlphaReportByProperty is a generic read method to return all of
+ * documents that have a property value that matches.
+ */
+this.readAlphaReportByProperty = function(property, value, readCallback){
+	if ( (property !== undefined) && (value !== undefined) ) {
+		var query = models.alphaReport.find({});
+		query.where(property, value);
+		query.exec(readCallback);
+	}
+};
+
+/**
+ * readAlphaReportByObject is a generic read method for alpha_report
+ * It will attempt to find an exact match(es) for the object provided.
+ * Note: the incoming object can be a subset or superset of the actual object.
+ */
+this.readAlphaReportByObject = function(object, readCallback){
+	if ( object !== undefined ) {
+		var query = models.alphaReport.find({});
+		for (var key in object) {
+			if (object.hasOwnProperty(key)) {
+				query.where(key, object[key]);
+			}
+		}
+		query.exec(readCallback);
+	}
+};
+
+/**
  * This updates the alpha report with id specified in the URL.
  * It will not change the id.
  * On success, it returns the _id value (just like on create)

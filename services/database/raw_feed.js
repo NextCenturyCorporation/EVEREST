@@ -77,6 +77,20 @@ this.getFeed = function(id, callback) {
 };
 
 /**
+ * readFeedByProperty is a generic read function for returning
+ * all of the matching documents whose property-value pair matches
+ * the the search property value.
+ */
+this.readFeedByProperty = function(property, value, readCallback){
+	if ( (property !== undefined) && (value !== undefined) ) {
+		var query = models.rawFeed.find({});
+		query.where(property, value);
+		query.exec(readCallback);
+	}
+};
+
+
+/**
  * This updates the raw_feed with id specified in the URL.
  * It will not change the id.
  * On success, it returns the _id value (just like on create)
