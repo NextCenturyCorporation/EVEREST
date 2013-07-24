@@ -2,20 +2,18 @@
  * Handles the routing
  */
 
-/*global require */
-// require is a global node function/keyword
 
-var winston = require('winston');
+//var winston = require('winston');
 var config = require('../../config.js');
 
 //Load and set up the logger
-var logger = new (winston.Logger)({
-	//Make it log to both the console and a file 
-	transports : [new (winston.transports.Console)(),
-					new (winston.transports.File)({filename: 'logs/general.log'})]
-});
-
-var LOG = true;
+//var logger = new (winston.Logger)({
+//	//Make it log to both the console and a file 
+//	transports : [new (winston.transports.Console)(),
+//					new (winston.transports.File)({filename: 'logs/general.log'})]
+//});
+//
+//var LOG = true;
 
 this.dataManager = null;
 
