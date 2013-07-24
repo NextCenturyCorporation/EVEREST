@@ -1,8 +1,8 @@
 /**
  * This contains the data that will be POSTed to the server while running API tests
  */
-/*global require */
-// require is a global node function/keyword
+
+/*jshint -W089 */ //turn off "for loop should be wrapped in an if"
 
 var assert = require('assert');
 
@@ -92,9 +92,9 @@ this.compareContacts = function(contact1, contact2){
  */
 this.verifyEvent = function(data){
 	for(var curElement in this.event){
-		if(curElement == 'contact'){
+		if(curElement === 'contact'){
 			this.verifyContact(data.contact);
-		} else if(curElement == 'location'){
+		} else if(curElement === 'location'){
 			this.verifyLocation(data.location);
 		} else {
 			assert.equal(this.event[curElement], data[curElement], curElement+' in event is not the expected value');
@@ -107,11 +107,11 @@ this.verifyEvent = function(data){
  */
 this.compareEvents = function(event1, event2){
 	for(var curElement in event1){
-		if(curElement == 'contact'){
+		if(curElement === 'contact'){
 			this.compareContacts(event1.contact, event2.contact);
-		} else if(curElement == 'location'){
+		} else if(curElement === 'location'){
 			this.compareLocations(event1.location, event2.location);
-		} else if(curElement == 'comments'){
+		} else if(curElement === 'comments'){
 			assert.equal(event1.comments.length, event2.comments.length, 'Different number of comments in both events');
 		} else {
 			assert.equal(event1[curElement], event2[curElement], curElement+' in event is not the same in both events');
@@ -120,11 +120,11 @@ this.compareEvents = function(event1, event2){
 	//Check everything in event2, in case something is missing
 	//for(var curElement in event2){
 	for(curElement in event2){
-		if(curElement == 'contact'){
+		if(curElement === 'contact'){
 			this.compareContacts(event1.contact, event2.contact);
-		} else if(curElement == 'location'){
+		} else if(curElement === 'location'){
 			this.compareLocations(event1.location, event2.location);
-		} else if(curElement == 'comments'){
+		} else if(curElement === 'comments'){
 			assert.equal(event1.comments.length, event2.comments.length, 'Different number of comments in both events');
 		} else {
 			assert.equal(event1[curElement], event2[curElement], curElement+' in event is not the same in both events');
