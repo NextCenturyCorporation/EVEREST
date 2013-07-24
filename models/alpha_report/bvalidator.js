@@ -14,7 +14,7 @@ var dataLayerAlphaReport = require('../../services/database/alpha_report.js');
 var dataLayerRawFeed = require('../../services/database/raw_feed.js');
 
 (function (exports) {
-  exports.validate = validate;
+	exports.validate = validate;
 
 	function validate(object, callback) {
 		var errors = [];
@@ -27,14 +27,14 @@ var dataLayerRawFeed = require('../../services/database/raw_feed.js');
 		validateObject(object, errors, done);
 	}
 
-  /**
-   * Default messages to include with validation errors.
-   */
-  validate.messages = {
-      raw_data_id:	"raw_data_id value is incorrect",
-      lang:					"language value is incorrect",
-      record:				"There is a record-level error"
-  };
+	/**
+	 * Default messages to include with validation errors.
+	 */
+	validate.messages = {
+		raw_data_id:	"raw_data_id value is incorrect",
+		lang:					"language value is incorrect",
+		record:				"There is a record-level error"
+	};
 
 
 	function validateObject(object, errors, done) {
