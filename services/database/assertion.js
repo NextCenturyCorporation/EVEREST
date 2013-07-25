@@ -70,6 +70,36 @@ this.getAssertion = function(id, res){
 };
 
 /**
+ * readAssertionByProperty is a generic read method to return all of
+ * documents that have a property value that matches.
+ */
+this.readAssertionByProperty = function(property, value, readCallback){
+	if ( (property !== undefined) && (value !== undefined) ) {
+		var query = models.assertion.find({});
+		query.where(property, value);
+		query.exec(readCallback);
+	}
+};
+
+/**
+ * readAssertionByObject is a generic read method for assertion
+ * It will attempt to find an exact match(es) for the object provided.
+ * Note: the incoming object can be a subset or superset of the actual object.
+ */
+this.readAssertionByObject = function(object, readCallback){
+	if ( object !== undefined ) {
+		var query = models.assertion.find({});
+		for (var key in object) {
+			if (object.hasOwnProperty(key)) {
+				query.where(key, object[key]);
+			}
+		}
+		query.exec(readCallback);
+	}
+};
+
+
+/**
  * This updates the assertion with id specified in the URL.
  * It will not change the id.
  * On success, it returns the _id value (just like on create)

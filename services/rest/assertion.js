@@ -1,5 +1,6 @@
 var assertionService = require('../database/assertion.js');
 var validationModel = require('../../models/assertion/model.js');
+var bvalidator = require('../../models/assertion/bvalidator.js');
 var revalidator = require('revalidator');
 
 this.load = function(app, io, gcm, logger) {
@@ -16,11 +17,24 @@ this.load = function(app, io, gcm, logger) {
 		if(logger.DO_LOG){
 			logger.info("Receiving new assertion");
 		}
-		var assertionVal = revalidator.validate(req.body,
-			validationModel.assertionValidation);
+		var assertionVal = revalidator.validate(req.body, validationModel.assertionValidation);
 
 		if (assertionVal.valid) {
-			assertionService.createAssertion(req.body, res);
+			// does the assertion object comply with business validation logic
+			bvalidator.validate(req.body, function(bVal) {
+				if (bVal.valid) {
+					logger.info("Valid assertion");
+					assertionService.createAssertion(req.body, res);
+				}
+				else {
+					if(logger.DO_LOG){
+						logger.error(bVal.errors);
+					}
+					res.status(500);
+					res.json({error: bVal.errors}, req.body);
+				}
+			});
+			
 		}
 		else {
 			if(logger.DO_LOG){
@@ -45,11 +59,24 @@ this.load = function(app, io, gcm, logger) {
 		if(logger.DO_LOG){
 			logger.info("Update assertion "+req.params.id);
 		}
-		var assertionVal = revalidator.validate(req.body,
-			validationModel.assertionValidation);
-
+		var assertionVal = revalidator.validate(req.body, validationModel.assertionValidation);
 		if (assertionVal.valid) {
-			assertionService.updateAssertion(req.params.id, req.body, res);
+			// does the assertion object comply with business validation logic
+			// TODO: May need to address the "already exists" business logic check
+			bvalidator.validate(req.body, function(bVal) {
+				if (bVal.valid) {
+					logger.info("Valid assertion " + JSON.stringify(req.body));
+					assertionService.updateAssertion(req.params.id, req.body, res);
+				}
+				else {
+					if(logger.DO_LOG){
+						logger.error(bVal.errors);
+					}
+					res.status(500);
+					res.json({error: bVal.errors}, req.body);
+				}
+			});
+			
 		}
 		else {
 			if(logger.DO_LOG){
