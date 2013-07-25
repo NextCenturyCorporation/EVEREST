@@ -40,9 +40,10 @@ app.enable("jsonp callback");
  * https://github.com/senchalabs/connect/blob/master/lib/middleware/errorHandler.js
  * http://stackoverflow.com/questions/7151487/error-handling-principles-for-nodejs-express-apps
 **/
+/* jshint -W098 */  // errorHandler signature needs to be the four params, even if they go unused
 app.use(function errorHandler(err, req, res, next){
-  if (err.status) res.statusCode = err.status;
-  if (res.statusCode < 400) res.statusCode = 500;
+  if (err.status) { res.statusCode = err.status; }
+  if (res.statusCode < 400) { res.statusCode = 500; }
   //Send back json
   res.setHeader('Content-Type', 'application/json');
   //Do not send the whole stack, could have security issues
