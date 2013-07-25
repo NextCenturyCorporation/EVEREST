@@ -100,6 +100,36 @@ this.getReporterBySource = function(source, res){
 	});
 };
 
+
+/**
+ * readReporterByProperty is a generic read method to return all of
+ * documents that have a property value that matches.
+ */
+this.readReporterByProperty = function(property, value, readCallback){
+	if ( (property !== undefined) && (value !== undefined) ) {
+		var query = models.reporter.find({});
+		query.where(property, value);
+		query.exec(readCallback);
+	}
+};
+
+/**
+ * readReporterByObject is a generic read method
+ * It will attempt to find an exact match(es) for the object provided.
+ * Note: the incoming object can be a subset or superset of the actual object.
+ */
+this.readReporterByObject = function(object, readCallback){
+	if ( object !== undefined ) {
+		var query = models.reporter.find({});
+		for (var key in object) {
+			if (object.hasOwnProperty(key)) {
+				query.where(key, object[key]);
+			}
+		}
+		query.exec(readCallback);
+	}
+};
+
 /**
  * This updates the reporter with id specified in the URL.
  * It will not change the id.
