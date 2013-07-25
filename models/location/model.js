@@ -59,27 +59,3 @@ this.locationValidation = {
 			}
 		}	
 	};
-
-// Describe the business logic validation schema
-
-this.businessValidation = {
-	properties: {
-		name: {
-			operations: {
-				post: {
-					unique: true,
-					messages: {
-						unique: "Location name must be unique."
-					}
-				},
-				get: {},
-				put: {},
-				del: {}
-			},
-		},
-		record: {
-			unique: true,
-			messages: { unique: "Location record already exists."}
-		}
-	}
-};
