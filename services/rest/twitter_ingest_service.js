@@ -70,7 +70,7 @@ me.ingest = function(query, res) {
 							logger.error('Error saving raw feed', err);
 						} else {
 							logger.debug('Saved raw feed object ' + newfeed._id);
-							//me.callParser(newfeed._id);
+							me.callParser(newfeed._id, function(err, res) {logger.debug("Result: " + res)});
 						}
 					});
 				});

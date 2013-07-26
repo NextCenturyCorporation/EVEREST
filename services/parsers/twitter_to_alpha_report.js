@@ -42,18 +42,24 @@ this.parseAndSave = function(raw_feed_object, callback) {
 	reporter_object.time_zone = parsed_text.user.time_zone;
 	reporter_object.lang = parsed_text.user.lang;
 	//need to figure out geo
-	alpha_report_object.longitude = parsed_text.coordinates.coordinates[0];
-	alpha_report_object.latitude = parsed_text.coordinates.coordinates[1];
+	if(parsed_text.coordinates !== undefined && parsed_text.coordinates !== null) {
+		alpha_report_object.longitude = parsed_text.coordinates.coordinates[0];
+		alpha_report_object.latitude = parsed_text.coordinates.coordinates[1];
+	}
 	alpha_report_object.radius = 0;
 
 
 	reporter_service.saveReporter(reporter_object, function(err, newReporter) {
 		if(!err) {
 			alpha_report_object.reporter_id = newReporter._id;
-			alpha_report_service.saveAlphaReport(alpha_report_object, callback);
+			alpha_report_service.saveAlphaReport(alpha_report_object, function(err, res) {
+				//me.callback(err, res);
+				logger.debug(res);
+			});
 		} else {
 			var msg = "There was an error saving off a parsed Reporter object";
-			callback(msg, null);
+			//me.callback(msg, null);
+			logger.debug(res);
 		}
 	});
 };
