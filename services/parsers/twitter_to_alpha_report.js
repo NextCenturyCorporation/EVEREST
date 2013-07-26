@@ -7,7 +7,7 @@ this.load = function(log) {
 	logger = log;
 };
 
-this.parse = function(raw_feed_object, callback) {
+this.parseAndSave = function(raw_feed_object, callback) {
 	logger.debug("Attempting to parse raw_feed_object with id " + raw_feed_object._id);
 
 	var alpha_report_object = {};
