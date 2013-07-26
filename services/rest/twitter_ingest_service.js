@@ -101,7 +101,7 @@ me.ingest = function(query, res) {
 me.callParser = function(id) {
 	logger.debug("Parser to be called with id: " + id);
 	process.nextTick(function() {
-		raw_feed_parser.parse(id);
+		raw_feed_parser.parseAndSave(id);
 	});
 };
 
