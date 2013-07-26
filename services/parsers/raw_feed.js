@@ -20,12 +20,12 @@ this.parseAndSave = function(id, callback) {
 			logger.error("There was an error finding the feed to parse");
 			callback(err, null);
 		} else {
-			if(Object.keys(parsers).indexOf(docs[0].feedSource)) {
+			//if(Object.keys(parsers).indexOf(docs[0].feedSource)) {
 				twitter_parser.parseAndSave(docs[0], callback);
-			} else {
+			/*} else {
 				var msg = "Cannot find a parser for the raw feed type " + docs[0].feedSource;
 				callback(msg, null);
-			}
+			}*/
 		}
 	});
 };
