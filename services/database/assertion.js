@@ -35,6 +35,7 @@ this.listAssertions = function(res){
  *
  * On success, it returns id:<ID-hash>
  */
+/*
 this.createAssertion = function(data, res){
 	var newAssertion = new models.assertion(data);
 	newAssertion.createdDate = new Date();
@@ -49,7 +50,36 @@ this.createAssertion = function(data, res){
 		}
 	});
 };
+*/
 
+this.createAssertion = function(data, res) {
+	this.saveAssertion(data, function(err, newAssertion) {
+		if(err){
+			general.send500(res);
+		} else {
+			res.json({id:newAssertion._id});
+			res.end();
+		}
+	});
+};
+
+/**
+ * saveAssertion is a "generic" save method for an assertion that
+ * is callable from a request-response method or from a general purpose
+ * parser-type method to populate the assertion docs
+ */
+this.saveAssertion = function(data, saveCallback) {
+	var newAssertion = new models.assertion(data);
+	newAssertion.createdDate = new Date();
+	newAssertion.updatedDate = new Date();
+	newAssertion.save(function(err){
+		if(err){
+			logger.error('Error saving assertion', err);
+		} else {
+			saveCallback(err, newAssertion);
+		}
+	});
+};
 /**
  * Returns the assertion with the id specified in the URL
  */
