@@ -105,7 +105,7 @@ this.saveLocation = function(data, saveCallback) {
  * validateLocation validates a location object against the location semantic rules
  * and the business rules associated with a location
  *
- * saveLocation calls the JSON validation module  revalidator and
+ * validateLocation calls the JSON validation module  revalidator and
  * calls the business validation module bvalidator for the location object
 
  * data is the location object being validated
@@ -231,9 +231,9 @@ this.updateLocation = function(id, data, res){
 	});
 };
 /**
- *
- * callback takes the form of  function(err, valid object, location object)
+ * updateLocationX calls the validateLocation then updates the object
  * 
+ * callback takes the form of  function(err, valid object, location object)
  */
 this.updateLocationX = function(id, data, updCallback) {
 	this.validateLocation(data, function(valid){
