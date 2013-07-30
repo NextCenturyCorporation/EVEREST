@@ -1,5 +1,6 @@
 var alpha_report_service = require('../database/alpha_report.js');
 var reporter_service = require('../database/reporter.js');
+var nlp_parser = require('../parsers/nlp_parser.js');
 
 var logger = null;
 
@@ -55,6 +56,9 @@ this.parseAndSave = function(raw_feed_object, callback) {
 			alpha_report_service.saveAlphaReport(alpha_report_object, function(err, res) {
 				//me.callback(err, res);
 				logger.debug(res);
+				if (!err){
+					nlp_parser.parseAndSave(res);
+				}
 			});
 		} else {
 			var msg = "There was an error saving off a parsed Reporter object";
