@@ -11,22 +11,12 @@ this.load = function(napp, io, gcm, log){
 	logger = log;
 	app = napp;
 	
-	napp.get('/nlp-parser/start', function(req, res){
+	napp.get('/nlp-parser/parse', function(req, res){
 		if(logger.DO_LOG){
 			logger.info('Request for nlp parser start.');
 		}
-		
 		me.parse_reports(req.query, res);
 	});
-	
-	napp.get('/nlp-parser/stop', function(req, res){
-		if(logger.DO_LOG){
-			logger.info('Request for nlp parser stop.');
-		}
-		
-		me.stop_stream(req.query, res);
-	});
-
 };
 
 me.parse_reports = function(query, res){
@@ -41,8 +31,4 @@ me.parse_reports = function(query, res){
 			logger.info({error: "Not found"});
 		}
 	});
-};
-
-me.stop_stream = function(query, res){
-	alpha_report_service.stopStreaming();
 };
