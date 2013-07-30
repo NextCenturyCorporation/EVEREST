@@ -169,7 +169,7 @@ this.readAssertionByObject = function(object, readCallback){
  * On success, it returns the _id value (just like on create)
  */
 this.updateAssertion = function(id, data, res){
-	this.updateAssertionX(id, data, function(err, val, updLoc) {
+	this.updateAssertionX(id, data, function(err, val, updated) {
 		if(err){
 			logger.error('Error updating assertion', err);
 			res.status(500);
@@ -179,8 +179,8 @@ this.updateAssertion = function(id, data, res){
 			res.status(500);
 			res.json({error: val.errors}, data);
 		} else {
-			logger.info('Assertion updated ' + JSON.stringify(updLoc));
-			res.json({id:updLoc._id});
+			logger.info('Assertion updated ' + JSON.stringify(updated));
+			res.json({id:updated._id});
 		}
 		res.end();
 	});
