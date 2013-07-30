@@ -192,6 +192,9 @@ this.readLocationByObject = function(object, readCallback){
 	query.exec(readCallback);
 };
 
+/**
+ * searchLocation is experimental -- uses the SEARCH HTTP verb
+ */
 this.searchLocation = function(data, res){
 	models.location.find({name:data.name}, function(err, docs){
 		if(err) {
@@ -230,6 +233,7 @@ this.updateLocation = function(id, data, res){
 		res.end();
 	});
 };
+
 /**
  * updateLocationX calls the validateLocation then updates the object
  * 
