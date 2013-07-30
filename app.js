@@ -57,8 +57,15 @@ app.use(function errorHandler(err, req, res, next){
  * between all files
 **/
 if(!config.noDB){
-	mongoose.connect('mongodb://' + config.db_host + ':' + config.db_port + '/' + config.db_collection);
-	logger.warn('Connected to ' + config.db_host + ':' + config.db_port + '/' + config.db_collection);
+	var connectString = 'mongodb://' + config.db_host + ':' + config.db_port + '/' + config.db_collection;
+	mongoose.connect(connectString, function(err) {
+		if (err !== undefined) {
+			logger.error('Unable to connect to ' + connectString);
+			throw err;
+		} else {
+			logger.warn('Connected to ' + connectString);			
+		}
+	});
 }
 
 //Load GCM

@@ -71,15 +71,22 @@ app.use(function errorHandler(err, req, res, next){
   logger.log('error', 'Error ', {stack: err.stack});
 });
 
-/*
+/**
  * Connect to the DB now, if we should at all.
  * Mongoose only needs to connect once, it will be shared
  * between all files
- */
+**/
 if(!config.noDB){
-	mongoose.connect('mongodb://'+config.db_host+':'+config.db_port+'/'+config.db_collection);
-	console.log('Connected to '+config.db_host+':'+config.db_port+'/'+config.db_collection);
-}//;
+	var connectString = 'mongodb://' + config.db_host + ':' + config.db_port + '/' + config.db_collection;
+	mongoose.connect(connectString, function(err) {
+		if (err !== undefined) {
+			logger.error('Unable to connect to ' + connectString);
+			throw err;
+		} else {
+			logger.warn('Connected to ' + connectString);			
+		}
+	});
+}
 
 // Routes
 // Dummy routes

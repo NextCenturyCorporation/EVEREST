@@ -35,13 +35,9 @@ this.listAssertions = function(res){
  *
  * On success, it returns id:<ID-hash>
  */
-this.createAssertion = function(data, res){
-	var newAssertion = new models.assertion(data);
-	newAssertion.createdDate = new Date();
-	newAssertion.updatedDate = new Date();
-	newAssertion.save(function(err){
+this.createAssertion = function(data, res) {
+	this.saveAssertion(data, function(err, newAssertion) {
 		if(err){
-			logger.error('Error saving assertion', err);
 			general.send500(res);
 		} else {
 			res.json({id:newAssertion._id});
@@ -50,6 +46,23 @@ this.createAssertion = function(data, res){
 	});
 };
 
+/**
+ * saveAssertion is a "generic" save method for an assertion that
+ * is callable from a request-response method or from a general purpose
+ * parser-type method to populate the assertion docs
+ */
+this.saveAssertion = function(data, saveCallback) {
+	var newAssertion = new models.assertion(data);
+	newAssertion.createdDate = new Date();
+	newAssertion.updatedDate = new Date();
+	newAssertion.save(function(err){
+		if(err){
+			logger.error('Error saving assertion', err);
+		} else {
+			saveCallback(err, newAssertion);
+		}
+	});
+};
 /**
  * Returns the assertion with the id specified in the URL
  */
@@ -72,6 +85,8 @@ this.getAssertion = function(id, res){
 /**
  * readAssertionByProperty is a generic read method to return all of
  * documents that have a property value that matches.
+ * 
+ * The readCallback should be function(err, docs)
  */
 this.readAssertionByProperty = function(property, value, readCallback){
 	if ( (property !== undefined) && (value !== undefined) ) {
@@ -84,7 +99,10 @@ this.readAssertionByProperty = function(property, value, readCallback){
 /**
  * readAssertionByObject is a generic read method for assertion
  * It will attempt to find an exact match(es) for the object provided.
+ * 
  * Note: the incoming object can be a subset or superset of the actual object.
+ * 
+ * The readCallback should be function(err, docs)
  */
 this.readAssertionByObject = function(object, readCallback){
 	if ( object !== undefined ) {
