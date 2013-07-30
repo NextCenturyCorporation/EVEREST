@@ -1,6 +1,9 @@
 var winston = require('winston');
 var general = require('../wizard_service');
 var models = require('../../models/models');
+var validationModel = require('../../models/reporter/model.js');
+var bvalidator = require('../../models/reporter/bvalidator.js');
+var revalidator = require('revalidator');
 
 //Load and set up the Logger
 var logger = new (winston.Logger)({
@@ -47,26 +50,75 @@ this.listReporterNames = function(res){
  * On success, it returns the new id 
  */
 this.createReporter = function(data, res){
-	this.saveReporter(data, function(err, newReporter){
+	this.saveReporter(data, function(err, val, newReporter) {
 		if(err){
-			logger.error('Error saving reporter', err);
-			general.send500(res);
+			logger.error('Error saving reporter ', err);
+			res.status(500);
+			res.json({error: 'Error'});
+		} else if (!val.valid) {
+			logger.info('Invalid reporter ' + JSON.stringify(val.errors));
+			res.status(500);
+			res.json({error: val.errors}, data);
 		} else {
+			logger.info('Reporter saved ' + JSON.stringify(newReporter));
 			res.json({id:newReporter._id});
-			res.end();
+		}
+		res.end();
+	});
+};
+
+/**
+ * saveReporter is a "generic" save method callable from both
+ * request-response methods and parser-type methods for population of reporter data
+ * 
+ * saveReporter calls the validateReporter module to ensure that the
+ * data being saved to the database is complete and has integrity.
+ * 
+ * saveCallback takes the form of  function(err, valid object, reporter object)
+ */
+this.saveReporter = function(data, saveCallback) {
+	this.validateReporter(data, function(valid) {
+		if (valid.valid) {
+			logger.info("Valid reporter");
+			var newReporter = new models.reporter(data);
+			newReporter.createdDate = new Date();
+			newReporter.updatedDate = new Date();
+			newReporter.save(function(err){
+				if(err){
+					logger.error('Error saving reporter ', err);
+				}
+				saveCallback(err, valid, newReporter);
+			});
+		}
+		else {
+			saveCallback(undefined, valid, data);
 		}
 	});
 };
 
-this.saveReporter = function(data, saveCallback){
-	var newReporter = new models.reporter(data);
-	
-	newReporter.createdDate = new Date();
-	newReporter.updatedDate = new Date();
-	
-	newReporter.save(function(err) {
-		saveCallback(err, newReporter);
-	});
+/**
+ * validateReporter validates a reporter object against the reporter semantic rules
+ * and the business rules associated with a reporter object
+ *
+ * validateReporter calls the JSON validation module  revalidator and
+ * calls the business validation module bvalidator for the reporter object
+
+ * data is the object being validated
+ * 
+ * valCallback takes the form of  function(valid structure)
+ */
+this.validateReporter = function(data, valCallback) {
+	// is the JSON semantically valid for the object?
+	var valid = revalidator.validate(data, validationModel.reporterValidation);
+	if (valid.valid) {
+		// does the object comply with business validation logic
+		bvalidator.validate(data, function(valid) {
+			valCallback(valid);
+		});
+	}
+	else {
+		valCallback(valid);
+	}	
 };
 
 /**
@@ -136,31 +188,64 @@ this.readReporterByObject = function(object, readCallback){
  * On success, it returns the _id value (just like on create)
  */
 this.updateReporter = function(id, data, res){
-	models.reporter.findById(id, function(err, docs){
-		if(err) {
-			logger.info("Error getting reporter "+err);
-			general.send500(res);
-		} else if(docs) {
-			for(var e in data){
-				//Make sure not to change _id
-				if(e !== '_id'){
-					docs[e] = data[e];
-				}
-			}
-			docs.updatedDate = new Date();
-			docs.save(function(err){
-				if(err){
-					general.send500(res);
+	this.updateReporterX(id, data, function(err, val, updLoc) {
+		if(err){
+			logger.error('Error updating Reporter', err);
+			res.status(500);
+			res.json({error: 'Error'});
+		} else if (!val.valid) {
+			logger.info('Invalid Reporter ' + JSON.stringify(val.errors));
+			res.status(500);
+			res.json({error: val.errors}, data);
+		} else {
+			logger.info('Reporter updated ' + JSON.stringify(updLoc));
+			res.json({id:updLoc._id});
+		}
+		res.end();
+	});
+};
+
+
+/**
+ * updateReporterX calls the validateReporter then updates the object
+ * 
+ * callback takes the form of  function(err, valid object, Reporter object)
+ */
+this.updateReporterX = function(id, data, updCallback) {
+	this.validateReporter(data, function(valid){
+		if (valid.valid) {
+			models.reporter.findById(id, function(err, docs){
+				if(err) {
+					logger.info("Error getting Reporter "+err);
+					updCallback(err, valid, data);
+				} else if(docs) {
+					for(var e in data){
+						//Make sure not to change _id
+						if(e !== '_id'){
+							docs[e] = data[e];
+						}
+					}
+					docs.updatedDate = new Date();
+					docs.save(function(err){
+						if(err){
+							updCallback(err, valid, data);
+						} else {
+							updCallback(err, valid, docs);
+						}
+					});			
 				} else {
-					res.json({id:docs._id});
-					res.end();
+					valid.valid = false;
+					valid.errors = {expected: id, message: "Reporter not found"};
+					updCallback(err, valid, data);
 				}
 			});
-		} else {
-			general.send404(res);
+		}
+		else {
+			updCallback(undefined, valid, data);
 		}
 	});
 };
+
 
 /**
  * Deletes the reporter with the given id

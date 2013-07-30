@@ -1,6 +1,4 @@
 var reporterService = require('../database/reporter.js');
-var validationModel = require('../../models/reporter/model.js');
-var revalidator = require('revalidator');
 
 this.load = function(app, io, gcm, logger){
 	
@@ -25,17 +23,7 @@ this.load = function(app, io, gcm, logger){
 		if(logger.DO_LOG){
 			logger.info('Receiving new reporter', req.body);
 		}
-		var validation = revalidator.validate(req.body, validationModel.reporterValidation);
-		if(validation.valid){
-			reporterService.createReporter(req.body, res);
-		} else { 
-			if(logger.DO_LOG){
-				logger.info(validation.errors); 
-			}
-			res.status(500);
-			res.json({error: validation.errors}, req.body);
-			console.log(validation.errors);
-		}
+		reporterService.createReporter(req.body, res);
 	});
 	
 	//Review  '/reporter/:{param_name}(contents to go in param_name)'
@@ -59,17 +47,7 @@ this.load = function(app, io, gcm, logger){
 		if(logger.DO_LOG){
 			logger.info('Update reporter ' + req.params.id);
 		}
-		var validation = revalidator.validate(req.body, validationModel.reporterValidation);
-		if(validation.valid){
-			logger.info(req.body);
-			reporterService.updateReporter(req.params.id, req.body, res);
-		} else {
-			if (logger.DO_LOG){
-				logger.info(validation.errors);
-			} 
-			res.status(500);
-			res.json({error: validation.errors});
-		}
+		reporterService.updateReporter(req.params.id, req.body, res);
 	});
 	
 	//Delete a single reporter by the specified id
