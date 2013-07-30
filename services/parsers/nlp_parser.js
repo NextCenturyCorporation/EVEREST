@@ -15,8 +15,8 @@ this.load = function(log){
 };
 
 this.parseAndSave = function(alpha_report_object, callback){
-	console.log('Attempting to parse alpha_report_object with id ' + alpha_report_object._id);
-	
+	logger.info('Attempting to parse alpha_report_object with id ' + alpha_report_object._id);
+		
 	var assertion_object = {};
 	
 	var tree = parser.parseSync(alpha_report_object.message_body);
@@ -34,44 +34,21 @@ this.parseAndSave = function(alpha_report_object, callback){
 		
 		//create an assertion object for each section of this message body
 		if (output){
-			assertion_object.alpha_report_id = alpha_report_object._id;
-			assertion_object.reporter_id = alpha_report_object.reporter_id;
-			assertion_object.entity1 = output.getEntity1StringSync();
-			assertion_object.relationship = output.getRelationStringSync();
-			assertion_object.entity2 = output.getEntity2StringSync();
+			assertion_object.alpha_report_id = alpha_report_object._id.toString();
+			assertion_object.reporter_id = alpha_report_object.reporter_id.toString();
+			assertion_object.entity1 = output.getEntity1StringSync().toString();
+			assertion_object.relationship = output.getRelationStringSync().toString();
+			assertion_object.entity2 = output.getEntity2StringSync().toString();
 			
-			assertion_service.saveAssertion(assertion_object, function(err, newAssertion){
-				if (!err){
-					console.log("Callback version " +newAssertion);
+			assertion_service.saveAssertion(assertion_object, function(err, valid, newAssertion){
+				if (err){
+					logger.info("There was an error saving the parsed Assertion object.");
+				} else if(!valid.valid){
+					logger.info("Invalid assertion " + JSON.stringify(valid.errors));
 				} else {
-					console.log("There was an error saving the parsed Assertion object.");
+					logger.info("Callback version " + newAssertion);
 				}
 			});
 		}
 	}
 };
-
-/*this.parseAndSave({
-	"source_name":"Twitter",
-	"source_id":"1",
-	"message_body":"A rare black squirrel has become a regular visitor to a suburban garden",
-	"_id":"51f18f098a77c28646000001",
-	"__v":0,
-	"updatedDate":"2013-07-25T20:48:09.388Z",
-	"createdDate":"2013-07-25T20:48:09.388Z"
-});*/
-
-var obj = {
-	"alpha_report_id":"51f286c9054604e60a000001",
-	"entity1":"Francisco",
-	"relationship":"is",
-	"entity2":"excited"
-};
-
-assertion_service.saveAssertion(obj, function(err, newAssertion){
-	if (!err){
-		console.log("Callback version " +newAssertion);
-	} else {
-		console.log("There was an error saving the parsed Assertion object.");
-	}
-});
