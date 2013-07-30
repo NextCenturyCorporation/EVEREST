@@ -4,6 +4,9 @@
 var winston = require('winston');
 var general = require('../wizard_service');
 var models = require('../../models/models');
+var validationModel = require('../../models/assertion/model.js');
+var bvalidator = require('../../models/assertion/bvalidator.js');
+var revalidator = require('revalidator');
 
 //Load and set up the logger
 var logger = new (winston.Logger)({
@@ -35,34 +38,78 @@ this.listAssertions = function(res){
  *
  * On success, it returns id:<ID-hash>
  */
-this.createAssertion = function(data, res) {
-	this.saveAssertion(data, function(err, newAssertion) {
+this.createAssertion = function(data, res){
+	this.saveAssertion(data, function(err, val, newAssertion) {
 		if(err){
-			general.send500(res);
+			logger.error('Error saving assertion', err);
+			res.status(500);
+			res.json({error: 'Error'});
+		} else if (!val.valid) {
+			logger.info('Invalid assertion ' + JSON.stringify(val.errors));
+			res.status(500);
+			res.json({error: val.errors}, data);
 		} else {
+			logger.info('Assertion saved ' + JSON.stringify(newAssertion));
 			res.json({id:newAssertion._id});
-			res.end();
+		}
+		res.end();
+	});
+};
+
+/**
+ * saveAssertion is a "generic" save method callable from both
+ * request-response methods and parser-type methods for population of assertion data
+ * 
+ * saveAssertion calls the validateAssertion module to ensure that the
+ * data being saved to the database is complete and has integrity.
+ * 
+ * saveCallback takes the form of  function(err, valid object, assertion object)
+ */
+this.saveAssertion = function(data, saveCallback) {
+	this.validateAssertion(data, function(valid) {
+		if (valid.valid) {
+			logger.info("Valid assertion");
+			var newAssertion = new models.assertion(data);
+			newAssertion.createdDate = new Date();
+			newAssertion.updatedDate = new Date();
+			newAssertion.save(function(err){
+				if(err){
+					logger.error('Error saving assertion ', err);
+				}
+				saveCallback(err, valid, newAssertion);
+			});
+		}
+		else {
+			saveCallback(undefined, valid, data);
 		}
 	});
 };
 
 /**
- * saveAssertion is a "generic" save method for an assertion that
- * is callable from a request-response method or from a general purpose
- * parser-type method to populate the assertion docs
+ * validateAssertion validates an assertion object against the assertion semantic rules
+ * and the business rules associated with an assertion
+ *
+ * validateAssertion calls the JSON validation module  revalidator and
+ * calls the business validation module bvalidator for the assertion object
+
+ * data is the object being validated
+ * 
+ * valCallback takes the form of  function(valid structure)
  */
-this.saveAssertion = function(data, saveCallback) {
-	var newAssertion = new models.assertion(data);
-	newAssertion.createdDate = new Date();
-	newAssertion.updatedDate = new Date();
-	newAssertion.save(function(err){
-		if(err){
-			logger.error('Error saving assertion', err);
-		} else {
-			saveCallback(err, newAssertion);
-		}
-	});
+this.validateAssertion = function(data, valCallback) {
+	// is the JSON semantically valid for the location object?
+	var valid = revalidator.validate(data, validationModel.assertionValidation);
+	if (valid.valid) {
+		// does the location object comply with business validation logic
+		bvalidator.validate(data, function(valid) {
+			valCallback(valid);
+		});
+	}
+	else {
+		valCallback(valid);
+	}	
 };
+
 /**
  * Returns the assertion with the id specified in the URL
  */
@@ -123,31 +170,63 @@ this.readAssertionByObject = function(object, readCallback){
  * On success, it returns the _id value (just like on create)
  */
 this.updateAssertion = function(id, data, res){
-	models.assertion.findById(id, function(err, docs){
-		if(err) {
-			logger.info("Error getting assertion "+err);
-			general.send500(res);
-		} else if(docs) {
-			for(var e in data){
-				//Make sure not to change _id
-				if(e !== '_id'){
-					docs[e] = data[e];
-				}
-			}
-			docs.updatedDate = new Date();
-			docs.save(function(err){
-				if(err){
-					general.send500(res);
-				} else {
-					res.json({id:docs._id});
-					res.end();
-				}
-			});			
+	this.updateAssertionX(id, data, function(err, val, updLoc) {
+		if(err){
+			logger.error('Error updating assertion', err);
+			res.status(500);
+			res.json({error: 'Error'});
+		} else if (!val.valid) {
+			logger.info('Invalid assertion ' + JSON.stringify(val.errors));
+			res.status(500);
+			res.json({error: val.errors}, data);
 		} else {
-			general.send404(res);
+			logger.info('Assertion updated ' + JSON.stringify(updLoc));
+			res.json({id:updLoc._id});
+		}
+		res.end();
+	});
+};
+
+/**
+ * updateAssertionX calls the validateAssertion then updates the object
+ * 
+ * callback takes the form of  function(err, valid object, Assertion object)
+ */
+this.updateAssertionX = function(id, data, updCallback) {
+	this.validateAssertion(data, function(valid){
+		if (valid.valid) {
+			models.assertion.findById(id, function(err, docs){
+				if(err) {
+					logger.info("Error getting assertion "+err);
+					updCallback(err, valid, data);
+				} else if(docs) {
+					for(var e in data){
+						//Make sure not to change _id
+						if(e !== '_id'){
+							docs[e] = data[e];
+						}
+					}
+					docs.updatedDate = new Date();
+					docs.save(function(err){
+						if(err){
+							updCallback(err, valid, data);
+						} else {
+							updCallback(err, valid, docs);
+						}
+					});			
+				} else {
+					valid.valid = false;
+					valid.errors = {expected: id, message: "Assertion not found"};
+					updCallback(err, valid, data);
+				}
+			});
+		}
+		else {
+			updCallback(undefined, valid, data);
 		}
 	});
 };
+
 
 /**
  * Deletes the assertion with the given ID
