@@ -38,7 +38,7 @@ var logger = new (winston.Logger)({
 	function validateObject(object, errors, done) {
 		// TODO: put in the logic checks against the object (ie., does the attribute exist)
 		//       to insulate the lower level functions from bad data
-		value = object.lang;
+		var value = object.lang;
 		languageExists( value, errors, function (err, found) {
 			var property = 'lang';
 			if (value !== undefined) {
