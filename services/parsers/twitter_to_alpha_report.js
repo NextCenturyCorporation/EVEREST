@@ -50,8 +50,14 @@ this.parseAndSave = function(raw_feed_object, callback) {
 	alpha_report_object.radius = 0;
 
 
-	reporter_service.saveReporter(reporter_object, function(err, newReporter) {
-		if(!err) {
+	reporter_service.saveReporter(reporter_object, function(err, valid, newReporter) {
+		if(err) {
+			//var msg = "There was an error saving off a parsed Reporter object";
+			//me.callback(msg, null);
+			logger.error(err);
+		} else if (!valid.valid) {
+			logger.info("Invalid Reporter " + JSON.stringify(valid.errors));
+		} else {
 			alpha_report_object.reporter_id = newReporter._id;
 			alpha_report_service.saveAlphaReport(alpha_report_object, function(err, res) {
 				//me.callback(err, res);
@@ -60,10 +66,7 @@ this.parseAndSave = function(raw_feed_object, callback) {
 					nlp_parser.parseAndSave(res);
 				}
 			});
-		} else {
-			var msg = "There was an error saving off a parsed Reporter object";
-			//me.callback(msg, null);
-			logger.debug(res);
 		}
+		//callback();
 	});
 };
