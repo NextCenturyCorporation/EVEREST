@@ -2,7 +2,6 @@
  * Runs while connected to a database
  */
 var winston = require('winston');
-var general = require('../wizard_service');
 var models = require('../../models/models');
 var validationModel = require('../../models/raw_feed/model.js');
 var revalidator = require('revalidator');
