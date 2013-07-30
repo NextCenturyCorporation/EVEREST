@@ -1,7 +1,4 @@
 var locationService = require('../database/location.js');
-var validationModel = require('../../models/location/model.js');
-var bvalidator = require('../../models/location/bvalidator.js');
-var revalidator = require('revalidator');
 
 this.load = function(app, io, gcm, logger) {
 	//list - lists full object
@@ -25,33 +22,9 @@ this.load = function(app, io, gcm, logger) {
 		if(logger.DO_LOG){
 			logger.info("Receiving new location");
 		}
-		// is the JSON semantically valid for the location object?
-		var locVal = revalidator.validate(req.body, validationModel.locationValidation);
-		if (locVal.valid) {
-			// does the location object comply with business validation logic
-			bvalidator.validate(req.body, function(bVal) {
-				if (bVal.valid) {
-					logger.info("Valid location");
-					locationService.createLocation(req.body, res);				
-				}
-				else {
-					if(logger.DO_LOG){
-						logger.error(bVal.errors);
-					}
-					res.status(500);
-					res.json({error: bVal.errors}, req.body);
-				}
-			});
-		}
-		else {
-			if(logger.DO_LOG){
-				logger.error(locVal.errors);
-			}
-			res.status(500);
-			res.json({error: locVal.errors}, req.body);
-		}
+		locationService.createLocation(req.body, res);				
 	});
-	
+
 	//review
 	app.get('/location/:id([0-9a-f]+)', function(req,res){
 		if(logger.DO_LOG){
@@ -80,17 +53,7 @@ this.load = function(app, io, gcm, logger) {
 		if(logger.DO_LOG){
 			logger.info("Update location "+req.params.id);
 		}
-		var locVal = revalidator.validate(req.body, validationModel.locationValidation);
-		if (locVal.valid) {
-			locationService.updateLocation(req.params.id, req.body, res);
-		}
-		else {
-			if(logger.DO_LOG){
-				logger.info(locVal.errors);
-			}
-			res.status(500);
-			res.json({error: locVal.errors});
-		}
+		locationService.updateLocation(req.params.id, req.body, res);
 	});
 	
 	//delete by id
