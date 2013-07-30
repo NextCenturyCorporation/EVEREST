@@ -1,6 +1,9 @@
 var winston = require('winston');
 var general = require('../wizard_service');
 var models = require('../../models/models');
+var validationModel = require('../../models/alpha_report/model.js');
+var bvalidator = require('../../models/alpha_report/bvalidator.js');
+var revalidator = require('revalidator');
 
 //Load and set up the Logger
 var logger = new (winston.Logger)({
@@ -51,27 +54,82 @@ exports.listAlphaReportSourceIds = listAlphaReportSourceIds;
  * On success, it returns the new id 
  */
 var createAlphaReport = function(data, res){
-	saveAlphaReport(data, function(err, resultObject){
+	saveAlphaReport(data, function(err, val, newAlphaReport) {
 		if(err){
-			logger.error('Error saving alpha report', err);
-			general.send500(res);
+			logger.error('Error saving AlphaReport', err);
+			res.status(500);
+			res.json({error: 'Error'});
+		} else if (!val.valid) {
+			logger.info('Invalid AlphaReport ' + JSON.stringify(val.errors));
+			res.status(500);
+			res.json({error: val.errors}, data);
 		} else {
-			res.json({id:resultObject._id});
-			res.end();
+			logger.info('AlphaReport saved ' + JSON.stringify(newAlphaReport));
+			res.json({id:newAlphaReport._id});
 		}
+		res.end();
 	});
 };
 
 exports.createAlphaReport = createAlphaReport;
 
-var saveAlphaReport = function(data, saveCallback){
-	var newAlphaReport = new models.alphaReport(data);
-	newAlphaReport.save(function(err) {
-		saveCallback(err, newAlphaReport);
+/**
+ * saveAlphaReport is a "generic" save method callable from both
+ * request-response methods and parser-type methods for population of AlphaReport data
+ * 
+ * saveAlphaReport calls the validateAlphaReport module to ensure that the
+ * data being saved to the database is complete and has integrity.
+ * 
+ * saveCallback takes the form of  function(err, valid object, AlphaReport object)
+ */
+var saveAlphaReport = function(data, saveCallback) {
+	validateAlphaReport(data, function(valid) {
+		if (valid.valid) {
+			logger.info("Valid AlphaReport");
+			var newAlphaReport = new models.alphaReport(data);
+			newAlphaReport.createdDate = new Date();
+			newAlphaReport.updatedDate = new Date();
+			newAlphaReport.save(function(err){
+				if(err){
+					logger.error('Error saving AlphaReport ', err);
+				}
+				saveCallback(err, valid, newAlphaReport);
+			});
+		}
+		else {
+			saveCallback(undefined, valid, data);
+		}
 	});
 };
 
 exports.saveAlphaReport = saveAlphaReport;
+
+/**
+ * validateAlphaReport validates an AlphaReport object against the AlphaReport semantic rules
+ * and the business rules associated with an AlphaReport
+ *
+ * validateAlphaReport calls the JSON validation module  revalidator and
+ * calls the business validation module bvalidator for the AlphaReport object
+
+ * data is the object being validated
+ * 
+ * valCallback takes the form of  function(valid structure)
+ */
+var validateAlphaReport = function(data, valCallback) {
+	// is the JSON semantically valid for the location object?
+	var valid = revalidator.validate(data, validationModel.alphaReportValidation);
+	if (valid.valid) {
+		// does the location object comply with business validation logic
+		bvalidator.validate(data, function(valid) {
+			valCallback(valid);
+		});
+	}
+	else {
+		valCallback(valid);
+	}	
+};
+
+exports.validateAlphaReport = validateAlphaReport;
 
 /**
  * Returns the alpha report object with id specified in URL
@@ -170,33 +228,67 @@ exports.readAlphaReports = readAlphaReports;
  * On success, it returns the _id value (just like on create)
  */
 var updateAlphaReport = function(id, data, res){
-	models.alphaReport.findById(id, function(err, docs){
-		if(err) {
-			logger.info("Error getting alpha report "+err);
-			general.send500(res);
-		} else if(docs) {
-			for(var e in data){
-				//Make sure not to change _id
-				if(e !== '_id'){
-					docs[e] = data[e];
-				}
-			}
-			docs.updatedDate = new Date();
-			docs.save(function(err){
-				if(err){
-					general.send500(res);
-				} else {
-					res.json({id:docs._id});
-					res.end();
-				}
-			});
+	updateAlphaReportX(id, data, function(err, val, updated) {
+		if(err){
+			logger.error('Error updating AlphaReport', err);
+			res.status(500);
+			res.json({error: 'Error'});
+		} else if (!val.valid) {
+			logger.info('Invalid AlphaReport ' + JSON.stringify(val.errors));
+			res.status(500);
+			res.json({error: val.errors}, data);
 		} else {
-			general.send404(res);
+			logger.info('AlphaReport updated ' + JSON.stringify(updated));
+			res.json({id:updated._id});
 		}
+		res.end();
 	});
 };
 
 exports.updateAlphaReport = updateAlphaReport;
+
+
+/**
+ * updateAlphaReportX calls the validateAlphaReport then updates the object
+ * 
+ * callback takes the form of  function(err, valid object, AlphaReport object)
+ */
+var updateAlphaReportX = function(id, data, updCallback) {
+	validateAlphaReport(data, function(valid){
+		if (valid.valid) {
+			models.alphaReport.findById(id, function(err, docs){
+				if(err) {
+					logger.info("Error getting AlphaReport "+err);
+					updCallback(err, valid, data);
+				} else if(docs) {
+					for(var e in data){
+						//Make sure not to change _id
+						if(e !== '_id'){
+							docs[e] = data[e];
+						}
+					}
+					docs.updatedDate = new Date();
+					docs.save(function(err){
+						if(err){
+							updCallback(err, valid, data);
+						} else {
+							updCallback(err, valid, docs);
+						}
+					});			
+				} else {
+					valid.valid = false;
+					valid.errors = {expected: id, message: "AlphaReport not found"};
+					updCallback(err, valid, data);
+				}
+			});
+		}
+		else {
+			updCallback(undefined, valid, data);
+		}
+	});
+};
+
+exports.updateAlphaReportX = updateAlphaReportX;
 
 /**
  * Deletes the alpha report with the given id

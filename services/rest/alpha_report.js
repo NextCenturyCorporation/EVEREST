@@ -1,10 +1,4 @@
-/*global require*/
-// Identify require as a global function/keyword for JSHint
-
 var alphaReportService = require('../database/alpha_report.js');
-var validationModel = require('../../models/alpha_report/model.js');
-var bvalidator = require('../../models/alpha_report/bvalidator.js');
-var revalidator = require('revalidator');
 
 this.load = function(app, io, gcm, logger){
 	
@@ -29,31 +23,7 @@ this.load = function(app, io, gcm, logger){
 		if(logger.DO_LOG){
 			logger.info('Receiving new alpha report', req.body);
 		}
-		var validation = revalidator.validate(req.body, validationModel.alphaReportValidation);
-		if(validation.valid){
-			// does the alpha_report object comply with business validation logic
-			bvalidator.validate(req.body, function(bVal) {
-				if (bVal.valid) {
-					logger.info("Valid alpha_report");
-					alphaReportService.createAlphaReport(req.body, res);
-				}
-				else {
-					if(logger.DO_LOG){
-						logger.error(bVal.errors);
-					}
-					res.status(500);
-					res.json({error: bVal.errors}, req.body);
-				}
-			});
-		} else { 
-			if(logger.DO_LOG){
-				logger.info(validation.errors); 
-			}
-			res.status(500);
-			res.json({error: validation.errors}, req.body);
-			console.log(validation.errors);
-		}
-		
+		alphaReportService.createAlphaReport(req.body, res);
 	});
 	
 	//Review  '/alpha_report/:{param_name}(contents to go in param_name)'
@@ -85,31 +55,7 @@ this.load = function(app, io, gcm, logger){
 		if(logger.DO_LOG){
 			logger.info('Update alpha report ' + req.params.id);
 		}
-		var validation = revalidator.validate(req.body, validationModel.alphaReportValidation);
-		if(validation.valid){
-			logger.info(req.body);
-			// does the alpha_report object comply with business validation logic
-			// TODO: May need to address the "already exists" business logic check
-			bvalidator.validate(req.body, function(bVal) {
-				if (bVal.valid) {
-					logger.info("Valid alpha_report");
-					alphaReportService.updateAlphaReport(req.params.id, req.body, res);
-				}
-				else {
-					if(logger.DO_LOG){
-						logger.error(bVal.errors);
-					}
-					res.status(500);
-					res.json({error: bVal.errors}, req.body);
-				}
-			});
-		} else {
-			if (logger.DO_LOG){
-				logger.info(validation.errors);
-			} 
-			res.status(500);
-			res.json({error: validation.errors});
-		}
+		alphaReportService.updateAlphaReport(req.params.id, req.body, res);
 	});
 	
 	//Delete a single alpha report by the specified id
