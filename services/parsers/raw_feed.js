@@ -6,13 +6,13 @@ var parsers = {
 	"twitter": twitter_parser
 };
 
-this.load = function(log) {
+var load = function(log) {
 	logger = log;
 
 	twitter_parser.load(log);
 };
 
-this.parseAndSave = function(id, callback) {
+var parseAndSave = function(id, callback) {
 	logger.debug("Call to parse raw feed with id: " + id);
 
 	raw_feed_service.getFeed(id, function(err, docs) {
@@ -31,3 +31,6 @@ this.parseAndSave = function(id, callback) {
 	});
 };
 
+exports.known_parsers = parsers;
+exports.load = load;
+exports.parseAndSave = parseAndSave;

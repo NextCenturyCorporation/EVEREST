@@ -17,7 +17,7 @@ io.set('log level', 1);
 //Load and set up the logger
 var logger = new (winston.Logger)({
 	//Make it log to both the console and a file 
-	transports : [new (winston.transports.Console)({level:'info'}),
+	transports : [new (winston.transports.Console)({level:config.log_level}),
 					new (winston.transports.File)({filename: 'logs/general.log'})]
 });
 

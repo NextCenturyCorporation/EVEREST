@@ -18,4 +18,7 @@ config.noData = process.env.NODATA || false;
 //The Google Cloud Messaging API key
 config.gcmApiKey = 'AIzaSyAHKuZ6cEvASflzMoc_Mmb_rPoiZLTzLXE';
 
+config.log_level = process.env.LOG_LEVEL || 'info';
+
 module.exports = config;
+
