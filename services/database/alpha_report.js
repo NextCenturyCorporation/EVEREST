@@ -157,6 +157,13 @@ var readAlphaReportByObject = function(object, readCallback){
 
 exports.readAlphaReportByObject = readAlphaReportByObject;
 
+var readAlphaReports = function(readCallback){
+	var query = models.alphaReport.find({});
+	query.exec(readCallback);
+};
+
+exports.readAlphaReports = readAlphaReports;
+
 /**
  * This updates the alpha report with id specified in the URL.
  * It will not change the id.
@@ -226,4 +233,3 @@ var deleteAlphaReports = function(res){
 };
 
 exports.deleteAlphaReports = deleteAlphaReports;
-
