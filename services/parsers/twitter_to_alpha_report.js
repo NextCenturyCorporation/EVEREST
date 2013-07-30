@@ -50,6 +50,8 @@ this.parseAndSave = function(raw_feed_object, callback) {
 	alpha_report_object.radius = 0;
 
 
+	// TODO  Need to figure out what the callback is for parseAndSave and call it
+	
 	reporter_service.saveReporter(reporter_object, function(err, valid, newReporter) {
 		if(err) {
 			//var msg = "There was an error saving off a parsed Reporter object";
@@ -59,10 +61,14 @@ this.parseAndSave = function(raw_feed_object, callback) {
 			logger.info("Invalid Reporter " + JSON.stringify(valid.errors));
 		} else {
 			alpha_report_object.reporter_id = newReporter._id;
-			alpha_report_service.saveAlphaReport(alpha_report_object, function(err, res) {
-				//me.callback(err, res);
-				logger.debug(res);
-				if (!err){
+			alpha_report_service.saveAlphaReport(alpha_report_object, function(err, valid, res) {
+				if (err) {
+					//me.callback(err, res);
+					logger.debug(res);
+
+				} else if (!valid.valid) {
+					logger.info('Invalid alpha_report ' + JSON.stringify(valid.error));
+				} else {
 					nlp_parser.parseAndSave(res);
 				}
 			});
