@@ -12,12 +12,10 @@ var logger = new (winston.Logger)({
 		new (winston.transports.File)({filename: base_path + '/logs/jasmine_testing.log'})]
 });
 
-
 var java = require('java');
-java.classpath.push(base_path +'/Triplet_Extraction.jar');
-var Parser = java.import('com.nextcentury.TripletExtraction.CoreNlpParser');
-var parser = new Parser(), extractor = null;
+java.classpath.push(base_path +'/java_lib/Triplet_Extraction.jar');
 
+		
 describe('To verify the the nlp parsers ', function() {
 	it('ability to run', function(){
 		var ar_object = {
@@ -25,19 +23,18 @@ describe('To verify the the nlp parsers ', function() {
 			"reporter_id":"51f80c293cc187ca150000d0",
 			"source_name":"Twitter", 
 			"source_id":"5", 
-			"message_body":"A rare black squirrel has become a regular visitor to a suburban garden. And he ate bunnies."
-		}
-		
-		var tree = parser.parseSync(ar_object.message_body);
-		
+			"message_body":"A rare black squirrel has become a regular visitor to a suburban garden. A rare black squirrel has become a regular visitor to a suburban garden."
+		};
+				
 		spyOn(logger, 'info').andCallThrough();
-		spyOn(assertion_service, 'saveAssertion').andCallThrough();
+		var assert = spyOn(assertion_service, 'saveAssertion').andCallThrough();
 		
 		nlp_parser.load(logger);
 		nlp_parser.parseAndSave(ar_object);
 		
 		expect(logger.info).toHaveBeenCalled();
-		expect(assertion_service.saveAssertion).toHaveBeenCalled();
+		expect(assert).toHaveBeenCalled();
+		expect(assert.callCount).toEqual(2);
 	});
 	
 	it('ability to not call save when message_body won\'t yield a triplet', function(){
@@ -47,7 +44,7 @@ describe('To verify the the nlp parsers ', function() {
 			"source_name":"Twitter", 
 			"source_id":"5", 
 			"message_body":"Hi"
-		}
+		};
 
 		spyOn(assertion_service, 'saveAssertion').andCallThrough();
 		
@@ -57,22 +54,31 @@ describe('To verify the the nlp parsers ', function() {
 		expect(assertion_service.saveAssertion).not.toHaveBeenCalled();
 	});
 	
-	it('ability to extract multiple assertions from a single message_body', function(){
-		var ar_object = {
-			"_id":"51f80c293cc187ca150000d1",
-			"reporter_id":"51f80c293cc187ca150000d0",
-			"source_name":"Twitter", 
-			"source_id":"5", 
-			"message_body":"A rare black squirrel has become a regular visitor to a suburban garden. A rare black squirrel has become a regular visitor to a suburban garden."
-		}
+});
+
+describe('To check the functionality of the individual java calls coming in through node-java ', function(){
+
+	it('checking the parser ', function(){
+		var Parser = java.import('com.nextcentury.TripletExtraction.CoreNlpParser');
+		var parser = new Parser();
 		
-		var assert = spyOn(assertion_service, 'saveAssertion').andCallThrough();
-		
-		nlp_parser.load(logger);
-		nlp_parser.parseAndSave(ar_object);
-		
-		expect(assert).toHaveBeenCalled();
-		expect(assert.callCount).toEqual(2);
+		var tree = parser.parseSync("I never went to school when I was a kid");
+		expect(tree.sizeSync()).toEqual(1);
 	});
 	
+	it('checking the extraction service', function(){
+		var Parser = java.import('com.nextcentury.TripletExtraction.CoreNlpParser');
+		var parser = new Parser();
+		var ExtractionService = java.import('com.nextcentury.TripletExtraction.ExtractionService');
+		var extractor = new ExtractionService();
+		
+		var tree = parser.parseSync("A rare black squirrel has become a regular visitor to a suburban garden");
+		var leaf = tree.getSync(0);
+		
+		var output = extractor.extractTripletSync(leaf);
+		
+		expect(output.getEntity1StringSync()).toEqual('squirrel');
+		expect(output.getRelationStringSync()).toEqual('become');
+		expect(output.getEntity2StringSync()).toEqual('visitor');
+	});
 });
