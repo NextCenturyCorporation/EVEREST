@@ -2,7 +2,7 @@ var alpha_report_service = require('../database/alpha_report.js');
 var assertion_service = require('../database/assertion.js');
 var java = require('java');
 
-java.classpath.push('./Triplet_Extraction.jar');
+java.classpath.push('./java_lib/Triplet_Extraction.jar');
 var url = 'http://localhost:8081/';
 var ExtractionService = java.import('com.nextcentury.TripletExtraction.ExtractionService');
 var Parser = java.import('com.nextcentury.TripletExtraction.CoreNlpParser');
