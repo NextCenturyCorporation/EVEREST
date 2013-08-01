@@ -52,3 +52,43 @@ this.parseAndSave = function(alpha_report_object, callback){
 		}
 	}
 };
+
+/**
+ * callback signature  function(tuple object(s))
+ */
+var parseToTuples = function(textData, callback) {
+	var tuples = [];
+
+	logger.info(textData.text);
+	
+	var tree = parser.parseSync(textData.text);
+	
+	logger.info(tree.toString());
+	
+	for (var i = 0; i < tree.sizeSync(); i++){
+		
+		//get first sentence fragment from parsed message
+		var leaf = tree.getSync(i);
+		var numKids = leaf.lastChildSync().numChildrenSync();
+	
+		logger.info(leaf.toString());
+		
+		//get rid of punctuation?
+		var last = leaf.lastChildSync().lastChildSync().toStringSync();
+		if (last.indexOf("(. ") === 0){
+			leaf.lastChildSync().removeChildSync(numKids - 1);
+		}
+		var output = extractor.extractTripletSync(leaf);
+
+		if (output) {
+			tuples.push({
+					entity1: output.getEntity1StringSync().toString(),
+					relationship: output.getRelationStringSync().toString(),
+					entity2: output.getEntity2StringSync().toString()
+			});
+		}
+	}
+	callback(tuples);
+};
+
+exports.parseToTuples = parseToTuples;

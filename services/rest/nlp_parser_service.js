@@ -1,25 +1,36 @@
 var alpha_report_service = require('../database/alpha_report.js');
 var nlp_parser = require('../parsers/nlp_parser.js');
 
-var me = this;
-var logger = null;
-var app = null;
+this.load = function(app, io, gcm, logger){
 
-this.load = function(napp, io, gcm, log){
-	nlp_parser.load(log);
+	nlp_parser.load(logger);
 	
-	logger = log;
-	app = napp;
-	
-	napp.get('/nlp-parser/parse', function(req, res){
+	// start the parser
+	app.get('/nlp-parser/parse', function(req, res){
 		if(logger.DO_LOG){
 			logger.info('Request for nlp parser start.');
 		}
-		me.parse_reports(req.query, res);
+		
+		parse_reports(req.query, res);
 	});
+	
+	// 
+	app.post('/nlp-parser/parse/', function(req, res){
+		if(logger.DO_LOG){
+			logger.info('Request for nlp parser to parse text.');
+		}
+		
+		nlp_parser.parseToTuples(req.body, function(tuples) {
+			if (tuples) {
+				res.json(tuples);
+			}
+			res.end();
+		});
+	});
+	
 };
 
-me.parse_reports = function(query, res){
+var parse_reports = function(query, res){
 	alpha_report_service.readAlphaReports(function(err,docs){
 		if(err) {
 			logger.info({error: "Error getting all alpha reports "+err});
