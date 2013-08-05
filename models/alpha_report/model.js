@@ -1,10 +1,6 @@
-/*global require*/
-// Identify require as a global function/keyword for JSHint
-
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var ObjectId = Schema.ObjectId;
-//var config = require('../../config.js');
 
 this.alphaReportModel = {
 	createdDate: {type: Date, "default": Date.now},
