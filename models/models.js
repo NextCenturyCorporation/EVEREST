@@ -33,9 +33,9 @@ this.event = eventModel.event;
 var incidentModel = require('./incident/model.js');
 this.incident = incidentModel.incident;
 
-//user
-var userModel = require('./user/model.js');
-this.user = userModel.user;
+//profile
+var profileModel = require('./profile/model.js');
+this.profile = profileModel.profile;
 
 //reporter
 var reporterModel = require('./reporter/model.js');

@@ -11,6 +11,7 @@ this.load = function(app, io, gcm, logger){
 	require('./rest/location.js').load(app, io, gcm, logger);
 	require('./rest/nlp_parser_service.js').load(app, io, gcm, logger);
 	require('./rest/options.js').load(app, io, gcm, logger);
+	require('./rest/profile.js').load(app, io, gcm, logger);
 	require('./rest/raw_feed.js').load(app, io, gcm, logger);
 	require('./rest/reporter.js').load(app, io, gcm, logger);
 	require('./rest/twitter_ingest_service.js').load(app, io, gcm, logger);
