@@ -6,13 +6,13 @@ this.entity = new Schema({
 	value: {type: String, required: true},
 	x: {type: Number},
 	y: {type: Number},
-	color: {type: Number}	
+	color: {type: String, trim:true}	
 });
 
 this.relationship = new Schema({
 	name: {type: String},
 	value: {type: String, required: true},
-	color: {type: Number},	
+	color: {type: String, trim:true},	
 });
 
 this.targetAssertionModel = {
