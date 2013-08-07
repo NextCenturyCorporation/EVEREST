@@ -40,3 +40,7 @@ this.profile = profileModel.profile;
 //reporter
 var reporterModel = require('./reporter/model.js');
 this.reporter = reporterModel.reporter;
+
+//target_assertion
+var targetAssertionModel = require('./target_assertion/model.js');
+this.targetAssertion = targetAssertionModel.targetAssertion;
