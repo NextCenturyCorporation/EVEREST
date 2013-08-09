@@ -42,6 +42,7 @@ this.load = function(app, io, gcm, logger){
 		alphaReportService.getAlphaReportBySource(req.params.source_name, res);
 	});
 	
+	//FIXME how does this not colide?
 	//Review all reporters whose source id
 	app.get('/alpha_report/:source_id([0-9a-zA-Z]+)', function(req,res){
 		if(logger.DO_LOG){

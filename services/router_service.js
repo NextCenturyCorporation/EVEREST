@@ -1,10 +1,15 @@
 /*global require */
 // require is a global node function/keyword
 
+var models = require('../models/models');
+
 this.load = function(app, io, gcm, logger){
 	require('./rest/alpha_report.js').load(app, io, gcm, logger);
 	require('./rest/assertion.js').load(app, io, gcm, logger);
-	require('./rest/confirmed_report.js').load(app, io, gcm, logger);
+
+	var ConfirmedReport = require('./rest/confirmed_report.js');
+	var confirmedReport = new ConfirmedReport(app, models, logger);
+
 	require('./rest/comment.js').load(app, io, gcm, logger);
 	require('./rest/event.js').load(app, io, gcm, logger);
 	require('./rest/incident.js').load(app, io, gcm, logger);
@@ -16,7 +21,6 @@ this.load = function(app, io, gcm, logger){
 	require('./rest/reporter.js').load(app, io, gcm, logger);
 	require('./rest/target_assertion.js').load(app, io, gcm, logger);
 	require('./rest/twitter_ingest_service.js').load(app, io, gcm, logger);
-	
 	
 	app.get('/', function(req, res){
 		res.redirect('/events');
