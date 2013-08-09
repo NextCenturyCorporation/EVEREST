@@ -1,3 +1,5 @@
+var responseHandler = require('../wizard_service');
+
 var ConfirmedReport = module.exports = function(models, log) {
 	var me = this;
 
@@ -5,28 +7,53 @@ var ConfirmedReport = module.exports = function(models, log) {
 	me.models = models;
 };
 
-ConfirmedReport.prototype.getRequest = function(req, res) {
+ConfirmedReport.prototype.listRequest = function(params, res) {
+	var me = this;
 
-};
-
-ConfirmedReport.prototype.get = function() {
-
-};
-
-ConfirmedReport.prototype.getFlattenedRequest = function(req, res) {
-
-};
-
-ConfirmedReport.prototype.listRequest = function() {
-
+	me.list({}, function(err, reports) {
+		if(err) {
+			var errMsg = "Error attempting to list confirmed reports"
+			me.logger.error("confirmedReport: " + errMsg, err)
+			responseHandler.send500(res, errMsg);
+		} else {
+			res.json(reports);
+			res.end();
+		}
+	});
 };
 
 ConfirmedReport.prototype.listFlattenedRequest = function() {
-
+	var me = this;
 };
 
-ConfirmedReport.prototype.list = function() {
+ConfirmedReport.prototype.list = function(params, listCallback) {
+	var me = this;
 
+	me.models.confirmedReport.find(params, function(err, confirmedReports) {
+		if(err) {
+			//FIXME
+		} else {
+			listCallback(confirmedReports);
+		}
+	});
+};
+
+ConfirmedReport.prototype.getRequest = function(id, res) {
+	var me = this;
+
+	me.get()
+};
+
+ConfirmedReport.prototype.get = function() {
+	var me = this;
+};
+
+ConfirmedReport.prototype.getFlattenedRequest = function(req, res) {
+	var me = this;
+};
+
+ConfirmedReport.prototype.flattenConfirmedReports = function(reports, callback) {
+	var me = this;
 };
 
 ConfirmedReport.prototype.createRequest = function() {

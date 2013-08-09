@@ -10,9 +10,9 @@ this.send404 = function(res){
 };
 
 //General 500 error
-this.send500 = function(res){
+this.send500 = function(res, msg){
 	res.status(500);
-	res.json({error:'Server error'});
+	res.json({error:'Server error' + msg});
 	res.end();
 };
 
