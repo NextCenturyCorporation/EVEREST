@@ -6,6 +6,7 @@ var models = require('../../models/models');
 var validationModel = require('../../models/location/model.js');
 var bvalidator = require('../../models/location/bvalidator.js');
 var revalidator = require('revalidator');
+var paramHandler = require('../param_handler');
 
 //Load and set up the logger
 var logger = new (winston.Logger)({
@@ -17,8 +18,8 @@ var logger = new (winston.Logger)({
 /**
  * Returns a list of all the locations
  */
-this.listLocations = function(res){
-	models.location.find({}, function(err, docs){
+this.listLocations = function(req, res){
+	this.findLocations(req, function(err, docs){
 		if(err){
 			logger.info("Error listing locations "+err);
 			res.status(500);
@@ -29,6 +30,17 @@ this.listLocations = function(res){
 		res.end();
 	});
 };
+
+this.findLocations = function(req, callback) {
+	paramHandler.handle(req, function(params) {
+		if (params !== null) {
+			models.location.find().limit(params.count).skip(params.offset).sort({_id: params.sort}).execFind(callback);
+		} else {
+			models.location.find().execFind(callback);
+		}
+	});
+};
+
 
 /**
  * Returns a list of all the location ids and names

@@ -2,11 +2,11 @@ var locationService = require('../database/location.js');
 
 this.load = function(app, io, gcm, logger) {
 	//list - lists full object
-	app.get('/location/?', function(req,res){
+	app.get('/location/?', function(req, res){
 		if(logger.DO_LOG){
 			logger.info("Request for location list");
 		}
-		locationService.listLocations(res);
+		locationService.listLocations(req, res);
 	});
 	
 	//list - lists name and id

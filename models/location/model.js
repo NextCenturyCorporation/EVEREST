@@ -11,6 +11,7 @@ this.locationDataModel = {
 };
 
 var LocationSchema = new Schema(this.locationDataModel);
+LocationSchema.index({_id : -1}, {unique: true});
 this.location = mongoose.model('Location', LocationSchema);
 
 // Describe the JSON semantic validation schema
