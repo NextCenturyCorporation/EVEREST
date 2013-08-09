@@ -3,44 +3,44 @@
 
 //location
 var locationModel = require('./location/model.js');
-this.location = locationModel.location;
+exports.location = locationModel.location;
 
 //comment
 var commentModel = require('./comment/model.js');
-this.comment = commentModel.comment;
+exports.comment = commentModel.comment;
 
 //raw feed
 var rawFeedModel = require('./raw_feed/model.js');
-this.rawFeed = rawFeedModel.rawFeed;
+exports.rawFeed = rawFeedModel.rawFeed;
 
 //alpha report
 var alphaReportModel = require('./alpha_report/model.js');
-this.alphaReport = alphaReportModel.alphaReport;
+exports.alphaReport = alphaReportModel.alphaReport;
 
 //assertion
 var assertionModel = require('./assertion/model.js');
-this.assertion = assertionModel.assertion;
+exports.assertion = assertionModel.assertion;
 
 //confirmed report
 var confirmedReportModel = require('./confirmed_report/model.js');
-this.confirmedReport = confirmedReportModel.confirmedReport;
+exports.confirmedReport = confirmedReportModel.confirmedReport;
 
 //event
 var eventModel = require('./event/model.js');
-this.event = eventModel.event;
+exports.event = eventModel.event;
 
 //incident
 var incidentModel = require('./incident/model.js');
-this.incident = incidentModel.incident;
+exports.incident = incidentModel.incident;
 
 //profile
 var profileModel = require('./profile/model.js');
-this.profile = profileModel.profile;
+exports.profile = profileModel.profile;
 
 //reporter
 var reporterModel = require('./reporter/model.js');
-this.reporter = reporterModel.reporter;
+exports.reporter = reporterModel.reporter;
 
 //target_assertion
 var targetAssertionModel = require('./target_assertion/model.js');
-this.targetAssertion = targetAssertionModel.targetAssertion;
+exports.targetAssertion = targetAssertionModel.targetAssertion;
