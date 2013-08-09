@@ -64,7 +64,7 @@ ConfirmedReport.prototype.create = function() {
 
 };
 
-ConfirmedReport.prototype.updateRequest = funtion() {
+ConfirmedReport.prototype.updateRequest = function() {
 
 };
 
