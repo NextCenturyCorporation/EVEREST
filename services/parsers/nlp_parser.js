@@ -40,17 +40,20 @@ this.parseAndSave = function(alpha_report_object, callback){
 				assertion_object.relationship = output.getRelationStringSync().toString();
 				assertion_object.entity2 = output.getEntity2StringSync().toString();
 				
-				assertion_service.saveAssertion(assertion_object, function(err, valid, newAssertion){
-					if (err){
-						logger.info("There was an error saving the parsed Assertion object.");
-					} else if(!valid.valid){
-						logger.info("Invalid assertion " + JSON.stringify(valid.errors));
-					} else {
-						logger.info("Callback version " + newAssertion);
-					}
-				});
+				assertion_service.saveAssertion(assertion_object, saveAssertionCallback);
+
 			}
 		}
+	}
+};
+
+var saveAssertionCallback = function(err, valid, newAssertion) {
+	if (err){
+		logger.info("There was an error saving the parsed Assertion object.");
+	} else if(!valid.valid){
+		logger.info("Invalid assertion " + JSON.stringify(valid.errors));
+	} else {
+		logger.info("Callback version " + newAssertion);
 	}
 };
 
@@ -64,7 +67,12 @@ var parseToTuples = function(textData, callback) {
 	
 	var tree = parser.parseSync(textData.text);
 	
-	logger.info(tree.toString());
+	var parsedTree = tree.toStringSync();
+
+	tuples.push({
+		original: textData.text,
+		annotated: parsedTree
+	});
 	
 	for (var i = 0; i < tree.sizeSync(); i++){
 		
@@ -72,7 +80,7 @@ var parseToTuples = function(textData, callback) {
 		var leaf = tree.getSync(i);
 		var numKids = leaf.lastChildSync().numChildrenSync();
 	
-		logger.info(leaf.toString());
+		var parsedLeaf = leaf.toStringSync();
 		
 		//get rid of punctuation?
 		var last = leaf.lastChildSync().lastChildSync().toStringSync();
@@ -83,9 +91,14 @@ var parseToTuples = function(textData, callback) {
 
 		if (output) {
 			tuples.push({
-					entity1: output.getEntity1StringSync().toString(),
-					relationship: output.getRelationStringSync().toString(),
-					entity2: output.getEntity2StringSync().toString()
+				sentence: parsedLeaf,
+				entity1: output.getEntity1StringSync().toString(),
+				relationship : output.getRelationStringSync().toString(),
+				entity2 : output.getEntity2StringSync().toString()
+			});
+		} else {
+			tuples.push({
+				sentence: parsedLeaf
 			});
 		}
 	}

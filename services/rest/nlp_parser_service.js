@@ -14,7 +14,7 @@ this.load = function(app, io, gcm, logger){
 		parse_reports(req.query, res);
 	});
 	
-	// 
+	// post text to get back tuples
 	app.post('/nlp-parser/parse/', function(req, res){
 		if(logger.DO_LOG){
 			logger.info('Request for nlp parser to parse text.');
@@ -23,6 +23,20 @@ this.load = function(app, io, gcm, logger){
 		nlp_parser.parseToTuples(req.body, function(tuples) {
 			if (tuples) {
 				res.json(tuples);
+			}
+			res.end();
+		});
+	});
+
+	// turn text into semanticgraphs
+	app.post('/nlp-parser/semanticgraph/', function(req, res){
+		if(logger.DO_LOG){
+			logger.info('Request for nlp parser to parse text to a semanticgraph.');
+		}
+		
+		nlp_parser.parseToSemanticGraphs(req.body, function(graphs) {
+			if (graphs) {
+				res.json(graphs);
 			}
 			res.end();
 		});
