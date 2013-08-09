@@ -56,6 +56,23 @@ app.configure('production', function(){
 //allow jsonp to be used with a callback on REST calls
 app.enable("jsonp callback");
 
+/**
+ *  allow Cross-Origin Resource Sharing (CORS)
+ *  for cross domain access
+ */
+
+app.all('*', function(req, res, next){
+  if (!req.get('Origin')) return next();
+  // use "*" here to accept any origin
+  res.set('Access-Control-Allow-Origin', '*');
+  res.set('Access-Control-Allow-Methods', 'GET, POST', 'DEL', 'DELETE', 'PUT', 'SEARCH');
+  res.set('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type');
+  // res.set('Access-Control-Allow-Max-Age', 3600);
+  if ('OPTIONS' == req.method) return res.send(200);
+  next();
+});
+
+
 //Custom error handler
 //This is modeled off the connect errorHandler
 //https://github.com/senchalabs/connect/blob/master/lib/middleware/errorHandler.js
