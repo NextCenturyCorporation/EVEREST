@@ -1,5 +1,3 @@
-var url = require('url');
-
 /**
  * This function is used to handle URL parameters (i.e. /scorecard?count=100)
  * This is extensible by just adding the url parameter that you want to implement
@@ -7,9 +5,9 @@ var url = require('url');
 **/
 var handle = function (req, handleCallback) {
 	var params = {};
-	if(req && req.url) {
+	if(req && req.query) {
 		
-		var queryData = url.parse(req.url,true).query;
+		var queryData = req.query;
 		
 		if(queryData.count) {
 			params.count = queryData.count;

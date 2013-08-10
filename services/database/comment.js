@@ -1,37 +1,15 @@
-/**
- * Runs while connected to a database
- */
-
 /*global require */
 // require is a global node function/keyword
 
-var winston = require('winston');
-var general = require('../wizard_service');
-var models = require('../../models/models');
+var CommentService = module.exports = function(models, log) {
+	var me = this;
 
-var logger = new (winston.Logger)({
-	//Make it log to both the console and a file 
-	transports : [new (winston.transports.Console)(),
-		new (winston.transports.File)({filename: 'logs/general.log'})] //,
-});
+	me.models = models;
+	me.logger = log;
+};
 
-/**
- * This gets the comments for the event wit the ID specified in the URL.
- * By default it returns 10, but can be overridden with ?count=#, up to 100
- *
- * EDIT: Instead of returning 10 events by default, we decided that for now,
- * having all events returned by default is more appropriate. This code is
- * subject to change.
- */
-this.getComments = function(index, opts, res){
-	var count = void 0;   // undefined;
-	if(opts.count){
-		count = opts.count;
-		//Limit to 100
-		if(count > 100){
-			count = 100;
-		}
-	}
+CommentService.prototype.listComments = function(opts, res){
+	//TODO params
 	models.event.find({_id:index}, 'comments', {sort: {timestamp: -1}}, function(err, docs){
 		if(err){
 			logger.error('Error getting comments',err);

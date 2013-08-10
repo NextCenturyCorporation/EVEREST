@@ -1,28 +1,12 @@
-var responseHandler = require('../wizard_service');
-
-var ConfirmedReport = module.exports = function(models, log) {
+var ConfirmedReport = module.exports = function(models, io, log) {
 	var me = this;
 
 	me.logger = log;
 	me.models = models;
+	me.io = io;
 };
 
-ConfirmedReport.prototype.listRequest = function(params, res) {
-	var me = this;
-
-	me.list({}, function(err, reports) {
-		if(err) {
-			var errMsg = "Error attempting to list confirmed reports";
-			me.logger.error("confirmedReport: " + errMsg, err);
-			responseHandler.send500(res, errMsg);
-		} else {
-			res.json(reports);
-			res.end();
-		}
-	});
-};
-
-ConfirmedReport.prototype.listFlattenedRequest = function() {
+ConfirmedReport.prototype.listFlattened = function(params, listFlatCallback) {
 	var me = this;
 };
 
@@ -39,22 +23,7 @@ ConfirmedReport.prototype.list = function(params, listCallback) {
 	});
 };
 
-ConfirmedReport.prototype.getRequest = function(id, res) {
-	var me = this;
-
-	me.get(id, function(err, report) {
-		if(err) {
-			var errMsg = "Error attempting to get confirmed report";
-			me.logger.error("confirmedReport: " + errMsg, err);
-			responseHandler.send500(res, errMsg);
-		} else {
-			res.json(report);
-			res.end();
-		}
-	});
-};
-
-ConfirmedReport.prototype.getFlattenedRequest = function(req, res) {
+ConfirmedReport.prototype.getFlattened = function(req, res) {
 	var me = this;
 };
 
@@ -73,25 +42,6 @@ ConfirmedReport.prototype.get = function(id, getCallback) {
 
 ConfirmedReport.prototype.flattenConfirmedReports = function(reports, callback) {
 	var me = this;
-};
-
-ConfirmedReport.prototype.createRequest = function(data, res) {
-	var me = this;
-
-	if(data.assertions) {
-		data.assertions = data.assertions.split(',');
-	}
-
-	me.create(data, function(err, newConfirmedReport) {
-		if(err) {
-			var errMsg = "Error attempting to create confirmed report";
-			me.logger.error("confirmedReport: " + errMsg, err);
-			responseHandler.send500(res, errMsg);
-		} else {
-			res.json({_id: newConfirmedReport._id});
-			res.end();
-		}
-	});
 };
 
 ConfirmedReport.prototype.create = function(data, createCallback) {
@@ -114,39 +64,8 @@ ConfirmedReport.prototype.create = function(data, createCallback) {
 	//});
 };
 
-ConfirmedReport.prototype.updateRequest = function() {
-
-};
-
 ConfirmedReport.prototype.update = function() {
 
-};
-
-ConfirmedReport.prototype.deleteRequest = function(id, res) {
-	var me = this;
-
-	me.delete({_id: id}, function(err, count) {
-		if(err) {
-			var errMsg = "Error attempting to delete confirmed report";
-			me.logger.error("confirmedReport: " + errMsg, err);
-			responseHandler.send500(res, errMsg);
-		} else {
-			res.json({deleted_count: count, _id: id});
-			res.end();
-		}
-	});
-};
-
-ConfirmedReport.prototype.deleteAllRequest = function(req, res) {
-	var me = this;
-	me.delete({}, function(err, count) {
-		if(err) {
-
-		} else {
-			res.json({deleted_count: count});
-			res.end();
-		}
-	});
 };
 
 ConfirmedReport.prototype.delete = function(paramsObject, deleteCallback) {
