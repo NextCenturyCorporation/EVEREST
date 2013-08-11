@@ -16,4 +16,7 @@ var commentDataModel = {
 var CommentSchema = new Schema(commentDataModel);
 var comment = mongoose.model('Comment', CommentSchema);
 
+var commentValidation = {};
+
 exports.comment = comment;
+exports.commentValidation = commentValidation;
