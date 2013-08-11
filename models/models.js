@@ -11,7 +11,8 @@ exports.comment = commentModel.comment;
 
 //raw feed
 var rawFeedModel = require('./raw_feed/model.js');
-exports.rawFeed = rawFeedModel.rawFeed;
+exports.rawFeed.model = rawFeedModel.rawFeed;
+exports.rawFeed.validation = rawFeedModel.rawFeedValidation;
 
 //alpha report
 var alphaReportModel = require('./alpha_report/model.js');

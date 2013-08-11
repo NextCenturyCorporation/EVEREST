@@ -1,15 +1,35 @@
-var rawFeedService = require('../database/raw_feed.js');
+var RawFeedService = require('../database/raw_feed.js');
+var responseHandler = require('../wizard_service');
 
-this.load = function(app, io, gcm, logger) {
+this.load = function(app, models, io, logger) {
+
+	me.app = app;
+	me.models = models;
+	me.io = io;
+	me.logger = logger;
+
+	var rawFeedService = new RawFeedService(models, io, logger);
 
 	// Get a list of all rawFeeds
 	app.get('/rawfeed/?', function(req, res){
 		if(logger.DO_LOG){ 
 			logger.info('Request for list of feeds');
 		}
-		rawFeedService.listFeeds(req.query, res);
+
+		//params
+		rawFeedService.list(req.query, function(err, rawFeeds){
+			if(err){
+				var errMsg = "Error listing raw feeds"
+				me.logger.error("RawFeed: "+err, err);
+				responseHandler.send500(res, errMsg);
+			} else {
+				res.json(rawFeeds);
+			}
+			res.end();
+		});
 	});
 	
+	/*
 	// Create
 	app.post('/rawfeed/?', function(req, res){
 		if(logger.DO_LOG){
@@ -49,5 +69,5 @@ this.load = function(app, io, gcm, logger) {
 		}
 		rawFeedService.deleteFeeds(res);
 	});
-	
+	*/
 };
