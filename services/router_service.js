@@ -4,14 +4,16 @@
 var models = require('../models/models');
 
 var routerService = module.exports = function(app, io, logger){
-	//require('./rest/alpha_report.js').load(app, io, gcm, logger);
+	var AlphaReport = require('./rest/alpha_report.js');
+	var alphaReport = new AlphaReport(app, models, io, logger)
+	
 	//require('./rest/assertion.js').load(app, io, gcm, logger);
-
-	var ConfirmedReport = require('./rest/confirmed_report.js');
-	var confirmedReport = new ConfirmedReport(app, models, io, logger);
 
 	var Comment = require('./rest/comment.js');
 	var comment = new Comment(app, models, io, logger);
+
+	var ConfirmedReport = require('./rest/confirmed_report.js');
+	var confirmedReport = new ConfirmedReport(app, models, io, logger);
 
 	//require('./rest/event.js').load(app, io, gcm, logger);
 	//require('./rest/incident.js').load(app, io, gcm, logger);

@@ -1,8 +1,14 @@
 var alphaReportService = require('../database/alpha_report.js');
 
-this.load = function(app, io, gcm, logger){
-	
-	//list all fields of all alpha reports
+var AlphaReport = module.exports = function(app, models, io, logger) {
+	var me = this;
+
+	me.logger = logger;
+	me.models = models;
+	me.app = app;
+	me.io = io;
+
+		//list all fields of all alpha reports
 	app.get('/alpha_report/?', function(req,res){
 		if(logger.DO_LOG){
 			logger.info('Request for a list of all alpha reports');
@@ -75,3 +81,4 @@ this.load = function(app, io, gcm, logger){
 		alphaReportService.deleteAlphaReports(res);
 	});
 };
+

@@ -43,8 +43,8 @@ exports.profileValidation = profileModel.profileValidation;
 
 //raw feed
 var rawFeedModel = require('./raw_feed/model.js');
-exports.rawFeed.model = rawFeedModel.rawFeed;
-exports.rawFeed.validation = rawFeedModel.rawFeedValidation;
+exports.rawFeed = rawFeedModel.rawFeed;
+exports.rawFeedValidation = rawFeedModel.rawFeedValidation;
 
 //reporter
 var reporterModel = require('./reporter/model.js');

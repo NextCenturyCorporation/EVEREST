@@ -10,64 +10,25 @@ var RawFeed = module.exports = function(models, io, log) {
 	me.validationModel = me.models.rawFeed.rawFeed;
 };
 
-RawFeed.prototype.listFeeds = function(opts, listCallback){
-	models.rawFeed.find({}, function(err, docs){
-		if(err){
-			logger.info("Error listing raw feeds "+err);
-			res.status(500);
-			res.json({error: 'Error'});
-		} else {
-			res.json(docs);
-		}
-		res.end();
-	});
+RawFeed.prototype.list = function(opts, listCallback){
+	var me = this;
+
+	me.models.rawFeed.find({}, listCallback);
 };
 
-/*
-
-this.getFeedRequest = function(id, opts, res){
-	this.getFeed(id, function(err, docs){
-		if(err) {
-			logger.info("Error getting raw feed "+err);
-			res.status(500);
-			res.json({error: 'Error'});
-		} else if(docs) {
-			res.json(docs);
-		} else {
-			res.status(404);
-			res.json({error: 'Not found'});
-		}
-		res.end();
-	});
+RawFeed.prototype.get = function(id, callback) {
+	var me = this;
+	
+	me.models.rawFeed.findById(id, callback);
 };
 
-this.getFeed = function(id, callback) {
-	models.rawFeed.findById(id, callback);
-};
-
-this.createFeed = function(data, res){
-	this.saveFeed(data, function(err, val, newFeed) {
-		if(err){
-			logger.error('Error saving raw_feed ', err);
-			res.status(500);
-			res.json({error: 'Error'});
-		} else if (!val.valid) {
-			logger.info('Invalid raw_feed ' + JSON.stringify(val.errors));
-			res.status(500);
-			res.json({error: val.errors}, data);
-		} else {
-			logger.info('Raw_feed saved ' + JSON.stringify(newFeed));
-			res.json({id:newFeed._id});
-		}
-		res.end();
-	});
-};
-
-this.saveFeed = function(data, saveCallback) {
-	this.validateFeed(data, function(valid) {
+RawFeed.prototype.create = function(data, saveCallback) {
+	var me = this;
+	
+	me.validateFeed(data, function(valid) {
 		if (valid.valid) {
 			logger.info("Valid raw_feed");
-			var newFeed = new models.rawFeed(data);
+			var newFeed = new me.models.rawFeed(data);
 			newFeed.createdDate = new Date();
 			newFeed.updatedDate = new Date();
 			newFeed.save(function(err){
@@ -83,7 +44,9 @@ this.saveFeed = function(data, saveCallback) {
 	});
 };
 
-this.validateFeed = function(data, valCallback) {
+RawFeed.prototype.validateFeed = function(data, valCallback) {
+	var me = this;
+	
 	// is the JSON semantically valid for the location object?
 	var valid = revalidator.validate(data, validationModel.rawFeedValidation);
 	if (valid.valid) {
@@ -98,36 +61,22 @@ this.validateFeed = function(data, valCallback) {
 	}	
 };
 
-this.readFeedByProperty = function(property, value, readCallback){
+RawFeed.prototype.readFeedByProperty = function(property, value, readCallback){
+	var me = this;
+	
 	if ( (property !== undefined) && (value !== undefined) ) {
-		var query = models.rawFeed.find({});
+		var query = me.models.rawFeed.find({});
 		query.where(property, value);
 		query.exec(readCallback);
 	}
 };
 
-this.updateFeed = function(id, data, res){
-	this.updateFeedX(id, data, function(err, val, updFeed) {
-		if(err){
-			logger.error('Error updating raw_feed', err);
-			res.status(500);
-			res.json({error: 'Error'});
-		} else if (!val.valid) {
-			logger.info('Invalid raw_feed ' + JSON.stringify(val.errors));
-			res.status(500);
-			res.json({error: val.errors}, data);
-		} else {
-			logger.info('Raw_feed updated ' + JSON.stringify(updFeed));
-			res.json({id:updFeed._id});
-		}
-		res.end();
-	});
-};
-
-this.updateFeedX = function(id, data, updCallback) {
+RawFeed.prototype.update = function(id, data, updCallback) {
+	var me = this;
+	
 	this.validateFeed(data, function(valid){
 		if (valid.valid) {
-			models.rawFeed.findById(id, function(err, docs){
+			me.models.rawFeed.findById(id, function(err, docs){
 				if(err) {
 					logger.info("Error getting raw_feed "+err);
 					updCallback(err, valid, data);
@@ -159,30 +108,8 @@ this.updateFeedX = function(id, data, updCallback) {
 	});
 };
 
-this.deleteFeed = function(id, data, res){
-	models.rawFeed.find({_id:id}, function(err, docs){
-		if(err || docs.length === 0){
-			logger.error('Error deleting raw feed ' + id, err);
-			res.status('500');
-			res.json({error: 'Invalid raw feed ' + id});
-			res.end();
-		} else {
-			for(var i = 0; i < docs.length; i++){
-				docs[i].remove();
-			}
-			res.json({status:'ok'});
-			res.end();
-		}//;
-	});
+RawFeed.prototype.delete = function(params, deleteCallback){
+	var me = this;
+	
+	me.models.rawFeed.remove(params, deleteCallback);
 };
-
-this.deleteFeeds = function(res){
-	models.rawFeed.find({}, function(err, docs){
-		for(var i = 0; i < docs.length; i++){
-			docs[i].remove();
-		}
-		res.json({status:'ok'});
-		res.end();
-	});
-};
-*/
