@@ -3,7 +3,7 @@
 
 var eventService = require('../database/event.js');
 
-var event = module.exports = function(app, models, io, logger) {
+var events = module.exports = function(app, models, io, logger) {
 	var me = this;
 
 	me.logger = logger;

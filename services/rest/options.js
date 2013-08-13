@@ -3,7 +3,7 @@
 
 var optionsService = require('../database/options.js');
 
-this.load = function(app, io, gcm, logger) {
+var options = module.exports = function(app, modules, io, logger) {
 	//Get all options for server
 	app.get('/options',function(req,res){
 		if(logger.DO_LOG){
