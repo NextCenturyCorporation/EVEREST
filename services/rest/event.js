@@ -3,9 +3,14 @@
 
 var eventService = require('../database/event.js');
 
-//FIXME need io and gcm
+var events = module.exports = function(app, models, io, logger) {
+	var me = this;
 
-this.load = function(app, io, gcm, logger) {
+	me.logger = logger;
+	me.app = app;
+	me.io = io;
+	me.models = models;
+
 	//Set up the route for listing all events
 	app.get('/events/?', function(req, res){
 		if(logger.DO_LOG){
@@ -19,7 +24,7 @@ this.load = function(app, io, gcm, logger) {
 		if(logger.DO_LOG){
 			logger.info("Receiving new event", req.body);
 		}
-		eventService.createEvent(req.body, res, io, gcm);
+		eventService.createEvent(req.body, res);
 	});
 	
 	//And the route for getting individual events
@@ -40,7 +45,7 @@ this.load = function(app, io, gcm, logger) {
 		if(logger.DO_LOG){
 			logger.info("New event for group "+req.params.id, req.body);
 		}
-		eventService.createGroupEvent(req.body, req.params.id, res, io, gcm);
+		eventService.createGroupEvent(req.body, req.params.id, res);
 	});
 	
 	//And the route for getting event groups

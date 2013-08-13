@@ -1,6 +1,6 @@
 /*global require*/
 // Identify require as a global function/keyword for JSHint
-
+/*
 var contactService = require('../database/contact.js');
 
 this.load = function(app, io, gcm, logger) {
@@ -43,4 +43,4 @@ this.load = function(app, io, gcm, logger) {
 		//contactService.deleteContact(req.params.id, req.body, res);
 		contactService.deleteContact(req.params.id, res);
 	});
-};
+};*/

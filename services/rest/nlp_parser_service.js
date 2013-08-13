@@ -1,7 +1,13 @@
 var alpha_report_service = require('../database/alpha_report.js');
 var nlp_parser = require('../parsers/nlp_parser.js');
 
-this.load = function(app, io, gcm, logger){
+var nlpParser = module.exports = function(app, models, io, logger){
+	var me = this;
+
+	me.logger = logger;
+	me.app = app;
+	me.io = io;
+	me.models = models;
 
 	nlp_parser.load(logger);
 	
@@ -11,7 +17,7 @@ this.load = function(app, io, gcm, logger){
 			logger.info('Request for nlp parser start.');
 		}
 		
-		parse_reports(req.query, res);
+		me.parse_reports(req.query, res);
 	});
 	
 	// post text to get back tuples
@@ -41,19 +47,19 @@ this.load = function(app, io, gcm, logger){
 			res.end();
 		});
 	});
-	
+
+	me.parse_reports = function(query, res){
+		alpha_report_service.readAlphaReports(function(err,docs){
+			if(err) {
+				logger.info({error: "Error getting all alpha reports "+err});
+			} else if(0 !== docs.length) {
+				for (var i = 0; i < docs.length; i++){
+					nlp_parser.parseAndSave(docs[i]);
+				}
+			} else {
+				logger.info({error: "Not found"});
+			}
+		});
+	};
 };
 
-var parse_reports = function(query, res){
-	alpha_report_service.readAlphaReports(function(err,docs){
-		if(err) {
-			logger.info({error: "Error getting all alpha reports "+err});
-		} else if(0 !== docs.length) {
-			for (var i = 0; i < docs.length; i++){
-				nlp_parser.parseAndSave(docs[i]);
-			}
-		} else {
-			logger.info({error: "Not found"});
-		}
-	});
-};

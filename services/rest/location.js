@@ -1,6 +1,13 @@
 var locationService = require('../database/location.js');
 
-this.load = function(app, io, gcm, logger) {
+var location = module.exports = function(app, models, io, logger) {
+	var me = this;
+
+	me.logger = logger;
+	me.app = app;
+	me.io = io;
+	me.models = models;
+
 	//list - lists full object
 	app.get('/location/?', function(req, res){
 		if(logger.DO_LOG){
