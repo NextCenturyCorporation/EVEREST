@@ -1,6 +1,13 @@
 var targetAssertionService = require('../database/target_assertion.js');
 
-this.load = function(app, io, gcm, logger) {
+var targetAssertion = module.exports = function(app, models, io, logger) {
+	var me = this;
+
+	me.logger = logger;
+	me.app = app;
+	me.io = io;
+	me.models = models;
+	
 	//list - lists full object
 	app.get('/target_assertion/?', function(req,res){
 		if(logger.DO_LOG){

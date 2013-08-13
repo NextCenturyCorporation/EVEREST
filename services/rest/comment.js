@@ -1,19 +1,33 @@
 /*global require*/
 // Identify require as a global function/keyword for JSHint
 
-var commentService = require('../database/comment.js');
+var CommentService = require('../database/comment.js');
+var responseHandler = require('../wizard_service');
 
-this.load = function(app, io, gcm, logger) {
-	//get a specific comment
-	app.get('/comment/:id([0-9a-f]+)',function(req,res){
-		if(logger.DO_LOG){
-			logger.info("Request for comments of "+req.params.id);
+var commentRoutes = module.exports = function(app, models, io, log) {
+	var me = this;
+
+	me.app = app;
+	me.models = models;
+	me.io = io;
+	me.logger = log;
+
+	var commentService = new CommentService(models, log);
+
+	/*
+	//TODO commented because handlers not yet implemented
+
+
+	me.app.get('/comment/?',function(req,res){
+		if(me.logger.DO_LOG){
+			me.logger.info("Request for list of comments");
 		}
-		commentService.getComments(req.params.id, req.query, res);
+
+		//commentService.getComments(req.query, res);
 	});
 	
 	//Add a comment
-	app.post('/comment/', function(req,res){
-		commentService.addComment(req.params.id, req.body, res, io);
-	});
+	me.app.post('/comment/', function(req,res){
+		//commentService.addComment(req.params.id, req.body, res, io);
+	});*/
 };

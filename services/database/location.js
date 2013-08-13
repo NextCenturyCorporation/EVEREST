@@ -6,7 +6,7 @@ var models = require('../../models/models');
 var validationModel = require('../../models/location/model.js');
 var bvalidator = require('../../models/location/bvalidator.js');
 var revalidator = require('revalidator');
-var paramHandler = require('../param_handler');
+var paramHandler = require('../list_default_handler');
 
 //Load and set up the logger
 var logger = new (winston.Logger)({
@@ -32,7 +32,7 @@ this.listLocations = function(req, res){
 };
 
 this.findLocations = function(req, callback) {
-	paramHandler.handle(req, function(params) {
+	paramHandler.handleDefaultParams(req, function(params) {
 		if (params !== null) {
 			models.location.find().limit(params.count).skip(params.offset).sort({_id: params.sort}).execFind(callback);
 		} else {

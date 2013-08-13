@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-this.assertionModel = {
+var assertionModel = {
 	createdDate: {type: Date},
 	updatedDate: {type: Date},	
 	alpha_report_id: {type: Schema.Types.ObjectId},
@@ -10,10 +10,10 @@ this.assertionModel = {
 	relationship: {type: String, required: true},
 	entity2: {type: String, required: true}
 };
-var AssertionSchema = new Schema(this.assertionModel);
-this.assertion = mongoose.model('Assertion', AssertionSchema);
+var AssertionSchema = new Schema(assertionModel);
+var assertion = mongoose.model('Assertion', AssertionSchema);
 
-this.assertionValidation= {
+var assertionValidation= {
 	properties: {
 		createdDate: {
 			description: 'Date this assertion was created in datastore',
@@ -49,3 +49,6 @@ this.assertionValidation= {
 		}
 	}	
 };
+
+exports.assertion = assertion;
+exports.assertionValidation = assertionValidation;

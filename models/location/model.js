@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-this.locationDataModel = {
+var locationDataModel = {
 	createdDate: {type: Date},
 	updatedDate: {type: Date},
 	name: {type: String, required:true},
@@ -10,53 +10,56 @@ this.locationDataModel = {
 	radius:	{type: Number, "default": 0, required: true}
 };
 
-var LocationSchema = new Schema(this.locationDataModel);
+var LocationSchema = new Schema(locationDataModel);
 LocationSchema.index({_id : -1}, {unique: true});
-this.location = mongoose.model('Location', LocationSchema);
+var location = mongoose.model('Location', LocationSchema);
 
 // Describe the JSON semantic validation schema
-this.locationValidation = {
-		properties: {
-			createdDate: {
-				description: 'Date this location was created in datastore',
-				type: 'date'
+var locationValidation = {
+	properties: {
+		createdDate: {
+			description: 'Date this location was created in datastore',
+			type: 'date'
+		},
+		updatedDate: {
+			description: 'Date this location was last updated in datastore',
+			type: 'date'
+		},
+		name: {
+			description: 'Name of the location',
+			type: 'string',
+			required: true
+		},
+		latitude: {
+			description: 'Latitude value for the location',
+			type: 'number',
+			minimum: -90.0,
+			maximum: 90.0,
+			messages: {
+				minimum: 'Expected number >= -90.0',
+				maximum: 'Expected number <= 90.0'
 			},
-			updatedDate: {
-				description: 'Date this location was last updated in datastore',
-				type: 'date'
+			required: true
+		},
+		longitude: {
+			description: 'Longitude value for the location',
+			type: 'number',
+			minimum: -180.0,
+			maximum: 180.0,
+			messages: {
+				minimum: 'Expected number >= -180.0',
+				maximum: 'Expected number <= 180.0'
 			},
-			name: {
-				description: 'Name of the location',
-				type: 'string',
-				required: true
-			},
-			latitude: {
-				description: 'Latitude value for the location',
-				type: 'number',
-				minimum: -90.0,
-				maximum: 90.0,
-				messages: {
-					minimum: 'Expected number >= -90.0',
-					maximum: 'Expected number <= 90.0'
-				},
-				required: true
-			},
-			longitude: {
-				description: 'Longitude value for the location',
-				type: 'number',
-				minimum: -180.0,
-				maximum: 180.0,
-				messages: {
-					minimum: 'Expected number >= -180.0',
-					maximum: 'Expected number <= 180.0'
-				},
-				required: true
-			},
-			radius: {
-				description: 'Radius in units of degrees',
-				type: 'number',
-				"default": 0,
-				required: true
-			}
-		}	
-	};
+			required: true
+		},
+		radius: {
+			description: 'Radius in units of degrees',
+			type: 'number',
+			"default": 0,
+			required: true
+		}
+	}	
+};
+
+exports.location = location;
+exports.locationValidation = locationValidation;

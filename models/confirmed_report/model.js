@@ -16,8 +16,6 @@ var confirmedReportModel = {
 var ConfirmedReportSchema = new Schema(confirmedReportModel);
 var confirmedReport = mongoose.model('ConfirmedReport', ConfirmedReportSchema);
 
-exports.confirmedReport = confirmedReport;
-
 var confirmedReportValidation = {
 	properties: {
 		created_date: {
@@ -64,3 +62,6 @@ var confirmedReportValidation = {
 		}
 	}
 };
+
+exports.confirmedReport = confirmedReport;
+exports.confirmedReportValidation = confirmedReportValidation;

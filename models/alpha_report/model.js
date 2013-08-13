@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var ObjectId = Schema.ObjectId;
 
-this.alphaReportModel = {
+var alphaReportModel = {
 	createdDate: {type: Date, "default": Date.now},
 	updatedDate: {type: Date, "default": Date.now},
 	raw_data_id: {type: ObjectId},
@@ -20,10 +20,10 @@ this.alphaReportModel = {
 	lang: {type: String}
 };
 
-var AlphaReportSchema = new Schema(this.alphaReportModel);
-this.alphaReport = mongoose.model('AlphaReport', AlphaReportSchema);
+var AlphaReportSchema = new Schema(alphaReportModel);
+var alphaReport = mongoose.model('AlphaReport', AlphaReportSchema);
 
-this.alphaReportValidation = {
+var alphaReportValidation = {
 	properties:{
 		createdDate: {
 			description: 'Date that this alpha report was created in datastore',
@@ -113,3 +113,6 @@ this.alphaReportValidation = {
 		}
 	}
 };
+
+exports.alphaReport = alphaReport;
+exports.alphaReportValidation = alphaReportValidation;

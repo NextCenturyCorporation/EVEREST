@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var ObjectId = Schema.ObjectId;
 
-this.reporterDataModel = {
+var reporterDataModel = {
 	createdDate: {type: Date},
 	updatedDate: {type: Date},
 	name: {type: String, required: true},
@@ -20,10 +20,10 @@ this.reporterDataModel = {
 	lang: {type: String}
 };
 
-var ReporterSchema = new Schema(this.reporterDataModel);
-this.reporter = mongoose.model('reporter', ReporterSchema);
+var ReporterSchema = new Schema(reporterDataModel);
+var reporter = mongoose.model('reporter', ReporterSchema);
 
-this.reporterValidation = {
+var reporterValidation = {
 	properties: {
 		createdDate: {
 			description: 'Date this reporter was created in datastore',
@@ -100,3 +100,6 @@ this.reporterValidation = {
 		}
 	}
 };
+
+exports.reporter = reporter;
+exports.reporterValidation = reporterValidation;

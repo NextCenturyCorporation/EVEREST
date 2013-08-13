@@ -1,17 +1,17 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-this.rawFeedModel = {
+ var rawFeedModel = {
 	createdDate: {type: Date, "default": Date.now},
 	updatedDate: {type: Date, "default": Date.now},
 	text: {type: String, required: true},
 	feedSource: {type: String, enum: ['Twitter', 'Email'], required: true}
 };
 
-var rawFeedSchema = new Schema(this.rawFeedModel);
-this.rawFeed = mongoose.model('rawFeed', rawFeedSchema);
+var rawFeedSchema = new Schema(rawFeedModel);
+var rawFeed = mongoose.model('rawFeed', rawFeedSchema);
 
-this.rawFeedValidation = {
+var rawFeedValidation = {
 	properties: {
 		createdDate: {
 			description: 'Date created in datastore',
@@ -37,3 +37,6 @@ this.rawFeedValidation = {
 		}
 	}
 };
+
+exports.rawFeed = rawFeed;
+exports.rawFeedValidation = rawFeedValidation;

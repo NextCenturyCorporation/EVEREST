@@ -1,6 +1,6 @@
 var profileService = require('../database/profile.js');
 
-this.load = function(app, io, gcm, logger) {
+var profile = module.exports = function(app, models, io, logger) {
 	//list - lists full object
 	app.get('/profile/?', function(req,res){
 		if(logger.DO_LOG){
