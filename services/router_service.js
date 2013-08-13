@@ -5,9 +5,10 @@ var models = require('../models/models');
 
 var routerService = module.exports = function(app, io, logger){
 	var AlphaReport = require('./rest/alpha_report.js');
-	var alphaReport = new AlphaReport(app, models, io, logger)
+	var alphaReport = new AlphaReport(app, models, io, logger);
 	
-	//require('./rest/assertion.js').load(app, io, gcm, logger);
+	var Assertion = require('./rest/assertion.js');
+	var asserion = new Assertion(app, models, io, logger);
 
 	var Comment = require('./rest/comment.js');
 	var comment = new Comment(app, models, io, logger);
@@ -15,7 +16,9 @@ var routerService = module.exports = function(app, io, logger){
 	var ConfirmedReport = require('./rest/confirmed_report.js');
 	var confirmedReport = new ConfirmedReport(app, models, io, logger);
 
-	//require('./rest/event.js').load(app, io, gcm, logger);
+	var Event = require('./rest/event.js');
+	var event = new Event(app, models, io, logger);
+	
 	//require('./rest/incident.js').load(app, io, gcm, logger);
 	//require('./rest/location.js').load(app, io, gcm, logger);
 	//require('./rest/nlp_parser_service.js').load(app, io, gcm, logger);
