@@ -11,4 +11,10 @@ config.db_collection = process.env.DB_COLLECTION || 'everest';
 
 config.log_level = process.env.LOG_LEVEL || 'info';
 
+config.paramDefaults = {
+	listCount: null,
+	listOffset: 0,
+	listSort: 1
+};
+
 module.exports = config;

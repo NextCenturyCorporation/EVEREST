@@ -141,7 +141,7 @@ var profile = module.exports = function(app, models, io, logger) {
 			logger.info("Deleting profile with id: " + req.params.id);
 		}
 		
-		me.profileService.delete({_id: req.params.id}, function(err) {
+		me.profileService.del({_id: req.params.id}, function(err) {
 			if(err){
 				logger.error('Error deleting profile ' + req.params.id, err);
 				res.status('500');
@@ -160,7 +160,7 @@ var profile = module.exports = function(app, models, io, logger) {
 			logger.info("Deleting all profiles");
 		}
 		
-		me.profileService.delete({}, function(err) {
+		me.profileService.del({}, function(err) {
 			if(err){
 				logger.error('Error deleting profiles', err);
 				res.status('500');

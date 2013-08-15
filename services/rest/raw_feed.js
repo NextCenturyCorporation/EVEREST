@@ -106,7 +106,7 @@ var RawFeed = module.exports = function(app, models, io, logger) {
 			logger.info("Deleting raw feed with id: " + id);
 		}
 
-		rawFeedService.delete({_id:id}, function(err){
+		rawFeedService.del({_id:id}, function(err){
 			if(err){
 				logger.error('Error deleting raw feed ' + id, err);
 				res.status('500');
@@ -125,7 +125,7 @@ var RawFeed = module.exports = function(app, models, io, logger) {
 			logger.info("Deleting all raw feed entries");
 		}
 		
-		rawFeedService.delete({}, function(err){
+		rawFeedService.del({}, function(err){
 			if(err){
 				logger.error('Error deleting raw feeds', err);
 				res.status('500');

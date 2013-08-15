@@ -163,7 +163,7 @@ profileService.prototype.update = function(id, data, updCallback) {
 	});
 };
 
-profileService.prototype.delete = function(config, deleteCallback) {
+profileService.prototype.del = function(config, deleteCallback) {
 	var me = this;
 
 	me.models.profile.remove(config, deleteCallback);

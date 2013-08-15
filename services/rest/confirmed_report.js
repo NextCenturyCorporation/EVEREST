@@ -59,7 +59,7 @@ module.exports = function(app, models, io, log) {
 
 		var id = req.params.id;
 
-		confirmedReportService.delete({_id: id}, function(err, count) {
+		confirmedReportService.del({_id: id}, function(err, count) {
 			if(err) {
 				var errMsg = "Error attempting to delete confirmed report";
 				me.logger.error("confirmedReport: " + errMsg, err);
@@ -76,7 +76,7 @@ module.exports = function(app, models, io, log) {
 		if(me.logger.DO_LOG){
 			me.logger.info('Deleting all confirmed report entries');
 		}
-		confirmedReportService.delete({}, function(err, count) {
+		confirmedReportService.del({}, function(err, count) {
 			if(err) {
 				var errMsg = "Error attempting to delete confirmed reports";
 				me.logger.error("confirmedReport: " + errMsg, err);

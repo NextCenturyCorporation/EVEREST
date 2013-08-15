@@ -108,7 +108,7 @@ RawFeed.prototype.update = function(id, data, updCallback) {
 	});
 };
 
-RawFeed.prototype.delete = function(params, deleteCallback){
+RawFeed.prototype.del = function(params, deleteCallback){
 	var me = this;
 	
 	me.models.rawFeed.remove(params, deleteCallback);

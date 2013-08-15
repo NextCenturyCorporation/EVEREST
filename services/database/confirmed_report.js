@@ -164,7 +164,7 @@ ConfirmedReport.prototype.update = function(id, data, updateCallback) {
 	});
 };
 
-ConfirmedReport.prototype.delete = function(paramsObject, deleteCallback) {
+ConfirmedReport.prototype.del = function(paramsObject, deleteCallback) {
 	var me = this;
 
 	me.models.confirmedReport.remove(paramsObject, deleteCallback);
