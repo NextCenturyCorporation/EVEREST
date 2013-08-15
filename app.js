@@ -48,8 +48,8 @@ app.configure(function(){
 	 */
 	app.all('*', function(req, res, next){
 		if (!req.get('Origin')) {
-	 		return next();
-	 	}
+			return next();
+		}
 		// use "*" here to accept any origin
 		res.set('Access-Control-Allow-Origin', '*');
 		res.set('Access-Control-Allow-Methods', 'GET, POST', 'DEL', 'DELETE', 'PUT', 'SEARCH');
