@@ -1,7 +1,7 @@
 var alpha_report_service = require('../database/alpha_report.js');
 var nlp_parser = require('../parsers/nlp_parser.js');
 
-var nlpParser = module.exports = function(app, models, io, logger){
+module.exports = function(app, models, io, logger){
 	var me = this;
 
 	me.logger = logger;
@@ -48,7 +48,7 @@ var nlpParser = module.exports = function(app, models, io, logger){
 		});
 	});
 
-	me.parse_reports = function(query, res){
+	me.parse_reports = function(){
 		alpha_report_service.readAlphaReports(function(err,docs){
 			if(err) {
 				logger.info({error: "Error getting all alpha reports "+err});
