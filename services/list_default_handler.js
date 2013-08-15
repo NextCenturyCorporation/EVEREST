@@ -18,7 +18,7 @@ var handleDefaultParams = function (incomingParams, handleCallback) {
 		params.offset = queryData.offset;
 	}
 	if(queryData.sort) {
-		params.sort = ((queryData.sort == 'desc') ? -1 : 1); 
+		params.sort = ((queryData.sort === 'desc') ? -1 : 1); 
 	}
 	handleCallback(params);
 };	
