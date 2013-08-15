@@ -9,7 +9,7 @@ var reporterDataModel = {
 	source_name: {type: String, enum:['Twitter', 'Email'], required: true},
 	source_id: {type: ObjectId},//needs to be object id
 	screen_name: {type: String},
-	location_name: {type: String}, 
+	location_name: {type: String},
 	email: {type: String},
 	phone: {type: String},
 	ip: {type: String},
@@ -35,13 +35,13 @@ var reporterValidation = {
 		},
 		name: {
 			description : 'The name of the reporter',
-			type: 'string', 
+			type: 'string',
 			required: true
 		},
 		source_name: {
 			description: 'The reporters source name',
-			type: 'string', 
-			enum:['Twitter', 'Email'], 
+			type: 'string',
+			enum:['Twitter', 'Email'],
 			required: true
 		},
 		source_id: {
@@ -55,7 +55,7 @@ var reporterValidation = {
 		location_name: {
 			description: 'Where the reporter is located',
 			type: 'string'
-		}, 
+		},
 		email: {
 			description: 'The reporters e-Mail address',
 			type: 'string',

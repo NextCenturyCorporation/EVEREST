@@ -20,7 +20,7 @@ var dataLayerRawFeed = require('../../services/database/raw_feed.js');
 		var errors = [];
 	
 		function done() {
-			var bVal = { valid: !(errors.length), errors: errors }; 
+			var bVal = { valid: !(errors.length), errors: errors };
 			callback(bVal);
 		}
 

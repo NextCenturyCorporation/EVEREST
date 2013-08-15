@@ -9,7 +9,7 @@ var alphaReportModel = {
 	source_name: {type: String, enum: ['Twitter', 'Email'], required: true},
 	source_id: {type: String, required: true}, //FIXME   what is this? id from source
 	message_date: {type: Date},
-	message_body: {type: String}, 
+	message_body: {type: String},
 	reporter_id: {type: ObjectId},
 	location_name: {type: String}, //FIXME   why is this here? name from twitter
 	longitude: {type: Number},
@@ -39,8 +39,8 @@ var alphaReportValidation = {
 		},
 		source_name: {
 			description: "The alpha report's source name",
-			type: 'string', 
-			enum:['Twitter', 'Email'], 
+			type: 'string',
+			enum:['Twitter', 'Email'],
 			required: true
 		},
 		source_id: {
@@ -55,7 +55,7 @@ var alphaReportValidation = {
 		message_body: {
 			description: "The message body of the alpha report",
 			type: 'string'
-		}, 
+		},
 		reporter_id: {
 			description: "The id of the reporter who created the message for this alpha report",
 			type: 'string'

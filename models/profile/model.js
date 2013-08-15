@@ -3,7 +3,7 @@ var Schema = mongoose.Schema;
 
 var profileModel = {
 		createdDate: {type: Date},
-		updatedDate: {type: Date},	
+		updatedDate: {type: Date},
 		name: {type: String, required:true},
 		email: {type: String}
 };
@@ -31,7 +31,7 @@ var profileValidation = {
 			type: 'string',
 			format: 'email'
 		}
-	}	
+	}
 };
 
 exports.profile = profile;

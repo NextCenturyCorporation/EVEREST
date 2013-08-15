@@ -6,13 +6,13 @@ var entity = new Schema({
 	value: {type: String, required: true},
 	x: {type: Number},
 	y: {type: Number},
-	color: {type: String, trim:true}	
+	color: {type: String, trim:true}
 });
 
 var relationship = new Schema({
 	name: {type: String},
 	value: {type: String, required: true},
-	color: {type: String, trim:true},	
+	color: {type: String, trim:true}
 });
 
 var targetAssertionModel = {
@@ -50,7 +50,7 @@ var targetAssertionValidation = {
 			description: 'Description of the assertion',
 			type: 'string'
 		}
-	}	
+	}
 };
 
 exports.targetAssertion = targetAssertion;

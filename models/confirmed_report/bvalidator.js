@@ -24,7 +24,7 @@ questionValidation.prototype.validate = function(object, callback) {
 	var errors = [];
 
 	function done() {
-		var bVal = { valid: !(errors.length), errors: errors }; 
+		var bVal = { valid: !(errors.length), errors: errors };
 		callback(bVal);
 	}
 
@@ -41,7 +41,7 @@ questionValidation.prototype.validateObject = function(object, errors, done) {
 		if (!found) {
 			me.error(property, value, errors, "Alpha report could not be found based on " + property);
 			me.logger.info("questionExists " + value);
-		} 
+		}
 
 		value = object.target_event_id;
 		property = 'target_event_id';
@@ -91,7 +91,7 @@ questionValidation.prototype.alphaReportExists = function(value, errors, callbac
 			callback(err, false);
 		}
 	});
-};  
+};
 
 questionValidation.prototype.targetEventIsValid = function(/*value, errors, callback*/) {
 	

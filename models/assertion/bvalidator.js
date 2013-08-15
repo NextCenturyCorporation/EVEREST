@@ -21,7 +21,7 @@ var dataLayerAssertion = require('../../services/database/assertion.js');
 		var errors = [];
 	
 		function done() {
-			var bVal = { valid: !(errors.length), errors: errors }; 
+			var bVal = { valid: !(errors.length), errors: errors };
 			callback(bVal);
 		}
 
