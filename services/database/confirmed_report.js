@@ -1,4 +1,7 @@
+var async = require('async');
+
 var AlphaReportService = require('./alpha_report');
+var ProfileService = require('./profile');
 
 var ConfirmedReport = module.exports = function(models, io, log) {
 	var me = this;
@@ -20,7 +23,7 @@ ConfirmedReport.prototype.listFlattened = function(params, listFlatCallback) {
 					report = updatedReport;
 				}
 				callback(err);
-			})
+			});
 		}, function(err) {
 			listFlatCallback(err, reports);
 		});
@@ -46,7 +49,7 @@ ConfirmedReport.prototype.getFlattened = function(id, callback) {
 	me.get(id, function(err, report) {
 		//FIXME handle err
 		me.flattenConfirmedReport(report, callback);
-	})
+	});
 };
 
 ConfirmedReport.prototype.get = function(id, getCallback) {
@@ -65,7 +68,7 @@ ConfirmedReport.prototype.get = function(id, getCallback) {
 ConfirmedReport.prototype.flattenConfirmedReport = function(report, callback) {
 	var me = this;
 
-	var fieldsToFlatten = ['alpha_report_id', 'target_event_id', 'profile_id', 'assertions']
+	var fieldsToFlatten = ['alpha_report_id', 'target_event_id', 'profile_id', 'assertions'];
 
 	async.each(fieldsToFlatten, function(field, fieldCallback) {
 		if(field === 'assertions' && report.assertions.length > 0) {
@@ -73,9 +76,9 @@ ConfirmedReport.prototype.flattenConfirmedReport = function(report, callback) {
 			async.each(report.assertions, function(assertion, assertionCallback) {
 				me.flattenField(report, assertion, function(err, flattenedField) {
 					if(err) {
-						assertionCallback(err)
+						assertionCallback(err);
 					} else {
-						flattenedAssertions.put(flattenField);
+						flattenedAssertions.put(flattenedField);
 						assertionCallback();
 					}
 				});
@@ -84,23 +87,25 @@ ConfirmedReport.prototype.flattenConfirmedReport = function(report, callback) {
 				fieldCallback(err);
 			});
 		} else {
-			if(typeof(report[field]) !== 'undefined' && report[field] != null) {
+			if(typeof(report[field]) !== 'undefined' && report[field] !== null) {
 				me.flattenField(report, field, function(err, flattenedField) {
 					if(err) {
-						fieldCallback(err)
+						fieldCallback(err);
 					} else {
-						report[field] = flattenField;
+						report[field] = flattenedField;
 						fieldCallback();
 					}
 				});
 			}
 		}
 	},function(err) {
-		callback(err, report)
-	}
+		callback(err, report);
+	});
 };
 
 ConfirmedReport.prototype.flattenField = function(report, field, callback) {
+	var me = this;
+
 	if(field === 'alpha_report_id') {
 		var alphaReportService = new AlphaReportService(me.models, me.io, me.logger);
 
@@ -108,11 +113,10 @@ ConfirmedReport.prototype.flattenField = function(report, field, callback) {
 	} else if(field === 'target_event_id') {
 		//need service;
 		//temp callback to allow for running;
-		callback(err, report.target_event_id);
-	} else if(field == 'profile_id') {
-		//need to update service
-		//temp callback to allow for running;
-		callback(err, report.profile_id);
+		callback(null, report.target_event_id);
+	} else if(field === 'profile_id') {
+		var profileService = new ProfileService(me.models, me.io, me.logger);
+		profileService.get(report.profile_id, callback);
 	}
 };
 
