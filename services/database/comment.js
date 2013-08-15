@@ -1,6 +1,8 @@
 /*global require */
 // require is a global node function/keyword
 
+var general = require('../wizard_service');
+
 var CommentService = module.exports = function(models, log) {
 	var me = this;
 
@@ -9,11 +11,16 @@ var CommentService = module.exports = function(models, log) {
 };
 
 CommentService.prototype.listComments = function(opts, res){
+	var me = this;
+
+	var count = 10;
+
 	//TODO params
-	models.event.find({_id:index}, 'comments', {sort: {timestamp: -1}}, function(err, docs){
+	me.models.event.find({}, 'comments', {sort: {timestamp: -1}}, function(err, docs){
 		if(err){
-			logger.error('Error getting comments',err);
-			general.send500(res);
+			me.logger.error('Error getting comments',err);
+			res.status(500);
+			res.json({status: "Error"});
 		} else if(docs.length > 0){
 			//Comments are sorted newest first
 			if(opts.after){
@@ -51,13 +58,15 @@ CommentService.prototype.listComments = function(opts, res){
  * On success, it returns status:'Success', and it emits a
  * Socket.io message with the id of the event.
  */
-this.addComment = function(id, req, res, io){
-	models.event.find({_id:id}, 'comments GID', {sort: {timestamp: 1}}, function(err,docs){
+CommentService.prototype.addComment = function(id, req, res, io){
+	var me = this;
+
+	me.models.event.find({_id:id}, 'comments GID', {sort: {timestamp: 1}}, function(err,docs){
 		if(err || docs.length === 0){
-			logger.error('Error adding comment',err);
+			me.logger.error('Error adding comment',err);
 			general.send500(res);
 		} else {
-			var newComment = new models.comment(req);
+			var newComment = new me.models.comment(req);
 			docs[0].comments.push(newComment);
 			docs[0].comments.sort(function(a,b){
 				if(a.timestmp > b.timestmp){
