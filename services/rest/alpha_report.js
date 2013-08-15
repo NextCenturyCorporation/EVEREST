@@ -1,6 +1,6 @@
 var alphaReportService = require('../database/alpha_report.js');
 
-var AlphaReport = module.exports = function(app, models, io, logger) {
+module.exports = function(app, models, io, logger) {
 	var me = this;
 
 	me.logger = logger;
