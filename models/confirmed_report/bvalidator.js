@@ -78,33 +78,44 @@ questionValidation.prototype.validateObject = function(object, errors, done) {
 questionValidation.prototype.alphaReportExists = function(value, errors, callback) {
 	var me = this;
 
-	me.services.alphaReportService.findWhere({_id: value}, function(err, docs) {
+	me.services.alphaReportService.get(value, function(err, docs) {
 		if (err) {
 			me.error('name', value, errors, 'Error reading question string ' + err);
-			me.logger.error("Error getting scorecardQuestion by question string ", err);
+			me.logger.error("Error getting alphaReport by question string ", err);
 			callback(err, false);
 		} else if (0 !== docs.length) {
-			me.logger.info("ScorecardQuestion found for questionExists" + JSON.stringify(docs));
+			me.logger.info("Alpha Report found for alphaReportExists" + JSON.stringify(docs));
 			callback(err, true);
 		} else {
-			me.logger.info("ScorecardQuestion question string not found " + value);
+			me.logger.info("Alpha Report not found " + value);
 			callback(err, false);
 		}
 	});
 };  
 
-questionValidation.prototype.targetEventIsValid = function(value, errors, callback) {
-	var me = this;
-	//FIXME
+questionValidation.prototype.targetEventIsValid = function(/*value, errors, callback*/) {
+	
 };
 
 questionValidation.prototype.profileIsValid = function(value, errors, callback) {
 	var me = this;
-	//FIXME
+	
+	me.services.profileService.get(value, function(err, docs) {
+		if (err) {
+			me.error('name', value, errors, 'Error reading question string ' + err);
+			me.logger.error("Error getting profile by id ", err);
+			callback(err, false);
+		} else if (0 !== docs.length) {
+			me.logger.info("Profile found for profile" + JSON.stringify(docs));
+			callback(err, true);
+		} else {
+			me.logger.info("Profile string not found " + value);
+			callback(err, false);
+		}
+	});
 };
 
-questionValidation.prototype.assertionsAreValid = function(value, errors, callback) {
-	var me = this;
+questionValidation.prototype.assertionsAreValid = function(/*value, errors, callback*/) {
 	//FIXME
 };
   
