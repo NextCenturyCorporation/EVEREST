@@ -21,12 +21,12 @@ var confirmedReportValidation = {
 		created_date: {
 			description: 'Date this reporter was created in datastore',
 			type: 'date',
-			default: 'Date.now'
+			"default": 'Date.now'
 		},
 		updated_date: {
 			description: 'Date this reporter was updated in datastore',
 			type: 'date',
-			default: 'Date.now'
+			"default": 'Date.now'
 		},
 		alpha_report_id: {
 			description: 'alpha_report from which this confirmed report was derived',
@@ -40,7 +40,7 @@ var confirmedReportValidation = {
 		target_event_percentage: {
 			description: 'percentage match to target event (value between 0.0 and 1. 0)',
 			type: 'number',
-			default: 1.0,
+			"default": 1.0,
 			minimum: 0,
 			maximum: 1.0,
 			messages: {

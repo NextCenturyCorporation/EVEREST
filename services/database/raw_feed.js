@@ -45,7 +45,6 @@ RawFeed.prototype.create = function(data, saveCallback) {
 };
 
 RawFeed.prototype.validateFeed = function(data, valCallback) {
-	var me = this;
 	
 	// is the JSON semantically valid for the location object?
 	var valid = revalidator.validate(data, validationModel.rawFeedValidation);
