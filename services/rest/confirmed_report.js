@@ -4,7 +4,7 @@
 var ConfirmedReportService = require('../database/confirmed_report.js');
 var responseHandler = require('../wizard_service');
 
-var ConfirmedReportRoutes = module.exports = function(app, models, io, log) {
+module.exports = function(app, models, io, log) {
 	var me = this;
 
 	me.app = app;
@@ -117,11 +117,13 @@ var ConfirmedReportRoutes = module.exports = function(app, models, io, log) {
 			me.logger.info('Update confirmed report ' + req.params.id);
 		}
 
+		var data = req.body;
+
 		if(data.assertions) {
 			data.assertions = data.assertions.split(',');
 		}
 
-		confirmedReportService.update(req.params.id, req.body, function(err, newConfirmedReport) {
+		confirmedReportService.update(req.params.id, data, function(err, newConfirmedReport) {
 			if(err) {
 				var errMsg = "Error attempting to update confirmed report";
 				me.logger.error("confirmedReport: " + errMsg, err);
