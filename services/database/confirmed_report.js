@@ -1,3 +1,5 @@
+var AlphaReportService = require('./alpha_report');
+
 var ConfirmedReport = module.exports = function(models, io, log) {
 	var me = this;
 
@@ -8,6 +10,21 @@ var ConfirmedReport = module.exports = function(models, io, log) {
 
 ConfirmedReport.prototype.listFlattened = function(params, listFlatCallback) {
 	var me = this;
+
+	me.list(params, function(err, reports) {
+		//FIXME handle err;
+		//handle none;
+		async.each(reports, function(report, callback) {
+			me.flattenConfirmedReport(report, function(err, updatedReport) {
+				if(!err) {
+					report = updatedReport;
+				}
+				callback(err);
+			})
+		}, function(err) {
+			listFlatCallback(err, reports);
+		});
+	});
 };
 
 ConfirmedReport.prototype.list = function(params, listCallback) {
@@ -23,8 +40,13 @@ ConfirmedReport.prototype.list = function(params, listCallback) {
 	});
 };
 
-ConfirmedReport.prototype.getFlattened = function(req, res) {
+ConfirmedReport.prototype.getFlattened = function(id, callback) {
 	var me = this;
+
+	me.get(id, function(err, report) {
+		//FIXME handle err
+		me.flattenConfirmedReport(report, callback);
+	})
 };
 
 ConfirmedReport.prototype.get = function(id, getCallback) {
@@ -40,8 +62,58 @@ ConfirmedReport.prototype.get = function(id, getCallback) {
 	});
 };
 
-ConfirmedReport.prototype.flattenConfirmedReports = function(reports, callback) {
+ConfirmedReport.prototype.flattenConfirmedReport = function(report, callback) {
 	var me = this;
+
+	var fieldsToFlatten = ['alpha_report_id', 'target_event_id', 'profile_id', 'assertions']
+
+	async.each(fieldsToFlatten, function(field, fieldCallback) {
+		if(field === 'assertions' && report.assertions.length > 0) {
+			var flattenedAssertions = [];
+			async.each(report.assertions, function(assertion, assertionCallback) {
+				me.flattenField(report, assertion, function(err, flattenedField) {
+					if(err) {
+						assertionCallback(err)
+					} else {
+						flattenedAssertions.put(flattenField);
+						assertionCallback();
+					}
+				});
+			}, function(err) {
+				report.assertions = flattenedAssertions;
+				fieldCallback(err);
+			});
+		} else {
+			if(typeof(report[field]) !== 'undefined' && report[field] != null) {
+				me.flattenField(report, field, function(err, flattenedField) {
+					if(err) {
+						fieldCallback(err)
+					} else {
+						report[field] = flattenField;
+						fieldCallback();
+					}
+				});
+			}
+		}
+	},function(err) {
+		callback(err, report)
+	}
+};
+
+ConfirmedReport.prototype.flattenField = function(report, field, callback) {
+	if(field === 'alpha_report_id') {
+		var alphaReportService = new AlphaReportService(me.models, me.io, me.logger);
+
+		alphaReportService.get(report.alpha_report_id, callback);
+	} else if(field === 'target_event_id') {
+		//need service;
+		//temp callback to allow for running;
+		callback(err, report.target_event_id);
+	} else if(field == 'profile_id') {
+		//need to update service
+		//temp callback to allow for running;
+		callback(err, report.profile_id);
+	}
 };
 
 ConfirmedReport.prototype.create = function(data, createCallback) {
@@ -64,8 +136,28 @@ ConfirmedReport.prototype.create = function(data, createCallback) {
 	//});
 };
 
-ConfirmedReport.prototype.update = function() {
+ConfirmedReport.prototype.update = function(id, data, updateCallback) {
+	var me = this;
 
+	me.get(id, function(err, confirmedReport) {
+		if(err) {
+			me.logger.error("Error getting confirmed report for updating;", err);
+			updateCallback(err, null);
+		} else if(typeof(confirmedReport) === 'undefined' || !confirmedReport) {
+			me.logger.error("Could not find a confirmed report for updating with id " + id, err);
+			updateCallback(err, null);
+		} else {
+			async.each(Object.keys(data), function(key, eachCallback) {
+				confirmedReport[key] = data[key];
+				eachCallback();
+			}, function(err) {
+				//validate
+				confirmedReport.save(function(err) {
+					updateCallback(err, confirmedReport);
+				});
+			});
+		}
+	});
 };
 
 ConfirmedReport.prototype.delete = function(paramsObject, deleteCallback) {
