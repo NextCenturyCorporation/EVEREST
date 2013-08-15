@@ -2,11 +2,11 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var confirmedReportModel = {
-	created_date: {type: Date, default: Date.now},
-	updated_date: {type: Date, default: Date.now},
+	created_date: {type: Date, "default": Date.now},
+	updated_date: {type: Date, "default": Date.now},
 	alpha_report_id: {type: Schema.Types.ObjectId, required: true},
 	target_event_id: {type: Schema.Types.ObjectId},
-	target_event_percentage: {type: Number, default: 1.0},
+	target_event_percentage: {type: Number, "default": 1.0},
 	profile_id: {type: Schema.Types.ObjectId},
 	confirmed_date: {type: Date},
 	assertions: [{type: Schema.Types.ObjectId}]
