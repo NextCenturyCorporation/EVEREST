@@ -59,7 +59,7 @@ exports.listTargetAssertionNames = listTargetAssertionNames;
  * On success, it returns id:<ID-hash>
  */
 var createTargetAssertion = function(data, res){
-	saveTargetAssertion(data, function(err, val, newLoc) {
+	saveTargetAssertion(data, function(err, val, newObj) {
 		if(err){
 			logger.error('Error saving target_assertion', err);
 			res.status(500);
@@ -67,10 +67,10 @@ var createTargetAssertion = function(data, res){
 		} else if (!val.valid) {
 			logger.info('Invalid target_assertion ' + JSON.stringify(val.errors));
 			res.status(500);
-			res.json({error: val.errors}, data);
+			res.json({error: val.errors});
 		} else {
-			logger.info('TargetAssertion saved ' + JSON.stringify(newLoc));
-			res.json({id:newLoc._id});
+			logger.info('TargetAssertion saved ' + JSON.stringify(newObj));
+			res.json({id:newObj._id});
 		}
 		res.end();
 	});
@@ -91,14 +91,14 @@ var saveTargetAssertion = function(data, saveCallback) {
 	validateTargetAssertion(data, function(valid) {
 		if (valid.valid) {
 			logger.info("Valid target_assertion");
-			var newLoc = new models.targetAssertion(data);
-			newLoc.createdDate = new Date();
-			newLoc.updatedDate = new Date();
-			newLoc.save(function(err){
+			var newObj = new models.targetAssertion(data);
+			newObj.createdDate = new Date();
+			newObj.updatedDate = new Date();
+			newObj.save(function(err){
 				if(err){
 					logger.error('Error saving target_assertion', err);
 				}
-				saveCallback(err, valid, newLoc);
+				saveCallback(err, valid, newObj);
 			});
 		}
 		else {
