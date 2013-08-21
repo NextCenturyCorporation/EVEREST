@@ -2,6 +2,7 @@ var async = require('async');
 
 var AlphaReportService = require('./alpha_report');
 var ProfileService = require('./profile');
+var TargetAssertionService = require('./target_assertion');
 
 var ConfirmedReport = module.exports = function(models, io, log) {
 	var me = this;
@@ -37,7 +38,7 @@ ConfirmedReport.prototype.list = function(params, listCallback) {
 		if(err) {
 			var errMsg = "Error in retrieving list of confirmed reports";
 			me.logger.error("confirmeedReport: " + errMsg, err);
-		} 
+		}
 		
 		listCallback(err, confirmedReports);
 	});
@@ -59,7 +60,7 @@ ConfirmedReport.prototype.get = function(id, getCallback) {
 		if(err) {
 			var errMsg = "Error in retrieving confirmed report";
 			me.logger.error("confirmeedReport: " + errMsg, err);
-		} 
+		}
 		
 		getCallback(err, confirmedReport);
 	});
@@ -68,7 +69,7 @@ ConfirmedReport.prototype.get = function(id, getCallback) {
 ConfirmedReport.prototype.flattenConfirmedReport = function(report, callback) {
 	var me = this;
 
-	var fieldsToFlatten = ['alpha_report_id', 'target_event_id', 'profile_id', 'assertions'];
+	var fieldsToFlatten = ['alpha_report_id', 'target_assertion_id', 'profile_id', 'assertions'];
 
 	async.each(fieldsToFlatten, function(field, fieldCallback) {
 		if(field === 'assertions' && report.assertions.length > 0) {
@@ -110,10 +111,9 @@ ConfirmedReport.prototype.flattenField = function(report, field, callback) {
 		var alphaReportService = new AlphaReportService(me.models, me.io, me.logger);
 
 		alphaReportService.get(report.alpha_report_id, callback);
-	} else if(field === 'target_event_id') {
-		//need service;
-		//temp callback to allow for running;
-		callback(null, report.target_event_id);
+	} else if(field === 'target_assertion_id') {
+		var targetAssertionService = new TargetAssertionService(me.models, me.io, me.logger);
+		targetAssertionService.get(report.target_assertion_id, callback);
 	} else if(field === 'profile_id') {
 		var profileService = new ProfileService(me.models, me.io, me.logger);
 		profileService.get(report.profile_id, callback);
