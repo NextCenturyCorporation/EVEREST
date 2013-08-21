@@ -1,6 +1,7 @@
 /**
  * location business validation library
  */
+var async = require('async');
 
 var questionValidation = module.exports = function(services, logger) {
 	var me = this;
@@ -13,9 +14,9 @@ var questionValidation = module.exports = function(services, logger) {
 	*/
 	me.messages = {
 		alpha_report_id: "Alpha report id is invalid",
-		target_event_id: "",
-		profile_id: "",
-		assertions: ""
+		target_assertion_id: "Target assertion id is invalid",
+		profile_id: "Profile id is invalid",
+		assertions: "Assertions are invalid"
 	};
 };
 
@@ -80,8 +81,8 @@ questionValidation.prototype.alphaReportExists = function(value, errors, callbac
 
 	me.services.alphaReportService.get(value, function(err, docs) {
 		if (err) {
-			me.error('name', value, errors, 'Error reading question string ' + err);
-			me.logger.error("Error getting alphaReport by question string ", err);
+			me.error('alpha_report_id', value, errors, 'Error reading alpha_report_id ' + err);
+			me.logger.error("Error getting alphaReport by id ", err);
 			callback(err, false);
 		} else if (0 !== docs.length) {
 			me.logger.info("Alpha Report found for alphaReportExists" + JSON.stringify(docs));
@@ -93,8 +94,22 @@ questionValidation.prototype.alphaReportExists = function(value, errors, callbac
 	});
 };
 
-questionValidation.prototype.targetEventIsValid = function(/*value, errors, callback*/) {
-	
+questionValidation.prototype.targetAssertionIsValid = function(value, errors, callback) {
+	var me = this;
+
+	me.services.targetAssertionService.get(value, function(err, docs) {
+		if (err) {
+			me.error('target_assertion_id', value, errors, 'Error reading target assertion ' + err);
+			me.logger.error("Error getting targetAssertion by id ", err);
+			callback(err, false);
+		} else if (0 !== docs.length) {
+			me.logger.info("Target Assertion found for targetAssertionIsValid" + JSON.stringify(docs));
+			callback(err, true);
+		} else {
+			me.logger.info("Target Assertion not found " + value);
+			callback(err, false);
+		}
+	});
 };
 
 questionValidation.prototype.profileIsValid = function(value, errors, callback) {
@@ -102,7 +117,7 @@ questionValidation.prototype.profileIsValid = function(value, errors, callback) 
 	
 	me.services.profileService.get(value, function(err, docs) {
 		if (err) {
-			me.error('name', value, errors, 'Error reading question string ' + err);
+			me.error('profile_id', value, errors, 'Error reading profile ' + err);
 			me.logger.error("Error getting profile by id ", err);
 			callback(err, false);
 		} else if (0 !== docs.length) {
@@ -115,8 +130,30 @@ questionValidation.prototype.profileIsValid = function(value, errors, callback) 
 	});
 };
 
-questionValidation.prototype.assertionsAreValid = function(/*value, errors, callback*/) {
-	//FIXME
+questionValidation.prototype.assertionsAreValid = function(value, errors, callback) {
+	var me = this;
+
+	async.each(value, function(assertion, eachCallback) {
+		me.services.profileService.get(assertion, function(err, assertionDoc) {
+			if (err) {
+				me.error('assertions', value, errors, 'Error reading assertion ' + err);
+				me.logger.error("Error getting assertion by id ", err);
+				eachCallback(err);
+			} else if (0 !== assertionDoc.length) {
+				me.logger.info("Assertion found for assertionsAreValid" + JSON.stringify(assertionDoc));
+				eachCallback(err);
+			} else {
+				me.logger.info("Assertion not found " + value);
+				eachCallback(err);
+			}
+		});
+	}, function(err) {
+		if(err) {
+			callback(err, false);
+		} else {
+			callback(err, true);
+		}
+	});
 };
   
 	
