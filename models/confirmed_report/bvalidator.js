@@ -14,7 +14,7 @@ var questionValidation = module.exports = function(services, logger) {
 	*/
 	me.messages = {
 		alpha_report_id: "Alpha report id is invalid",
-		target_assertion_id: "Target assertion id is invalid",
+		target_event_id: "Target event id is invalid",
 		profile_id: "Profile id is invalid",
 		assertions: "Assertions are invalid"
 	};
@@ -94,22 +94,8 @@ questionValidation.prototype.alphaReportExists = function(value, errors, callbac
 	});
 };
 
-questionValidation.prototype.targetAssertionIsValid = function(value, errors, callback) {
-	var me = this;
-
-	me.services.targetAssertionService.get(value, function(err, docs) {
-		if (err) {
-			me.error('target_assertion_id', value, errors, 'Error reading target assertion ' + err);
-			me.logger.error("Error getting targetAssertion by id ", err);
-			callback(err, false);
-		} else if (0 !== docs.length) {
-			me.logger.info("Target Assertion found for targetAssertionIsValid" + JSON.stringify(docs));
-			callback(err, true);
-		} else {
-			me.logger.info("Target Assertion not found " + value);
-			callback(err, false);
-		}
-	});
+questionValidation.prototype.targetEventIsValid = function(value, errors, callback) {
+	callback(null, true);
 };
 
 questionValidation.prototype.profileIsValid = function(value, errors, callback) {

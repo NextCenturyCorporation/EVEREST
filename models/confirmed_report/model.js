@@ -5,8 +5,8 @@ var confirmedReportModel = {
 	created_date: {type: Date, "default": Date.now},
 	updated_date: {type: Date, "default": Date.now},
 	alpha_report_id: {type: Schema.Types.ObjectId, required: true},
-	target_assertion_id: {type: Schema.Types.ObjectId},
-	target_assertion_percentage: {type: Number, "default": 1.0},
+	target_event_id: {type: Schema.Types.ObjectId},
+	target_event_percentage: {type: Number, "default": 1.0},
 	profile_id: {type: Schema.Types.ObjectId},
 	confirmed_date: {type: Date},
 	assertions: [{type: Schema.Types.ObjectId}]
@@ -33,12 +33,12 @@ var confirmedReportValidation = {
 			type: 'objectId',
 			required: true
 		},
-		target_assertion_id: {
-			description: 'target_assertion that was considered a match',
+		target_event_id: {
+			description: 'target_event that was considered a match',
 			type: 'objectId'
 		},
-		target_assertion_percentage: {
-			description: 'percentage match to target assertion (value between 0.0 and 1. 0)',
+		target_event_percentage: {
+			description: 'percentage match to target event (value between 0.0 and 1. 0)',
 			type: 'number',
 			"default": 1.0,
 			minimum: 0,
