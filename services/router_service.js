@@ -43,7 +43,7 @@ module.exports = function(app, io, logger){
 	var TargetAssertion = require('./rest/target_assertion.js');
 	new TargetAssertion(app, models, io, logger);
 	
-	var TwitterIngest = require('./rest/twitter_ingest_service.js');
+	var TwitterIngest = require('./rest/twitter_ingest.js');
 	new TwitterIngest(app, models, io, logger);
 	
 	app.get('/', function(req, res){
