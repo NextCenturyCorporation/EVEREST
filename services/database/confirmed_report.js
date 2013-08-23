@@ -69,7 +69,7 @@ ConfirmedReport.prototype.get = function(id, getCallback) {
 ConfirmedReport.prototype.flattenConfirmedReport = function(report, callback) {
 	var me = this;
 
-	var fieldsToFlatten = ['alpha_report_id'/*, 'target_event_id',*/ 'profile_id', 'assertions'];
+	var fieldsToFlatten = ['alpha_report_id'/*, 'target_event_id'*/, 'profile_id', 'assertions'];
 
 	async.each(fieldsToFlatten, function(field, fieldCallback) {
 		if(field === 'assertions' && report.assertions.length > 0) {
