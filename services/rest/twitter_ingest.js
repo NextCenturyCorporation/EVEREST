@@ -45,6 +45,16 @@ var twitterIngest = module.exports = function(app, models, io, logger) {
 		//new feed
 		var data = req.body;
 		
+		me.twitterIngestService.create(req.body, function(err, newKey) {
+			if(err) {
+				var errMsg = "There was an error creating feed";
+				logger.error("twitterIngest: " + errMsg, err);
+				general.send500(res, errMsg);
+			} else {
+				res.json(newKey);
+			}
+		});
+		
 	}); 
 
 	//start
