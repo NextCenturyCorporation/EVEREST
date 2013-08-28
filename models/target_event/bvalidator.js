@@ -2,6 +2,7 @@
  * location business validation library
  */
 var winston = require('winston');
+var async = require('async');
 
 //Load and set up the logger
 var logger = new (winston.Logger)({
@@ -41,36 +42,32 @@ var dataLayerTargetAssertion = require('../../services/database/target_assertion
 		// TODO: put in the logic checks against the object (ie., does the name attribute exist)
 		//       to insulate the lower level functions from bad data
 		var value = object.name;
-		var assertions = object.assertions;
-		if (assertions !== undefined){
-			for (var i = 0; i < assertions.length; i++){
-				targetAssertionExists( assertions[i], errors, function (err, found) {
-					var property = 'assertion _id';
-					if (!found) {
-						error(property, assertions[i], errors, "TargetAssertion was not found.");
-						logger.info("targetAssertion does not exist " + assertions[i]);
-					}
-				});
+		nameExists( value, errors, function (err, found) {
+			var property = 'name';
+			if (found) {
+				error(property, value, errors, "TargetEvent " + property + " already exists.");
+				logger.info("nameExists " + value);
 			}
-			
-			nameExists( value, errors, function (err, found) {
-				var property = 'name';
+	
+			targetEventExists( object, errors, function (err, found) {
+				var property = 'record';
 				if (found) {
-					error(property, value, errors, "TargetEvent " + property + " already exists.");
-					logger.info("nameExists " + value);
+					error(property, value, errors, "TargetEvent already exists.");
+					logger.info("targetEventExists " + JSON.stringify(object));
 				}
-		
-				targetEventExists( object, errors, function (err, found) {
-					var property = 'record';
-					if (found) {
-						error(property, value, errors, "TargetEvent already exists.");
-						logger.info("targetEventExists " + JSON.stringify(object));
+				
+				value = object.assertions;
+				targetAssertionsExist( value, errors, function (err, found) {
+					var property = 'assertions';
+					if (!found) {
+						error(property, value, errors, "TargetAssertions are invalid.");
+						logger.info("targetAssertions do not exist " + value);
 					}
-									
 					done();
 				});
+				
 			});
-		}
+		});
 	};
 
 	/**
@@ -126,22 +123,28 @@ var dataLayerTargetAssertion = require('../../services/database/target_assertion
   	*  	Returns in the callback any system error and a boolean indicating whether
   	*     or not the target_assertion_id was found
   	*/
- 	var targetAssertionExists = function(value, errors, callback){
-  		if(value !== undefined){
-			dataLayerTargetAssertion.readTargetAssertionByProperty('_id', value, function(err, locs){
-				if (err) {
-					error('_id', value, errors, 'Error reading targetAssertion ' + err);
-					logger.info({ error : "Error getting targetAssertionByID " + err });
-					callback(err, false);
-				} else if (0 !== locs.length) {
-					logger.info("TargetAssertion found for targetAssertionExists" + JSON.stringify(locs));
-					callback(err, true);
-				} else {
-					logger.info("TargetAssertion id not found " + value);
-					callback(err, false);
-				}
-			});
-		}
+ 	var targetAssertionsExist = function(values, errors, callback){
+  		async.each(values, function(assertion, eachCallback){
+  			dataLayerTargetAssertion.readTargetAssertionByProperty('_id', assertion, function(err, locs){
+  				if ( err ) {
+  					error('assertions', values, errors, 'Error reading assertion ' + err);
+  					logger.info({ error : "Error getting targetAssertionByID " + err });
+  					eachCallback(true);
+  				} else if ( 0 !== locs.length ) {
+  					logger.info("TargetAssertion found for targetAssertionExists" + JSON.stringify(locs));
+  					eachCallback(null);
+  				} else {
+  					logger.info("TargetAssertion id not found " + assertion);
+  					eachCallback(true);
+  				}
+  			});
+  		}, function(err){
+  			if ( err ){
+  				callback(err, false);
+  			} else {
+  				callback(err, true);
+  			}
+  		});
  	};
   
 
