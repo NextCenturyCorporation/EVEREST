@@ -43,8 +43,13 @@ module.exports = function(app, io, logger){
 	var TargetAssertion = require('./rest/target_assertion.js');
 	new TargetAssertion(app, models, io, logger);
 	
+	var TargetEvent = require('./rest/target_event.js');
+	new TargetEvent(app, models, io, logger);
+	
 	var TwitterIngest = require('./rest/twitter_ingest.js');
 	new TwitterIngest(app, models, io, logger);
+	
+	
 	
 	app.get('/', function(req, res){
 		res.redirect('/events');
