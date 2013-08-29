@@ -33,10 +33,10 @@ var alphaReportValidation = {
 			description: 'Date that this alpha report was last updated in datastore',
 			type: 'date'
 		},
-		raw_data_id: {
+		/*raw_data_id: {
 			description : 'The id corresponding to the original raw data',
 			type: 'string'
-		},
+		},*/
 		source_name: {
 			description: "The alpha report's source name",
 			type: 'string',
@@ -56,10 +56,10 @@ var alphaReportValidation = {
 			description: "The message body of the alpha report",
 			type: 'string'
 		},
-		reporter_id: {
+		/*reporter_id: {
 			description: "The id of the reporter who created the message for this alpha report",
 			type: 'string'
-		},
+		},*/
 		location_name: {
 			description: "The location of the origin of the alpha report",
 			type: 'string'
