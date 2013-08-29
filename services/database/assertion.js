@@ -11,7 +11,7 @@ module.exports = function(models, io, logger) {
 	var services = {
 		assertionService: me,
 		alphaReportService: new AlphaReportService(models, io, logger),
-		reporterService: new ReporterService(models, io, logger)
+		reporterService: ReporterService
 	};
 	var bvalidator = new Bvalidator(services, logger);
 
