@@ -4,7 +4,7 @@ var revalidator = require('revalidator');
 var AlphaReportService = require('./alpha_report');
 var ProfileService = require('./profile');
 var TargetEventService = require('./target_event');
-var ConfirmedReportBusinessValidation = require('../../models/confirmed_report/bvalidation');
+var ConfirmedReportBusinessValidation = require('../../models/confirmed_report/bvalidator');
 
 var ConfirmedReport = module.exports = function(models, io, log) {
 	var me = this;
