@@ -5,6 +5,10 @@ var nlp_parser = require('../parsers/nlp_parser.js');
 module.exports = function(models, io, logger) {
 	var me = this;
 
+	me.parseTwitterDate = function(text) {
+		return new Date(Date.parse(text.replace(/( +)/, ' UTC$1')));
+	}
+
 	me.parseAndSave = function(raw_feed_object, callback) {
 		logger.debug("Attempting to parse raw_feed_object with id " + raw_feed_object._id);
 
@@ -17,7 +21,8 @@ module.exports = function(models, io, logger) {
 		var parsed_text = JSON.parse(object_text);
 
 		alpha_report_object.source_id = parsed_text.id_str;
-		var parsedDate = new Date(parsed_text.created_at);
+		var parsedDate = me.parseTwitterDate(parsed_text.created_at);
+		console.log('~~~~~~~~~~~~~~~~~~~~~~~');
 		console.log(parsedDate);
 		alpha_report_object.message_date = parsedDate;
 		alpha_report_object.message_body = parsed_text.text;
