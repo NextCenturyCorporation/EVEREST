@@ -1,5 +1,3 @@
-/*global require*/
-// Identify require as a global function/keyword for JSHint
 /*
 var contactService = require('../database/contact.js');
 

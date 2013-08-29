@@ -1,6 +1,7 @@
 var reporterService = require('../database/reporter.js');
 
-var reporter = module.exports = function(app, models, io, logger){
+module.exports = function(app, models, io, logger){
+	
 	var me = this;
 
 	me.logger = logger;

@@ -1,6 +1,7 @@
 var targetEventService = require('../database/target_event.js');
 
-var targetEvent = module.exports = function(app, models, io, logger) {
+module.exports = function(app, models, io, logger) {
+	
 	var me = this;
 
 	me.logger = logger;

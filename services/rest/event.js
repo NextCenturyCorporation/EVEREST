@@ -1,9 +1,7 @@
-/*global require*/
-// Identify require as a global function/keyword for JSHint
-
 var eventService = require('../database/event.js');
 
-var events = module.exports = function(app, models, io, logger) {
+module.exports = function(app, models, io, logger) {
+	
 	var me = this;
 
 	me.logger = logger;

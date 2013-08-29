@@ -1,6 +1,7 @@
 var ProfileService = require('../database/profile.js');
 
-var profile = module.exports = function(app, models, io, logger) {
+module.exports = function(app, models, io, logger) {
+	
 	var me = this;
 
 	me.profileService = new ProfileService(models, io, logger);
