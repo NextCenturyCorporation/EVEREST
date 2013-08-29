@@ -73,7 +73,7 @@ var reporterValidation = {
 		},
 		url: {
 			description: 'The url of the object should be stored at',
-			type: ['string', 'null'],
+			type: 'string',
 			format: 'url'
 		},
 		description: {
