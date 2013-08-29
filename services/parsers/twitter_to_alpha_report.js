@@ -22,8 +22,6 @@ module.exports = function(models, io, logger) {
 
 		alpha_report_object.source_id = parsed_text.id_str;
 		var parsedDate = me.parseTwitterDate(parsed_text.created_at);
-		console.log('~~~~~~~~~~~~~~~~~~~~~~~');
-		console.log(parsedDate);
 		alpha_report_object.message_date = parsedDate;
 		alpha_report_object.message_body = parsed_text.text;
 		if(parsed_text.user.utc_offset) {

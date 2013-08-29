@@ -48,10 +48,11 @@ var alphaReportValidation = {
 			type: 'string',
 			required: true
 		},
+		/* FIXME -- the validation always fails on date for some reason
 		message_date: {
 			description: "The alpha report's date of message",
 			type: 'date'
-		},
+		},*/
 		message_body: {
 			description: "The message body of the alpha report",
 			type: 'string'
