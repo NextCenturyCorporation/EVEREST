@@ -3,7 +3,7 @@ var Schema = mongoose.Schema;
 
 var event_horizon = new Schema({
 	start_date: {type: Date, required: true},
-	end_date: {type: Date}, 	//what if end_date and range are provided
+	end_date: {type: Date},		//what if end_date and range are provided
 	range: {type: Number}
 });
 
@@ -16,14 +16,14 @@ var location = new Schema({
 var targetEventModel = {
 	createdBy: {type: Schema.Types.ObjectId},		// value supplied by the service of the profile creating the object
 	updatedBy: {type: Schema.Types.ObjectId},		// value supplied by the service of the profile updating the object
-	createdDate: {type: Date},						// value supplied by the service
-	updatedDate: {type: Date},						// value supplied by the service
-	name: {type: String, required: true},			// text identifier of the event
-	description: {type: String},					// description of the event
-	event_horizon: {type: [event_horizon]}, 		// temporal aspect of target event
-	location: {type: [location]},					// spatial aspect of target event
-	tags: {type: [String]},							// tag category cloud for target event
-	assertions: {type: [Schema.Types.ObjectId]} 	// collection of target_assertion ids that apply to this target_event -- structural aspect
+	createdDate: {type: Date},									// value supplied by the service
+	updatedDate: {type: Date},									// value supplied by the service
+	name: {type: String, required: true},				// text identifier of the event
+	description: {type: String},								// description of the event
+	event_horizon: {type: [event_horizon]},			// temporal aspect of target event
+	location: {type: [location]},								// spatial aspect of target event
+	tags: {type: [String]},											// tag category cloud for target event
+	assertions: {type: [Schema.Types.ObjectId]}	// collection of target_assertion ids that apply to this target_event -- structural aspect
 };
 
 var TargetEventSchema = new Schema(targetEventModel);

@@ -16,7 +16,7 @@ config.defaultTwitterKey = {
 	consumer_secret: 'ncTw7IKtmCFwNyhQ8OOfshfGOOCPLPlDug0Em1oIg',
 	access_token_key: '53703582-dF6S7rtSzCBQtxbQnSkjy49ECSPMix7tXz2O8W0ej',
 	access_token_secret: 'G74GzFILLGmrjDV9cJSGQb6cRC4yk2sP5dD7lL8x2z0'
-}
+};
 
 config.paramDefaults = {
 	listCount: null,
