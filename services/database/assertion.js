@@ -1,7 +1,7 @@
 var Bvalidator = require('../../models/assertion/bvalidator.js');
 var revalidator = require('revalidator');
 
-var AlphaReportService = require('.alpha_report.js');
+var AlphaReportService = require('./alpha_report.js');
 var ReporterService = require('./reporter.js');
 
 module.exports = function(models, io, logger) {
