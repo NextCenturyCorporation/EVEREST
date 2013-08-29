@@ -1,13 +1,15 @@
-var alpha_report_service = require('../database/alpha_report.js');
+var AlphaReportService = require('../database/alpha_report.js');
 var reporter_service = require('../database/reporter.js');
 var nlp_parser = require('../parsers/nlp_parser.js');
 
 module.exports = function(models, io, logger) {
 	var me = this;
 
+	var alphaReportService = new AlphaReportService(models, io, logger);
+
 	me.parseTwitterDate = function(text) {
 		return new Date(Date.parse(text.replace(/( +)/, ' UTC$1')));
-	}
+	};
 
 	me.parseAndSave = function(raw_feed_object, callback) {
 		logger.debug("Attempting to parse raw_feed_object with id " + raw_feed_object._id);
@@ -75,7 +77,7 @@ module.exports = function(models, io, logger) {
 				logger.info("Invalid Reporter " + JSON.stringify(valid.errors));
 			} else {
 				alpha_report_object.reporter_id = newReporter._id;
-				alpha_report_service.saveAlphaReport(alpha_report_object, function(err, valid, res) {
+				alphaReportService.saveAlphaReport(alpha_report_object, function(err, valid, res) {
 					if (err) {
 						//me.callback(err, res);
 						logger.debug(res);
