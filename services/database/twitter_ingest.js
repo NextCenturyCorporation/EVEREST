@@ -6,7 +6,7 @@ var twitter = require('ntwitter');
 var config = require('../../config.js');
 
 var RawFeedService = require('./raw_feed.js');
-var rawFeedParser = require('../parsers/raw_feed.js');
+var RawFeedParser = require('../parsers/raw_feed.js');
 
 var twitterIngest = module.exports = function(models, io, logger) {
 	var me = this;
@@ -16,6 +16,7 @@ var twitterIngest = module.exports = function(models, io, logger) {
 	me.models = models;
 
 	me.rawFeedService = new RawFeedService(models, io, logger);
+	rawFeedParser = new RawFeedParser(models, io, logger);
 
 	me.twitStreams = {};
 	me.list({}, function(err, feeds) {
@@ -115,14 +116,29 @@ twitterIngest.prototype.startIngest = function(id, filters, callback) {
 			stream.stream('statuses/filter', { track: filters }, function(newStream) {
 				stream.activeStream = newStream;
 				
-				newStream.on('data', me.handleIncomingData);
-				stream.on('end', function () {
+				newStream.on('data', function(data) {
+					me.logger.debug("Saving feed item: " + data.user.screen_name + ": " + data.text);
+					
+					me.rawFeedService.create({feedSource: 'Twitter', text:JSON.stringify(data)}, function(err, valid, newfeed){
+						if(err){
+							me.logger.error('Error saving raw feed', err);
+						} else if(!valid.valid) {
+							me.logger.error('Validation error with ' + JSON.stringify(valid.errors));
+						} else {
+							me.logger.debug('Saved raw feed object ' + newfeed._id);
+							me.callParser(newfeed._id);
+						}
+					});
+				});
+				newStream.on('end', function () {
 					me.activeStream = null;
 				});
-				stream.on('destroy', function () {
+				newStream.on('destroy', function () {
 					me.activeStream = null;
 				});
 			});
+
+			callback();
 		}
 	} else {
 		var errMsg = "Cannot find known twitter stream for key with id " + id;

@@ -62,9 +62,16 @@ var twitterIngest = module.exports = function(app, models, io, logger) {
 		if(logger.DO_LOG){ 
 			logger.info('Request for twitter ingest start');
 		}
+
+		var filters = []
+		if(req.body.filters) {
+			filters = req.body.filters;
+		}
 		
-		//FIXME filter out params
-		//FIXMEme.startIngest(req.query, res);
+		me.twitterIngestService.startIngest(req.params.id, filters, function(err) {
+			//TODO handle err
+			res.json({success:true, filters:filters});
+		});
 	});
 	
 	//stop
@@ -73,8 +80,10 @@ var twitterIngest = module.exports = function(app, models, io, logger) {
 			logger.info('Request for twitter ingest stop');
 		}
 		
-		//FIXME filter out params
-		//FIXME me.stopIngest(req.query, res);
+		me.twitterIngestService.stopIngest(req.params.id, function(err) {
+			//TODO handle err
+			res.json({success:true});
+		})
 	});
 
 	//delete one
