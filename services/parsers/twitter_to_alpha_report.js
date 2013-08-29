@@ -46,7 +46,9 @@ module.exports = function(models, io, logger) {
 		if(parsed_text.user.url) {
 			reporter_object.url = parsed_text.user.url;
 		}
-		reporter_object.description = parsed_text.user.description;
+		if(parsed_text.user.description) {
+			reporter_object.description = parsed_text.user.description;
+		}
 		if(parsed_text.user.time_zone) {
 			reporter_object.utc_offset = parsed_text.user.utc_offset;
 		}

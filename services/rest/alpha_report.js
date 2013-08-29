@@ -1,4 +1,4 @@
-var alphaReportService = require('../database/alpha_report.js');
+var AlphaReportService = require('../database/alpha_report.js');
 
 module.exports = function(app, models, io, logger) {
 	var me = this;
@@ -7,6 +7,8 @@ module.exports = function(app, models, io, logger) {
 	me.models = models;
 	me.app = app;
 	me.io = io;
+
+	var alphaReportService = new AlphaReportService(models, io, logger);
 
 		//list all fields of all alpha reports
 	app.get('/alpha_report/?', function(req,res){
