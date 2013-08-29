@@ -70,7 +70,7 @@ module.exports = function(models, io, logger) {
 						logger.debug(res);
 
 					} else if (!valid.valid) {
-						logger.info('Invalid alpha_report ' + JSON.stringify(valid.error));
+						logger.info('Invalid alpha_report ' + JSON.stringify(valid.errors));
 					} else {
 						nlp_parser.parseAndSave(res);
 					}
