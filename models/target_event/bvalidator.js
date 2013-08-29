@@ -15,7 +15,7 @@ var dataLayerTargetEvent = require('../../services/database/target_event.js');
 var dataLayerTargetAssertion = require('../../services/database/target_assertion.js');
 
 (function (exports) {
- 	exports.validate = validate;
+	exports.validate = validate;
 
 	function validate(object, callback) {
 		var errors = [];
@@ -32,10 +32,10 @@ var dataLayerTargetAssertion = require('../../services/database/target_assertion
 	 * Default messages to include with validation errors.
 	 */
 	validate.messages = {
-	    name:					"Name value is incorrect",
-	    description:			"Description value is incorrect",
-	    record:				"There is a record-level error",
-	     assertion:			"A target assertion does not exist"
+		name:					"Name value is incorrect",
+		description:	"Description value is incorrect",
+		record:				"There is a record-level error",
+		assertion:		"A target assertion does not exist"
 	};
 
 	function validateObject(object, errors, done) {
@@ -68,7 +68,7 @@ var dataLayerTargetAssertion = require('../../services/database/target_assertion
 				
 			});
 		});
-	};
+	}
 
 	/**
 	 ** nameExists verifies the uniqueness of the name in the object.
@@ -101,7 +101,7 @@ var dataLayerTargetAssertion = require('../../services/database/target_assertion
 	 ** Returns in the callback any system error and a boolean indicating whether
 	 **   or not the location was found. 
 	**/
- 	var targetEventExists = function(object, errors, callback) {
+	var targetEventExists = function(object, errors, callback) {
 		dataLayerTargetEvent.readTargetEventByObject(object, function(err, locs){
 			if (err) {
 				error('record', object, errors, 'Error reading targetEvent ' + err);
@@ -115,37 +115,37 @@ var dataLayerTargetAssertion = require('../../services/database/target_assertion
 				callback(err, false);
 			}
 		});
- 	 };
+	};
   
-  	/**
-  	*	targetAssertionExists verifies that the value supplied points to
-  	*	a valid target assertion 
-  	*  	Returns in the callback any system error and a boolean indicating whether
-  	*     or not the target_assertion_id was found
-  	*/
- 	var targetAssertionsExist = function(values, errors, callback){
-  		async.each(values, function(assertion, eachCallback){
-  			dataLayerTargetAssertion.readTargetAssertionByProperty('_id', assertion, function(err, locs){
-  				if ( err ) {
-  					error('assertions', values, errors, 'Error reading assertion ' + err);
-  					logger.info({ error : "Error getting targetAssertionByID " + err });
-  					eachCallback(true);
-  				} else if ( 0 !== locs.length ) {
-  					logger.info("TargetAssertion found for targetAssertionExists" + JSON.stringify(locs));
-  					eachCallback(null);
-  				} else {
-  					logger.info("TargetAssertion id not found " + assertion);
-  					eachCallback(true);
-  				}
-  			});
-  		}, function(err){
-  			if ( err ){
-  				callback(err, false);
-  			} else {
-  				callback(err, true);
-  			}
-  		});
- 	};
+	/**
+	*	targetAssertionExists verifies that the value supplied points to
+	*	a valid target assertion 
+	* Returns in the callback any system error and a boolean indicating whether
+	*     or not the target_assertion_id was found
+	*/
+	var targetAssertionsExist = function(values, errors, callback){
+		async.each(values, function(assertion, eachCallback){
+			dataLayerTargetAssertion.readTargetAssertionByProperty('_id', assertion, function(err, locs){
+				if ( err ) {
+					error('assertions', values, errors, 'Error reading assertion ' + err);
+					logger.info({ error : "Error getting targetAssertionByID " + err });
+					eachCallback(true);
+				} else if ( 0 !== locs.length ) {
+					logger.info("TargetAssertion found for targetAssertionExists" + JSON.stringify(locs));
+					eachCallback(null);
+				} else {
+					logger.info("TargetAssertion id not found " + assertion);
+					eachCallback(true);
+				}
+			});
+		}, function(err){
+			if ( err ){
+				callback(err, false);
+			} else {
+				callback(err, true);
+			}
+		});
+	};
   
 
 	function error(property, actual, errors, msg) {
