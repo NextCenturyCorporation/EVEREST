@@ -1,8 +1,10 @@
 var async = require('async');
+var revalidator = require('revalidator');
 
 var AlphaReportService = require('./alpha_report');
 var ProfileService = require('./profile');
-//var TargetEventService = require('./target_event');
+var TargetEventService = require('./target_event');
+var ConfirmedReportBusinessValidation = require('../../models/confirmed_report/bvalidation');
 
 var ConfirmedReport = module.exports = function(models, io, log) {
 	var me = this;
@@ -16,18 +18,21 @@ ConfirmedReport.prototype.listFlattened = function(params, listFlatCallback) {
 	var me = this;
 
 	me.list(params, function(err, reports) {
-		//FIXME handle err;
-		//handle none;
-		async.each(reports, function(report, callback) {
-			me.flattenConfirmedReport(report, function(err, updatedReport) {
-				if(!err) {
-					report = updatedReport;
-				}
-				callback(err);
-			});
-		}, function(err) {
+		if(err) {
+			me.logger.error("Error listing confirmed reports", err);
 			listFlatCallback(err, reports);
-		});
+		} else {
+			async.each(reports, function(report, callback) {
+				me.flattenConfirmedReport(report, function(err, updatedReport) {
+					if(!err) {
+						report = updatedReport;
+					}
+					callback(err);
+				});
+			}, function(err) {
+				listFlatCallback(err, reports);
+			});
+		}
 	});
 };
 
@@ -112,7 +117,9 @@ ConfirmedReport.prototype.flattenField = function(report, field, callback) {
 
 		alphaReportService.get(report.alpha_report_id, callback);
 	} else if(field === 'target_event_id') {
-		
+		var targetEventService = new TargetEventService(me.models, me.io, me.logger);
+
+		targetEventService.get(report.target_event_id, callback);
 	} else if(field === 'profile_id') {
 		var profileService = new ProfileService(me.models, me.io, me.logger);
 		profileService.get(report.profile_id, callback);
@@ -122,21 +129,37 @@ ConfirmedReport.prototype.flattenField = function(report, field, callback) {
 ConfirmedReport.prototype.create = function(data, createCallback) {
 	var me = this;
 
-	//validateConfirmedReport(data, function(valid) {
-	//	if (valid.valid) {
-	//		logger.info("Valid AlphaReport");
+	me.validateConfirmedReport(data, function(valid) {
+		if (valid.valid) {
+			me.logger.info("Valid AlphaReport");
 			var newConfirmedReport = new me.models.confirmedReport(data);
 			newConfirmedReport.save(function(err){
 				if(err){
 					me.logger.error('Error saving confirmedReport ', err);
 				}
-				createCallback(err,/* valid,*/ newConfirmedReport);
+				createCallback(err, newConfirmedReport);
 			});
-	//	}
-	//	else {
-	//		saveCallback(undefined, valid, data);
-	//	}
-	//});
+		}
+		else {
+			createCallback(undefined, valid, data);
+		}
+	});
+};
+
+ConfirmedReport.prototype.validateConfirmedReport = function(data, callback) {
+	var me = this;
+
+	var valid = revalidator.validate(data, me.models.confirmedReportValidation);
+	if(valid) {
+		var services = {
+			alphaReportService: new AlphaReportService(me.models, me.io, me.logger),
+			targetEventService: new TargetEventService(me.models, me.io, me.logger),
+			profileService: new ProfileService(me.models, me.io, me.logger)
+		};
+
+		var businessValidation = new ConfirmedReportBusinessValidation(services, me.logger);
+		businessValidation.validate(data, callback);
+	}
 };
 
 ConfirmedReport.prototype.update = function(id, data, updateCallback) {
@@ -154,10 +177,22 @@ ConfirmedReport.prototype.update = function(id, data, updateCallback) {
 				confirmedReport[key] = data[key];
 				eachCallback();
 			}, function(err) {
-				//validate
-				confirmedReport.save(function(err) {
-					updateCallback(err, confirmedReport);
-				});
+				if(!err) {
+					me.validateConfirmedReport(data, function(valid) {
+						if (valid.valid) {
+							me.logger.info("Valid AlphaReport");
+							confirmedReport.save(function(err) {
+								updateCallback(err, confirmedReport);
+							});
+						}
+						else {
+							updateCallback(err, data);
+						}
+					});
+				} else {
+					me.logger.error("Error updating confirmed report", err);
+					updateCallback(err, undefined);
+				}
 			});
 		}
 	});

@@ -7,7 +7,7 @@ var reporterDataModel = {
 	updatedDate: {type: Date},
 	name: {type: String, required: true},
 	source_name: {type: String, enum:['Twitter', 'Email'], required: true},
-	source_id: {type: ObjectId},//needs to be object id
+	source_id: {type: ObjectId},
 	screen_name: {type: String},
 	location_name: {type: String},
 	email: {type: String},
@@ -81,13 +81,13 @@ var reporterValidation = {
 			type: 'string'
 		},
 		utc_offset: {
-			description: 'The difference in hours (including partial hours) from UTC',
+			description: 'The difference in seconds (including partial hours) from UTC',
 			type: 'number',
-			minimum: -12.0,
-			maximum: 14.0,
+			minimum: -43200,
+			maximum: 50400.0,
 			messages: {
-				minimum: 'Expected UTC offset >= -12.0',		//reported technically as hours 09:30 12:00 ish stuff
-				maximum: 'Expected UTC offset <= 14.0'
+				minimum: 'Expected UTC offset >= -43200.0',		//reported technically as hours 09:30 12:00 ish stuff
+				maximum: 'Expected UTC offset <= 50400.0'
 			}
 		},
 		time_zone: {
