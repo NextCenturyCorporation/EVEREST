@@ -38,8 +38,12 @@ module.exports = function(models, io, logger) {
 			reporter_object.url = parsed_text.user.url;
 		}
 		reporter_object.description = parsed_text.user.description;
-		reporter_object.utc_offset = parsed_text.user.utc_offset;
-		reporter_object.time_zone = parsed_text.user.time_zone;
+		if(parsed_text.user.time_zone) {
+			reporter_object.utc_offset = parsed_text.user.utc_offset;
+		}
+		if(parsed_text.user.time_zone) {
+			reporter_object.time_zone = parsed_text.user.time_zone;
+		}
 		reporter_object.lang = parsed_text.user.lang;
 		//need to figure out geo
 		if(parsed_text.coordinates !== undefined && parsed_text.coordinates !== null) {
