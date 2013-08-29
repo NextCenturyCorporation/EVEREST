@@ -1,4 +1,4 @@
-var assertionService = require('../database/assertion.js');
+var AssertionService = require('../database/assertion.js');
 
 module.exports = function(app, models, io, logger) {
 	var me = this;
@@ -7,6 +7,8 @@ module.exports = function(app, models, io, logger) {
 	me.app = app;
 	me.io = io;
 	me.models = models;
+
+	var assertionService = new AssertionService(models, io, logger);
 
 	//list - lists full object
 	app.get('/assertion/?', function(req,res){
