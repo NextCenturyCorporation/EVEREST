@@ -7,13 +7,13 @@ module.exports = function(services, logger) {
 	me.validate = function(object, callback) {
 		var errors = [];
 	
-		me.done = fuction() {
+		me.done = function() {
 			var bVal = { valid: !(errors.length), errors: errors };
 			callback(bVal);
-		}
+		};
 
-		me.validateObject(object, errors, done);
-	}
+		me.validateObject(object, errors, me.done);
+	};
 
 	/**
 	 * Default messages to include with validation errors.
@@ -54,7 +54,7 @@ module.exports = function(services, logger) {
 						logger.info("alphaReportExists " + JSON.stringify(object));
 					}
 					
-					me.done();
+					done();
 				});
 			});
 		});
@@ -147,6 +147,6 @@ module.exports = function(services, logger) {
 			actual : actual,
 			message : message
 		});
-	}
+	};
 
 };
