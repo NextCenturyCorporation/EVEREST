@@ -17,7 +17,7 @@ module.exports = function(models, io, logger) {
 		var parsed_text = JSON.parse(object_text);
 
 		alpha_report_object.source_id = parsed_text.id_str;
-		alpha_report_object.message_date = parsed_text.created_at;
+		alpha_report_object.message_date = new Date(parsed_text.created_at);
 		alpha_report_object.message_body = parsed_text.text;
 		if(parsed_text.user.utc_offset) {
 			alpha_report_object.utc_offset = parsed_text.user.utc_offset;

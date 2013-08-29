@@ -96,8 +96,8 @@ var alphaReportValidation = {
 		utc_offset: {
 			description: 'The difference in hours (including partial hours) from UTC',
 			type: 'number',
-			minimum: -12.0,
-			maximum: 14.0,
+			minimum: -43200,
+			maximum: 50400,
 			messages: {
 				minimum: 'Expected UTC offset >= -12.0',
 				maximum: 'Expected UTC offset <= 14.0'
