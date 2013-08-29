@@ -111,7 +111,7 @@ module.exports = function(models, io, logger) {
 	 */
 	me.validateAlphaReport = function(data, valCallback) {
 		// is the JSON semantically valid for the location object?
-		var valid = revalidator.validate(data, validationModel.alphaReportValidation);
+		var valid = revalidator.validate(data, validationModel);
 		if (valid.valid) {
 			// does the location object comply with business validation logic
 			bvalidator.validate(data, function(valid) {
