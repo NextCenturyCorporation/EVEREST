@@ -125,6 +125,7 @@ var validateAlphaReport = function(data, valCallback) {
 		});
 	}
 	else {
+
 		valCallback(valid);
 	}	
 };

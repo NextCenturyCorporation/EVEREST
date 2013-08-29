@@ -7,7 +7,7 @@ var reporterDataModel = {
 	updatedDate: {type: Date},
 	name: {type: String, required: true},
 	source_name: {type: String, enum:['Twitter', 'Email'], required: true},
-	source_id: {type: ObjectId},
+	source_id: {type: String},
 	screen_name: {type: String},
 	location_name: {type: String},
 	email: {type: String},
@@ -73,7 +73,7 @@ var reporterValidation = {
 		},
 		url: {
 			description: 'The url of the object should be stored at',
-			type: 'string',
+			type: ['string', 'null'],
 			format: 'url'
 		},
 		description: {
