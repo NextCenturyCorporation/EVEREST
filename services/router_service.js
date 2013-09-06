@@ -4,6 +4,7 @@
 var models = require('../models/models');
 
 module.exports = function(app, io, logger){
+
 	var AlphaReport = require('./rest/alpha_report.js');
 	new AlphaReport(app, models, io, logger);
 	
@@ -49,6 +50,8 @@ module.exports = function(app, io, logger){
 	var TwitterIngest = require('./rest/twitter_ingest.js');
 	new TwitterIngest(app, models, io, logger);
 	
+	var ActionHandler = require('./action_handler.js');
+	new ActionHandler(models, io, logger);
 	
 	
 	app.get('/', function(req, res){

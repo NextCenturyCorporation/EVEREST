@@ -38,6 +38,11 @@ profileService.prototype.validateProfile = function(data, valCallback) {
 	}	
 };
 
+profileService.prototype.micah = function () {
+	console.log("THis is a micah function in profile yay!");
+	console.log(arguments);
+}
+
 /**
  * Returns a list of all the profiles
  */
