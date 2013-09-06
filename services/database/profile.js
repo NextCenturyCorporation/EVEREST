@@ -38,8 +38,10 @@ profileService.prototype.validateProfile = function(data, valCallback) {
 	}	
 };
 
-profileService.prototype.micah = function () {
-	console.log("THis is a micah function in profile yay!");
+//TODO Remove this, this is just an example for event handling.
+profileService.prototype.sampleProfileEvent = function () {
+	console.log("The sample Profile Event has been called!");
+	console.log("The arguments fed into the event are: ");
 	console.log(arguments);
 }
 

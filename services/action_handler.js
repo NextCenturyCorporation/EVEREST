@@ -45,24 +45,18 @@ module.exports = function(models, io, logger) {
 		}
 	}
 	var me = this;
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////ll
 	/**
 	*All you have to do, is for an event defined in action_emitter create a function with the same name followed by 
 	*"Handler" then you can call any of the methods defined in any of the services.
 	*THIS IS THE ONLY FUNCTION YOU NEED TO MODIFY TO IMPLEMENT NEW EVENT HANDLERS.
 	**/
 	var Listener = function(){
-	  	this.listEventHandler =  function(arguments, callback){
-	  		AlphaReport.micah();
+	  	//As you can see in action_emitter.js sampleEvent is defined.
+	  	this.sampleListEventHandler = function(arguments, callback) {
+	  		Profile.sampleProfileEvent(arguments);
 	  	};
 
-	  	this.micahCallToProfileEventHandler = function(arguments, callback) {
-	  		Profile.micah(arguments);
-	  	};
-
-	  	this.micahSaveEventHandler = function(arguments, callback) {
-
-	  	};
 	  	//More Implemented event handlers below....
 	};
 

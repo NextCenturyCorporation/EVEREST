@@ -2,6 +2,7 @@ var general = require('../wizard_service');
 var Bvalidator = require('../../models/alpha_report/bvalidator.js');
 var revalidator = require('revalidator');
 var RawFeedService = require('./raw_feed');
+var actionEmitter = require('../action_emitter.js')
 
 module.exports = function(models, io, logger) {
 	var me = this;
@@ -27,6 +28,8 @@ module.exports = function(models, io, logger) {
 				res.end();
 			}
 		});
+		//TODO Remove this, this is just a sample for event emitting.
+		actionEmitter.sampleListEvent("This is a Sample Argument passed in");
 	};
 
 	/**
@@ -43,6 +46,7 @@ module.exports = function(models, io, logger) {
 			}
 		});
 	};
+
 
 	/**
 	 * Creates a new alphaReport object based on the data POSTed.

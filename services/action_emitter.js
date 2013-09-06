@@ -6,7 +6,7 @@ var Eventer = function(){
 
 	//TO CREATE A NEW EVENT JUST ADD THE EVENT AS A STRING TO THE FOLLOWING ARRAY.
 	//The event should be named following the convention <eventname>Event"
-	this.eventList = ["listEvent", "saveAlphaReportEvent", "micahCallToProfileEvent"];
+	this.eventList = ["sampleListEvent"/*more events defined as strings seperated by commas*/];
 
 	function baseEvent(eventName) {
 		return function(arguments, callback) {
