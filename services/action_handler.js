@@ -44,7 +44,7 @@ module.exports = function(models, io, logger) {
 			eval("var " + service.toObjectNotation() + "= new "+ "requiredServicesList['" + service + "'](models,io,logger);");
 		}
 	}
-	var me = this;
+	//var me = this;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////ll
 	/**
 	*All you have to do, is for an event defined in action_emitter create a function with the same name followed by 
@@ -53,8 +53,30 @@ module.exports = function(models, io, logger) {
 	**/
 	var Listener = function(){
 	  	//As you can see in action_emitter.js sampleEvent is defined.
-	  	this.sampleListEventHandler = function(arguments, callback) {
-	  		Profile.sampleProfileEvent(arguments);
+	  	this.sampleListEventHandler = function() {
+	  		var args = Array.prototype.slice.call(arguments[0], 0);
+	  		Profile.sampleProfileEvent.apply(this, args);
+	  	};
+
+  		this.saveAlphaReportEventHandler = function() {
+  			//This converts the arguments to an array so that any number of arguments can be passed to the method.
+  			var args = Array.prototype.slice.call(arguments[0], 0);
+  			AlphaReport.saveAlphaReport.apply(this, args);
+	  	};
+
+	  	this.updateAlphaReportEventHandler = function() {
+  			var args = Array.prototype.slice.call(arguments[0], 0);
+  			AlphaReport.updateAlphaReportX.apply(this, args);
+	  	};
+
+	  	this.validateAlphaReportEventHandler = function() {
+  			var args = Array.prototype.slice.call(arguments[0], 0);
+  			AlphaReport.validateAlphaReport.apply(this, args);
+	  	};
+
+  		this.twitterDataRecievedEventHandler = function() {
+			var args = Array.prototype.slice.call(arguments[0], 0);
+			RawFeedService.create.apply(this, args);
 	  	};
 
 	  	//More Implemented event handlers below....
