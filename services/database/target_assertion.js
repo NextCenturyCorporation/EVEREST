@@ -59,6 +59,8 @@ exports.listTargetAssertionNames = listTargetAssertionNames;
  * On success, it returns id:<ID-hash>
  */
 var createTargetAssertion = function(data, res){
+	console.log(data.entity1);
+
 	saveTargetAssertion(data, function(err, val, newObj) {
 		if(err){
 			logger.error('Error saving target_assertion', err);
@@ -96,6 +98,7 @@ var saveTargetAssertion = function(data, saveCallback) {
 			newObj.updatedDate = new Date();
 			newObj.save(function(err){
 				if(err){
+					console.log(err);
 					logger.error('Error saving target_assertion', err);
 				}
 				saveCallback(err, valid, newObj);

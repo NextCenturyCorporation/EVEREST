@@ -1,23 +1,22 @@
-/**
- * location business validation library
- */
-var winston = require('winston');
 var async = require('async');
 
-//Load and set up the logger
-var logger = new (winston.Logger)({
-	//Make it log to both the console and a file 
-	transports : [new (winston.transports.Console)(),
-		new (winston.transports.File)({filename: 'logs/general.log'})] //,
-});
+var TargetEvent = require('../../services/database/target_event.js');
+var TargetAssertion = require('../../services/database/target_assertion.js');
 
-var dataLayerTargetEvent = require('../../services/database/target_event.js');
-var dataLayerTargetAssertion = require('../../services/database/target_assertion.js');
+module.exports = function(models, io, logger) {
+	var me = this;
 
-(function (exports) {
-	exports.validate = validate;
+	var targetEvent = new TargetEvent(models, io, logger);
+	var targetAssertion = new TargetAssertion(models, io, logger);
 
-	function validate(object, callback) {
+	me.validate.messages = {
+		name:					"Name value is incorrect",
+		description:	"Description value is incorrect",
+		record:				"There is a record-level error",
+		assertion:		"A target assertion does not exist"
+	};
+
+	me.validate = function(object, callback) {
 		var errors = [];
 	
 		function done() {
@@ -25,42 +24,32 @@ var dataLayerTargetAssertion = require('../../services/database/target_assertion
 			callback(bVal);
 		}
 
-		validateObject(object, errors, done);
-	}
-
-	/**
-	 * Default messages to include with validation errors.
-	 */
-	validate.messages = {
-		name:					"Name value is incorrect",
-		description:	"Description value is incorrect",
-		record:				"There is a record-level error",
-		assertion:		"A target assertion does not exist"
+		me.validateObject(object, errors, done);
 	};
 
-	function validateObject(object, errors, done) {
+	me.validateObject = function(object, errors, done) {
 		// TODO: put in the logic checks against the object (ie., does the name attribute exist)
 		//       to insulate the lower level functions from bad data
 		var value = object.name;
-		nameExists( value, errors, function (err, found) {
+		me.nameExists( value, errors, function (err, found) {
 			var property = 'name';
 			if (found) {
-				error(property, value, errors, "TargetEvent " + property + " already exists.");
+				me.error(property, value, errors, "TargetEvent " + property + " already exists.");
 				logger.info("nameExists " + value);
 			}
 	
-			targetEventExists( object, errors, function (err, found) {
+			me.targetEventExists( object, errors, function (err, found) {
 				var property = 'record';
 				if (found) {
-					error(property, value, errors, "TargetEvent already exists.");
+					me.error(property, value, errors, "TargetEvent already exists.");
 					logger.info("targetEventExists " + JSON.stringify(object));
 				}
 				
 				value = object.assertions;
-				targetAssertionsExist( value, errors, function (err, found) {
+				me.targetAssertionsExist( value, errors, function (err, found) {
 					var property = 'assertions';
 					if (!found) {
-						error(property, value, errors, "TargetAssertions are invalid.");
+						me.error(property, value, errors, "TargetAssertions are invalid.");
 						logger.info("targetAssertions do not exist " + value);
 					}
 					done();
@@ -68,7 +57,7 @@ var dataLayerTargetAssertion = require('../../services/database/target_assertion
 				
 			});
 		});
-	}
+	};
 
 	/**
 	 ** nameExists verifies the uniqueness of the name in the object.
@@ -77,10 +66,10 @@ var dataLayerTargetAssertion = require('../../services/database/target_assertion
 	 ** Returns in the callback any system error and a boolean indicating whether
 	 **   or not the name was found. 
 	**/
-	var nameExists = function (value, errors, callback) {
-		dataLayerTargetEvent.readTargetEventByProperty('name', value, function(err, locs) {
+	me.nameExists = function (value, errors, callback) {
+		me.dataLayerTargetEvent.readTargetEventByProperty('name', value, function(err, locs) {
 			if (err) {
-				error('name', value, errors, 'Error reading targetEvent name ' + err);
+				me.error('name', value, errors, 'Error reading targetEvent name ' + err);
 				logger.info({ error : "Error getting targetEventByName " + err });
 				callback(err, false);
 			} else if (0 !== locs.length) {
@@ -101,10 +90,10 @@ var dataLayerTargetAssertion = require('../../services/database/target_assertion
 	 ** Returns in the callback any system error and a boolean indicating whether
 	 **   or not the location was found. 
 	**/
-	var targetEventExists = function(object, errors, callback) {
-		dataLayerTargetEvent.readTargetEventByObject(object, function(err, locs){
+	me.targetEventExists = function(object, errors, callback) {
+		targetEvent.readTargetEventByObject(object, function(err, locs){
 			if (err) {
-				error('record', object, errors, 'Error reading targetEvent ' + err);
+				me.error('record', object, errors, 'Error reading targetEvent ' + err);
 				logger.info({ error : "Error getting targetEventByObject " + err });
 				callback(err, false);
 			} else if (0 !== locs.length) {
@@ -123,11 +112,11 @@ var dataLayerTargetAssertion = require('../../services/database/target_assertion
 	* Returns in the callback any system error and a boolean indicating whether
 	*     or not the target_assertion_id was found
 	*/
-	var targetAssertionsExist = function(values, errors, callback){
+	me.targetAssertionsExist = function(values, errors, callback){
 		async.each(values, function(assertion, eachCallback){
-			dataLayerTargetAssertion.readTargetAssertionByProperty('_id', assertion, function(err, locs){
+			targetAssertion.readTargetAssertionByProperty('_id', assertion, function(err, locs){
 				if ( err ) {
-					error('assertions', values, errors, 'Error reading assertion ' + err);
+					me.error('assertions', values, errors, 'Error reading assertion ' + err);
 					logger.info({ error : "Error getting targetAssertionByID " + err });
 					eachCallback(true);
 				} else if ( 0 !== locs.length ) {
@@ -148,13 +137,13 @@ var dataLayerTargetAssertion = require('../../services/database/target_assertion
 	};
   
 
-	function error(property, actual, errors, msg) {
+	me.error = function(property, actual, errors, msg) {
 	
 		var lookup = {
 			property : property
 		};
 	
-		var message = msg || validate.messages[property] || "no default message";
+		var message = msg || me.validate.messages[property] || "no default message";
 	
 		message = message.replace(/%\{([a-z]+)\}/ig, function(_, match) {
 			var msg = lookup[match.toLowerCase()] || "";
@@ -165,6 +154,6 @@ var dataLayerTargetAssertion = require('../../services/database/target_assertion
 			actual : actual,
 			message : message
 		});
-	}
+	};
 
-})(typeof(window) === 'undefined' ? module.exports : (window.json = window.json || {}));
+};
