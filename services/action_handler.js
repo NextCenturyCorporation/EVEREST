@@ -20,16 +20,17 @@ String.prototype.deHandlerify = function(){
 
 var requiredServicesList = {};
 var actionEmitter = require("./action_emitter.js");
+var fs = require("fs");
 //Comment this out if you want to just manually require each service
 //this will just require every service defined in the database folder.
-require("fs").readdirSync("services/database").forEach(function(file) {
+
+fs.readdirSync("services/database").forEach(function(file) {
 	var filename = file.stripFileDesignation();
 	requiredServicesList[filename] = require("./database/" + file);
 });
 
-require("fs").readdirSync("services/parsers").forEach(function(file) {
+fs.readdirSync("services/parsers").forEach(function(file) {
 	var filename = file.stripFileDesignation();
-	console.log(filename);
 	requiredServicesList[filename] = require("./parsers/" + file);
 });
 
@@ -41,12 +42,13 @@ require("fs").readdirSync("services/parsers").forEach(function(file) {
 //**requiredServicesList['alpha_report'] = require("./database/alpha_report.js");**
 
 module.exports = function(models, io, logger) {
+	var serviceList = {};
 	//This loop will automatically create a new Object of the type of the service using standard Object notation
 	//Example for alpha report it would call:
 	//var AlphaReport = new requiredServicesList['alpha_report'](models,io,logger,actionEmitter);
 	for(var service in requiredServicesList) {
-		if(typeof(requiredServicesList[service.toString()]) === typeof(Function)) {
-			eval("var " + service.toObjectNotation() + "= new "+ "requiredServicesList['" + service + "'](models,io,logger);");
+		if(typeof(requiredServicesList[service.toString()]) === typeof(Function)) {//eval("var " + service.toObjectNotation() + "= new "+ "requiredServicesList['" + service + "'](models,io,logger);");
+			serviceList[service.toObjectNotation()] = new requiredServicesList[service.toString()](models,io,logger);
 		}
 	}
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////ll
@@ -56,32 +58,29 @@ module.exports = function(models, io, logger) {
 	*THIS IS THE ONLY FUNCTION YOU NEED TO MODIFY TO IMPLEMENT NEW EVENT HANDLERS.
 	**/
 	var Listener = function(){
-
 		//This converts the arguments to an array so that any number of arguments can be passed to the method.
-		Listener.prototype.args = function() {
-			return Array.prototype.slice.call(arguments[0], 0);
+		Function.prototype.callWithAllArgs = function() {
+			return this.apply(this, Array.prototype.slice.call(arguments[0][0], 0));
 		};
 
 	  	this.sampleListEventHandler = function() {
-	  		//Apply is only necessary if the called function takes arguments.
-	  		Profile.sampleProfileEvent.apply(this, this.args);
-	  		NlpParser.micah();
+	  		serviceList.Profile.sampleProfileEvent.callWithAllArgs(arguments);
 	  	};
 
   		this.saveAlphaReportEventHandler = function() {
-  			AlphaReport.saveAlphaReport.apply(this, this.args);
+  			serviceList.AlphaReport.saveAlphaReport.callWithAllArgs(arguments);
 	  	};
 
 	  	this.updateAlphaReportEventHandler = function() {
-  			AlphaReport.updateAlphaReportX.apply(this, this.args);
+  			serviceList.AlphaReport.updateAlphaReportX.callWithAllArgs(arguments);
 	  	};
 
 	  	this.validateAlphaReportEventHandler = function() {
-  			AlphaReport.validateAlphaReport.apply(this, this.args);
+  			serviceList.AlphaReport.validateAlphaReport.callWithAllArgs(arguments);
 	  	};
 
   		this.twitterDataRecievedEventHandler = function() {
-			RawFeedService.create.apply(this, this.args);
+			serviceList.RawFeedService.create.callWithAllArgs(arguments);
 	  	};
 
 	  	//More Implemented event handlers below....
@@ -106,7 +105,7 @@ module.exports = function(models, io, logger) {
 	//Checks if a handler is defined above, but no associated event in action_emitter.js.  Outputs an error if it cannot find the 
 	//Associated Event for a Handler.
 	for(var fun in listener) {
-		if(eventerEventList.indexOf(fun.deHandlerify()) === -1) {
+		if(eventerEventList.indexOf(fun.deHandlerify()) === -1 && fun !== 'callWithAllArgs') {
 			logger.error("Handler:  " + fun + " defined but " + fun.deHandlerify() +" not defined in action_emitter.js \n");
 		}
 	}
