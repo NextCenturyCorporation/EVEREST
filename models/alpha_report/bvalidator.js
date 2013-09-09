@@ -113,7 +113,7 @@ module.exports = function(services, logger) {
 	me.alphaReportExists = function(object, errors, callback) {
 		
 		var searchObject = { source_name : object.source_name, source_id : object.source_id };
-		services.alphaReportService.readAlphaReportByObject(searchObject, function(err, locs){
+		services.alphaReportService.findWhere(searchObject, function(err, locs){
 			if (err) {
 				me.error('record', object, errors, 'Error reading alpha_report ' + err);
 				logger.info({ error : "Error readAlphaReportByObject " + err });

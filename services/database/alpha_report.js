@@ -1,8 +1,6 @@
-var general = require('../wizard_service');
 var Bvalidator = require('../../models/alpha_report/bvalidator.js');
 var revalidator = require('revalidator');
 var RawFeedService = require('./raw_feed');
-var actionEmitter = require('../action_emitter.js')
 
 module.exports = function(models, io, logger) {
 	var me = this;
@@ -18,63 +16,17 @@ module.exports = function(models, io, logger) {
 	/**
 	 *	Returns a list of all the alpha reports
 	 */
-	me.listAlphaReports = function(res){
-		models.alphaReport.find({}, function(err, docs){
-			if(err){
-				logger.info("Error listing alpha reports " + err);
-				general.send500(res);
-			} else { 
-				res.json(docs);
-				res.end();
-			}
-		});
-		//TODO Remove this, this is just a sample for event emitting.
-		actionEmitter.sampleListEvent("This is a Sample Argument passed in");
+	me.list = function(params, callback){
+		//TODO handle apging params
+		models.alphaReport.find(params, callback);
+	};
+
+	me.listFields = function(params, field_string, callback) {
+		models.alphaReport.find(params, field_string, callback);
 	};
 
 	/**
-	 *	Returns a list of all the reporters by id and source id
-	 */
-	me.listAlphaReportSourceIds = function(res){
-		models.alphaReport.find({}, '_id source_id', function(err, docs){
-			if(err){
-				logger.info("Error listing alpha report id - source_id" + err);
-				general.send500(res);
-			} else { 
-				res.json(docs);
-				res.end();
-			}
-		});
-	};
-
-
-	/**
-	 * Creates a new alphaReport object based on the data POSTed.
-	 * See the AlphaReport schema for details on what to post.
-	 * All validation is handled through the schema.
-	 *
-	 * On success, it returns the new id 
-	 */
-	me.createAlphaReport = function(data, res){
-		me.saveAlphaReport(data, function(err, val, newAlphaReport) {
-			if(err){
-				logger.error('Error saving AlphaReport', err);
-				res.status(500);
-				res.json({error: 'Error'});
-			} else if (!val.valid) {
-				logger.info('Invalid AlphaReport ' + JSON.stringify(val.errors));
-				res.status(500);
-				res.json({error: val.errors}, data);
-			} else {
-				logger.info('AlphaReport saved ' + JSON.stringify(newAlphaReport));
-				res.json({id:newAlphaReport._id});
-			}
-			res.end();
-		});
-	};
-
-	/**
-	 * saveAlphaReport is a "generic" save method callable from both
+	 * create is a "generic" save method callable from both
 	 * request-response methods and parser-type methods for population of AlphaReport data
 	 * 
 	 * saveAlphaReport calls the validateAlphaReport module to ensure that the
@@ -82,7 +34,7 @@ module.exports = function(models, io, logger) {
 	 * 
 	 * saveCallback takes the form of  function(err, valid object, AlphaReport object)
 	 */
-	me.saveAlphaReport = function(data, saveCallback) {
+	me.create = function(data, saveCallback) {
 		me.validateAlphaReport(data, function(valid) {
 			if (valid.valid) {
 				logger.info("Valid AlphaReport");
@@ -125,117 +77,25 @@ module.exports = function(models, io, logger) {
 		else {
 
 			valCallback(valid);
-		}	
+		}
 	};
 
 	/**
 	 * Returns the alpha report object with id specified in URL
 	 */
-	me.getAlphaReport = function(id, res){
-		models.alphaReport.findById(id, function(err, docs){
-			if(err){
-				logger.info('Error getting alpha report ' + err);
-				general.send500(res);
-			} else if(docs) {
-				res.json(docs);
-				res.end();
-			} else {
-				general.send404(res);
-			}
-		});
-	};
-
-	me.getAlphaReportBySource = function(source, res){
-		models.alphaReport.find({"source_name":source}, function(err, docs){
-			if(err){
-				logger.info('Error getting alpha report ' + err);
-				general.send500(res);
-			} else if(docs) {
-				res.json(docs);
-				res.end();
-			} else {
-				general.send404(res);
-			}
-		});
-	};
-
-	me.getAlphaReportBySourceId = function(source_id, res){
-		models.alphaReport.find({"source_id":source_id}, function(err, docs){
-			if(err){
-				logger.info('Error getting alpha report ' + err);
-				general.send500(res);
-			} else if(docs) {
-				res.json(docs);
-				res.end();
-			} else {
-				general.send404(res);
-			}
-		});
+	me.get = function(id, callback){
+		me.findWhere({_id: id}, callback);
 	};
 
 	/**
 	 * readAlphaReportByProperty is a generic read method to return all of
 	 * documents that have a property value that matches.
 	 */
-	me.readAlphaReportByProperty = function(property, value, readCallback){
-		if ( (property !== undefined) && (value !== undefined) ) {
-			var query = models.alphaReport.find({});
-			query.where(property, value);
-			query.exec(readCallback);
-		}
+	me.findWhere = function(config, callback){
+		models.alphaReport.find(config, callback);
 	};
 
-	/**
-	 * readAlphaReportByObject is a generic read method for alpha_report
-	 * It will attempt to find an exact match(es) for the object provided.
-	 * Note: the incoming object can be a subset or superset of the actual object.
-	 */
-	me.readAlphaReportByObject = function(object, readCallback){
-		if ( object !== undefined ) {
-			var query = models.alphaReport.find({});
-			for (var key in object) {
-				if (object.hasOwnProperty(key)) {
-					query.where(key, object[key]);
-				}
-			}
-			query.exec(readCallback);
-		}
-	};
-
-	me.readAlphaReports = function(readCallback){
-		var query = models.alphaReport.find({});
-		query.exec(readCallback);
-	};
-
-	/**
-	 * This updates the alpha report with id specified in the URL.
-	 * It will not change the id.
-	 * On success, it returns the _id value (just like on create)
-	 */
-	me.updateAlphaReport = function(id, data, res){
-		me.updateAlphaReportX(id, data, function(err, val, updated) {
-			if(err){
-				logger.error('Error updating AlphaReport', err);
-				res.status(500);
-				res.json({error: 'Error'});
-			} else if (!val.valid) {
-				logger.info('Invalid AlphaReport ' + JSON.stringify(val.errors));
-				res.status(500);
-				res.json({error: val.errors}, data);
-			} else {
-				logger.info('AlphaReport updated ' + JSON.stringify(updated));
-				res.json({id:updated._id});
-			}
-			res.end();
-		});
-	};
-
-	/**
-	 * updateAlphaReportX calls the validateAlphaReport then updates the object
-	 * 
-	 * callback takes the form of  function(err, valid object, AlphaReport object)
-	 */
-	me.updateAlphaReportX = function(id, data, updCallback) {
+	me.update = function(id, data, updCallback) {
 		me.validateAlphaReport(data, function(valid){
 			if (valid.valid) {
 				models.alphaReport.findById(id, function(err, docs){
@@ -256,7 +116,7 @@ module.exports = function(models, io, logger) {
 							} else {
 								updCallback(err, valid, docs);
 							}
-						});			
+						});
 					} else {
 						valid.valid = false;
 						valid.errors = {expected: id, message: "AlphaReport not found"};
@@ -270,36 +130,7 @@ module.exports = function(models, io, logger) {
 		});
 	};
 
-	/**
-	 * Deletes the alpha report with the given id
-	 */
-	me.deleteAlphaReport = function(id, res){
-		models.alphaReport.find({_id:id}, function(err, docs){
-			if(err || docs.length === 0){
-				logger.error('Error deleting alpha report', err);
-				res.status('500');
-				res.json({error: 'Invalid alpha report ' + id});
-			} else { 
-				for (var i = 0; i < docs.length; i++){
-					docs[i].remove();
-				}
-				res.json({status:'ok'});
-			}
-			res.end();
-		});
+	me.del = function(config, callback){
+		models.alphaReport.remove(config, callback);
 	};
-
-	/**
-	 * Deletes all reporters
-	 */
-	me.deleteAlphaReports = function(res){
-		models.alphaReport.find({}, function(err, docs){
-			for(var i = 0; i < docs.length; i++){
-				docs[i].remove();
-			}
-			res.json({status:'ok'});
-			res.end();
-		});
-	};
-
 };
