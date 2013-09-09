@@ -92,7 +92,7 @@ module.exports = function(app, models, io, logger) {
 		if(logger.DO_LOG){
 			logger.info('Update alpha report ' + req.params.id);
 		}
-		alphaReportService.updateAlphaReport(req.params.id, req.body, function(err, val, updated) {
+		alphaReportService.update(req.params.id, req.body, function(err, val, updated) {
 			if(err){
 				logger.error('Error updating AlphaReport', err);
 				res.status(500);
