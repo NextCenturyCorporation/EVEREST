@@ -12,7 +12,7 @@ var Eventer = function(){
 	function baseEvent(eventName) {
 		return function() {
 			this.emit(eventName, arguments);
-		}
+		};
 	}
 	for(var i =0; i < this.eventList.length; i++) {
 		this[this.eventList[i]] = baseEvent(this.eventList[i]);
