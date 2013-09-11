@@ -7,7 +7,7 @@ var Eventer = function(){
 	//TO CREATE A NEW EVENT JUST ADD THE EVENT AS A STRING TO THE FOLLOWING ARRAY.
 	//The event should be named following the convention <eventname>Event"
 	this.eventList = ["sampleListEvent", "saveAlphaReportEvent", "updateAlphaReportEvent",
-	"validateAlphaReportEvent","twitterDataRecievedEvent"];
+	"validateAlphaReportEvent","twitterDataRecievedEvent", "saveFeedEvent", "rawFeedParseEvent"];
 
 	function baseEvent(eventName) {
 		return function() {

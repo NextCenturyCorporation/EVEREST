@@ -79,7 +79,7 @@ module.exports = function(models, io, logger) {
 				logger.info("Invalid Reporter " + JSON.stringify(valid.errors));
 			} else {
 				alpha_report_object.reporter_id = newReporter._id;
-				alphaReportService.saveAlphaReport(alpha_report_object, function(err, valid, res) {
+				alphaReportService.create(alpha_report_object, function(err, valid, res) {
 					if (err) {
 						//me.callback(err, res);
 						logger.debug(res);

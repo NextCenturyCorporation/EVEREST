@@ -11,7 +11,7 @@ var twitterIngest = module.exports = function(app, models, io, logger) {
 	me.models = models;
 
 	me.twitterIngestService = new TwitterIngestService(models, io, logger);
-
+	
 	//list
 	me.app.get('/twitter-ingest/?', function(req, res) {
 		me.twitterIngestService.list(req.query, function(err, keys) {
@@ -44,7 +44,6 @@ var twitterIngest = module.exports = function(app, models, io, logger) {
 	me.app.post('/twitter-ingest/?', function(req, res) {
 		//new feed
 		var data = req.body;
-		
 		me.twitterIngestService.create(req.body, function(err, newKey) {
 			if(err) {
 				var errMsg = "There was an error creating feed";
@@ -62,15 +61,18 @@ var twitterIngest = module.exports = function(app, models, io, logger) {
 		if(logger.DO_LOG){ 
 			logger.info('Request for twitter ingest start');
 		}
-
 		var filters = []
 		if(req.body.filters) {
 			filters = req.body.filters;
 		}
-		
 		me.twitterIngestService.startIngest(req.params.id, filters, function(err) {
-			//TODO handle err
-			res.json({success:true, filters:filters});
+			if(err) {
+				var msg = err.toString();
+				logger.error(msg);
+				res.json({success:false, message: msg});
+			} else {
+				res.json({success:true, filters:filters});
+			}
 		});
 	});
 	
@@ -79,11 +81,15 @@ var twitterIngest = module.exports = function(app, models, io, logger) {
 		if(logger.DO_LOG){ 
 			logger.info('Request for twitter ingest stop');
 		}
-		
 		me.twitterIngestService.stopIngest(req.params.id, function(err) {
-			//TODO handle err
-			res.json({success:true});
-		})
+			if(err) {
+				var msg = err.toString();
+				logger.error(msg);
+				res.json({success:false, message: msg});
+			} else {
+				res.json({success:true});
+			}
+		});
 	});
 
 	//delete one

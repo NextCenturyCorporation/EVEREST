@@ -31,7 +31,7 @@ fs.readdirSync("services/database").forEach(function(file) {
 
 fs.readdirSync("services/parsers").forEach(function(file) {
 	var filename = file.stripFileDesignation();
-	requiredServicesList[filename] = require("./parsers/" + file);
+	requiredServicesList[filename+"_parser"] = require("./parsers/" + file);
 });
 
 
@@ -43,6 +43,7 @@ fs.readdirSync("services/parsers").forEach(function(file) {
 
 module.exports = function(models, io, logger) {
 	var serviceList = {};
+	var self = this;
 	//This loop will automatically create a new Object of the type of the service using standard Object notation
 	//Example for alpha report it would call:
 	//var AlphaReport = new requiredServicesList['alpha_report'](models,io,logger,actionEmitter);
@@ -80,8 +81,21 @@ module.exports = function(models, io, logger) {
 	  	};
 
   		this.twitterDataRecievedEventHandler = function() {
-			serviceList.RawFeedService.create.callWithAllArgs(arguments);
+  			//Services that are prototyped out must be called this way.
+  			var self = serviceList.RawFeed;
+  			self.create.apply(self, Array.prototype.slice.call(arguments[0], 0));
 	  	};
+
+	  	this.saveFeedEventHandler = function() {
+	  		//Services that are prototyped out must be called this way.
+  			var self = serviceList.RawFeed;
+  			self.saveFeed.apply(self, Array.prototype.slice.call(arguments[0], 0));
+	  	};
+
+	  	this.rawFeedParseEventHandler = function() {
+  			serviceList.RawFeedParser.parseAndSave.callWithAllArgs(arguments);
+	  	};
+	  	
 
 	  	//More Implemented event handlers below....
 	};

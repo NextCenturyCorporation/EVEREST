@@ -2,11 +2,8 @@ var revalidator = require('revalidator');
 var async = require('async');
 var paramHandler = require('../list_default_handler');
 var twitter = require('ntwitter');
-
+var actionEmitter = require('../action_emitter.js')
 var config = require('../../config.js');
-
-var RawFeedService = require('./raw_feed.js');
-var RawFeedParser = require('../parsers/raw_feed.js');
 
 var twitterIngest = module.exports = function(models, io, logger) {
 	var me = this;
@@ -14,9 +11,6 @@ var twitterIngest = module.exports = function(models, io, logger) {
 	me.logger = logger;
 	me.io = io;
 	me.models = models;
-
-	me.rawFeedService = new RawFeedService(models, io, logger);
-	rawFeedParser = new RawFeedParser(models, io, logger);
 
 	me.twitStreams = {};
 	me.list({}, function(err, feeds) {
@@ -108,7 +102,7 @@ twitterIngest.prototype.create = function(data, callback) {
 
 twitterIngest.prototype.startIngest = function(id, filters, callback) {
 	var me = this;
-	if(typeof(me.twitStreams[id]) !== 'undefined' && me.twitStreams[id]) {
+		if(typeof(me.twitStreams[id]) !== 'undefined' && me.twitStreams[id]) {
 		var stream = me.twitStreams[id];
 		if(stream.activeStream) {
 			callback(new Error('Stream is active, please stop before starting'));
@@ -119,7 +113,7 @@ twitterIngest.prototype.startIngest = function(id, filters, callback) {
 				newStream.on('data', function(data) {
 					me.logger.debug("Saving feed item: " + data.user.screen_name + ": " + data.text);
 					
-					me.rawFeedService.create({feedSource: 'Twitter', text:JSON.stringify(data)}, function(err, valid, newfeed){
+					actionEmitter.twitterDataRecievedEvent({feedSource: 'Twitter', text:JSON.stringify(data)}, function(err, valid, newfeed){
 						if(err){
 							me.logger.error('Error saving raw feed', err);
 						} else if(!valid.valid) {
@@ -136,6 +130,12 @@ twitterIngest.prototype.startIngest = function(id, filters, callback) {
 				newStream.on('destroy', function () {
 					me.activeStream = null;
 				});
+				newStream.on('error', function(response) {
+					me.activeStream = null;
+					me.logger.error("An error occured while streaming: ")
+					me.logger.error(response);
+					me.logger.error("The aciveStream has ended");
+				});
 			});
 
 			callback();
@@ -144,30 +144,31 @@ twitterIngest.prototype.startIngest = function(id, filters, callback) {
 		var errMsg = "Cannot find known twitter stream for key with id " + id;
 		callback(new Error(errMsg));
 	}
-};
-
-twitterIngest.prototype.handleIncomingData = function(data) {
-	var me = this;
-
-	me.logger.debug("Saving feed item: " + data.user.screen_name + ": " + data.text);
 	
-	me.rawFeedService.saveFeed({feedSource: 'Twitter', text:JSON.stringify(data)}, function(err, valid, newfeed){
-		if(err){
-			me.logger.error('Error saving raw feed', err);
-		} else if(!valid.valid) {
-			me.logger.error('Validation error with ' + JSON.stringify(valid.errors));
-		} else {
-			me.logger.debug('Saved raw feed object ' + newfeed._id);
-			me.callParser(newfeed._id);
-		}
-	});
 };
+
+// twitterIngest.prototype.handleIncomingData = function(data) {
+// 	var me = this;
+
+// 	me.logger.debug("Saving feed item: " + data.user.screen_name + ": " + data.text);
+	
+// 	me.rawFeedService.saveFeed({feedSource: 'Twitter', text:JSON.stringify(data)}, function(err, valid, newfeed){
+// 		if(err){
+// 			me.logger.error('Error saving raw feed', err);
+// 		} else if(!valid.valid) {
+// 			me.logger.error('Validation error with ' + JSON.stringify(valid.errors));
+// 		} else {
+// 			me.logger.debug('Saved raw feed object ' + newfeed._id);
+// 			me.callParser(newfeed._id);
+// 		}
+// 	});
+// };
 
 twitterIngest.prototype.callParser = function(id) {
 	var me = this;
 	me.logger.debug("Parser to be called with id: " + id);
 	process.nextTick(function() {
-		rawFeedParser.parseAndSave(id);
+		actionEmitter.rawFeedParseEvent(id)
 	});
 };
 
@@ -178,8 +179,12 @@ twitterIngest.prototype.stopIngest = function(id, callback) {
 		if(stream.activeStream) {
 			stream.activeStream.destroy();
 			stream.activeStream = null;
+			callback();
+		} else {
+			var errMsg = "Could not stop stream: " + id + ".  Stream is not currently active."
+			callback(new Error(errMsg));
 		}
-		callback();
+		
 	} else {
 		var errMsg = "Cannot find known twitter stream for key with id " + id;
 		callback(new Error(errMsg));
