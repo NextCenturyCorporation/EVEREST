@@ -139,7 +139,7 @@ module.exports = function(app, models, io, log) {
 		if(me.logger.DO_LOG){
 			me.logger.info('Request for a list of all confirmed reports flattened');
 		}
-		confirmedReportService.listFlattenedRequest(req.params, res);
+		//confirmedReportService.listFlattenedRequest(req.params, res);
 
 		confirmedReportService.listFlattened(req.query, function(err, reports) {
 			if(err) {

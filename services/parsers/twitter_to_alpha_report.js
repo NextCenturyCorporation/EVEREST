@@ -1,7 +1,7 @@
 var AlphaReportService = require('../database/alpha_report.js');
 var reporter_service = require('../database/reporter.js');
 var AssertionService = require('../database/assertion.js');
-var Nlp_Parser = require('../parsers/nlp_parser.js');
+var Nlp_Parser = require('../parsers/nlp_parser_async.js');
 
 module.exports = function(models, io, logger) {
 	var me = this;
@@ -91,7 +91,6 @@ module.exports = function(models, io, logger) {
 					}
 				});
 			}
-			//callback();
 		});
 	};
 };

@@ -38,13 +38,6 @@ profileService.prototype.validateProfile = function(data, valCallback) {
 	}	
 };
 
-//TODO Remove this, this is just an example for event handling.
-profileService.prototype.sampleProfileEvent = function () {
-	console.log("The sample Profile Event has been called!");
-	console.log("The arguments fed into the event are: ");
-	console.log(arguments);
-}
-
 /**
  * Returns a list of all the profiles
  */
@@ -99,7 +92,7 @@ profileService.prototype.create = function(data, saveCallback) {
  */
 profileService.prototype.get = function(id, getCallback){
 	var me = this;
-	me.find({_id: id}, getCallback);
+	me.models.profile.find({_id: id}, getCallback);
 };
 
 profileService.prototype.findWhere = function(config, callback) {
