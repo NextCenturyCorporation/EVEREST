@@ -69,7 +69,7 @@ module.exports = function(services, logger) {
 	**/
 	me.alphaReportExists = function (value, errors, callback) {
 		if (value !== undefined) {
-			services.alphaReportService.readAlphaReportByProperty('_id', value, function(err, docs) {
+			services.alphaReportService.findWhere({'_id': value}, function(err, docs) {
 				if (err) {
 					me.error('_id', value, errors, 'Error reading alpha_report ' + err);
 					logger.info({ error : "Error readAlphaReportByPropery " + err });
