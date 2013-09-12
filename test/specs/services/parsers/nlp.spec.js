@@ -33,11 +33,12 @@ describe('To verify the the nlp parsers ', function() {
 		var assert = spyOn(assertionService, 'saveAssertion').andCallThrough();
 		
 		nlpParser.parseAndSave(ar_object);
-		
-		
-		expect(logger.info).toHaveBeenCalled();
-		expect(assert).toHaveBeenCalled();
-		expect(assert.callCount).toEqual(2);
+		waits(1000);
+		runs(function () {
+			expect(logger.info).toHaveBeenCalled();
+			expect(assert).toHaveBeenCalled();
+			expect(assert.callCount).toEqual(2);
+		});
 	});
 	
 	it('ability to not call save when message_body won\'t yield a triplet', function(){
