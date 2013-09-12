@@ -13,53 +13,33 @@ module.exports = function(services, logger) {
 
 	var assertion_service = services.assertionService;
 	
-	me.parseAndSave = function(alpha_report_object, callback){
+	me.parseAndSave = function(alpha_report_object, saveCallback){
 		logger.info('Attempting to parse alpha_report_object with id ' + alpha_report_object._id);		
 		var assertion_object = {};
 		if(alpha_report_object.message_body){
-			
-			var tree = parser.parseAndRemovePeriodsSync(alpha_report_object.message_body);//async
-			console.log(tree);
-			async.each(tree, leaf, function(err) {
-				
-				extractor.extractor.extractTriplet(leaf, function (err, output) {
-					if(output) {
-						assertion_object.alpha_report_id = alpha_report_object._id.toString();
-						assertion_object.reporter_id = alpha_report_object.reporter_id.toString();
-						assertion_object.entity1 = output.getEntity1StringSync().toString();
-						assertion_object.relationship = output.getRelationStringSync().toString();
-						assertion_object.entity2 = output.getEntity2StringSync().toString();
-						
-						assertion_service.saveAssertion(assertion_object, saveAssertionCallback);
-					}
+			parser.parseAndRemovePeriods(alpha_report_object.message_body, function(err, tree) {
+				async.forEach(tree, function(leaf, callback) {
+					extractor.extractTriplet(leaf, function (err, output) {
+						if(err) {
+							logger.error("Error occurred while extracting triplets", err);
+							callback(err, output);
+						} else if(output) {
+							assertion_object.alpha_report_id = alpha_report_object._id.toString();
+							assertion_object.reporter_id = alpha_report_object.reporter_id.toString();
+							assertion_object.entity1 = output.getEntity1StringSync().toString();
+							assertion_object.relationship = output.getRelationStringSync().toString();
+							assertion_object.entity2 = output.getEntity2StringSync().toString();
+							assertion_service.saveAssertion(assertion_object, callback);
+						} else {
+							logger.error("No Triplet was able to be extracted", err);
+							callback(err, output);
+						}
+					});
 				});
 			});
-			//for (var i = 0; i < tree.sizeSync(); i++){//async loop
-				//get first sentence fragment from parsed message
-				//var leaf = tree.getSync(i);
-				// var output = extractor.extractTripletSync(leaf);
-				
-				// //create an assertion object for each section of this message body
-				// if (output){
-				// 	assertion_object.alpha_report_id = alpha_report_object._id.toString();
-				// 	assertion_object.reporter_id = alpha_report_object.reporter_id.toString();
-				// 	assertion_object.entity1 = output.getEntity1StringSync().toString();
-				// 	assertion_object.relationship = output.getRelationStringSync().toString();
-				// 	assertion_object.entity2 = output.getEntity2StringSync().toString();
-					
-				// 	assertion_service.saveAssertion(assertion_object, saveAssertionCallback);
-				// }
-			//}
-		}
-	};
-
-	var saveAssertionCallback = function(err, valid, newAssertion) {
-		if (err){
-			logger.info("There was an error saving the parsed Assertion object.");
-		} else if(!valid.valid){
-			logger.info("Invalid assertion " + JSON.stringify(valid.errors));
 		} else {
-			logger.info("Callback version " + newAssertion);
+			logger.error("Alpha Report Not valid", err);
+			saveCallback(err, alpha_report_object);
 		}
 	};
 
