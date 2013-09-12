@@ -1,4 +1,5 @@
 var java = require('java');
+var async = require('async');
 
 module.exports = function(services, logger) {
 	var me = this;
@@ -8,6 +9,7 @@ module.exports = function(services, logger) {
 	var Parser = java.import('com.nextcentury.TripletExtraction.CoreNlpParser');
 	var parser = new Parser();
 	var extractor = new ExtractionService();
+	var ArrayList = java.import('java.util.ArrayList');
 
 	var assertion_service = services.assertionService;
 	
@@ -16,31 +18,38 @@ module.exports = function(services, logger) {
 		var assertion_object = {};
 		if(alpha_report_object.message_body){
 			
-			var tree = parser.parseSync(alpha_report_object.message_body);//async
-			for (var i = 0; i < tree.sizeSync(); i++){//async loop
-				//get first sentence fragment from parsed message
-				var leaf = tree.getSync(i);
-				var numKids = leaf.lastChildSync().numChildrenSync();
-			
-				//get rid of punctuation?
-				var last = leaf.lastChildSync().lastChildSync().toStringSync();
-				if (last.indexOf("(. ") === 0){
-					leaf.lastChildSync().removeChildSync(numKids - 1);
-				}
-				var output = extractor.extractTripletSync(leaf);
+			var tree = parser.parseAndRemovePeriodsSync(alpha_report_object.message_body);//async
+			console.log(tree);
+			async.each(tree, leaf, function(err) {
 				
-				//create an assertion object for each section of this message body
-				if (output){
-					assertion_object.alpha_report_id = alpha_report_object._id.toString();
-					assertion_object.reporter_id = alpha_report_object.reporter_id.toString();
-					assertion_object.entity1 = output.getEntity1StringSync().toString();
-					assertion_object.relationship = output.getRelationStringSync().toString();
-					assertion_object.entity2 = output.getEntity2StringSync().toString();
+				extractor.extractor.extractTriplet(leaf, function (err, output) {
+					if(output) {
+						assertion_object.alpha_report_id = alpha_report_object._id.toString();
+						assertion_object.reporter_id = alpha_report_object.reporter_id.toString();
+						assertion_object.entity1 = output.getEntity1StringSync().toString();
+						assertion_object.relationship = output.getRelationStringSync().toString();
+						assertion_object.entity2 = output.getEntity2StringSync().toString();
+						
+						assertion_service.saveAssertion(assertion_object, saveAssertionCallback);
+					}
+				});
+			});
+			//for (var i = 0; i < tree.sizeSync(); i++){//async loop
+				//get first sentence fragment from parsed message
+				//var leaf = tree.getSync(i);
+				// var output = extractor.extractTripletSync(leaf);
+				
+				// //create an assertion object for each section of this message body
+				// if (output){
+				// 	assertion_object.alpha_report_id = alpha_report_object._id.toString();
+				// 	assertion_object.reporter_id = alpha_report_object.reporter_id.toString();
+				// 	assertion_object.entity1 = output.getEntity1StringSync().toString();
+				// 	assertion_object.relationship = output.getRelationStringSync().toString();
+				// 	assertion_object.entity2 = output.getEntity2StringSync().toString();
 					
-					assertion_service.saveAssertion(assertion_object, saveAssertionCallback);
-
-				}
-			}
+				// 	assertion_service.saveAssertion(assertion_object, saveAssertionCallback);
+				// }
+			//}
 		}
 	};
 
