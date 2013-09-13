@@ -87,6 +87,8 @@ module.exports = function(models, io, logger) {
 	  	};
 
 	  	this.saveFeedEventHandler = function() {
+	  		io.sockets.in('EVEREST.data.workflow').emit('item_saved', {type: "RawFeed"});
+
 	  		//Services that are prototyped out must be called this way.
   			var self = serviceList.RawFeed;
   			self.saveFeed.apply(self, Array.prototype.slice.call(arguments[0], 0));
