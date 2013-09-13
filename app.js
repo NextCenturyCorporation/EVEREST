@@ -31,9 +31,10 @@ if(!config.noDB){
 	});
 }
 
-
 var express = require('express');
-var app = module.exports = express.createServer();
+var app = express();
+var server = require('http').createServer(app);
+
 app.configure(function(){
 	app.use(express.bodyParser());
 	app.use(express.methodOverride());
@@ -83,15 +84,24 @@ app.configure(function(){
 	});
 });
 
-app.listen(config.port, function(){
-  logger.debug("Express server listening on port " + app.address().port + " in " + app.settings.env + " mode");
-});
-
-
 var socketio = require('socket.io');
 //Use Socket.IO
-var io = socketio.listen(app);
+var io = socketio.listen(server);
 io.set('log level', 1);
+
+//configure socketio
+io.on('connection', function(socket) {
+	socket.on('join_room', function (data) {
+		if(data.room === 'EVEREST.data.workflow') {
+			logger.debug("Joining socket to EVEREST.data.workflow room");
+			socket.join('EVEREST.data.workflow')
+		}
+	});
+});
+
+server.listen(config.port, function(){
+  logger.debug("Express server listening on port " + server.address().port + " in " + app.settings.env + " mode");
+});
 
 
 //Event routes

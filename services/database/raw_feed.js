@@ -1,4 +1,5 @@
 var revalidator = require('revalidator');
+var actionEmitter = require('../action_emitter.js');
 
 var RawFeed = module.exports = function(models, io, log) {
 	var me = this;
@@ -34,7 +35,10 @@ RawFeed.prototype.create = function(data, saveCallback) {
 			newFeed.save(function(err){
 				if(err){
 					me.logger.error('Error saving location', err);
+				} else {
+					actionEmitter.saveFeedEvent({data: newFeed});
 				}
+
 				saveCallback(err, valid, newFeed);
 			});
 		}
