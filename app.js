@@ -32,8 +32,9 @@ if(!config.noDB){
 }
 
 
-var express = require('express');
-var app = module.exports = express.createServer();
+var app = require('express')();
+var server = require('http').createServer(app);
+
 app.configure(function(){
 	app.use(express.bodyParser());
 	app.use(express.methodOverride());
@@ -83,15 +84,14 @@ app.configure(function(){
 	});
 });
 
-app.listen(config.port, function(){
-  logger.debug("Express server listening on port " + app.address().port + " in " + app.settings.env + " mode");
-});
-
-
 var socketio = require('socket.io');
 //Use Socket.IO
-var io = socketio.listen(app);
+var io = socketio.listen(server);
 io.set('log level', 1);
+
+server.listen(config.port, function(){
+  logger.debug("Express server listening on port " + app.address().port + " in " + app.settings.env + " mode");
+});
 
 
 //Event routes
