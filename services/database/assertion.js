@@ -3,6 +3,7 @@ var revalidator = require('revalidator');
 
 var AlphaReportService = require('./alpha_report.js');
 var ReporterService = require('./reporter.js');
+var actionEmitter = require('../action_emitter.js');
 
 module.exports = function(models, io, logger) {
 	var me = this;
@@ -75,6 +76,8 @@ module.exports = function(models, io, logger) {
 				newAssertion.save(function(err){
 					if(err){
 						logger.error('Error saving assertion ', err);
+					} else {
+						actionEmitter.saveAssertion({data: newAssertion});
 					}
 					saveCallback(err, valid, newAssertion);
 				});

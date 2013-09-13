@@ -49,12 +49,13 @@ module.exports = function(app, models, io, logger) {
 	});
 
 	// search
-	app.search('/target_assertion/?', function(req,res){
+	//FIXME express does not support a search request; is that actually a valid http qequest type?
+	/*app.search('/target_assertion/?', function(req,res){
 		if (logger.DO_LOG){
 			logger.info("Search for target_assertion "+JSON.stringify(req.body));
 		}
 		targetAssertionService.searchTargetAssertion(req.body, res);
-	});
+	});*/
 	
 	//Update
 	app.post('/target_assertion/:id([0-9a-f]+)', function(req,res){

@@ -1,6 +1,7 @@
 var Bvalidator = require('../../models/alpha_report/bvalidator.js');
 var revalidator = require('revalidator');
 var RawFeedService = require('./raw_feed');
+var actionEmitter = require('../action_emitter.js');
 
 module.exports = function(models, io, logger) {
 	var me = this;
@@ -44,8 +45,11 @@ module.exports = function(models, io, logger) {
 				newAlphaReport.save(function(err){
 					if(err){
 						logger.error('Error saving AlphaReport ', err);
+					} else {
+						actionEmitter.saveAlphaReportEvent({data: newAlphaReport});
 					}
 					saveCallback(err, valid, newAlphaReport);
+
 				});
 			}
 			else {

@@ -4,7 +4,7 @@
     "main": "app.js",
 	"private": true,
     "dependencies": {
-    	"express": "2.5.8",
+    	"express": ">=3.0.x",
     	"jade": ">= 0.0.1",
     	"winston": ">=0.6.1",
     	"mongoose": ">=2.7.1",

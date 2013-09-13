@@ -48,12 +48,13 @@ var location = module.exports = function(app, models, io, logger) {
 	});
 
 	// search
-	app.search('/location/?', function(req,res){
+	//FIXME express does not support a search request.
+	/*app.search('/location/?', function(req,res){
 		if (logger.DO_LOG){
 			logger.info("Search for location "+JSON.stringify(req.body));
 		}
 		locationService.searchLocation(req.body, res);
-	});
+	});*/
 	
 	//Update
 	app.post('/location/:id([0-9a-f]+)', function(req,res){
