@@ -77,7 +77,7 @@ module.exports = function(models, io, logger) {
 					if(err){
 						logger.error('Error saving assertion ', err);
 					} else {
-						actionEmitter.saveAssertion({data: newAssertion});
+						actionEmitter.saveAssertionEvent({data: newAssertion});
 					}
 					saveCallback(err, valid, newAssertion);
 				});
