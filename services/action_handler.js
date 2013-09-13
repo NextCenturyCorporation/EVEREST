@@ -69,7 +69,8 @@ module.exports = function(models, io, logger) {
 	  	};
 
   		this.saveAlphaReportEventHandler = function() {
-  			serviceList.AlphaReport.saveAlphaReport.callWithAllArgs(arguments);
+  			io.sockets.in('EVEREST.data.workflow').emit('item_saved', {type: "AlphaReport"});
+	  		logger.debug("Emitted socket with item_saved for AlphaReport");
 	  	};
 
 	  	this.updateAlphaReportEventHandler = function() {
@@ -88,14 +89,16 @@ module.exports = function(models, io, logger) {
 
 	  	this.saveFeedEventHandler = function() {
 	  		io.sockets.in('EVEREST.data.workflow').emit('item_saved', {type: "RawFeed"});
-
-	  		//Services that are prototyped out must be called this way.
-  			var self = serviceList.RawFeed;
-  			self.saveFeed.apply(self, Array.prototype.slice.call(arguments[0], 0));
+	  		logger.debug("Emitted socket with item_saved for RawFeed");
 	  	};
 
 	  	this.rawFeedParseEventHandler = function() {
   			serviceList.RawFeedParser.parseAndSave.callWithAllArgs(arguments);
+	  	};
+
+	  	this.saveAssertionEventHandler = function() {
+	  		io.sockets.in('EVEREST.data.workflow').emit('item_saved', {type: "Assertion"});
+	  		logger.debug("Emitted socket with item_saved for Assertion");
 	  	};
 	  	
 

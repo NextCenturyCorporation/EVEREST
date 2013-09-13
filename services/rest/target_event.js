@@ -83,7 +83,8 @@ module.exports = function(app, models, io, logger) {
 	});
 
 	// search
-	app.search('/target_event/?', function(req,res){
+	//express does not support a search request type; is that a valid http request type
+	/*app.search('/target_event/?', function(req,res){
 		if (logger.DO_LOG){
 			logger.info("Search for target_event "+JSON.stringify(req.body));
 		}
@@ -100,7 +101,7 @@ module.exports = function(app, models, io, logger) {
 			}
 			res.end();
 		});
-	});
+	});*/
 	
 	//Update
 	app.post('/target_event/:id([0-9a-f]+)', function(req,res){
