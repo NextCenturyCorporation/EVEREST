@@ -9,7 +9,7 @@ var alphaReportModel = {
 	source_name: {type: String, enum: ['Twitter', 'Email'], required: true},
 	source_id: {type: String, required: true}, //FIXME   what is this? id from source
 	message_date: {type: Date},
-	message_body: {type: String}, 
+	message_body: {type: String},
 	reporter_id: {type: ObjectId},
 	location_name: {type: String}, //FIXME   why is this here? name from twitter
 	longitude: {type: Number},
@@ -33,14 +33,14 @@ var alphaReportValidation = {
 			description: 'Date that this alpha report was last updated in datastore',
 			type: 'date'
 		},
-		raw_data_id: {
+		/*raw_data_id: {
 			description : 'The id corresponding to the original raw data',
 			type: 'string'
-		},
+		},*/
 		source_name: {
 			description: "The alpha report's source name",
-			type: 'string', 
-			enum:['Twitter', 'Email'], 
+			type: 'string',
+			enum:['Twitter', 'Email'],
 			required: true
 		},
 		source_id: {
@@ -48,18 +48,19 @@ var alphaReportValidation = {
 			type: 'string',
 			required: true
 		},
+		/* FIXME -- the validation always fails on date for some reason
 		message_date: {
 			description: "The alpha report's date of message",
 			type: 'date'
-		},
+		},*/
 		message_body: {
 			description: "The message body of the alpha report",
 			type: 'string'
-		}, 
-		reporter_id: {
+		},
+		/*reporter_id: {
 			description: "The id of the reporter who created the message for this alpha report",
 			type: 'string'
-		},
+		},*/
 		location_name: {
 			description: "The location of the origin of the alpha report",
 			type: 'string'
@@ -96,8 +97,8 @@ var alphaReportValidation = {
 		utc_offset: {
 			description: 'The difference in hours (including partial hours) from UTC',
 			type: 'number',
-			minimum: -12.0,
-			maximum: 14.0,
+			minimum: -43200,
+			maximum: 50400,
 			messages: {
 				minimum: 'Expected UTC offset >= -12.0',
 				maximum: 'Expected UTC offset <= 14.0'

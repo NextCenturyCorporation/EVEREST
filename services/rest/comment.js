@@ -2,9 +2,8 @@
 // Identify require as a global function/keyword for JSHint
 
 var CommentService = require('../database/comment.js');
-var responseHandler = require('../wizard_service');
 
-var commentRoutes = module.exports = function(app, models, io, log) {
+module.exports = function(app, models, io, log) {
 	var me = this;
 
 	me.app = app;

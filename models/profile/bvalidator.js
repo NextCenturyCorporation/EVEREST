@@ -19,7 +19,7 @@ var dataLayer = require('../../services/database/profile.js');
 		var errors = [];
 	
 		function done() {
-			var bVal = { valid: !(errors.length), errors: errors }; 
+			var bVal = { valid: !(errors.length), errors: errors };
 			callback(bVal);
 		}
 
@@ -91,7 +91,7 @@ var dataLayer = require('../../services/database/profile.js');
 	 **   or not the location was found. 
 	**/
   var profileExists = function(object, errors, callback) {
-		dataLayer.readProfileByObject(object, function(err, locs){
+		dataLayer.findWhere(object, function(err, locs){
 			if (err) {
 				error('record', object, errors, 'Error reading profile ' + err);
 				logger.info({ error : "Error getting profileByObject " + err });

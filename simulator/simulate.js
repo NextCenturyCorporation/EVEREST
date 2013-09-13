@@ -19,7 +19,7 @@ var sendEvent = function(curEvent){
 		//Need to send the location, then the event
 		poster.urlReq('http://localhost:8081/location/',
 				{method: 'POST',params: data.location[curEvent.location]},
-				function(body,res){
+				function(body/*,res*/){
 					var tmp = eval('('+body+')');
 					console.log('New location response:');
 					console.log(tmp);
@@ -28,7 +28,7 @@ var sendEvent = function(curEvent){
 					//Now send it
 					poster.urlReq('http://localhost:8081/events/',
 							{method: 'POST',params: curEvent},
-							function(body,res){
+							function(body/*,res*/){
 								console.log('New event response:');
 								console.log(eval('('+body+')'));
 							});
@@ -39,7 +39,7 @@ var sendEvent = function(curEvent){
 		console.log(curEvent);
 		poster.urlReq('http://localhost:8081/events/',
 			{method: 'POST',params: curEvent},
-			function(body,res){
+			function(body/*,res*/){
 				console.log('New event response:');
 				console.log(eval('('+body+')'));
 			});
@@ -50,16 +50,16 @@ var sendEvent = function(curEvent){
  * Read the arguments.
  * If there are not 5, exit and print how to run
  */
-if(process.argv.length != 5){
+if(process.argv.length !== 5){
 	console.log("Error - missing arguments.");
 	console.log("Usage: ");
 	console.log(process.argv[1]+' <Hostname> <Port> <Speedup factor>');
 	process.exit(-1);
 }
 //Set up hostname
-var hostname = process.argv[2];
+//var hostname = process.argv[2];
 //Set up port
-var port = process.argv[3];
+//var port = process.argv[3];
 //Speedup factor must be > 1
 var factor = 1;
 var tmp = parseFloat(process.argv[4]);
@@ -73,7 +73,7 @@ var totalWait = 0;
 
 //Get the contact ready
 poster.urlReq('http://localhost:8081/contact/',
-	{method:'POST',params:data.contact},function(body,res){
+	{method:'POST',params:data.contact},function(body/*,res*/){
 		var contactInfo = eval('('+body+')');
 		console.log('Contact info:');
 		console.log(contactInfo);

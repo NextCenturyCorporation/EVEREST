@@ -39,14 +39,14 @@ this.listEvents = function(opts, res){
 	if(opts.after){
 		// Finding events after a provided ID while using mongo is a little more complicated
 		// Query to find the date of said event, then query for all where the date is > the first date
-		models.event.findById(opts.after, 'timestmp', function(err1, doc){
+		models.events.findById(opts.after, 'timestmp', function(err1, doc){
 			if(err1){
 				logger.error("Error finding event", err1);
 				general.send500(res);
 				return;
 			}
 			if(count === undefined){
-				models.event.find({timestmp: {$gt: doc.timestmp}}, 'GID title timestmp', {sort: {timestmp: -1}}).
+				models.events.find({timestmp: {$gt: doc.timestmp}}, 'GID title timestmp', {sort: {timestmp: -1}}).
 					execFind(function(err, docs){
 						if(err){
 							logger.error("Error listing events",err);
@@ -57,7 +57,7 @@ this.listEvents = function(opts, res){
 						}
 					});
 			} else {
-				models.event.find({timestmp: {$gt: doc.timestmp}}, 'GID title timestmp', {sort: {timestmp: -1}}).
+				models.events.find({timestmp: {$gt: doc.timestmp}}, 'GID title timestmp', {sort: {timestmp: -1}}).
 					limit(count).execFind(function(err, docs){
 						if(err){
 							logger.error("Error listing events",err);
@@ -70,7 +70,7 @@ this.listEvents = function(opts, res){
 			}
 		});
 	} else {
-		models.event.find({}, 'GID title timestmp', {sort: {timestmp: -1}}).limit(count).execFind(function(err, docs){
+		models.events.find({}, 'GID title timestmp', {sort: {timestmp: -1}}).limit(count).execFind(function(err, docs){
 			if(err){
 				logger.error("Error listing events",err);
 				general.send500(res);
@@ -88,7 +88,7 @@ this.listEvents = function(opts, res){
  * Optionally, you can specify the number of comments to include with each event, up to 100
  */
 this.getEventGroup = function(index, opts, res){
-	models.event.find({GID:index}, null, {sort: {timestmp: -1}}).populate('contact').populate('location').exec(function(err, docs){
+	models.events.find({GID:index}, null, {sort: {timestmp: -1}}).populate('contact').populate('location').exec(function(err, docs){
 		if(err){
 			logger.error("Error getting event group",err);
 			general.send500(res);
@@ -110,7 +110,7 @@ this.getEventGroup = function(index, opts, res){
 				arr.push(tmp);
 			}
 			res.json(arr);
-			res.end();			
+			res.end();
 		} else {
 			general.send404(res);
 		}
@@ -123,7 +123,7 @@ this.getEventGroup = function(index, opts, res){
  * ?comments=# in the URL, up to 100. The default is not to include any.
  */
 this.getEvent = function(index, opts, res){
-	models.event.findById(index).populate('location').populate('contact').exec(function(err, docs){
+	models.events.findById(index).populate('location').populate('contact').exec(function(err, docs){
 		if(err){
 			logger.error('Error getting event',err);
 			general.send500(res);
@@ -141,7 +141,7 @@ this.getEvent = function(index, opts, res){
 				tmp.comments = [];
 			}
 			res.json(tmp);
-			res.end();			
+			res.end();
 		} else {
 			general.send404(res);
 		}
@@ -152,7 +152,7 @@ this.getEvent = function(index, opts, res){
  * Helper function to handle event.save()
  * (See createEvent)
  */
-saveEvent = function(newEvent, res){
+var saveEvent = function(newEvent, res){
 	logger.info("Event to be saved:",newEvent.toObject());
 	newEvent.save(function(err){
 		if(err){
@@ -178,7 +178,7 @@ saveEvent = function(newEvent, res){
  * a Socket.io message with the ID and GID
  */
 this.createEvent = function(data, res){
-	var newEvent = new models.event(data);
+	var newEvent = new models.events(data);
 	//Check if GID is set or not
 	if(newEvent.GID === undefined || newEvent.GID === null){
 		//Need to determine the GID now
@@ -231,7 +231,7 @@ this.createGroupEvent = function(data, gid, res){
  * This deletes the event with the id sepecified in the URL
  */
 this.deleteEvent = function(id, res){
-	models.event.find({_id:id}, function(err, docs){
+	models.events.find({_id:id}, function(err, docs){
 		if(err || docs.length === 0){
 			logger.error('Error deleting event', err);
 			general.send500(res);

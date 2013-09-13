@@ -1,9 +1,11 @@
 var base_path = '../../../..';
 var services_path = base_path + '/services';
-
-var nlp_parser = require(services_path + '/parsers/nlp_parser.js'); 
+var models = require(base_path + '/models/models');
+var java = require('java');
+java.classpath.push(base_path +'/java_lib/Triplet_Extraction.jar');
+var Nlp_Parser = require(services_path + '/parsers/nlp_parser_async.js'); 
 var alpha_report_service = require(services_path + '/database/alpha_report.js');
-var assertion_service = require(services_path + '/database/assertion.js');
+var Assertion_Service = require(services_path + '/database/assertion.js');
 var config = require(base_path + '/config.js');
 
 var winston = require('winston');
@@ -11,9 +13,10 @@ var logger = new (winston.Logger)({
 	transports: [new (winston.transports.Console)({level:config.log_level}),
 		new (winston.transports.File)({filename: base_path + '/logs/jasmine_testing.log'})]
 });
+var assertionService = new Assertion_Service(models, null, logger);
+var nlpParser = new Nlp_Parser({assertionService: assertionService}, logger);
 
-var java = require('java');
-java.classpath.push(base_path +'/java_lib/Triplet_Extraction.jar');
+
 
 		
 describe('To verify the the nlp parsers ', function() {
@@ -27,14 +30,15 @@ describe('To verify the the nlp parsers ', function() {
 		};
 				
 		spyOn(logger, 'info').andCallThrough();
-		var assert = spyOn(assertion_service, 'saveAssertion').andCallThrough();
+		var assert = spyOn(assertionService, 'saveAssertion').andCallThrough();
 		
-		nlp_parser.load(logger);
-		nlp_parser.parseAndSave(ar_object);
-		
-		expect(logger.info).toHaveBeenCalled();
-		expect(assert).toHaveBeenCalled();
-		expect(assert.callCount).toEqual(2);
+		nlpParser.parseAndSave(ar_object);
+		waits(1000);
+		runs(function () {
+			expect(logger.info).toHaveBeenCalled();
+			expect(assert).toHaveBeenCalled();
+			expect(assert.callCount).toEqual(2);
+		});
 	});
 	
 	it('ability to not call save when message_body won\'t yield a triplet', function(){
@@ -46,12 +50,11 @@ describe('To verify the the nlp parsers ', function() {
 			"message_body":"Hi"
 		};
 
-		spyOn(assertion_service, 'saveAssertion').andCallThrough();
+		spyOn(assertionService, 'saveAssertion').andCallThrough();
 		
-		nlp_parser.load(logger);
-		nlp_parser.parseAndSave(ar_object);
+		nlpParser.parseAndSave(ar_object);
 		
-		expect(assertion_service.saveAssertion).not.toHaveBeenCalled();
+		expect(assertionService.saveAssertion).not.toHaveBeenCalled();
 	});
 	
 });

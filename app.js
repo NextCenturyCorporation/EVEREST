@@ -49,17 +49,17 @@ app.configure(function(){
 	 */
 	app.all('*', function(req, res, next){
 		if (!req.get('Origin')) {
-	 		return next();
-	 	}
+			return next();
+		}
 		// use "*" here to accept any origin
 		res.set('Access-Control-Allow-Origin', '*');
-		res.set('Access-Control-Allow-Methods', 'GET, POST', 'DEL', 'DELETE', 'PUT', 'SEARCH');
+		res.set('Access-Control-Allow-Methods', 'GET, POST, DEL, DELETE, PUT, SEARCH, OPTIONS');
 		res.set('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type');
 		// res.set('Access-Control-Allow-Max-Age', 3600);
 		if ('OPTIONS' === req.method) {
 			return res.send(200);
 		}
-		next();
+		return next();
 	});
 
 	/**

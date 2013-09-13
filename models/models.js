@@ -55,3 +55,11 @@ exports.reporterValidation = reporterModel.reporterValidation;
 var targetAssertionModel = require('./target_assertion/model.js');
 exports.targetAssertion = targetAssertionModel.targetAssertion;
 exports.targetAssertionValidation = targetAssertionModel.targetAssertionValidation;
+
+//target_event
+var targetEventModel = require('./target_event/model.js');
+exports.targetEvent = targetEventModel.targetEvent;
+exports.targetEventValidation = targetEventModel.targetEventValidation;
+
+var twitterKeyModel = require('./twitter_key/model.js');
+exports.twitterKey = twitterKeyModel.twitterKey;

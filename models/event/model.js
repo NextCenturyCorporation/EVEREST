@@ -11,9 +11,9 @@ var eventModel = {
 	confirmed_report_ids: [ObjectId]
 };
 var EventSchema = new Schema(eventModel);
-var event = mongoose.model('Event', EventSchema);
+var eventObj = mongoose.model('Event', EventSchema);
 
 var eventValidation = {};
 
-exports.event = event;
-exports.eventValidation = eventValidation;
+exports.events = eventObj;
+exports.eventsValidation = eventValidation;

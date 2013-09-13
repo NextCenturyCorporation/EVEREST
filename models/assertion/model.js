@@ -3,7 +3,7 @@ var Schema = mongoose.Schema;
 
 var assertionModel = {
 	createdDate: {type: Date},
-	updatedDate: {type: Date},	
+	updatedDate: {type: Date},
 	alpha_report_id: {type: Schema.Types.ObjectId},
 	reporter_id: {type: Schema.Types.ObjectId},
 	entity1: {type: String, required: true},
@@ -47,7 +47,7 @@ var assertionValidation= {
 			type: 'string',
 			required: true
 		}
-	}	
+	}
 };
 
 exports.assertion = assertion;

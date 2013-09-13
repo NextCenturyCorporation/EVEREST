@@ -1,6 +1,7 @@
 var targetAssertionService = require('../database/target_assertion.js');
 
-var targetAssertion = module.exports = function(app, models, io, logger) {
+module.exports = function(app, models, io, logger) {
+	
 	var me = this;
 
 	me.logger = logger;

@@ -42,7 +42,7 @@ this.locationDataModel = {
 		radius		:	{type: Number, required: true}
 	};
 //Need this to make API testing DBRefs easier
-this.LocationDataModel = this.locationDataModel; 
+this.LocationDataModel = this.locationDataModel;
 var LocationSchema = new Schema(this.locationDataModel);
 
 this.contactDataModel = {

@@ -19,7 +19,7 @@ var dataLayer = require('../../services/database/target_assertion.js');
 		var errors = [];
 	
 		function done() {
-			var bVal = { valid: !(errors.length), errors: errors }; 
+			var bVal = { valid: !(errors.length), errors: errors };
 			callback(bVal);
 		}
 
@@ -43,7 +43,7 @@ var dataLayer = require('../../services/database/target_assertion.js');
 		nameExists( value, errors, function (err, found) {
 			var property = 'name';
 			if (found) {
-				error(property, value, errors, "Location " + property + " already exists.");
+				error(property, value, errors, "TargetAssertion " + property + " already exists.");
 				logger.info("nameExists " + value);
 			}
 	

@@ -27,13 +27,13 @@ RawFeed.prototype.create = function(data, saveCallback) {
 	
 	me.validateFeed(data, function(valid) {
 		if (valid.valid) {
-			logger.info("Valid raw_feed");
+			me.logger.info("Valid raw_feed");
 			var newFeed = new me.models.rawFeed(data);
 			newFeed.createdDate = new Date();
 			newFeed.updatedDate = new Date();
 			newFeed.save(function(err){
 				if(err){
-					logger.error('Error saving location', err);
+					me.logger.error('Error saving location', err);
 				}
 				saveCallback(err, valid, newFeed);
 			});
@@ -46,9 +46,8 @@ RawFeed.prototype.create = function(data, saveCallback) {
 
 RawFeed.prototype.validateFeed = function(data, valCallback) {
 	var me = this;
-	
 	// is the JSON semantically valid for the location object?
-	var valid = revalidator.validate(data, validationModel.rawFeedValidation);
+	var valid = revalidator.validate(data, me.models.rawFeedValidation);
 	if (valid.valid) {
 		// does the location object comply with business validation logic
 		//bvalidator.validate(data, function(valid) {
@@ -108,7 +107,7 @@ RawFeed.prototype.update = function(id, data, updCallback) {
 	});
 };
 
-RawFeed.prototype.delete = function(params, deleteCallback){
+RawFeed.prototype.del = function(params, deleteCallback){
 	var me = this;
 	
 	me.models.rawFeed.remove(params, deleteCallback);
