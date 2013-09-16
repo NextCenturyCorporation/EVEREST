@@ -11,6 +11,9 @@ module.exports = function(app, io, logger){
 	var Assertion = require('./rest/assertion.js');
 	new Assertion(app, models, io, logger);
 
+	var AtomRss = require('./rest/atom_rss_ingest.js');
+	new AtomRss(app, models, io, logger);
+
 	var Comment = require('./rest/comment.js');
 	new Comment(app, models, io, logger);
 
