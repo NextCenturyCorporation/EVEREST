@@ -68,7 +68,7 @@ app.configure(function(){
 	 * https://github.com/senchalabs/connect/blob/master/lib/middleware/errorHandler.js
 	 * http://stackoverflow.com/questions/7151487/error-handling-principles-for-nodejs-express-apps
 	**/
-	/* jshint -W098 */  // errorHandler signature needs to be the four params, even if they go unused
+	/*jshint -W098 */  // errorHandler signature needs to be the four params, even if they go unused
 	app.use(function errorHandler(err, req, res, next){
 		if (err.status) { 
 			res.statusCode = err.status;
@@ -94,7 +94,7 @@ io.on('connection', function(socket) {
 	socket.on('join_room', function (data) {
 		if(data.room === 'EVEREST.data.workflow') {
 			logger.debug("Joining socket to EVEREST.data.workflow room");
-			socket.join('EVEREST.data.workflow')
+			socket.join('EVEREST.data.workflow');
 		}
 	});
 });
