@@ -5,7 +5,7 @@ var Schema = mongoose.Schema;
 	createdDate: {type: Date, "default": Date.now},
 	updatedDate: {type: Date, "default": Date.now},
 	text: {type: String, required: true},
-	feedSource: {type: String, enum: ['Twitter', 'Email'], required: true}
+	feedSource: {type: String, enum: ['Twitter', 'Email','RSS'], required: true}
 };
 
 var rawFeedSchema = new Schema(rawFeedModel);
@@ -29,7 +29,7 @@ var rawFeedValidation = {
 		feedSource: {
 			description: 'The source of the raw feed',
 			type: 'string',
-			enum: ['Twitter', 'Email'],
+			enum: ['Twitter', 'Email', 'RSS'],
 			messages: {
 				enum: 'Expected a source of Twitter or Email'
 			},

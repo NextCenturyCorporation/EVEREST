@@ -11,6 +11,10 @@ var assertionModel = require('./assertion/model.js');
 exports.assertion = assertionModel.assertion;
 exports.assertionValidation = assertionModel.assertionValidation;
 
+//assertion
+var atomRssModel = require('./atom_rss/model.js');
+exports.atomRss = atomRssModel.atomRss;
+
 //comment
 var commentModel = require('./comment/model.js');
 exports.comment = commentModel.comment;
