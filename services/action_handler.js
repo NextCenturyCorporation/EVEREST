@@ -43,7 +43,7 @@ fs.readdirSync("services/parsers").forEach(function(file) {
 
 module.exports = function(models, io, logger) {
 	var serviceList = {};
-	var self = this;
+	//var self = this;
 	//This loop will automatically create a new Object of the type of the service using standard Object notation
 	//Example for alpha report it would call:
 	//var AlphaReport = new requiredServicesList['alpha_report'](models,io,logger,actionEmitter);
@@ -64,45 +64,44 @@ module.exports = function(models, io, logger) {
 			return this.apply(this, Array.prototype.slice.call(arguments[0][0], 0));
 		};
 
-	  	this.sampleListEventHandler = function() {
-	  		serviceList.Profile.sampleProfileEvent.callWithAllArgs(arguments);
-	  	};
+		this.sampleListEventHandler = function() {
+			serviceList.Profile.sampleProfileEvent.callWithAllArgs(arguments);
+		};
 
-  		this.saveAlphaReportEventHandler = function() {
-  			io.sockets.in('EVEREST.data.workflow').emit('item_saved', {type: "AlphaReport"});
-	  		logger.debug("Emitted socket with item_saved for AlphaReport");
-	  	};
+		this.saveAlphaReportEventHandler = function() {
+			io.sockets.to('EVEREST.data.workflow').emit('item_saved', {type: "AlphaReport"});
+			logger.debug("Emitted socket with item_saved for AlphaReport");
+		};
 
-	  	this.updateAlphaReportEventHandler = function() {
-  			serviceList.AlphaReport.updateAlphaReportX.callWithAllArgs(arguments);
-	  	};
+		this.updateAlphaReportEventHandler = function() {
+			serviceList.AlphaReport.updateAlphaReportX.callWithAllArgs(arguments);
+		};
 
-	  	this.validateAlphaReportEventHandler = function() {
-  			serviceList.AlphaReport.validateAlphaReport.callWithAllArgs(arguments);
-	  	};
+		this.validateAlphaReportEventHandler = function() {
+			serviceList.AlphaReport.validateAlphaReport.callWithAllArgs(arguments);
+		};
 
-  		this.twitterDataRecievedEventHandler = function() {
-  			//Services that are prototyped out must be called this way.
-  			var self = serviceList.RawFeed;
-  			self.create.apply(self, Array.prototype.slice.call(arguments[0], 0));
-	  	};
+		this.twitterDataRecievedEventHandler = function() {
+			//Services that are prototyped out must be called this way.
+			var self = serviceList.RawFeed;
+			self.create.apply(self, Array.prototype.slice.call(arguments[0], 0));
+		};
 
-	  	this.saveFeedEventHandler = function() {
-	  		io.sockets.in('EVEREST.data.workflow').emit('item_saved', {type: "RawFeed"});
-	  		logger.debug("Emitted socket with item_saved for RawFeed");
-	  	};
+		this.saveFeedEventHandler = function() {
+			io.sockets.to('EVEREST.data.workflow').emit('item_saved', {type: "RawFeed"});
+			logger.debug("Emitted socket with item_saved for RawFeed");
+		};
 
-	  	this.rawFeedParseEventHandler = function() {
-  			serviceList.RawFeedParser.parseAndSave.callWithAllArgs(arguments);
-	  	};
+		this.rawFeedParseEventHandler = function() {
+			serviceList.RawFeedParser.parseAndSave.callWithAllArgs(arguments);
+		};
 
-	  	this.saveAssertionEventHandler = function() {
-	  		io.sockets.in('EVEREST.data.workflow').emit('item_saved', {type: "Assertion"});
-	  		logger.debug("Emitted socket with item_saved for Assertion");
-	  	};
-	  	
+		this.saveAssertionEventHandler = function() {
+			io.sockets.to('EVEREST.data.workflow').emit('item_saved', {type: "Assertion"});
+			logger.debug("Emitted socket with item_saved for Assertion");
+		};
 
-	  	//More Implemented event handlers below....
+		//More Implemented event handlers below....
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -114,7 +113,7 @@ module.exports = function(models, io, logger) {
 		var currentEvent = eventerEventList[i];
 		//For each event call the appropriate handler above.
 		if(listener[currentEvent.handlerify()]) {
-		 	actionEmitter.on(currentEvent,listener[currentEvent.handlerify()]);
+			actionEmitter.on(currentEvent,listener[currentEvent.handlerify()]);
 		} else {
 			//If there are events defined in action_emitter but no handler defined above, log an error.
 			logger.error("There is no " + currentEvent.handlerify() + " defined in action_handler.js\n");
