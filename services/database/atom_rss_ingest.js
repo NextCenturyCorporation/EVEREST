@@ -3,8 +3,11 @@ String.prototype.stripHTMLFromFeed = function() {
 };
 
 String.prototype.tryToFixURI = function() {
-	if(this.indexOf("www") === 0) {
+	var indexWWW = this.indexOf("www");
+	if(indexWWW === 0) {
 		return "http://" + this;
+	} else if(indexWWW === -1 &&  this.indexOf("http") === -1) {
+		return "http://www." + this;
 	}
 	return this.toString();
 };
@@ -116,7 +119,7 @@ module.exports = function(models, io, logger) {
 				    var feedId = item.guid || item.id || '';
 				    var feedContent = item.description || item.content || item.summary ||'';
 				    var date = item.pubDate || item.published ||''; 
-				    //actionEmitter.twitterDataRecievedEvent({feedSource: 'Twitter'}, text:JSON.stringify(data)}, function(err, valid, newfeed){
+				    actionEmitter.twitterDataRecievedEvent({feedSource: 'Twitter', text:JSON.stringify(item)}, function(err, valid, newfeed){
 				    console.log("------------------------------------------");
 			        console.log("1: " + title);
 			        console.log("2: " + author);
@@ -125,6 +128,7 @@ module.exports = function(models, io, logger) {
 			        console.log("5: " + link);
 			        console.log("6: " + date);
 			        console.log("------------------------------------------");
+			    	});
 				}
 			  }
 			});

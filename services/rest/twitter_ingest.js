@@ -34,7 +34,7 @@ var twitterIngest = module.exports = function(app, models, io, logger) {
 					});
 					callback();
 				}, function() {
-					res.json(returnArray);
+					res.jsonp(returnArray);
 				});
 			}
 		});

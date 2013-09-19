@@ -1,4 +1,5 @@
 var TwitterParser = require('./twitter_to_alpha_report.js'); //TODO
+var AtomRssParser = require('./atom_rss_to_alpha_report.js'); //TODO
 var RawFeedService = require('../database/raw_feed.js');
 
 module.exports = function(models, io, logger) {
@@ -6,9 +7,11 @@ module.exports = function(models, io, logger) {
 
 	var raw_feed_service = new RawFeedService(models, io, logger);
 	var twitter_parser = new TwitterParser(models, io, logger);
+	var rss_atom_parser = new AtomRssParser(models, io, logger);
 
 	me.parsers = {
-		"twitter": twitter_parser
+		"twitter": twitter_parser,
+		"rss": rss_atom_parser
 	};
 
 	me.parseAndSave = function(id, callback) {
@@ -20,8 +23,16 @@ module.exports = function(models, io, logger) {
 				callback(err, null);
 			} else {
 				logger.debug("Parser - Docs found: " + docs);
+				console.log("+++++++++++++++++++++++++++++++++++++++");
+					console.log(me.parsers);
+					console.log(docs.feedSource);
+					console.log("+++++++++++++++++++++++++++++++++++++++");
 				if(Object.keys(me.parsers).indexOf(docs.feedSource)) {
-					twitter_parser.parseAndSave(docs, callback);
+					console.log("+++++++++++++++++++++++++++++++++++++++");
+					console.log(me.parsers);
+					console.log(docs.feedSource);
+					console.log("+++++++++++++++++++++++++++++++++++++++");
+					//twitter_parser.parseAndSave(docs, callback);
 				} else {
 					var msg = "Cannot find a parser for the raw feed type " + docs[0].feedSource;
 					callback(msg, null);
