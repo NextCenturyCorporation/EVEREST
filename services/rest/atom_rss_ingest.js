@@ -126,7 +126,7 @@ var atomRssIngest = module.exports = function(app, models, io, logger) {
 			if(feed) {
 				responseBack = feed;
 			}
-			res.json(responseBack);
+			res.jsonp(responseBack);
 			res.end();
 		}
 	};
