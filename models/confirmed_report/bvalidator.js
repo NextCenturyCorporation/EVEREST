@@ -88,59 +88,72 @@ module.exports = function(services, logger) {
 	};
 
 	me.targetEventIsValid = function(value, errors, callback) {
-		me.services.targetEventService.get(value, function(err, docs){
-			if (err) {
-				me.error('target_event_id', value, errors, 'Error reading target_event_id ' + err);
-				me.logger.error("Error getting targetEvent by id ", err);
-				callback(err, false);
-			} else if (0 !== docs.length) {
-				me.logger.info("Target event found for targetEventIsValid" + JSON.stringify(docs));
-				callback(err, true);
-			} else {
-				me.logger.info("Target event not found " + value);
-				callback(err, false);
-			}
-		});
+		if(typeof(value) === 'undefined' || !value) {
+			callback(null, true);
+		} else {
+
+			me.services.targetEventService.get(value, function(err, docs){
+				if (err) {
+					me.error('target_event_id', value, errors, 'Error reading target_event_id ' + err);
+					me.logger.error("Error getting targetEvent by id ", err);
+					callback(err, false);
+				} else if (0 !== docs.length) {
+					me.logger.info("Target event found for targetEventIsValid" + JSON.stringify(docs));
+					callback(err, true);
+				} else {
+					me.logger.info("Target event not found " + value);
+					callback(err, false);
+				}
+			});
+		}
 	};
 
 	me.profileIsValid = function(value, errors, callback) {
-		me.services.profileService.get(value, function(err, docs) {
-			if (err) {
-				me.error('profile_id', value, errors, 'Error reading profile ' + err);
-				me.logger.error("Error getting profile by id ", err);
-				callback(err, false);
-			} else if (0 !== docs.length) {
-				me.logger.info("Profile found for profile" + JSON.stringify(docs));
-				callback(err, true);
-			} else {
-				me.logger.info("Profile string not found " + value);
-				callback(err, false);
-			}
-		});
+		if(typeof(value) === 'undefined' || !value) {
+			callback(null, true);
+		} else {
+			me.services.profileService.get(value, function(err, docs) {
+				if (err) {
+					me.error('profile_id', value, errors, 'Error reading profile ' + err);
+					me.logger.error("Error getting profile by id ", err);
+					callback(err, false);
+				} else if (0 !== docs.length) {
+					me.logger.info("Profile found for profile" + JSON.stringify(docs));
+					callback(err, true);
+				} else {
+					me.logger.info("Profile string not found " + value);
+					callback(err, false);
+				}
+			});
+		}
 	};
 
 	me.assertionsAreValid = function(value, errors, callback) {
-		async.each(value, function(assertion, eachCallback) {
-			me.services.profileService.get(assertion, function(err, assertionDoc) {
-				if (err) {
-					me.error('assertions', value, errors, 'Error reading assertion ' + err);
-					me.logger.error("Error getting assertion by id ", err);
-					eachCallback(err);
-				} else if (0 !== assertionDoc.length) {
-					me.logger.info("Assertion found for assertionsAreValid" + JSON.stringify(assertionDoc));
-					eachCallback(err);
+		if(typeof(value) === 'undefined' || value.length === 0) {
+			callback(null, true);
+		} else {
+			async.each(value, function(assertion, eachCallback) {
+				me.services.profileService.get(assertion, function(err, assertionDoc) {
+					if (err) {
+						me.error('assertions', value, errors, 'Error reading assertion ' + err);
+						me.logger.error("Error getting assertion by id ", err);
+						eachCallback(err);
+					} else if (0 !== assertionDoc.length) {
+						me.logger.info("Assertion found for assertionsAreValid" + JSON.stringify(assertionDoc));
+						eachCallback(err);
+					} else {
+						me.logger.info("Assertion not found " + value);
+						eachCallback(err);
+					}
+				});
+			}, function(err) {
+				if(err) {
+					callback(err, false);
 				} else {
-					me.logger.info("Assertion not found " + value);
-					eachCallback(err);
+					callback(err, true);
 				}
 			});
-		}, function(err) {
-			if(err) {
-				callback(err, false);
-			} else {
-				callback(err, true);
-			}
-		});
+		}
 	};
 		
 	me.error = function(property, actual, errors, msg) {

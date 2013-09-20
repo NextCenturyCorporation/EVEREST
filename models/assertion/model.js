@@ -4,7 +4,7 @@ var Schema = mongoose.Schema;
 var assertionModel = {
 	createdDate: {type: Date},
 	updatedDate: {type: Date},
-	alpha_report_id: {type: Schema.Types.ObjectId},
+	alpha_report_id: {type: Schema.Types.ObjectId, required: true},
 	reporter_id: {type: Schema.Types.ObjectId},
 	entity1: {type: String, required: true},
 	relationship: {type: String, required: true},
