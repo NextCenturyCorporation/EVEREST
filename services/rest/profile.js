@@ -16,9 +16,9 @@ module.exports = function(app, models, io, logger) {
 			if(err){
 				logger.info("Error listing profiles "+err);
 				res.status(500);
-				res.json({error: 'Error'});
+				res.jsonp({error: 'Error'});
 			} else {
-				res.json(profiles);
+				res.jsonp(profiles);
 			}
 			res.end();
 		});
@@ -34,9 +34,9 @@ module.exports = function(app, models, io, logger) {
 			if(err){
 				logger.info("Error listing profile id - name "+err);
 				res.status(500);
-				res.json({error: 'Error'});
+				res.jsonp({error: 'Error'});
 			} else {
-				res.json(docs);
+				res.jsonp(docs);
 			}
 			res.end();
 		});
@@ -74,12 +74,12 @@ module.exports = function(app, models, io, logger) {
 			if(err) {
 				logger.info("Error getting profile "+err);
 				res.status(500);
-				res.json({error: 'Error'});
+				res.jsonp({error: 'Error'});
 			} else if(foundProfile) {
-				res.json(foundProfile);
+				res.jsonp(foundProfile);
 			} else {
 				res.status(404);
-				res.json({error: 'Not found'});
+				res.jsonp({error: 'Not found'});
 			}
 			res.end();
 		});
@@ -94,12 +94,12 @@ module.exports = function(app, models, io, logger) {
 			if(err) {
 				logger.info("Error getting profileByName "+err);
 				res.status(500);
-				res.json({error: 'Error'});
+				res.jsonp({error: 'Error'});
 			} else if(0 !== found.length) {
-				res.json(found);
+				res.jsonp(found);
 			} else {
 				res.status(404);
-				res.json({error: 'Not found'});
+				res.jsonp({error: 'Not found'});
 			}
 			res.end();
 		});
