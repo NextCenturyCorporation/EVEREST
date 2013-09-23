@@ -11,7 +11,7 @@ String.prototype.stripFileDesignation = function(){
 };
 
 String.prototype.handlerify = function(){
-	return this.concat("Handler");
+	return this.concat('Handler');
 };
 
 String.prototype.deHandlerify = function(){
@@ -19,19 +19,19 @@ String.prototype.deHandlerify = function(){
 };
 
 var requiredServicesList = {};
-var actionEmitter = require("./action_emitter.js");
-var fs = require("fs");
+var actionEmitter = require('./action_emitter.js');
+var fs = require('fs');
 //Comment this out if you want to just manually require each service
 //this will just require every service defined in the database folder.
 
-fs.readdirSync("services/database").forEach(function(file) {
+fs.readdirSync('services/database').forEach(function(file) {
 	var filename = file.stripFileDesignation();
-	requiredServicesList[filename] = require("./database/" + file);
+	requiredServicesList[filename] = require('./database/' + file);
 });
 
-fs.readdirSync("services/parsers").forEach(function(file) {
+fs.readdirSync('services/parsers').forEach(function(file) {
 	var filename = file.stripFileDesignation();
-	requiredServicesList[filename+"_parser"] = require("./parsers/" + file);
+	requiredServicesList[filename+'_parser'] = require('./parsers/' + file);
 });
 
 
@@ -52,7 +52,7 @@ module.exports = function(models, io, logger) {
 			serviceList[service.toObjectNotation()] = new requiredServicesList[service.toString()](models,io,logger);
 		}
 	}
-	var Listener = require("./action_implementations.js");
+	var Listener = require('./action_implementations.js');
 	var listener = new Listener(serviceList, io, logger);
 
 	var eventerEventList = actionEmitter.eventList;
@@ -65,7 +65,7 @@ module.exports = function(models, io, logger) {
 			actionEmitter.on(currentEvent,listener[currentEvent.handlerify()]);
 		} else {
 			//If there are events defined in action_emitter but no handler defined above, log an error.
-			logger.error("There is no " + currentEvent.handlerify() + " defined in action_handler.js\n");
+			logger.error('There is no ' + currentEvent.handlerify() + ' defined in action_handler.js\n');
 		}
 	}
 
@@ -73,7 +73,7 @@ module.exports = function(models, io, logger) {
 	//Associated Event for a Handler.
 	for(var fun in listener) {
 		if(eventerEventList.indexOf(fun.deHandlerify()) === -1 && fun !== 'callWithAllArgs') {
-			logger.error("Handler:  " + fun + " defined but " + fun.deHandlerify() +" not defined in action_emitter.js \n");
+			logger.error('Handler:  ' + fun + ' defined but ' + fun.deHandlerify() +' not defined in action_emitter.js \n');
 		}
 	}
 };

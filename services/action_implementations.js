@@ -10,8 +10,8 @@ module.exports =  Listener = function(serviceList, io ,logger){
 	};
 
 	this.saveAlphaReportEventHandler = function() {
-		io.sockets.to('EVEREST.data.workflow').emit('item_saved', {type: "AlphaReport"});
-		logger.debug("Emitted socket with item_saved for AlphaReport");
+		io.sockets.to('EVEREST.data.workflow').emit('item_saved', {type: 'AlphaReport'});
+		logger.debug('Emitted socket with item_saved for AlphaReport');
 	};
 
 	this.updateAlphaReportEventHandler = function() {
@@ -29,8 +29,8 @@ module.exports =  Listener = function(serviceList, io ,logger){
 	};
 
 	this.saveFeedEventHandler = function() {
-		io.sockets.to('EVEREST.data.workflow').emit('item_saved', {type: "RawFeed"});
-		logger.debug("Emitted socket with item_saved for RawFeed");
+		io.sockets.to('EVEREST.data.workflow').emit('item_saved', {type: 'RawFeed'});
+		logger.debug('Emitted socket with item_saved for RawFeed');
 	};
 
 	this.rawFeedParseEventHandler = function() {
@@ -38,8 +38,8 @@ module.exports =  Listener = function(serviceList, io ,logger){
 	};
 
 	this.saveAssertionEventHandler = function() {
-		io.sockets.to('EVEREST.data.workflow').emit('item_saved', {type: "Assertion"});
-		logger.debug("Emitted socket with item_saved for Assertion");
+		io.sockets.to('EVEREST.data.workflow').emit('item_saved', {type: 'Assertion'});
+		logger.debug('Emitted socket with item_saved for Assertion');
 	};
 
 	//More Implemented event handlers below....
