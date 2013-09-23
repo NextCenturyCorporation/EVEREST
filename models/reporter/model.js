@@ -6,7 +6,7 @@ var reporterDataModel = {
 	createdDate: {type: Date},
 	updatedDate: {type: Date},
 	name: {type: String, required: true},
-	source_name: {type: String, enum:['Twitter', 'Email'], required: true},
+	source_name: {type: String, enum:['Twitter', 'Email','RSS'], required: true},
 	source_id: {type: String},
 	screen_name: {type: String},
 	location_name: {type: String},
@@ -41,7 +41,7 @@ var reporterValidation = {
 		source_name: {
 			description: 'The reporters source name',
 			type: 'string',
-			enum:['Twitter', 'Email'],
+			enum:['Twitter', 'Email','RSS'],
 			required: true
 		},
 		source_id: {

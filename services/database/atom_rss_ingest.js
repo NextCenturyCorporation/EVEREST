@@ -24,7 +24,6 @@ module.exports = function(models, io, logger) {
 	var FeedParser = require('feedparser')
 		  , request = require('request');
 
-
 	self.list = function(params, callback){
 		self.findWhere({}, callback);
 	};
@@ -56,6 +55,7 @@ module.exports = function(models, io, logger) {
 			createReader(feed);
 		}, feed.polling_interval);
 		self.feed.feedInterval[feed._id] = intervalId;
+
 		self.update(feed._id, {feed_active: true}, callback);
 	};
 
@@ -98,15 +98,23 @@ module.exports = function(models, io, logger) {
 		});
 	};
 
+	self.initFeedStopped = function(callback) {
+		self.list(null, function(err, feeds) {
+			async.forEach(feeds, function(i, callback) {
+				self.update(i._id, {feed_active:false},callback);
+			}, callback());
+		});
+	};
+
 	var createReader = function (feed) {
 		if(feed && feed.feed_url) {
 			request(feed.feed_url.tryToFixURI())
 			.pipe(new FeedParser())
 			.on('error', function (error) {
-			  console.error(error);
+			  logger.error(error);
 			})
 			.on('meta', function (meta) {
-			  console.log('===== %s =====', meta.title);
+			 // console.log('===== %s =====', meta.title);
 			})
 			.on('readable', function() {
 			  var stream = this, item;
@@ -119,15 +127,8 @@ module.exports = function(models, io, logger) {
 				    var feedId = item.guid || item.id || '';
 				    var feedContent = item.description || item.content || item.summary ||'';
 				    var date = item.pubDate || item.published ||''; 
-				    actionEmitter.twitterDataRecievedEvent({feedSource: 'Twitter', text:JSON.stringify(item)}, function(err, valid, newfeed){
-				    console.log("------------------------------------------");
-			        console.log("1: " + title);
-			        console.log("2: " + author);
-			        console.log("3: " + feedId);
-			        console.log("4: " + feedContent.stripHTMLFromFeed());
-			        console.log("5: " + link);
-			        console.log("6: " + date);
-			        console.log("------------------------------------------");
+				    actionEmitter.twitterDataRecievedEvent({feedSource: 'RSS', text:JSON.stringify(item)}, function(err, valid, newfeed){
+				    	actionEmitter.rawFeedParseEvent(newfeed._id)
 			    	});
 				}
 			  }

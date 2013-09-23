@@ -24,8 +24,12 @@ module.exports = function(services, logger) {
 							logger.error("Error occurred while extracting triplets", err);
 							callback(err, output);
 						} else if(output) {
-							assertion_object.alpha_report_id = alpha_report_object._id.toString();
-							assertion_object.reporter_id = alpha_report_object.reporter_id.toString();
+							if(alpha_report_object._id) {
+								assertion_object.alpha_report_id = alpha_report_object._id.toString();
+							}
+							if(alpha_report_object.reporter_id) {
+								assertion_object.reporter_id = alpha_report_object.reporter_id.toString();
+							}
 							assertion_object.entity1 = output.getEntity1StringSync().toString();
 							assertion_object.relationship = output.getRelationStringSync().toString();
 							assertion_object.entity2 = output.getEntity2StringSync().toString();
@@ -38,8 +42,9 @@ module.exports = function(services, logger) {
 				});
 			});
 		} else {
-			logger.error("Alpha Report Not valid", err);
-			saveCallback(err, alpha_report_object);
+			var errorMsg = new Error("Alpha Report Not valid");
+			logger.error(errorMsg);
+			//saveCallback(errorMsg, alpha_report_object);
 		}
 	};
 

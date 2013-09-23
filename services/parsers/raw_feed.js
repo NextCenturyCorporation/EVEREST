@@ -22,17 +22,12 @@ module.exports = function(models, io, logger) {
 				logger.error("There was an error finding the feed to parse");
 				callback(err, null);
 			} else {
-				logger.debug("Parser - Docs found: " + docs);
-				console.log("+++++++++++++++++++++++++++++++++++++++");
-					console.log(me.parsers);
-					console.log(docs.feedSource);
-					console.log("+++++++++++++++++++++++++++++++++++++++");
 				if(Object.keys(me.parsers).indexOf(docs.feedSource)) {
-					console.log("+++++++++++++++++++++++++++++++++++++++");
-					console.log(me.parsers);
-					console.log(docs.feedSource);
-					console.log("+++++++++++++++++++++++++++++++++++++++");
-					//twitter_parser.parseAndSave(docs, callback);
+					if(docs.feedSource.toLowerCase() === "Twitter".toLowerCase()) {
+						twitter_parser.parseAndSave(docs, callback);
+					} else if(docs.feedSource.toLowerCase() === "RSS".toLowerCase()) {
+						rss_atom_parser.parseAndSave(docs, callback);
+					}
 				} else {
 					var msg = "Cannot find a parser for the raw feed type " + docs[0].feedSource;
 					callback(msg, null);

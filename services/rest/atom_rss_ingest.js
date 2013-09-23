@@ -8,13 +8,20 @@ var atomRssIngest = module.exports = function(app, models, io, logger) {
 	self.models = models;
 
 	self.atomRssIngestService = new AtomRssIngestService(models, io, logger);
+
+	//When the server is first started up no feeds should be active,
+	//this is because we would not be able to track interval state.
+	self.atomRssIngestService.initFeedStopped(function(err) {
+		self.logger.debug("Not all feeds were initialized properly on startup");
+	});
+
 	/**
 	* Lists all of atom/rss feeds that have been created.
 	**/
 	app.get('/atom-rss-ingest?', function(req, res) {
 		self.atomRssIngestService.list(req.query, function(err, feeds) {
 			var errMsg = "There was an error listing the feeds: " + req.query;
-			returnMessageError(err, res, errMsg, feeds);
+			handleResponse(err, res, errMsg, feeds);
 		});
 	});
 
@@ -24,7 +31,7 @@ var atomRssIngest = module.exports = function(app, models, io, logger) {
 	app.get('/atom-rss-ingest/:id([0-9a-f]+)', function(req, res) {
 		self.atomRssIngestService.get(req.params.id, function(err, feed) {
 			var errMsg = "There was an error listing the feed: " + req.params.id;
-			returnMessageError(err, res, errMsg, feed);
+			handleResponse(err, res, errMsg, feed);
 		});
 	});
 
@@ -34,7 +41,7 @@ var atomRssIngest = module.exports = function(app, models, io, logger) {
 	app.post('/atom-rss-ingest?', function(req, res) {
 		self.atomRssIngestService.create(req.body, function(err, newFeed) {
 			var errMsg = "There was an error creating the feed: " + req.body;
-			returnMessageError(err, res, errMsg, newFeed);
+			handleResponse(err, res, errMsg, newFeed);
 		});
 	}); 
 
@@ -44,7 +51,7 @@ var atomRssIngest = module.exports = function(app, models, io, logger) {
 	app.post('/atom-rss-ingest/:id([0-9a-f]+)', function(req, res) {
 		self.atomRssIngestService.update(req.params.id, req.body, function(err, updatedFeed) {
 			var errMsg = "There was an error updating the feed: " + req.body;
-			returnMessageError(err, res, errMsg, updatedFeed);
+			handleResponse(err, res, errMsg, updatedFeed);
 		});
 	});
 
@@ -54,7 +61,7 @@ var atomRssIngest = module.exports = function(app, models, io, logger) {
 	app.post('/atom-rss-ingest/start/:id([0-9a-f]+)', function(req, res){
 		self.atomRssIngestService.startIngest(req.params.id, function(err) {
 			var errMsg = "There was an error starting the feed: " + req.params.id;
-			returnMessageError(err, res, errMsg);
+			handleResponse(err, res, errMsg);
 		});
 	});
 
@@ -64,7 +71,7 @@ var atomRssIngest = module.exports = function(app, models, io, logger) {
 	app.post('/atom-rss-ingest/start?', function(req, res){
 		self.atomRssIngestService.startAllIngest(function(err) { 
 			var errMsg = "There was an error starting all of the feeds.";
-			returnMessageError(err, res, errMsg);
+			handleResponse(err, res, errMsg);
 		});
 	});
 	
@@ -74,7 +81,7 @@ var atomRssIngest = module.exports = function(app, models, io, logger) {
 	app.post('/atom-rss-ingest/stop/:id([0-9a-f]+)', function(req, res){
 		self.atomRssIngestService.stopIngest(req.params.id, function(err) {
 			var errMsg = "There was an error stopping the feed: "+ req.params.id;
-			returnMessageError(err, res, errMsg);
+			handleResponse(err, res, errMsg);
 		});
 	});
 
@@ -84,7 +91,7 @@ var atomRssIngest = module.exports = function(app, models, io, logger) {
 	app.post('/atom-rss-ingest/stop?', function(req, res){
 		self.atomRssIngestService.stopAllIngest(function(err) {
 			var errMsg = "There was an error stopping all the feeds";
-			returnMessageError(err, res, errMsg);
+			handleResponse(err, res, errMsg);
 		});
 	});
 
@@ -97,7 +104,7 @@ var atomRssIngest = module.exports = function(app, models, io, logger) {
 		}
 		self.atomRssIngestService.del({_id: req.params.id}, function(err) {
 			var errMsg = "There was an error deleting the feed" + req.params.id;
-			returnMessageError(err, res, errMsg);
+			handleResponse(err, res, errMsg);
 		});
 	});
 
@@ -110,11 +117,11 @@ var atomRssIngest = module.exports = function(app, models, io, logger) {
 		}
 		self.atomRssIngestService.delAll(function(err) {
 			var errMsg = "There was an error deleting all the feeds";
-			returnMessageError(err, res, errMsg);
+			handleResponse(err, res, errMsg);
 		});
 	});
 
-	var returnMessageError = function (err, res, message, feed) {
+	var handleResponse = function (err, res, message, feed) {
 		if(err) {
 			logger.error("atomRssIngest: " + message, err);
 			general.send500(res, message);

@@ -6,7 +6,7 @@ var alphaReportModel = {
 	createdDate: {type: Date, "default": Date.now},
 	updatedDate: {type: Date, "default": Date.now},
 	raw_data_id: {type: ObjectId},
-	source_name: {type: String, enum: ['Twitter', 'Email'], required: true},
+	source_name: {type: String, enum: ['Twitter', 'Email', 'RSS'], required: true},
 	source_id: {type: String, required: true}, //FIXME   what is this? id from source
 	message_date: {type: Date},
 	message_body: {type: String},
@@ -40,7 +40,7 @@ var alphaReportValidation = {
 		source_name: {
 			description: "The alpha report's source name",
 			type: 'string',
-			enum:['Twitter', 'Email'],
+			enum:['Twitter', 'Email','RSS'],
 			required: true
 		},
 		source_id: {
