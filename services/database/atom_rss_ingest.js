@@ -127,7 +127,7 @@ module.exports = function(models, io, logger) {
 				    var feedId = item.guid || item.id || '';
 				    var feedContent = item.description || item.content || item.summary ||'';
 				    var date = item.pubDate || item.published ||''; 
-				    actionEmitter.twitterDataRecievedEvent({feedSource: 'RSS', text:JSON.stringify(item)}, function(err, valid, newfeed){
+				    actionEmitter.rawFeedDataRecievedEvent({feedSource: 'RSS', text:JSON.stringify(item)}, function(err, valid, newfeed){
 				    	actionEmitter.rawFeedParseEvent(newfeed._id)
 			    	});
 				}

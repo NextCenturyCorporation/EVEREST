@@ -64,10 +64,6 @@ module.exports = function(models, io, logger) {
 			return this.apply(this, Array.prototype.slice.call(arguments[0][0], 0));
 		};
 
-		this.sampleListEventHandler = function() {
-			serviceList.Profile.sampleProfileEvent.callWithAllArgs(arguments);
-		};
-
 		this.saveAlphaReportEventHandler = function() {
 			io.sockets.to('EVEREST.data.workflow').emit('item_saved', {type: "AlphaReport"});
 			logger.debug("Emitted socket with item_saved for AlphaReport");
@@ -81,7 +77,7 @@ module.exports = function(models, io, logger) {
 			serviceList.AlphaReport.validateAlphaReport.callWithAllArgs(arguments);
 		};
 
-		this.twitterDataRecievedEventHandler = function() {
+		this.rawFeedDataRecievedEventHandler = function() {
 			//Services that are prototyped out must be called this way.
 			var self = serviceList.RawFeed;
 			self.create.apply(self, Array.prototype.slice.call(arguments[0], 0));

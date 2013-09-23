@@ -113,7 +113,7 @@ twitterIngest.prototype.startIngest = function(id, filters, callback) {
 				newStream.on('data', function(data) {
 					me.logger.debug("Saving feed item: " + data.user.screen_name + ": " + data.text);
 					
-					actionEmitter.twitterDataRecievedEvent({feedSource: 'Twitter', text:JSON.stringify(data)}, function(err, valid, newfeed){
+					actionEmitter.rawFeedDataRecievedEvent({feedSource: 'Twitter', text:JSON.stringify(data)}, function(err, valid, newfeed){
 						if(err){
 							me.logger.error('Error saving raw feed', err);
 						} else if(!valid.valid) {
