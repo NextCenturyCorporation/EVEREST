@@ -39,7 +39,7 @@ module.exports = function(models, io, logger) {
 			}
 			alpha_report_object.message_body = content;
 		}
-		if(language) {
+		if(language && typeof language == "string") {
 			alpha_report_object.lang = language;
 		}
 		if(author) {
@@ -51,7 +51,9 @@ module.exports = function(models, io, logger) {
 			if(url) {
 			 	reporter_object.url = url;
 			 }
-			reporter_object.lang = language;
+			if(language && typeof language == "string") {
+				reporter_object.lang = language;
+			}
 			reporter_service.saveReporter(reporter_object, function(err, valid, newReporter) {
 				if(err) {
 					logger.error(err);
