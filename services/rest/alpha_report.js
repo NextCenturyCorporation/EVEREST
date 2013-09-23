@@ -23,7 +23,7 @@ module.exports = function(app, models, io, logger) {
 				logger.info("Error listing alpha reports " + err);
 				general.send500(res);
 			} else {
-				res.json(docs);
+				res.jsonp(docs);
 				res.end();
 			}
 		});
@@ -41,7 +41,7 @@ module.exports = function(app, models, io, logger) {
 				logger.info("Error listing alpha report id - source_id" + err);
 				general.send500(res);
 			} else {
-				res.json(docs);
+				res.jsonp(docs);
 				res.end();
 			}
 		});
@@ -79,7 +79,7 @@ module.exports = function(app, models, io, logger) {
 				logger.info('Error getting alpha report ' + err);
 				general.send500(res);
 			} else if(docs) {
-				res.json(docs);
+				res.jsonp(docs);
 				res.end();
 			} else {
 				general.send404(res);

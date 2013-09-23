@@ -25,7 +25,7 @@ module.exports = function(app, models, io, logger) {
 				me.logger.error("RawFeed: "+err, err);
 				responseHandler.send500(res, errMsg);
 			} else {
-				res.json(rawFeeds);
+				res.jsonp(rawFeeds);
 			}
 			res.end();
 		});
@@ -40,12 +40,12 @@ module.exports = function(app, models, io, logger) {
 			if(err) {
 				logger.info("Error getting raw feed "+err);
 				res.status(500);
-				res.json({error: 'Error'});
+				res.jsonp({error: 'Error'});
 			} else if(docs) {
-				res.json(docs);
+				res.jsonp(docs);
 			} else {
 				res.status(404);
-				res.json({error: 'Not found'});
+				res.jsonp({error: 'Not found'});
 			}
 			res.end();
 		});

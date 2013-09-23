@@ -27,7 +27,7 @@ module.exports = function(app, models, io, log) {
 				me.logger.error("confirmedReport: " + errMsg, err);
 				responseHandler.send500(res, errMsg);
 			} else {
-				res.json(reports);
+				res.jsonp(reports);
 				res.end();
 			}
 		});
@@ -45,7 +45,7 @@ module.exports = function(app, models, io, log) {
 				me.logger.error("confirmedReport: " + errMsg, err);
 				responseHandler.send500(res, errMsg);
 			} else {
-				res.json(report);
+				res.jsonp(report);
 				res.end();
 			}
 		});
@@ -147,7 +147,7 @@ module.exports = function(app, models, io, log) {
 				me.logger.error("confirmedReport: " + errMsg, err);
 				responseHandler.send500(res, errMsg);
 			} else {
-				res.json(reports);
+				res.jsonp(reports);
 				res.end();
 			}
 		});
@@ -164,7 +164,7 @@ module.exports = function(app, models, io, log) {
 				me.logger.error("confirmedReport: " + errMsg, err);
 				responseHandler.send500(res, errMsg);
 			} else {
-				res.json(report);
+				res.jsonp(report);
 				res.end();
 			}
 		});

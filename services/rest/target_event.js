@@ -14,9 +14,9 @@ module.exports = function(app, models, io, logger) {
 			if(err){
 				logger.info("Error listing target_events "+err);
 				res.status(500);
-				res.json({error: 'Error'});
+				res.jsonp({error: 'Error'});
 			} else {
-				res.json(docs);
+				res.jsonp(docs);
 			}
 			res.end();
 		});
@@ -32,9 +32,9 @@ module.exports = function(app, models, io, logger) {
 			if(err){
 				logger.info("Error listing target_event id - name "+err);
 				res.status(500);
-				res.json({error: 'Error'});
+				res.jsonp({error: 'Error'});
 			} else {
-				res.json(docs);
+				res.jsonp(docs);
 			}
 			res.end();
 		});
@@ -71,12 +71,12 @@ module.exports = function(app, models, io, logger) {
 			if(err) {
 				logger.info("Error getting target_event "+err);
 				res.status(500);
-				res.json({error: 'Error'});
+				res.jsonp({error: 'Error'});
 			} else if(docs) {
-				res.json(docs);
+				res.jsonp(docs);
 			} else {
 				res.status(404);
-				res.json({error: 'Not found'});
+				res.jsonp({error: 'Not found'});
 			}
 			res.end();
 		});
