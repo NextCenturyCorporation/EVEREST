@@ -27,11 +27,11 @@ var alphaReportValidation = {
 	properties:{
 		createdDate: {
 			description: 'Date that this alpha report was created in datastore',
-			type: 'date'
+			type: 'object'
 		},
 		updatedDate: {
 			description: 'Date that this alpha report was last updated in datastore',
-			type: 'date'
+			type: 'object'
 		},
 		/*raw_data_id: {
 			description : 'The id corresponding to the original raw data',

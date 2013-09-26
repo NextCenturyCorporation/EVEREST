@@ -40,8 +40,6 @@ module.exports = function(models, io, logger) {
 			if (valid.valid) {
 				logger.info("Valid AlphaReport");
 				var newAlphaReport = new models.alphaReport(data);
-				newAlphaReport.createdDate = new Date();
-				newAlphaReport.updatedDate = new Date();
 				newAlphaReport.save(function(err){
 					if(err){
 						logger.error('Error saving AlphaReport ', err);
@@ -100,20 +98,20 @@ module.exports = function(models, io, logger) {
 	};
 
 	me.update = function(id, data, updCallback) {
-		me.validateAlphaReport(data, function(valid){
-			if (valid.valid) {
-				models.alphaReport.findById(id, function(err, docs){
-					if(err) {
-						logger.info("Error getting AlphaReport "+err);
-						updCallback(err, valid, data);
-					} else if(docs) {
-						for(var e in data){
-							//Make sure not to change _id
-							if(e !== '_id'){
-								docs[e] = data[e];
-							}
-						}
-						docs.updatedDate = new Date();
+		me.get(id, function(err, docs){
+			if(err) {
+				logger.info("Error getting AlphaReport "+err);
+				updCallback(err, null, data);
+			} else if(docs) {
+				docs = docs[0];//There will only be one alpha report from the get
+				for(var e in data){
+					if(e !== '_id') {
+						docs[e] = data[e];
+					}
+				}
+				docs.updatedDate = new Date();
+				me.validateAlphaReport(docs, function(valid){
+			 		if (valid.valid) {
 						docs.save(function(err){
 							if(err){
 								updCallback(err, valid, data);
@@ -123,13 +121,13 @@ module.exports = function(models, io, logger) {
 						});
 					} else {
 						valid.valid = false;
-						valid.errors = {expected: id, message: "AlphaReport not found"};
+						valid.errors = {expected: id, message: "Updated Alpha Report information not valid"};
 						updCallback(err, valid, data);
 					}
 				});
-			}
-			else {
-				updCallback(undefined, valid, data);
+			} else {
+					var errorMSG = new Error("Could not find Alpha Report to Update");
+					updCallback(errorMSG, null, data);
 			}
 		});
 	};

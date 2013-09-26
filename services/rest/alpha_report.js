@@ -55,17 +55,15 @@ module.exports = function(app, models, io, logger) {
 		alphaReportService.create(req.body, function(err, val, newAlphaReport) {
 			if(err){
 				logger.error('Error saving AlphaReport', err);
-				res.status(500);
-				res.json({error: 'Error'});
+				general.send500(res, 'Error saving AlphaReport');
 			} else if (!val.valid) {
 				logger.info('Invalid AlphaReport ' + JSON.stringify(val.errors));
-				res.status(500);
-				res.json({error: val.errors}, req.body);
+				general.send500(res, 'Invalid AlphaReport');
 			} else {
 				logger.info('AlphaReport saved ' + JSON.stringify(newAlphaReport));
 				res.json({_id:newAlphaReport._id});
+				res.end();
 			}
-			res.end();
 		});
 	});
 	
@@ -74,7 +72,7 @@ module.exports = function(app, models, io, logger) {
 		if(logger.DO_LOG ){
 			logger.info('Request for alpha-report ' + req.params.id);
 		}
-		alphaReportService.getAlphaReport(req.params.id, function(err, docs){
+		alphaReportService.get(req.params.id, function(err, docs){
 			if(err){
 				logger.info('Error getting alpha report ' + err);
 				general.send500(res);
@@ -95,17 +93,15 @@ module.exports = function(app, models, io, logger) {
 		alphaReportService.update(req.params.id, req.body, function(err, val, updated) {
 			if(err){
 				logger.error('Error updating AlphaReport', err);
-				res.status(500);
-				res.json({error: 'Error'});
-			} else if (!val.valid) {
+				general.send500(res, 'Error updating AlphaReport');
+			} else if (val && !val.valid) {
 				logger.info('Invalid AlphaReport ' + JSON.stringify(val.errors));
-				res.status(500);
-				res.json({error: val.errors}, req.body);
+				general.send500(res, ' Invalid AlphaReport ')
 			} else {
 				logger.info('AlphaReport updated ' + JSON.stringify(updated));
 				res.json({id:updated._id});
+				res.end();
 			}
-			res.end();
 		});
 	});
 	
