@@ -80,7 +80,7 @@ var atomRssIngest = module.exports = function(app, models, io, logger) {
 	**/
 	app.post('/atom-rss-ingest/stop/:id([0-9a-f]+)', function(req, res){
 		self.atomRssIngestService.stopIngest(req.params.id, function(err) {
-			var errMsg = 'There was an error stopping the feed: '+ req.params.id;
+			var errMsg = err+ req.params.id;
 			handleResponse(err, res, errMsg);
 		});
 	});

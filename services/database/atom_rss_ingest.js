@@ -39,7 +39,7 @@ module.exports = function(models, io, logger) {
 				if(newFeed.feed_active) {
 					self.startIngestFeed(newFeed, callback);
 				} else {
-					callback();
+					callback(null, newFeed);
 				}
 				
 			}
@@ -78,8 +78,8 @@ module.exports = function(models, io, logger) {
 			clearInterval(self.feed.feedInterval[id]);
 			self.update(id, {feed_active:false}, callback);
 		} else {
-			var errorMsg = new Error('Could not find active feed to stop');
-			callback(errorMsg,id);
+			var errorMsg = new Error('Could not find active feed to stop: ');
+			callback(errorMsg, id);
 		}
 	};
 
