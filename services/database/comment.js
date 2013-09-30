@@ -1,7 +1,7 @@
 /*global require */
 // require is a global node function/keyword
 
-var general = require('../wizard_service');
+var general = require('../general_response');
 
 var CommentService = module.exports = function(models, log) {
 	var me = this;

@@ -6,7 +6,7 @@
 // require is a global node function/keyword
 
 var winston = require('winston');
-var general = require('../wizard_service');
+var general = require('../general_response');
 var models = require('../../models/models');
 
 //Load and set up the logger

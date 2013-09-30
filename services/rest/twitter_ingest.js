@@ -1,5 +1,5 @@
 var TwitterIngestService = require('../database/twitter_ingest');
-var general = require('../wizard_service');
+var general = require('../general_response');
 var async = require('async');
 
 var twitterIngest = module.exports = function(app, models, io, logger) {

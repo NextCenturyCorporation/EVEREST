@@ -2,7 +2,7 @@
 // Identify require as a global function/keyword for JSHint
 
 var ConfirmedReportService = require('../database/confirmed_report.js');
-var responseHandler = require('../wizard_service');
+var responseHandler = require('../general_response');
 
 module.exports = function(app, models, io, log) {
 	var me = this;

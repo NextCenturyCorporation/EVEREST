@@ -1,5 +1,5 @@
 var AtomRssIngestService = require('../database/atom_rss_ingest');
-var general = require('../wizard_service');
+var general = require('../general_response');
 
 var atomRssIngest = module.exports = function(app, models, io, logger) {
 	var self = this;
