@@ -6,11 +6,11 @@ module.exports = function(models, io, logger) {
 
 	me.list = function(params, callback) {
 		//TODO paging params
-		me.models.targetEvent.find({}, callback);
+		models.targetEvent.find({}, callback);
 	};
 
 	me.listFields = function(paging_params, field_string, callback) {
-		me.models.targetEvent.find({}, field_string, callback);
+		models.targetEvent.find({}, field_string, callback);
 	};
 
 	/**
