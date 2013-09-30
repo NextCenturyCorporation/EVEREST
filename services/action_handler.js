@@ -29,11 +29,10 @@ fs.readdirSync('services/database').forEach(function(file) {
 	requiredServicesList[filename] = require('./database/' + file);
 });
 
-fs.readdirSync('services/parsers').forEach(function(file) {
-	var filename = file.stripFileDesignation();
-	requiredServicesList[filename+'_parser'] = require('./parsers/' + file);
-});
-
+requiredServicesList["atom_rss_to_alpha_report"] = require('./parsers/atom_rss_to_alpha_report.js');
+requiredServicesList["nlp_parser_async"] = require('./parsers/nlp_parser_async.js');
+requiredServicesList["raw_feed"] = require('./parsers/raw_feed.js');
+requiredServicesList["twitter_to_alpha_report"] = require('./parsers/twitter_to_alpha_report.js');
 
 //If there are a large number of services and you only want to require a select few 
 //you can define manually each one by simply following the paradigm below for each service you want to use.

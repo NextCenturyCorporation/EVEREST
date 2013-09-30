@@ -1,8 +1,7 @@
 var AlphaReportService = require('../database/alpha_report.js');
 var reporter_service = require('../database/reporter.js');
 var AssertionService = require('../database/assertion.js');
-var Nlp_Parser = require('../parsers/nlp_parser_async.js');
-
+var actionEmitter = require('../action_emitter.js');
 
 String.prototype.stripHTMLFromFeed = function() {
   return this.replace(/(<([^>]+)>)/ig, '').replace(/\&.+\;/ig, '').replace(/(\r\n|\n|\r)/gm,'').trim();
@@ -13,8 +12,7 @@ module.exports = function(models, io, logger) {
 	var self = this;
 
 	var alphaReportService = new AlphaReportService(models, io, logger);
-	var nlp_parser = new Nlp_Parser({assertionService: new AssertionService(models, io, logger)}, logger);
-
+	
 	self.parseAndSave = function(raw_feed_object) {
 		var alpha_report_object = {};
 
@@ -78,7 +76,7 @@ module.exports = function(models, io, logger) {
 			logger.info('Invalid alpha_report ' + JSON.stringify(valid.errors));
 		} else {
 			process.nextTick(function() {
-				nlp_parser.parseAndSave(res);
+				actionEmitter.saveAlphaReportEvent(res);
 			});
 		}
 	};

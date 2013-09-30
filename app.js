@@ -36,6 +36,17 @@ var app = express();
 var server = require('http').createServer(app);
 
 app.configure(function(){
+	app.use(function(req, res, next) {
+	    var data = '';
+	    req.setEncoding('utf8');
+	    req.on('data', function(chunk) { 
+	        data += chunk;
+	    });
+	    req.on('end', function() {
+	        req.rawBody = data;
+	        next();
+	    });
+	});
 	app.use(express.bodyParser());
 	app.use(express.methodOverride());
 	app.use(app.router);

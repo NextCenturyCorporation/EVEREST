@@ -1,5 +1,5 @@
 var RawFeedService = require('../database/raw_feed.js');
-var responseHandler = require('../wizard_service');
+var responseHandler = require('../general_response');
 
 module.exports = function(app, models, io, logger) {
 	

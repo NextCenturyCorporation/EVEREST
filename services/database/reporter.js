@@ -1,5 +1,5 @@
 var winston = require('winston');
-var general = require('../wizard_service');
+var general = require('../general_response');
 var models = require('../../models/models');
 var validationModel = require('../../models/reporter/model.js');
 var bvalidator = require('../../models/reporter/bvalidator.js');

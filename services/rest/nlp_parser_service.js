@@ -1,6 +1,7 @@
 var AlphaReportService = require('../database/alpha_report.js');
 var AssertionService = require('../database/assertion.js');
-var Nlp_Parser = require('../parsers/nlp_parser.js');
+var Nlp_Parser = require('../parsers/nlp_parser_async.js');
+var general = require('../general_response');
 
 module.exports = function(app, models, io, logger){
 	var me = this;
@@ -23,34 +24,6 @@ module.exports = function(app, models, io, logger){
 		
 		me.parse_reports(req.query, res);
 	});
-	
-	// post text to get back tuples
-	app.post('/nlp-parser/parse/', function(req, res){
-		if(logger.DO_LOG){
-			logger.info('Request for nlp parser to parse text.');
-		}
-		
-		nlp_parser.parseToTuples(req.body, function(tuples) {
-			if (tuples) {
-				res.json(tuples);
-			}
-			res.end();
-		});
-	});
-
-	// turn text into semanticgraphs
-	app.post('/nlp-parser/semanticgraph/', function(req, res){
-		if(logger.DO_LOG){
-			logger.info('Request for nlp parser to parse text to a semanticgraph.');
-		}
-		
-		nlp_parser.parseToSemanticGraphs(req.body, function(graphs) {
-			if (graphs) {
-				res.json(graphs);
-			}
-			res.end();
-		});
-	});
 
 	me.parse_reports = function(){
 		alphaReportService.readAlphaReports(function(err,docs){
@@ -58,12 +31,128 @@ module.exports = function(app, models, io, logger){
 				logger.info({error: "Error getting all alpha reports "+err});
 			} else if(0 !== docs.length) {
 				for (var i = 0; i < docs.length; i++){
-					nlp_parser.parseAndSave(docs[i]);
+					nlp_parser.parseAndSave(docs[i], function(err) {
+						logger.debug();
+					});
 				}
 			} else {
 				logger.info({error: "Not found"});
 			}
 		});
 	};
+	
+	// post text to get back tuples
+	app.post('/nlp-parser/parse/', function(req, res){
+		if(logger.DO_LOG){
+			logger.info('Request for nlp parser to parse text.');
+		}
+		
+		nlp_parser.parseToTuples(req.body, function(err, tuples) {
+			if (tuples) {
+				res.json(tuples);
+			}
+			res.end();
+		});
+	});
+
+	//pos tag sentences
+	app.post('/nlp-parser/postagger/?', function(req, res){
+		if(logger.DO_LOG){
+			logger.info('Request for nlp parser to parse text to a semanticgraph.');
+		}
+		
+		nlp_parser.posTagSentences(req.rawBody, function(err, result) {
+			if(err) {
+				var msg = "There was an error attempting to tag the sentence"
+				logger.error(msg);
+				return general.send500(res, msg);
+			}
+			res.json(result);
+			res.end();
+		});
+	});
+
+	//annotation graph
+	app.post('/nlp-parser/assertiongraph/?', function(req, res){
+		if(logger.DO_LOG){
+			logger.info('Request for nlp parser to parse text to a semanticgraph.');
+		}
+		
+		/*nlp_parser.parseToAssertionGraphs(req.body, function(err, graphs) {
+			if(err) {
+				//FIXME //handle err
+			}
+
+			if (graphs) {
+				res.json(graphs);
+			}*/
+			res.end();
+		//});
+	});
+
+	/*//dependencygraph
+	app.post('/nlp-parser/dependencygraph/', function(req, res){
+		if(logger.DO_LOG){
+			logger.info('Request for nlp parser to parse text to a semanticgraph.');
+		}
+		
+		nlp_parser.parseToDependencyGraphs(req.body, function(err, graphs) {
+			if(err) {
+				//FIXME //handle err
+			}
+			if (graphs) {
+				res.json(graphs);
+			}
+			res.end();
+		});
+	});
+
+	//root; child pairs; child relations;
+	app.post('/nlp-parser/root-child/', function(req, res){
+		if(logger.DO_LOG){
+			logger.info('Request for nlp parser to parse text to a semanticgraph.');
+		}
+		
+		nlp_parser.parseRootChildData(req.body, function(err, result) {
+			if(err) {
+				//FIXME //handle err
+			}
+
+			res.json(result);
+			res.end();
+		});
+	});
+
+	//dot product graph
+	app.post('/nlp-parser/dotproductgraph/', function(req, res){
+		if(logger.DO_LOG){
+			logger.info('Request for nlp parser to parse text to a semanticgraph.');
+		}
+		
+		nlp_parser.parseToDotProductGraph(req.body, function(err, graph) {
+			if(err) {
+				//FIXME //handle err
+			}
+			if (graphs) {
+				res.json(graphs);
+			}
+			res.end();
+		});
+	});
+
+	//edges and verticies
+	app.post('/nlp-parser/edges-vertices/', function(req, res){
+		if(logger.DO_LOG){
+			logger.info('Request for nlp parser to parse text to a semanticgraph.');
+		}
+		
+		nlp_parser.parseToEdgeVertex(req.body, function(result) {
+			if(err) {
+				//FIXME //handle err
+			}
+			res.json(result);
+			res.end();
+		});
+	});*/
 };
 

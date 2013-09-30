@@ -3,7 +3,7 @@
 *"Handler" then you can call any of the methods defined in any of the services.
 *THIS IS THE ONLY FUNCTION YOU NEED TO MODIFY TO IMPLEMENT NEW EVENT HANDLERS.
 **/
-module.exports =  Listener = function(serviceList, io ,logger){
+module.exports = function(serviceList, io ,logger){
 	//This converts the arguments to an array so that any number of arguments can be passed to the method.
 	Function.prototype.callWithAllArgs = function() {
 		return this.apply(this, Array.prototype.slice.call(arguments[0][0], 0));
@@ -12,6 +12,8 @@ module.exports =  Listener = function(serviceList, io ,logger){
 	this.saveAlphaReportEventHandler = function() {
 		io.sockets.to('EVEREST.data.workflow').emit('item_saved', {type: 'AlphaReport'});
 		logger.debug('Emitted socket with item_saved for AlphaReport');
+
+		serviceList.nlp_parser.parseAndSave.callWithAllArgs(arguments);
 	};
 
 	this.updateAlphaReportEventHandler = function() {
