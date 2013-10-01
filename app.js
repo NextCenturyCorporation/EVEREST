@@ -36,7 +36,7 @@ var app = express();
 var server = require('http').createServer(app);
 
 app.configure(function(){
-	app.use(function(req, res, next) {
+	app.use(function bodyChunker(err, req, res, next) {
 	    var data = '';
 	    req.setEncoding('utf8');
 	    req.on('data', function(chunk) { 

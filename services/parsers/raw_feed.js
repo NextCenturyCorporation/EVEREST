@@ -1,5 +1,5 @@
-var TwitterParser = require('./twitter_to_alpha_report.js'); //TODO
-var AtomRssParser = require('./atom_rss_to_alpha_report.js'); //TODO
+var TwitterParser = require('./twitter_to_alpha_report.js');
+var AtomRssParser = require('./atom_rss_to_alpha_report.js');
 var RawFeedService = require('../database/raw_feed.js');
 
 module.exports = function(models, io, logger) {

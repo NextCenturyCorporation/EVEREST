@@ -9,11 +9,31 @@ module.exports = function(serviceList, io ,logger){
 		return this.apply(this, Array.prototype.slice.call(arguments[0][0], 0));
 	};
 
+	this.rawFeedDataRecievedEventHandler = function() {
+		//Services that are prototyped out must be called this way.
+		var self = serviceList.RawFeed;
+		self.create.apply(self, Array.prototype.slice.call(arguments[0], 0));
+	};
+
+	this.rawFeedParseEventHandler = function() {
+		serviceList.RawFeedParser.parseAndSave.callWithAllArgs(arguments);
+	};
+
 	this.saveAlphaReportEventHandler = function() {
 		io.sockets.to('EVEREST.data.workflow').emit('item_saved', {type: 'AlphaReport'});
 		logger.debug('Emitted socket with item_saved for AlphaReport');
 
-		serviceList.nlp_parser.parseAndSave.callWithAllArgs(arguments);
+		serviceList.NlpParserAsync.parseAndSave.callWithAllArgs(arguments);
+	};
+
+	this.saveAssertionEventHandler = function() {
+		io.sockets.to('EVEREST.data.workflow').emit('item_saved', {type: 'Assertion'});
+		logger.debug('Emitted socket with item_saved for Assertion');
+	};
+
+	this.saveFeedEventHandler = function() {
+		io.sockets.to('EVEREST.data.workflow').emit('item_saved', {type: 'RawFeed'});
+		logger.debug('Emitted socket with item_saved for RawFeed');
 	};
 
 	this.updateAlphaReportEventHandler = function() {
@@ -22,26 +42,6 @@ module.exports = function(serviceList, io ,logger){
 
 	this.validateAlphaReportEventHandler = function() {
 		serviceList.AlphaReport.validateAlphaReport.callWithAllArgs(arguments);
-	};
-
-	this.rawFeedDataRecievedEventHandler = function() {
-		//Services that are prototyped out must be called this way.
-		var self = serviceList.RawFeed;
-		self.create.apply(self, Array.prototype.slice.call(arguments[0], 0));
-	};
-
-	this.saveFeedEventHandler = function() {
-		io.sockets.to('EVEREST.data.workflow').emit('item_saved', {type: 'RawFeed'});
-		logger.debug('Emitted socket with item_saved for RawFeed');
-	};
-
-	this.rawFeedParseEventHandler = function() {
-		serviceList.RawFeedParser.parseAndSave.callWithAllArgs(arguments);
-	};
-
-	this.saveAssertionEventHandler = function() {
-		io.sockets.to('EVEREST.data.workflow').emit('item_saved', {type: 'Assertion'});
-		logger.debug('Emitted socket with item_saved for Assertion');
 	};
 
 	//More Implemented event handlers below....

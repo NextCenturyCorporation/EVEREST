@@ -1,7 +1,8 @@
 var java = require('java');
 var async = require('async');
+var actionEmitter = require('../action_emitter.js');
 
-module.exports = function(services, logger) {
+module.exports = function(models, io, logger) {
 	var me = this;
 
 	java.classpath.push('./java_lib/Triplet_Extraction.jar');
@@ -14,7 +15,7 @@ module.exports = function(services, logger) {
 
 	var ArrayList = java.import('java.util.ArrayList');
 
-	var assertion_service = services.assertionService;
+	//var assertion_service = services.assertionService;
 	
 	/*me.parseAndSave = function(alpha_report_object){
 		logger.info('Attempting to parse alpha_report_object with id ' + alpha_report_object._id);		
@@ -62,7 +63,8 @@ module.exports = function(services, logger) {
 					logger.error("No triplets were able to be extracted", err);
 				} else {
 					async.each(tuples, function(tuple, callback) {
-						var assertion_object;
+						var assertion_object = {}
+
 						if(alpha_report_object._id) {
 								assertion_object.alpha_report_id = alpha_report_object._id.toString();
 						}
@@ -72,7 +74,20 @@ module.exports = function(services, logger) {
 						assertion_object.entity1 = tuple.getEntity1StringSync().toString();
 						assertion_object.relationship = tuple.getRelationStringSync().toString();
 						assertion_object.entity2 = tuple.getEntity2StringSync().toString();
-						assertion_service.saveAssertion(assertion_object, callback);
+						
+						actionEmitter.assertionBuiltEvent(assertion_object, callback);
+
+						/*var assertion_object;
+						if(alpha_report_object._id) {
+								assertion_object.alpha_report_id = alpha_report_object._id.toString();
+						}
+						if(alpha_report_object.reporter_id) {
+							assertion_object.reporter_id = alpha_report_object.reporter_id.toString();
+						}
+						assertion_object.entity1 = tuple.getEntity1StringSync().toString();
+						assertion_object.relationship = tuple.getRelationStringSync().toString();
+						assertion_object.entity2 = tuple.getEntity2StringSync().toString();
+						assertion_service.saveAssertion(assertion_object, callback);*/
 					});
 				}
 			});
