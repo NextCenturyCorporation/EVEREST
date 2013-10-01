@@ -42,7 +42,7 @@ module.exports = function(app, models, io, logger){
 	});
 	
 	//Review all reporters whose source name was source_name (either Twitter or Email)
-	app.get('/reporter/:source_name(Twitter|Email)', function(req,res){
+	app.get('/reporter/:source_name(Twitter|Email|RSS)', function(req,res){
 		if(logger.DO_LOG){
 			logger.info('Request for reporter source of' + req.params.source_name);
 		}
