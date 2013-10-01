@@ -87,7 +87,7 @@ module.exports = function(models, io, logger) {
 						logger.info('Invalid alpha_report ' + JSON.stringify(valid.errors));
 					} else {
 						process.nextTick(function() {
-							actionEmitter.alphaReportSavedEvent(res);
+							actionEmitter.saveAlphaReportEvent(res);
 						});
 					}
 				});
