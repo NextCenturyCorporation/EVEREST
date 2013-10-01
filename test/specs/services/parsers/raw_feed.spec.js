@@ -1,7 +1,7 @@
 var base_path = '../../../..';
 var services_path = base_path + '/services';
 
-var raw_feed_parser = require(services_path + '/parsers/raw_feed.js'); 
+var raw_feed_parser = require(services_path + '/parsers/raw_feed_parser.js'); 
 var twitter_parser = require(services_path + '/parsers/twitter_to_alpha_report.js');
 var raw_feed_service = require(services_path + '/database/raw_feed.js');
 var config = require(base_path + '/config.js');
