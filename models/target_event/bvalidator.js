@@ -5,7 +5,7 @@ module.exports = function(services, logger) {
 	var targetEvent = services.targetEvent;
 	var targetAssertion = services.targetAssertion;
 
-	me.validate.messages = {
+	me.messages = {
 		name:					"Name value is incorrect",
 		description:	"Description value is incorrect",
 		record:				"There is a record-level error",
@@ -63,7 +63,7 @@ module.exports = function(services, logger) {
 	 **   or not the name was found. 
 	**/
 	me.nameExists = function (value, errors, callback) {
-		me.dataLayerTargetEvent.readTargetEventByProperty('name', value, function(err, locs) {
+		targetEvent.findWhere({name: value}, function(err, locs) {
 			if (err) {
 				me.error('name', value, errors, 'Error reading targetEvent name ' + err);
 				logger.info({ error : "Error getting targetEventByName " + err });
@@ -87,7 +87,7 @@ module.exports = function(services, logger) {
 	 **   or not the location was found. 
 	**/
 	me.targetEventExists = function(object, errors, callback) {
-		targetEvent.readTargetEventByObject(object, function(err, locs){
+		targetEvent.findWhere(object, function(err, locs) {
 			if (err) {
 				me.error('record', object, errors, 'Error reading targetEvent ' + err);
 				logger.info({ error : "Error getting targetEventByObject " + err });
@@ -109,27 +109,31 @@ module.exports = function(services, logger) {
 	*     or not the target_assertion_id was found
 	*/
 	me.targetAssertionsExist = function(values, errors, callback){
-		async.each(values, function(assertion, eachCallback){
-			targetAssertion.readTargetAssertionByProperty('_id', assertion, function(err, locs){
-				if ( err ) {
-					me.error('assertions', values, errors, 'Error reading assertion ' + err);
-					logger.info({ error : "Error getting targetAssertionByID " + err });
-					eachCallback(true);
-				} else if ( 0 !== locs.length ) {
-					logger.info("TargetAssertion found for targetAssertionExists" + JSON.stringify(locs));
-					eachCallback(null);
+		if(typeof(values) === 'undefined' || values.length < 1) {
+			callback(undefined, true)
+		} else {
+			async.each(values, function(assertion, eachCallback){
+				targetAssertion.findWhere({_id: assertion._id}, function(err, locs){
+					if ( err ) {
+						me.error('assertions', values, errors, 'Error reading assertion ' + err);
+						logger.info({ error : "Error getting targetAssertionByID " + err });
+						eachCallback(true);
+					} else if ( 0 !== locs.length ) {
+						logger.info("TargetAssertion found for targetAssertionExists" + JSON.stringify(locs));
+						eachCallback(null);
+					} else {
+						logger.info("TargetAssertion id not found " + assertion);
+						eachCallback(true);
+					}
+				});
+			}, function(err){
+				if (err) {
+					callback(err, false);
 				} else {
-					logger.info("TargetAssertion id not found " + assertion);
-					eachCallback(true);
+					callback(err, true);
 				}
 			});
-		}, function(err){
-			if ( err ){
-				callback(err, false);
-			} else {
-				callback(err, true);
-			}
-		});
+		}
 	};
   
 
@@ -139,7 +143,7 @@ module.exports = function(services, logger) {
 			property : property
 		};
 	
-		var message = msg || me.validate.messages[property] || "no default message";
+		var message = msg || me.messages[property] || "no default message";
 	
 		message = message.replace(/%\{([a-z]+)\}/ig, function(_, match) {
 			var msg = lookup[match.toLowerCase()] || "";
