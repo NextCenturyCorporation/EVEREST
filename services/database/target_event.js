@@ -1,5 +1,6 @@
 var revalidator = require('revalidator');
 var BValidator = require('../../models/target_event/bvalidator.js');
+var TargetAssertion = require('../../services/database/target_assertion.js');
 
 module.exports = function(models, io, logger) {
 	var me = this;
@@ -54,7 +55,10 @@ module.exports = function(models, io, logger) {
 	 * valCallback takes the form of  function(valid structure)
 	 */
 	me.validateTargetEvent = function(data, valCallback) {
-		var bvalidator = new BValidator();
+		var services = {targetEvent: this, 
+			targetAssetion: new TargetAssertion(models, io, logger)};
+
+		var bvalidator = new BValidator(services, logger);
 
 		// is the JSON semantically valid for the target_event object?
 		var valid = revalidator.validate(data, models.targetEventValidation);

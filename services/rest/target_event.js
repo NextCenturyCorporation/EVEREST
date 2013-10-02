@@ -1,4 +1,5 @@
 var TargetEventService = require('../database/target_event.js');
+var responseHandler = require('../general_response');
 
 module.exports = function(app, models, io, logger) {
 	
@@ -23,7 +24,7 @@ module.exports = function(app, models, io, logger) {
 	});
 	
 	//list - lists name and id
-	app.get('/target_event/names/', function(req,res){
+	app.get('/target_event/names/?', function(req,res){
 		if(logger.DO_LOG){
 			logger.info("Request for target_event name list");
 		}
@@ -45,20 +46,19 @@ module.exports = function(app, models, io, logger) {
 		if(logger.DO_LOG){
 			logger.info("Receiving new target_event");
 		}
-		targetEventService.save(req.body, function(err, val, newObj) {
+		targetEventService.create(req.body, function(err, val, newObj) {
 			if(err){
 				logger.error('Error saving target_event', err);
-				res.status(500);
-				res.json({error: 'Error'});
+				responseHandler.send500(res, 'Error saving target_event');
 			} else if (!val.valid) {
 				logger.info('Invalid target_event ' + JSON.stringify(val.errors));
-				res.status(500);
-				res.json({error: val.errors});
+				responseHandler.send500(res, 'Invalid target event');
 			} else {
 				logger.info('TargetEvent saved ' + JSON.stringify(newObj));
-				res.json({id:newObj._id});
+				res.json({_id:newObj._id});
+				res.end();
 			}
-			res.end();
+			
 		});
 	});
 

@@ -1,13 +1,9 @@
 var async = require('async');
 
-var TargetEvent = require('../../services/database/target_event.js');
-var TargetAssertion = require('../../services/database/target_assertion.js');
-
-module.exports = function(models, io, logger) {
+module.exports = function(services, logger) {
 	var me = this;
-
-	var targetEvent = new TargetEvent(models, io, logger);
-	var targetAssertion = new TargetAssertion(models, io, logger);
+	var targetEvent = services.targetEvent;
+	var targetAssertion = services.targetAssertion;
 
 	me.validate.messages = {
 		name:					"Name value is incorrect",
