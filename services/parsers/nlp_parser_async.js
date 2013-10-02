@@ -100,10 +100,7 @@ module.exports = function(models, io, logger) {
 	me.parseToTuples = function(textData, callback) {
 		var tuples = [];
 
-		logger.info(textData);
-		logger.info(typeof("My dog has fleas"));
-
-		parser.parseText("My dog has fleas", function(err, results) {
+		parser.parseText(textData, function(err, results) {
 			var tuples = results;
 			if(err) {
 				logger.error("An error occurred while extracting triplets", err);
@@ -111,18 +108,16 @@ module.exports = function(models, io, logger) {
 			if(tuples.length === 0) {
 				logger.error("No triplets were able to be extracted", err);
 			} else {
-				console.log(tuples);
 				callback(null, tuples);
 			}
 		});
 	};
 
 	me.posTagSentences = function(sentence, callback) {
-		posTagger.getTaggedSentence(sentence, function(err, taggedSentence) {
-			if(err) {
-				logger.error("An error occurred while trying to tag the sentence", err);
-			}
-			callback(err, taggedSentence);
-		});
+		posTagger.getTaggedSentence(sentence, callback);
+	}
+
+	me.parseToAnnotationGraphs = function(sentence, callback) {
+		parser.getTextAnnotatedTree(sentence, callback);
 	}
 };

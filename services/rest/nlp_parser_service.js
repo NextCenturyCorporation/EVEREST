@@ -3,6 +3,8 @@ var AssertionService = require('../database/assertion.js');
 var Nlp_Parser = require('../parsers/nlp_parser_async.js');
 var general = require('../general_response');
 
+var async = require('async');
+
 module.exports = function(app, models, io, logger){
 	var me = this;
 
@@ -48,9 +50,22 @@ module.exports = function(app, models, io, logger){
 		}
 		
 		nlp_parser.parseToTuples(req.body.text, function(err, tuples) {
-			console.log(tuples);
+			var results = [];
+			var tuple;
+
+			var size = tuples.sizeSync();
+			for(var i = 0; i < size; i++) {
+				tuple = tuples.getSync(i);
+				results.push({
+					sentence: req.body.text,
+					entity1: tuple.getEntity1StringSync(),
+					relationship: tuple.getRelationStringSync(),
+					entity2: tuple.getEntity2StringSync()
+				});
+			};
+
 			if (tuples) {
-				res.json(tuples);
+				res.json(results);
 			}
 			res.end();
 		});
@@ -79,33 +94,41 @@ module.exports = function(app, models, io, logger){
 			logger.info('Request for nlp parser to parse text to a semanticgraph.');
 		}
 		
-		/*nlp_parser.parseToAssertionGraphs(req.body, function(err, graphs) {
+		nlp_parser.parseToAnnotationGraphs(req.body.text, function(err, graphs) {
 			if(err) {
-				//FIXME //handle err
+				var msg = "There was an error attempting to annotate sentence"
+				logger.error(msg);
+				return general.send500(res, msg);
 			}
 
-			if (graphs) {
-				res.json(graphs);
-			}*/
-			res.end();
-		//});
+			var graphArray = graphs.toArraySync();
+
+			var result = [];
+			async.each(graphArray, function(graph, callback) {
+				result.push(graph.pennStringSync());
+				callback();
+			}, function(err) {
+				res.json(result);
+				res.end();
+			})
+		});
 	});
 
-	/*//dependencygraph
+	//dependencygraph
 	app.post('/nlp-parser/dependencygraph/', function(req, res){
 		if(logger.DO_LOG){
 			logger.info('Request for nlp parser to parse text to a semanticgraph.');
 		}
 		
-		nlp_parser.parseToDependencyGraphs(req.body, function(err, graphs) {
+		/*nlp_parser.parseToDependencyGraphs(req.body, function(err, graphs) {
 			if(err) {
 				//FIXME //handle err
 			}
 			if (graphs) {
 				res.json(graphs);
-			}
+			}*/
 			res.end();
-		});
+		//});
 	});
 
 	//root; child pairs; child relations;
@@ -114,14 +137,14 @@ module.exports = function(app, models, io, logger){
 			logger.info('Request for nlp parser to parse text to a semanticgraph.');
 		}
 		
-		nlp_parser.parseRootChildData(req.body, function(err, result) {
+		/*nlp_parser.parseRootChildData(req.body, function(err, result) {
 			if(err) {
 				//FIXME //handle err
 			}
 
-			res.json(result);
+			res.json(result);*/
 			res.end();
-		});
+		//});
 	});
 
 	//dot product graph
@@ -130,15 +153,15 @@ module.exports = function(app, models, io, logger){
 			logger.info('Request for nlp parser to parse text to a semanticgraph.');
 		}
 		
-		nlp_parser.parseToDotProductGraph(req.body, function(err, graph) {
+		/*nlp_parser.parseToDotProductGraph(req.body, function(err, graph) {
 			if(err) {
 				//FIXME //handle err
 			}
 			if (graphs) {
 				res.json(graphs);
-			}
+			}*/
 			res.end();
-		});
+		//});
 	});
 
 	//edges and verticies
@@ -147,13 +170,13 @@ module.exports = function(app, models, io, logger){
 			logger.info('Request for nlp parser to parse text to a semanticgraph.');
 		}
 		
-		nlp_parser.parseToEdgeVertex(req.body, function(result) {
+		/*nlp_parser.parseToEdgeVertex(req.body, function(result) {
 			if(err) {
 				//FIXME //handle err
 			}
-			res.json(result);
+			res.json(result);*/
 			res.end();
-		});
-	});*/
+		//});
+	});
 };
 
