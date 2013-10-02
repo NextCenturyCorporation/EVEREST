@@ -15,7 +15,16 @@ module.exports = function(app, models, io, logger) {
 		if(logger.DO_LOG){
 			logger.info("Request for assertion list");
 		}
-		assertionService.listAssertions(res);
+		assertionService.list({}, function(err, docs){
+			if(err){
+				logger.info("Error listing assertions "+err);
+				res.status(500);
+				res.json({error: 'Error'});
+			} else {
+				res.json(docs);
+			}
+			res.end();
+		});
 	});
 	
 	//Create
@@ -23,7 +32,21 @@ module.exports = function(app, models, io, logger) {
 		if(logger.DO_LOG){
 			logger.info("Receiving new assertion");
 		}
-		assertionService.createAssertion(req.body, res);
+		assertionService.create(req.body, function(err, val, newAssertion) {
+			if(err){
+				logger.error('Error saving assertion', err);
+				res.status(500);
+				res.json({error: 'Error'});
+			} else if (!val.valid) {
+				logger.info('Invalid assertion ' + JSON.stringify(val.errors));
+				res.status(500);
+				res.json({error: val.errors}, data);
+			} else {
+				logger.info('Assertion saved ' + JSON.stringify(newAssertion));
+				res.json({id:newAssertion._id});
+			}
+			res.end();
+		});
 	});
 
 
@@ -32,7 +55,19 @@ module.exports = function(app, models, io, logger) {
 		if(0 && logger.DO_LOG){
 			logger.info("Request for assertion "+req.params.id);
 		}
-		assertionService.getAssertion(req.params.id, res);
+		assertionService.get(req.params.id, function(err, docs){
+			if(err) {
+				logger.info("Error getting assertion "+err);
+				res.status(500);
+				res.json({error: 'Error'});
+			} else if(docs) {
+				res.json(docs);
+			} else {
+				res.status(404);
+				res.json({error: 'Not found'});
+			}
+			res.end();
+		});
 	});
 	
 	//Update
@@ -40,7 +75,21 @@ module.exports = function(app, models, io, logger) {
 		if(logger.DO_LOG){
 			logger.info("Update assertion "+req.params.id);
 		}
-		assertionService.updateAssertion(req.params.id, req.body, res);
+		assertionService.update(req.params.id, req.body, function(err, val, updated) {
+			if(err){
+				logger.error('Error updating assertion', err);
+				res.status(500);
+				res.json({error: 'Error'});
+			} else if (!val.valid) {
+				logger.info('Invalid assertion ' + JSON.stringify(val.errors));
+				res.status(500);
+				res.json({error: val.errors}, data);
+			} else {
+				logger.info('Assertion updated ' + JSON.stringify(updated));
+				res.json({id:updated._id});
+			}
+			res.end();
+		});
 	});
 	
 	//Delete and individual assertion
@@ -48,7 +97,10 @@ module.exports = function(app, models, io, logger) {
 		if(logger.DO_LOG) {
 			logger.info("Deleting assertion with id: " + req.params.id);
 		}
-		assertionService.deleteAssertion(req.params.id, req.body, res);
+		assertionService.del({_id: req.params.id}, function(err, count) {
+			res.json({deleted_count: count});
+			res.end();
+		});
 	});
 
 	//Delete all assertions
@@ -56,6 +108,9 @@ module.exports = function(app, models, io, logger) {
 		if(logger.DO_LOG){
 			logger.info("Deleting all assertion entries");
 		}
-		assertionService.deleteAssertions(res);
+		assertionService.del({}, function(err, count) {
+			res.json({deleted_count: count});
+			res.end();
+		});
 	});
 };

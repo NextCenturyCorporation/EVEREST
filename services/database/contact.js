@@ -1,25 +1,12 @@
-/**
- * Runs while connected to a database
- */
+module.exports = function(models, io, logger) {
+	var me = this;
 
-/*global require */
-// require is a global node function/keyword
+	me.list = function(config, callback) {
+		//TODO paging
+		me.models.contact.find({}, callback);
+	};
 
-var winston = require('winston');
-var general = require('../general_response');
-var models = require('../../models/models');
-
-//Load and set up the logger
-var logger = new (winston.Logger)({
-	//Make it log to both the console and a file 
-	transports : [new (winston.transports.Console)(),
-		new (winston.transports.File)({filename: 'logs/general.log'})] //,
-});
-
-/**
- * Returns a list of all the contact names and ids
- */
-this.listContacts = function(res){
+	/* = function(res){
 	models.contact.find({},'_id name', function(err, docs){
 		if(err){
 			logger.info("Error listing contacts "+err);
@@ -28,94 +15,120 @@ this.listContacts = function(res){
 			res.json(docs);
 		}
 		res.end();
-	});
-};
+	});*/
 
-/**
- * Creates a new contact object based on the data POSTed.
- * See the Contact schema for details on what to post.
- * All validation is handled through the schema.
- *
- * On success, it returns id:<ID-hash>
- */
-this.createContact = function(data, res){
-	var newContact = new models.contact(data);
-	newContact.save(function(err){
-		if(err){
-			logger.error('Error saving contact',err);
-			general.send500(res);
-		} else {
-			res.json({id:newContact._id});
-			res.end();
-		}
-	});
-};
-
-/**
- * Returns the contact object with id specified in the URL.
- */
-this.getContact = function(id, res){
-	models.contact.findById(id, function(err, docs){
-		if(err) {
-			logger.info("Error getting contact "+err);
-			general.send500(res);
-		} else if(docs) {
-			res.json(docs);
-		} else {
-			general.send404(res);
-		}
-		res.end();
-	});
-};
-
-/**
- * This updates the location with id specified in the URL.
- * It will not change the id.
- * On success, it returns status:ok
- */
-this.updateContact = function(id, data, res){
-	models.contact.findById(id, function(err, docs){
-		if(err) {
-			logger.info("Error getting contact "+err);
-			general.send500(res);
-		} else if(docs) {
-			for(var e in data){
-				//Make sure not to change _id
-				if(e !== '_id'){
-					docs[e] = data[e];
-				}
+	me.create = function(data, callback) {
+		var newContact = new models.contact(data);
+		newContact.save(function(err){
+			if(err){
+				logger.error('Error saving contact ', err);
+			} 
+			callback(err, newContact);
+		});
+	};
+	/*
+	this.createContact = function(data, res){
+		var newContact = new models.contact(data);
+		newContact.save(function(err){
+			if(err){
+				logger.error('Error saving contact',err);
+				general.send500(res);
+			} else {
+				res.json({id:newContact._id});
+				res.end();
 			}
-			docs.save(function(err){
-				if(err){
-					logger.error('Error updating contact',err);
-					general.send500(res);
+		});
+	};
+	*/
+
+	me.get = function(id, callback) {
+		me.models.find({_id: id}, callback);
+	};
+
+	/*
+	this.getContact = function(id, res){
+		models.contact.findById(id, function(err, docs){
+			if(err) {
+				logger.info("Error getting contact "+err);
+				general.send500(res);
+			} else if(docs) {
+				res.json(docs);
+			} else {
+				general.send404(res);
+			}
+			res.end();
+		});
+	};
+	*/
+
+	me.update = function(id, data, callback) {
+		models.contact.findById(id, function(err, docs){
+			if(err) {
+				logger.info("Error getting contact "+err);
+				callback(err, docs);
+			} else if(docs) {
+				for(var e in data){
+					//Make sure not to change _id
+					if(e !== '_id'){
+						docs[e] = data[e];
+					}
+				}
+				docs.save(function(err){
+					callback(err, docs);
+				});
+			} else {
+				//callback hndle 404
+				logger.debug("Contact not found");
+			}
+		});
+	};
+	/*
+	this.updateContact = function(id, data, res){
+		models.contact.findById(id, function(err, docs){
+			if(err) {
+				logger.info("Error getting contact "+err);
+				general.send500(res);
+			} else if(docs) {
+				for(var e in data){
+					//Make sure not to change _id
+					if(e !== '_id'){
+						docs[e] = data[e];
+					}
+				}
+				docs.save(function(err){
+					if(err){
+						logger.error('Error updating contact',err);
+						general.send500(res);
+					}
+					res.json({status:'ok'});
+					res.end();
+				});
+			} else {
+				general.send404(res);
+			}
+			res.end();
+		});
+	};
+	*/
+
+	me.del = function(config, callback) {
+		models.contact.remove(config, callback);
+	};
+
+	/*
+	this.deleteContact = function(id, res) {
+		models.contact.find({_id:id}, function(err, docs){
+			if(err || docs.length === 0){
+				logger.error('Error deleting contact', err);
+				general.send500(res);
+			} else {
+				for(var i = 0; i < docs.length; i++){
+					docs[i].remove();
 				}
 				res.json({status:'ok'});
 				res.end();
-			});
-		} else {
-			general.send404(res);
-		}
-		res.end();
-	});
-};
-
-/**
- * Deletes the contact with the given id
-**/
-// bbn 20-JUN-13  changed calling signature
-//this.deleteContact = function(id, data, res) {
-this.deleteContact = function(id, res) {
-	models.contact.find({_id:id}, function(err, docs){
-		if(err || docs.length === 0){
-			logger.error('Error deleting contact', err);
-			general.send500(res);
-		} else {
-			for(var i = 0; i < docs.length; i++){
-				docs[i].remove();
-			}
-			res.json({status:'ok'});
-			res.end();
-		}//;
-	});
+			}//;
+		});
+	};
+	*/
 };
