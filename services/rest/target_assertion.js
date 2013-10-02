@@ -14,7 +14,16 @@ module.exports = function(app, models, io, logger) {
 		if(logger.DO_LOG){
 			logger.info("Request for target_assertion list");
 		}
-		targetAssertionService.listTargetAssertions(res);
+		targetAssertionService.list({}, function(err, docs){
+			if(err){
+				logger.info("Error listing target_assertions "+err);
+				res.status(500);
+				res.json({error: 'Error'});
+			} else {
+				res.json(docs);
+			}
+			res.end();
+		});
 	});
 	
 	//list - lists name and id
@@ -22,7 +31,16 @@ module.exports = function(app, models, io, logger) {
 		if(logger.DO_LOG){
 			logger.info("Request for target_assertion name list");
 		}
-		targetAssertionService.listTargetAssertionNames(res);
+		targetAssertionService.listFields({}, '_id name', function(err, docs){
+			if(err){
+				logger.info("Error listing target_assertion id - name "+err);
+				res.status(500);
+				res.json({error: 'Error'});
+			} else {
+				res.json(docs);
+			}
+			res.end();
+		});
 	});
 
 	//Create
@@ -30,7 +48,21 @@ module.exports = function(app, models, io, logger) {
 		if(logger.DO_LOG){
 			logger.info("Receiving new target_assertion");
 		}
-		targetAssertionService.createTargetAssertion(req.body, res);				
+		targetAssertionService.create(req.body, function(err, val, newObj) {
+			if(err){
+				logger.error('Error saving target_assertion', err);
+				res.status(500);
+				res.json({error: 'Error'});
+			} else if (!val.valid) {
+				logger.info('Invalid target_assertion ' + JSON.stringify(val.errors));
+				res.status(500);
+				res.json({error: val.errors});
+			} else {
+				logger.info('TargetAssertion saved ' + JSON.stringify(newObj));
+				res.json({id:newObj._id});
+			}
+			res.end();
+		});
 	});
 
 	//review
@@ -38,31 +70,63 @@ module.exports = function(app, models, io, logger) {
 		if(logger.DO_LOG){
 			logger.info("Request for target_assertion "+req.params.id);
 		}
-		targetAssertionService.getTargetAssertion(req.params.id, res);
+		targetAssertionService.getTargetAssertion(req.params.id, function(err, docs){
+			if(err) {
+				logger.error("Error getting target_assertion ",err);
+				res.status(500);
+				res.json({error: 'Error'});
+			} else if(docs) {
+				res.json(docs);
+			} else {
+				res.status(404);
+				res.json({error: 'Not found'});
+			}
+			res.end();
+		});
 	});
 
 	app.get('/target_assertion/:name', function(req,res){
 		if(logger.DO_LOG){
 			logger.info("Request for targetAssertionByName "+req.params.name);
 		}
-		targetAssertionService.getTargetAssertionByName(req.params.name, res);
+		targetAssertionService.getTargetAssertionByName(req.params.name, function(err, docs){
+			if(err) {
+				logger.info("Error getting targetAssertionByName "+err);
+				res.status(500);
+				res.json({error: 'Error'});
+			} else if(0 !== docs.length) {
+				res.json(docs);
+			} else {
+				res.status(404);
+				res.json({error: 'Not found'});
+			}
+			res.end();
+		});
 	});
 
-	// search
-	//FIXME express does not support a search request; is that actually a valid http qequest type?
-	/*app.search('/target_assertion/?', function(req,res){
-		if (logger.DO_LOG){
-			logger.info("Search for target_assertion "+JSON.stringify(req.body));
-		}
-		targetAssertionService.searchTargetAssertion(req.body, res);
-	});*/
-	
 	//Update
 	app.post('/target_assertion/:id([0-9a-f]+)', function(req,res){
 		if(logger.DO_LOG){
 			logger.info("Update target_assertion "+req.params.id);
 		}
-		targetAssertionService.updateTargetAssertion(req.params.id, req.body, res);
+
+		var data = req.body;
+
+		targetAssertionService.updateTargetAssertion(req.params.id, data, function(err, val, updLoc) {
+			if(err){
+				logger.error('Error updating target_assertion', err);
+				res.status(500);
+				res.json({error: 'Error'});
+			} else if (!val.valid) {
+				logger.info('Invalid target_assertion ' + JSON.stringify(val.errors));
+				res.status(500);
+				res.json({error: val.errors}, data);
+			} else {
+				logger.info('TargetAssertion updated ' + JSON.stringify(updLoc));
+				res.json({id:updLoc._id});
+			}
+			res.end();
+		});
 	});
 	
 	//delete by id
@@ -70,7 +134,10 @@ module.exports = function(app, models, io, logger) {
 		if(logger.DO_LOG) {
 			logger.info("Deleting target_assertion with id: " + req.params.id);
 		}
-		targetAssertionService.deleteTargetAssertion(req.params.id, req.body, res);
+		targetAssertionService.del({_id: req.body.id}, function(err, count) {
+			res.json({deleted_count: count});
+			res.end();
+		});
 	});
 	
 	//delete all
@@ -78,7 +145,10 @@ module.exports = function(app, models, io, logger) {
 		if(logger.DO_LOG) {
 			logger.info("Deleting all target_assertions");
 		}
-		targetAssertionService.deleteTargetAssertions(res);
+		targetAssertionService.del({}, function(err, count) {
+			res.json({deleted_count: count});
+			res.end();
+		});
 	});
 
 };
