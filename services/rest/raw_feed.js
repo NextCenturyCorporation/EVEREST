@@ -69,7 +69,7 @@ module.exports = function(app, models, io, logger) {
 				res.json({error: val.errors}, data);
 			} else {
 				logger.info('Raw_feed saved ' + JSON.stringify(newFeed));
-				res.json({id:newFeed._id});
+				res.json({_id:newFeed._id});
 			}
 			res.end();
 		});
