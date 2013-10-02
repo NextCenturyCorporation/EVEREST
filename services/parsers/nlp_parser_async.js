@@ -100,53 +100,25 @@ module.exports = function(models, io, logger) {
 	me.parseToTuples = function(textData, callback) {
 		var tuples = [];
 
-		logger.info(textData.text);
-		
-		var tree = parser.parseSync(textData.text);
-		
-		var parsedTree = tree.toStringSync();
+		logger.info(textData);
+		logger.info(typeof("My dog has fleas"));
 
-		tuples.push({
-			original: textData.text,
-			annotated: parsedTree
-		});
-		
-		for (var i = 0; i < tree.sizeSync(); i++){
-			
-			//get first sentence fragment from parsed message
-			var leaf = tree.getSync(i);
-			var numKids = leaf.lastChildSync().numChildrenSync();
-		
-			var parsedLeaf = leaf.toStringSync();
-			
-			//get rid of punctuation?
-			var last = leaf.lastChildSync().lastChildSync().toStringSync();
-			if (last.indexOf("(. ") === 0){
-				leaf.lastChildSync().removeChildSync(numKids - 1);
+		parser.parseText("My dog has fleas", function(err, results) {
+			var tuples = results;
+			if(err) {
+				logger.error("An error occurred while extracting triplets", err);
 			}
-			var output = extractor.extractTripletSync(leaf);
-
-			if (output) {
-				tuples.push({
-					sentence: parsedLeaf,
-					entity1: output.getEntity1StringSync().toString(),
-					relationship : output.getRelationStringSync().toString(),
-					entity2 : output.getEntity2StringSync().toString()
-				});
+			if(tuples.length === 0) {
+				logger.error("No triplets were able to be extracted", err);
 			} else {
-				tuples.push({
-					sentence: parsedLeaf
-				});
+				console.log(tuples);
+				callback(null, tuples);
 			}
-		}
-
-		//FIXME handle errors appropriately
-		var err = null;
-		callback(err, tuples);
+		});
 	};
 
 	me.posTagSentences = function(sentence, callback) {
-		posTagger.getTaggedSentence(sentencenl, function(err, taggedSentence) {
+		posTagger.getTaggedSentence(sentence, function(err, taggedSentence) {
 			if(err) {
 				logger.error("An error occurred while trying to tag the sentence", err);
 			}

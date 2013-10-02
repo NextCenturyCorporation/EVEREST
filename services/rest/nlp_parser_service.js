@@ -14,7 +14,7 @@ module.exports = function(app, models, io, logger){
 	var alphaReportService = new AlphaReportService(models, io, logger);
 
 	var services = {assertion: new AssertionService(models, io, logger)};
-	var nlp_parser = new Nlp_Parser(services, logger);
+	var nlp_parser = new Nlp_Parser(models, io, logger);
 	
 	// start the parser
 	app.get('/nlp-parser/parse', function(req, res){
@@ -42,12 +42,13 @@ module.exports = function(app, models, io, logger){
 	};
 	
 	// post text to get back tuples
-	app.post('/nlp-parser/parse/', function(req, res){
+	app.post('/nlp-parser/parse/?', function(req, res){
 		if(logger.DO_LOG){
 			logger.info('Request for nlp parser to parse text.');
 		}
 		
-		nlp_parser.parseToTuples(req.body, function(err, tuples) {
+		nlp_parser.parseToTuples(req.rawBody, function(err, tuples) {
+			console.log(tuples);
 			if (tuples) {
 				res.json(tuples);
 			}
@@ -58,7 +59,7 @@ module.exports = function(app, models, io, logger){
 	//pos tag sentences
 	app.post('/nlp-parser/postagger/?', function(req, res){
 		if(logger.DO_LOG){
-			logger.info('Request for nlp parser to parse text to a semanticgraph.');
+			logger.info('Request for nlp parser to pos tag text.');
 		}
 		
 		nlp_parser.posTagSentences(req.rawBody, function(err, result) {
@@ -73,7 +74,7 @@ module.exports = function(app, models, io, logger){
 	});
 
 	//annotation graph
-	app.post('/nlp-parser/assertiongraph/?', function(req, res){
+	app.post('/nlp-parser/annotationgraph/?', function(req, res){
 		if(logger.DO_LOG){
 			logger.info('Request for nlp parser to parse text to a semanticgraph.');
 		}

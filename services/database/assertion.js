@@ -19,42 +19,9 @@ module.exports = function(models, io, logger) {
 	/**
 	 * Returns a list of all the assertions
 	 */
-	me.listAssertions = function(res){
-		models.assertion.find({}, function(err, docs){
-			if(err){
-				logger.info("Error listing assertions "+err);
-				res.status(500);
-				res.json({error: 'Error'});
-			} else {
-				res.json(docs);
-			}
-			res.end();
-		});
-	};
-
-	/**
-	 * Creates a new assertion from the data POSTed
-	 * See the Assertion schema in models.js for details on the data to post.
-	 * All validation is handled though the schema.
-	 *
-	 * On success, it returns id:<ID-hash>
-	 */
-	me.createAssertion = function(data, res){
-		me.saveAssertion(data, function(err, val, newAssertion) {
-			if(err){
-				logger.error('Error saving assertion', err);
-				res.status(500);
-				res.json({error: 'Error'});
-			} else if (!val.valid) {
-				logger.info('Invalid assertion ' + JSON.stringify(val.errors));
-				res.status(500);
-				res.json({error: val.errors}, data);
-			} else {
-				logger.info('Assertion saved ' + JSON.stringify(newAssertion));
-				res.json({id:newAssertion._id});
-			}
-			res.end();
-		});
+	me.listAssertions = function(config, callback){
+		//TODO handle paging
+		models.assertion.find({}, callback);
 	};
 
 	/**
@@ -116,20 +83,8 @@ module.exports = function(models, io, logger) {
 	/**
 	 * Returns the assertion with the id specified in the URL
 	 */
-	me.getAssertion = function(id, res){
-		models.assertion.findById(id, function(err, docs){
-			if(err) {
-				logger.info("Error getting assertion "+err);
-				res.status(500);
-				res.json({error: 'Error'});
-			} else if(docs) {
-				res.json(docs);
-			} else {
-				res.status(404);
-				res.json({error: 'Not found'});
-			}
-			res.end();
-		});
+	me.get = function(id, callback){
+		models.assertion.find({_id: id}, callback);
 	};
 
 	/**
@@ -168,34 +123,11 @@ module.exports = function(models, io, logger) {
 
 
 	/**
-	 * This updates the assertion with id specified in the URL.
-	 * It will not change the id.
-	 * On success, it returns the _id value (just like on create)
-	 */
-	me.updateAssertion = function(id, data, res){
-		me.updateAssertionX(id, data, function(err, val, updated) {
-			if(err){
-				logger.error('Error updating assertion', err);
-				res.status(500);
-				res.json({error: 'Error'});
-			} else if (!val.valid) {
-				logger.info('Invalid assertion ' + JSON.stringify(val.errors));
-				res.status(500);
-				res.json({error: val.errors}, data);
-			} else {
-				logger.info('Assertion updated ' + JSON.stringify(updated));
-				res.json({id:updated._id});
-			}
-			res.end();
-		});
-	};
-
-	/**
-	 * updateAssertionX calls the validateAssertion then updates the object
+	 * update calls the validateAssertion then updates the object
 	 * 
 	 * callback takes the form of  function(err, valid object, Assertion object)
 	 */
-	me.updateAssertionX = function(id, data, updCallback) {
+	me.update = function(id, data, updCallback) {
 		me.validateAssertion(data, function(valid){
 			if (valid.valid) {
 				models.assertion.findById(id, function(err, docs){
@@ -231,33 +163,7 @@ module.exports = function(models, io, logger) {
 	};
 
 
-	/**
-	 * Deletes the assertion with the given ID
-	**/
-	me.deleteAssertion = function(id, data, res) {
-		models.assertion.find({_id:id}, function(err, docs){
-			if(err || docs.length === 0){
-				logger.error('Error deleting assertion '+id, err);
-				res.status('500');
-				res.json({error:'Invalid assertion '+id});
-				res.end();
-			} else {
-				for(var i = 0; i < docs.length; i++){
-					docs[i].remove();
-				}
-				res.json({status:'ok'});
-				res.end();
-			}//;
-		});
-	};
-
-	me.deleteAssertions = function(res){
-		models.assertion.find({}, function(err, docs){
-			for(var i = 0; i < docs.length; i++){
-				docs[i].remove();
-			}
-			res.json({status:'ok'});
-			res.end();
-		});
-	};
+	me.del = function(config, callback) {
+		models.assertion.remove(config, callback);
+	}
 };

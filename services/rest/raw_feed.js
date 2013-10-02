@@ -107,15 +107,15 @@ module.exports = function(app, models, io, logger) {
 			logger.info("Deleting raw feed with id: " + id);
 		}
 
-		rawFeedService.del({_id:id}, function(err){
+		rawFeedService.del({_id:id}, function(err, count){
 			if(err){
 				logger.error('Error deleting raw feed ' + id, err);
 				res.status('500');
 				res.json({error: 'Invalid raw feed ' + id});
 				res.end();
 			} else {
-				res.json({status:'ok'});
-				res.end();
+				res.json({deleted_count: count});
+				res.end;
 			}
 		});
 	});
@@ -126,16 +126,15 @@ module.exports = function(app, models, io, logger) {
 			logger.info("Deleting all raw feed entries");
 		}
 		
-		rawFeedService.del({}, function(err){
+		rawFeedService.del({}, function(err, count){
 			if(err){
-				logger.error('Error deleting raw feeds', err);
-				res.status('500');
-				res.json({error: 'err'});
-				res.end();
-			} else {
-				res.json({status:'ok'});
-				res.end();
+				var msg = "Error deleting raw feeds"
+				logger.error(msg, err);
+				responseHandler.send500(res, msg)
 			}
+
+			res.json({deleted_count: count});
+			res.end;
 		});
 	});
 };
