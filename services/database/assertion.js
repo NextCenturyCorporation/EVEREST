@@ -33,7 +33,7 @@ module.exports = function(models, io, logger) {
 	 * 
 	 * saveCallback takes the form of  function(err, valid object, assertion object)
 	 */
-	me.saveAssertion = function(data, saveCallback) {
+	me.create = function(data, saveCallback) {
 		me.validateAssertion(data, function(valid) {
 			if (valid.valid) {
 				logger.info("Valid assertion");
@@ -83,8 +83,12 @@ module.exports = function(models, io, logger) {
 	/**
 	 * Returns the assertion with the id specified in the URL
 	 */
-	me.get = function(id, callback){
-		models.assertion.find({_id: id}, callback);
+	me.get = function(id, callback) {
+		me.findWhere({_id: id}, callback);
+	};
+
+	me.findWhere = function(config, callback) {
+		models.assertion.find(config, callback);
 	};
 
 	/**
@@ -120,7 +124,6 @@ module.exports = function(models, io, logger) {
 			query.exec(readCallback);
 		}
 	};
-
 
 	/**
 	 * update calls the validateAssertion then updates the object
@@ -165,5 +168,5 @@ module.exports = function(models, io, logger) {
 
 	me.del = function(config, callback) {
 		models.assertion.remove(config, callback);
-	}
+	};
 };

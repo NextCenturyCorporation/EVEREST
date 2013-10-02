@@ -12,6 +12,10 @@ var logger = new (winston.Logger)({
 		new (winston.transports.File)({filename: 'logs/general.log'})]
 });
 
+var isObjectEmpty = function(obj) {
+    return Object.keys(obj).length === 0;
+};
+
 /**
  *	Returns a list of all the reporters
  */
@@ -53,17 +57,16 @@ this.createReporter = function(data, res){
 	this.saveReporter(data, function(err, val, newReporter) {
 		if(err){
 			logger.error('Error saving reporter ', err);
-			res.status(500);
-			res.json({error: 'Error'});
-		} else if (!val.valid) {
+			general.send500(res,"Error saving reporter");
+		} else if (isObjectEmpty(data) || !val.valid) {
 			logger.info('Invalid reporter ' + JSON.stringify(val.errors));
-			res.status(500);
-			res.json({error: val.errors}, data);
+			general.send500(res, "Invalid Reporter");
 		} else {
 			logger.info('Reporter saved ' + JSON.stringify(newReporter));
-			res.json({id:newReporter._id});
+			res.json({_id:newReporter._id});
+			res.end();
 		}
-		res.end();
+		
 	});
 };
 

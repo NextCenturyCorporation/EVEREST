@@ -13,31 +13,31 @@ String.prototype.tryToFixURI = function() {
 };
  
 module.exports = function(models, io, logger) {
-	var self = this;
-	self.models = models;
-	self.logger = logger;
-	self.feed = {};
-	self.feed.feedInterval = {};
-	self.feed.links = {};
+	var me = this;
+	me.models = models;
+	me.logger = logger;
+	me.feed = {};
+	me.feed.feedInterval = {};
+	me.feed.links = {};
 	var async = require('async');
 	var actionEmitter = require('../action_emitter.js');
 	var FeedParser = require('feedparser'),
 		request = require('request');
 
-	self.list = function(params, callback){
-		self.findWhere({}, callback);
+	me.list = function(params, callback){
+		me.findWhere({}, callback);
 	};
 
-	self.create = function(data, callback) {
-		var newFeed = new self.models.atomRss(data);
+	me.create = function(data, callback) {
+		var newFeed = new me.models.atomRss(data);
 		newFeed.save(function(err){
 			if(err){
 				logger.error('Error saving atomRss Feed ', err);
 				callback(err, null);
 			} else {
-				self.logger.debug('Saved new feed with id ' + newFeed._id);
+				me.logger.debug('Saved new feed with id ' + newFeed._id);
 				if(newFeed.feed_active) {
-					self.startIngestFeed(newFeed, callback);
+					me.startIngestFeed(newFeed, callback);
 				} else {
 					callback(null, newFeed);
 				}
@@ -46,26 +46,26 @@ module.exports = function(models, io, logger) {
 		});
 	};
 
-	self.get = function(id, callback){
-		self.findWhere({_id: id}, callback);
+	me.get = function(id, callback){
+		me.findWhere({_id: id}, callback);
 	};
 
-	self.startIngestFeed = function(feed, callback) {
+	me.startIngestFeed = function(feed, callback) {
 		var intervalId = setInterval(function() {
 			createReader(feed);
 		}, feed.polling_interval);
-		self.feed.feedInterval[feed._id] = intervalId;
+		me.feed.feedInterval[feed._id] = intervalId;
 
-		self.update(feed._id, {feed_active: true}, callback);
+		me.update(feed._id, {feed_active: true}, callback);
 	};
 
-	self.startIngest = function(id, callback) {
-		self.get(id, function(err, feed) {
+	me.startIngest = function(id, callback) {
+		me.get(id, function(err, feed) {
 			var errorMsg = new Error('Could not find feed to start');
 			if(err) {
 				callback(errorMsg);
 			} else if(feed[0]) {
-				self.startIngestFeed(feed[0],callback);
+				me.startIngestFeed(feed[0],callback);
 			} else {
 				callback(errorMsg);
 			}
@@ -73,34 +73,34 @@ module.exports = function(models, io, logger) {
 	};
 
 
-	self.stopIngest = function(id, callback) {
-		if(self.feed.feedInterval[id]) {
-			clearInterval(self.feed.feedInterval[id]);
-			self.update(id, {feed_active:false}, callback);
+	me.stopIngest = function(id, callback) {
+		if(me.feed.feedInterval[id]) {
+			clearInterval(me.feed.feedInterval[id]);
+			me.update(id, {feed_active:false}, callback);
 		} else {
 			var errorMsg = new Error('Could not find active feed to stop: ');
 			callback(errorMsg, id);
 		}
 	};
 
-	self.stopAllIngest = function(callback) {
-		async.forEach(Object.keys(self.feed.feedInterval), function(i, callback) {
-			self.stopIngest(i,callback);
+	me.stopAllIngest = function(callback) {
+		async.forEach(Object.keys(me.feed.feedInterval), function(i, callback) {
+			me.stopIngest(i,callback);
 		}, callback());
 	};
 
-	self.startAllIngest = function(callback) {
-		self.list(null, function(err, feeds) {
+	me.startAllIngest = function(callback) {
+		me.list(null, function(err, feeds) {
 			async.forEach(feeds, function(i, callback) {
-				self.startIngest(i._id, callback);
+				me.startIngest(i._id, callback);
 			}, callback());
 		});
 	};
 
-	self.initFeedStopped = function(callback) {
-		self.list(null, function(err, feeds) {
+	me.initFeedStopped = function(callback) {
+		me.list(null, function(err, feeds) {
 			async.forEach(feeds, function(i, callback) {
-				self.update(i._id, {feed_active:false},callback);
+				me.update(i._id, {feed_active:false},callback);
 			}, callback());
 		});
 	};
@@ -113,14 +113,15 @@ module.exports = function(models, io, logger) {
 				logger.error(error);
 			})
 			.on('meta', function (meta) {
-			 // console.log('===== %s =====', meta.title);
+			 	logger.debug(meta);
+				// console.log('===== %s =====', meta.title);
 			})
 			.on('readable', function() {
 				var stream = this, item;
 				while (item = stream.read()) {
 					var link = item.link;
-					if(link && !self.feed.links[link]) {
-						self.feed.links[link] = link;
+					if(link && !me.feed.links[link]) {
+						me.feed.links[link] = link;
 					    actionEmitter.rawFeedDataRecievedEvent({feedSource: 'RSS', text:JSON.stringify(item)}, function(err, valid, newfeed){
 							actionEmitter.rawFeedParseEvent(newfeed._id);
 						});
@@ -130,8 +131,8 @@ module.exports = function(models, io, logger) {
 		}
 	};
 
-	self.update = function(id, data, callback) {
-		self.models.atomRss.findById(id, function(err, feed) {
+	me.update = function(id, data, callback) {
+		me.models.atomRss.findById(id, function(err, feed) {
 			if(err) {
 				logger.error('Error updating atomRss Feed ', err);
 				callback(err, null);
@@ -158,23 +159,26 @@ module.exports = function(models, io, logger) {
 		});
 	};
 
-	self.findWhere = function(config, callback){
-		self.models.atomRss.find(config, callback);
+	me.findWhere = function(config, callback){
+		me.models.atomRss.find(config, callback);
 	};
 
-	self.del = function(id, callback){
-		self.stopIngest(id._id, function(err) {
-			self.feed.feedInterval[id._id] = null;
-			self.models.atomRss.remove(id, callback);
+	me.del = function(id, callback){
+		me.stopIngest(id._id, function(err) {
+			if(err) {
+				logger.error("An error occurred", err);
+			}
+			me.feed.feedInterval[id._id] = null;
+			me.models.atomRss.remove(id, callback);
 		});
 	};
 
-	self.delAll = function(callback){
-		self.stopAllIngest(function() {
-			self.del({}, function() {
-				self.feed = {};
-				self.feed.feedInterval = {};
-				self.feed.links = {};
+	me.delAll = function(callback){
+		me.stopAllIngest(function() {
+			me.del({}, function() {
+				me.feed = {};
+				me.feed.feedInterval = {};
+				me.feed.links = {};
 				callback();
 			});
 		});
