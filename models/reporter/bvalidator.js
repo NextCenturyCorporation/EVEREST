@@ -86,7 +86,7 @@ var logger = new (winston.Logger)({
   
   var reporterExists = function(object, errors, callback) {
 		
-		var searchObject = { source_name : object.source_name, source_id : object.source_id };
+		var searchObject = { source_name : object.source_name, name : object.name };
 		dataLayerReporter.readReporterByObject(searchObject, function(err, locs){
 			if (err) {
 				error('record', object, errors, 'Error reading reporter ' + err);

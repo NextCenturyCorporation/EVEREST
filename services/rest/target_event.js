@@ -6,52 +6,48 @@ module.exports = function(app, models, io, logger) {
 	var targetEventService = new TargetEventService(models, io, logger);
 
 	//list - lists full object
-	app.get('/target_event/?', function(req,res){
+	app.get('/target-event/?', function(req,res){
 		if(logger.DO_LOG){
-			logger.info("Request for target_event list");
+			logger.info("Request for target-event list");
 		}
-
 		targetEventService.list({}, function(err, docs){
 			if(err){
-				logger.info("Error listing target_events "+err);
-				res.status(500);
-				res.jsonp({error: 'Error'});
+				logger.info("Error listing target-events "+err);
+				responseHandler.send500(res, "Error listing target-events "+err);
 			} else {
 				res.jsonp(docs);
-			}
-			res.end();
+				res.end();
+			}	
 		});
 	});
 	
 	//list - lists name and id
-	app.get('/target_event/names/?', function(req,res){
+	app.get('/target-event/names/?', function(req,res){
 		if(logger.DO_LOG){
-			logger.info("Request for target_event name list");
+			logger.info("Request for target-event name list");
 		}
-
 		targetEventService.listFields(req.query, "_id name", function(err, docs){
 			if(err){
-				logger.info("Error listing target_event id - name "+err);
-				res.status(500);
-				res.jsonp({error: 'Error'});
+				logger.info("Error listing target-event id - name "+err);
+				responseHandler.send500(res, "Error listing target-event id - name "+err);
 			} else {
 				res.jsonp(docs);
+				res.end();
 			}
-			res.end();
 		});
 	});
 
-	//Create
-	app.post('/target_event/?', function(req,res){
+	//Create a target event.
+	app.post('/target-event/?', function(req,res){
 		if(logger.DO_LOG){
-			logger.info("Receiving new target_event");
+			logger.info("Receiving new target-event");
 		}
 		targetEventService.create(req.body, function(err, val, newObj) {
 			if(err){
-				logger.error('Error saving target_event', err);
-				responseHandler.send500(res, 'Error saving target_event');
+				logger.error('Error saving target-event', err);
+				responseHandler.send500(res, 'Error saving target-event');
 			} else if (!val.valid) {
-				logger.info('Invalid target_event ' + JSON.stringify(val.errors));
+				logger.info('Invalid target-event ' + JSON.stringify(val.errors));
 				responseHandler.send500(res, 'Invalid target event');
 			} else {
 				logger.info('TargetEvent saved ' + JSON.stringify(newObj));
@@ -62,73 +58,49 @@ module.exports = function(app, models, io, logger) {
 		});
 	});
 
-	//review
-	app.get('/target_event/:id([0-9a-f]+)', function(req,res){
+	//Gets a target Event by its given id.
+	app.get('/target-event/:id([0-9a-f]+)', function(req,res){
 		if(logger.DO_LOG){
-			logger.info("Request for target_event "+req.params.id);
+			logger.info("Request for target-event "+req.params.id);
 		}
 		targetEventService.get(req.params.id, function(err, docs){
 			if(err) {
-				logger.info("Error getting target_event "+err);
-				res.status(500);
-				res.jsonp({error: 'Error'});
+				logger.info("Error getting target-event "+err);
+				responseHandler.send500(res, "Error getting target-event "+err);
 			} else if(docs) {
 				res.jsonp(docs);
+				res.end();
 			} else {
-				res.status(404);
-				res.jsonp({error: 'Not found'});
+				responseHandler.send404(res);
 			}
-			res.end();
+			
 		});
 	});
-
-	// search
-	//express does not support a search request type; is that a valid http request type
-	/*app.search('/target_event/?', function(req,res){
-		if (logger.DO_LOG){
-			logger.info("Search for target_event "+JSON.stringify(req.body));
-		}
-		targetEventService.findWhere(req.body, function(err, docs){
-			if(err) {
-				logger.info("Error getting target_event "+err);
-				res.status(500);
-				res.json({error: 'Error'});
-			} else if(docs.length !== 0) {
-				res.json(docs);
-			} else {
-				res.status(404);
-				res.json({error: 'Not found'});
-			}
-			res.end();
-		});
-	});*/
 	
-	//Update
-	app.post('/target_event/:id([0-9a-f]+)', function(req,res){
+	//Updates the given taget event.
+	app.post('/target-event/:id([0-9a-f]+)', function(req,res){
 		if(logger.DO_LOG){
-			logger.info("Update target_event "+req.params.id);
+			logger.info("Update target-event "+req.params.id);
 		}
 		targetEventService.update(req.params.id, req.body, function(err, val, updLoc) {
 			if(err){
-				logger.error('Error updating target_event', err);
-				res.status(500);
-				res.json({error: 'Error'});
+				logger.error('Error updating target-event', err);
+				responseHandler.send500(res, 'Error updating target-event', err);
 			} else if (!val.valid) {
-				logger.info('Invalid target_event ' + JSON.stringify(val.errors));
-				res.status(500);
-				res.json({error: val.errors}, req.body);
+				logger.info('Invalid target-event ' + JSON.stringify(val.errors));
+				responseHandler.send500(res, 'Invalid target-event ' + JSON.stringify(val.errors));
 			} else {
 				logger.info('TargetEvent updated ' + JSON.stringify(updLoc));
-				res.json({id:updLoc._id});
+				res.json({_id:updLoc._id});
+				res.end();
 			}
-			res.end();
 		});
 	});
 	
-	//delete by id
-	app.del('/target_event/:id([0-9a-f]+)', function(req, res) {
+	//Deletes the given target evenet by id
+	app.del('/target-event/:id([0-9a-f]+)', function(req, res) {
 		if(logger.DO_LOG) {
-			logger.info("Deleting target_event with id: " + req.params.id);
+			logger.info("Deleting target-event with id: " + req.params.id);
 		}
 		targetEventService.del({_id: req.params.id}, function(err, count) {
 			res.json({deleted_count: count});
@@ -136,10 +108,10 @@ module.exports = function(app, models, io, logger) {
 		});
 	});
 	
-	//delete all
-	app.del('/target_event/', function(req, res) {
+	//Deletes all target events.
+	app.del('/target-event/', function(req, res) {
 		if(logger.DO_LOG) {
-			logger.info("Deleting all target_event");
+			logger.info("Deleting all target-event");
 		}
 		targetEventService.del({}, function(err, count) {
 			res.json({deleted_count: count});
