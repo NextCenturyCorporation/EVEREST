@@ -47,7 +47,7 @@ module.exports = function(app, models, io, logger){
 			logger.info('Request for nlp parser to parse text.');
 		}
 		
-		nlp_parser.parseToTuples(req.rawBody, function(err, tuples) {
+		nlp_parser.parseToTuples(req.body.text, function(err, tuples) {
 			console.log(tuples);
 			if (tuples) {
 				res.json(tuples);
@@ -62,7 +62,7 @@ module.exports = function(app, models, io, logger){
 			logger.info('Request for nlp parser to pos tag text.');
 		}
 		
-		nlp_parser.posTagSentences(req.rawBody, function(err, result) {
+		nlp_parser.posTagSentences(req.body.text, function(err, result) {
 			if(err) {
 				var msg = "There was an error attempting to tag the sentence"
 				logger.error(msg);

@@ -19,7 +19,7 @@ module.exports = function(models, io, logger) {
 	/**
 	 * Returns a list of all the assertions
 	 */
-	me.listAssertions = function(config, callback){
+	me.list = function(config, callback){
 		//TODO handle paging
 		models.assertion.find({}, callback);
 	};
@@ -68,7 +68,7 @@ module.exports = function(models, io, logger) {
 	 */
 	me.validateAssertion = function(data, valCallback) {
 		// is the JSON semantically valid for the location object?
-		var valid = revalidator.validate(data, validationModel);
+		var valid = revalidator.validate(data, models.assertionValidation);
 		if (valid.valid) {
 			// does the location object comply with business validation logic
 			bvalidator.validate(data, function(valid) {

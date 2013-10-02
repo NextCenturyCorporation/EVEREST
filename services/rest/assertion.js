@@ -36,7 +36,7 @@ module.exports = function(app, models, io, logger) {
 
 		var data = req.body;
 
-		assertionService.save(data, function(err, val, newAssertion) {
+		assertionService.create(data, function(err, val, newAssertion) {
 			if(err){
 				var msg = 'Error saving assertion';
 				logger.error(msg, err);
