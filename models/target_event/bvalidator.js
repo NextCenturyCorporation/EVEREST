@@ -113,7 +113,7 @@ module.exports = function(services, logger) {
 			callback(undefined, true)
 		} else {
 			async.each(values, function(assertion, eachCallback){
-				targetAssertion.findWhere({_id: assertion._id}, function(err, locs){
+				targetAssertion.findWhere({_id: assertion}, function(err, locs){
 					if ( err ) {
 						me.error('assertions', values, errors, 'Error reading assertion ' + err);
 						logger.info({ error : "Error getting targetAssertionByID " + err });
