@@ -3,7 +3,6 @@ var revalidator = require('revalidator');
 
 module.exports = function(models, io, logger) {
 	var me = this;
-
 	var validationModel = models.targetAssertionValidation;
 
 	me.list = function(config, callback) {
@@ -99,11 +98,14 @@ module.exports = function(models, io, logger) {
 	 * valCallback takes the form of  function(valid structure)
 	 */
 	var validateTargetAssertion = function(data, valCallback) {
+		var services = {targetAssertion: me};
+
+		var Bvalidator = new bvalidator(services, logger);
 		// is the JSON semantically valid for the target_assertion object?
-		var valid = revalidator.validate(data, validationModel.targetAssertionValidation);
+		var valid = revalidator.validate(data, validationModel);
 		if (valid.valid) {
 			// does the target_assertion object comply with business validation logic
-			bvalidator.validate(data, function(valid) {
+			Bvalidator.validate(data, function(valid) {
 				valCallback(valid);
 			});
 		}

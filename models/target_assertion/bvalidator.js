@@ -1,21 +1,17 @@
-/**
- * location business validation library
- */
-var winston = require('winston');
+module.exports = function(services, logger) {
+	var me = this;
+	var targetAssertion = services.targetAssertion;
 
-//Load and set up the logger
-var logger = new (winston.Logger)({
-	//Make it log to both the console and a file 
-	transports : [new (winston.transports.Console)(),
-		new (winston.transports.File)({filename: 'logs/general.log'})] //,
-});
+	/**
+  	* Default messages to include with validation errors.
+   	**/
+	me.messages = {
+		name:			"Name value is incorrect",
+		description:	"Description value is incorrect",
+		record:			"There is a record-level error"
+	};
 
-var dataLayer = require('../../services/database/target_assertion.js');
-
-(function (exports) {
-  exports.validate = validate;
-
-	function validate(object, callback) {
+	me.validate = function(object, callback) {
 		var errors = [];
 	
 		function done() {
@@ -23,40 +19,28 @@ var dataLayer = require('../../services/database/target_assertion.js');
 			callback(bVal);
 		}
 
-		validateObject(object, errors, done);
-	}
+		me.validateObject(object, errors, done);
+	};
 
-  /**
-   * Default messages to include with validation errors.
-   */
-  validate.messages = {
-      name:					"Name value is incorrect",
-      description:	"Description value is incorrect",
-      record:				"There is a record-level error"
-  };
-
-
-	function validateObject(object, errors, done) {
-		// TODO: put in the logic checks against the object (ie., does the name attribute exist)
-		//       to insulate the lower level functions from bad data
+	me.validateObject = function(object, errors, done) {
 		var value = object.name;
-		nameExists( value, errors, function (err, found) {
+		me.nameExists( value, errors, function (err, found) {
 			var property = 'name';
 			if (found) {
-				error(property, value, errors, "TargetAssertion " + property + " already exists.");
+				me.error(property, value, errors, "TargetAssertion " + property + " already exists.");
 				logger.info("nameExists " + value);
 			}
 	
-			targetAssertionExists( object, errors, function (err, found) {
+			me.targetAssertionExists( object, errors, function (err, found) {
 				var property = 'record';
 				if (found) {
-					error(property, value, errors, "TargetAssertion already exists.");
+					me.error(property, value, errors, "TargetAssertion already exists.");
 					logger.info("targetAssertionExists " + JSON.stringify(object));
 				}
 				done();
 			});
 		});
-	}
+	};
 
 	/**
 	 ** nameExists verifies the uniqueness of the name in the object.
@@ -65,10 +49,10 @@ var dataLayer = require('../../services/database/target_assertion.js');
 	 ** Returns in the callback any system error and a boolean indicating whether
 	 **   or not the name was found. 
 	**/
-  var nameExists = function (value, errors, callback) {
-		dataLayer.readTargetAssertionByProperty('name', value, function(err, locs) {
+	me.nameExists = function (value, errors, callback) {
+		targetAssertion.findWhere({name: value}, function(err, locs) {
 			if (err) {
-				error('name', value, errors, 'Error reading targetAssertion name ' + err);
+				me.error('name', value, errors, 'Error reading targetAssertion name ' + err);
 				logger.info({ error : "Error getting targetAssertionByName " + err });
 				callback(err, false);
 			} else if (0 !== locs.length) {
@@ -79,21 +63,21 @@ var dataLayer = require('../../services/database/target_assertion.js');
 				callback(err, false);
 			}
 		});
-  };
+	};
   
-  
-	/**
-	 ** targetAssertionExists verifies the uniqueness of the entire object.
-	 ** Makes an async call to the data service to retrieve a matching object
-	 **   matching against all object attributes.
-	 ** If found, submits an error to the errors collection.
-	 ** Returns in the callback any system error and a boolean indicating whether
-	 **   or not the location was found. 
+
+  	/**
+	 * targetAssertionExists verifies the uniqueness of the entire object.
+	 * Makes an async call to the data service to retrieve a matching object
+	 * matching against all object attributes.
+	 * If found, submits an error to the errors collection.
+	 * Returns in the callback any system error and a boolean indicating whether
+	 * or not the location was found. 
 	**/
-  var targetAssertionExists = function(object, errors, callback) {
-		dataLayer.readTargetAssertionByObject(object, function(err, locs){
+	me.targetAssertionExists = function(object, errors, callback) {
+		targetAssertion.findWhere(object, function(err, locs){
 			if (err) {
-				error('record', object, errors, 'Error reading targetAssertion ' + err);
+				me.error('record', object, errors, 'Error reading targetAssertion ' + err);
 				logger.info({ error : "Error getting targetAssertionByObject " + err });
 				callback(err, false);
 			} else if (0 !== locs.length) {
@@ -104,16 +88,15 @@ var dataLayer = require('../../services/database/target_assertion.js');
 				callback(err, false);
 			}
 		});
-  };
-  
-
-	function error(property, actual, errors, msg) {
+	};
+	
+	me.error = function(property, actual, errors, msg) {
 	
 		var lookup = {
 			property : property
 		};
 	
-		var message = msg || validate.messages[property] || "no default message";
+		var message = msg || me.messages[property] || "no default message";
 	
 		message = message.replace(/%\{([a-z]+)\}/ig, function(_, match) {
 			var msg = lookup[match.toLowerCase()] || "";
@@ -126,4 +109,4 @@ var dataLayer = require('../../services/database/target_assertion.js');
 		});
 	}
 
-})(typeof(window) === 'undefined' ? module.exports : (window.json = window.json || {}));
+};
