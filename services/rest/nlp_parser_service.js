@@ -1,5 +1,4 @@
 var AlphaReportService = require('../database/alpha_report.js');
-var AssertionService = require('../database/assertion.js');
 var Nlp_Parser = require('../parsers/nlp_parser_async.js');
 var general = require('../general_response');
 
@@ -15,7 +14,7 @@ module.exports = function(app, models, io, logger){
 
 	var alphaReportService = new AlphaReportService(models, io, logger);
 
-	var services = {assertion: new AssertionService(models, io, logger)};
+	//var services = {assertion: new AssertionService(models, io, logger)};
 	var nlp_parser = new Nlp_Parser(models, io, logger);
 	
 	// start the parser
@@ -33,9 +32,7 @@ module.exports = function(app, models, io, logger){
 				logger.info({error: "Error getting all alpha reports "+err});
 			} else if(0 !== docs.length) {
 				for (var i = 0; i < docs.length; i++){
-					nlp_parser.parseAndSave(docs[i], function(err) {
-						logger.debug();
-					});
+					nlp_parser.parseAndSave(docs[i]);
 				}
 			} else {
 				logger.info({error: "Not found"});
@@ -62,7 +59,7 @@ module.exports = function(app, models, io, logger){
 					relationship: tuple.getRelationStringSync(),
 					entity2: tuple.getEntity2StringSync()
 				});
-			};
+			}
 
 			if (tuples) {
 				res.json(results);
@@ -79,7 +76,7 @@ module.exports = function(app, models, io, logger){
 		
 		nlp_parser.posTagSentences(req.body.text, function(err, result) {
 			if(err) {
-				var msg = "There was an error attempting to tag the sentence"
+				var msg = "There was an error attempting to tag the sentence";
 				logger.error(msg);
 				return general.send500(res, msg);
 			}
@@ -96,7 +93,7 @@ module.exports = function(app, models, io, logger){
 		
 		nlp_parser.parseToAnnotationGraphs(req.body.text, function(err, graphs) {
 			if(err) {
-				var msg = "There was an error attempting to annotate sentence"
+				var msg = "There was an error attempting to annotate sentence";
 				logger.error(msg);
 				return general.send500(res, msg);
 			}
@@ -107,76 +104,89 @@ module.exports = function(app, models, io, logger){
 			async.each(graphArray, function(graph, callback) {
 				result.push(graph.pennStringSync());
 				callback();
-			}, function(err) {
+			}, function() {
 				res.json(result);
 				res.end();
-			})
+			});
 		});
 	});
 
 	//dependencygraph
 	app.post('/nlp-parser/dependencygraph/', function(req, res){
 		if(logger.DO_LOG){
-			logger.info('Request for nlp parser to parse text to a semanticgraph.');
+			logger.info('Request for nlp parser to parse text to a dependency graph.');
 		}
 		
-		/*nlp_parser.parseToDependencyGraphs(req.body, function(err, graphs) {
+		nlp_parser.parseToDependencyGraphs(req.body.text, function(err, graphs) {
 			if(err) {
-				//FIXME //handle err
+				var msg = "There was an error attempting to parse sentence";
+				logger.error(msg);
+				return general.send500(res, msg);
 			}
-			if (graphs) {
-				res.json(graphs);
-			}*/
-			res.end();
-		//});
+			
+			var graphArray = graphs.toArraySync();
+
+			var result = [];
+			async.each(graphArray, function(graph, callback) {
+				result.push(graph.toString());
+				callback();
+			}, function() {
+				res.json(result);
+				res.end();
+			});
+		});
 	});
 
 	//root; child pairs; child relations;
 	app.post('/nlp-parser/root-child/', function(req, res){
 		if(logger.DO_LOG){
-			logger.info('Request for nlp parser to parse text to a semanticgraph.');
+			logger.info('Request for nlp parser to parse text to a root and child details.');
 		}
 		
-		/*nlp_parser.parseRootChildData(req.body, function(err, result) {
+		nlp_parser.parseRootChildData(req.body, function(err, result) {
 			if(err) {
-				//FIXME //handle err
+				var msg = "There was an error attempting to mark root and children";
+				logger.error(msg);
+				return general.send500(res, msg);
 			}
 
-			res.json(result);*/
+			res.json(result);
 			res.end();
-		//});
+		});
 	});
 
 	//dot product graph
 	app.post('/nlp-parser/dotproductgraph/', function(req, res){
 		if(logger.DO_LOG){
-			logger.info('Request for nlp parser to parse text to a semanticgraph.');
+			logger.info('Request for nlp parser to parse text to a dot product graph string.');
 		}
 		
-		/*nlp_parser.parseToDotProductGraph(req.body, function(err, graph) {
+		nlp_parser.parseToDotProductGraph(req.body, function(err, result) {
 			if(err) {
-				//FIXME //handle err
+				var msg = "There was an error attempting to parse sentence";
+				logger.error(msg);
+				return general.send500(res, msg);
 			}
-			if (graphs) {
-				res.json(graphs);
-			}*/
+			res.json(result);
 			res.end();
-		//});
+		});
 	});
 
 	//edges and verticies
 	app.post('/nlp-parser/edges-vertices/', function(req, res){
 		if(logger.DO_LOG){
-			logger.info('Request for nlp parser to parse text to a semanticgraph.');
+			logger.info('Request for nlp parser to parse text to edges and vertices.');
 		}
 		
-		/*nlp_parser.parseToEdgeVertex(req.body, function(result) {
+		nlp_parser.parseToEdgeVertex(req.body, function(err, result) {
 			if(err) {
-				//FIXME //handle err
+				var msg = "There was an error attempting to get edges and vertices";
+				logger.error(msg);
+				return general.send500(res, msg);
 			}
-			res.json(result);*/
+			res.json(result);
 			res.end();
-		//});
+		});
 	});
 };
 

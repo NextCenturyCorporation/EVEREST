@@ -115,9 +115,25 @@ module.exports = function(models, io, logger) {
 
 	me.posTagSentences = function(sentence, callback) {
 		posTagger.getTaggedSentence(sentence, callback);
-	}
+	};
 
 	me.parseToAnnotationGraphs = function(sentence, callback) {
 		parser.getTextAnnotatedTree(sentence, callback);
-	}
+	};
+
+	me.parseToDependencyGraphs = function(sentence, callback) {
+		parser.getTextDependencyTree(sentence, callback);
+	};
+
+	me.parseRootChildData = function(sentence, callback) {
+
+	};
+
+	me.parseToDotProductGraph = function(sentence, callback) {
+
+	};
+
+	me.parseToEdgeVertex = function(sentence, callback) {
+
+	};
 };
