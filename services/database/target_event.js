@@ -56,7 +56,7 @@ module.exports = function(models, io, logger) {
 	 */
 	me.validateTargetEvent = function(data, valCallback) {
 		var services = {targetEvent: this, 
-			targetAssetion: new TargetAssertion(models, io, logger)};
+			targetAssertion: new TargetAssertion(models, io, logger)};
 
 		var bvalidator = new BValidator(services, logger);
 
