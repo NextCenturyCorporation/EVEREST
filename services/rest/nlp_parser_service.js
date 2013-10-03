@@ -73,15 +73,26 @@ module.exports = function(app, models, io, logger){
 		if(logger.DO_LOG){
 			logger.info('Request for nlp parser to pos tag text.');
 		}
-		
-		nlp_parser.posTagSentences(req.body.text, function(err, result) {
+
+		nlp_parser.posTagSentences(req.body.text, function(err, output) {
 			if(err) {
 				var msg = "There was an error attempting to tag the sentence";
-				logger.error(msg);
+				logger.error(msg, err);
 				return general.send500(res, msg);
 			}
 			res.json(result);
 			res.end();
+
+			var array = output.toArray();
+
+			var result = [];
+			async.each(graphArray, function(graph, callback) {
+				result.push(graph.pennStringSync());
+				callback();
+			}, function() {
+				res.json(result);
+				res.end();
+			});
 		});
 	});
 
@@ -94,7 +105,7 @@ module.exports = function(app, models, io, logger){
 		nlp_parser.parseToAnnotationGraphs(req.body.text, function(err, graphs) {
 			if(err) {
 				var msg = "There was an error attempting to annotate sentence";
-				logger.error(msg);
+				logger.error(msg, err);
 				return general.send500(res, msg);
 			}
 
@@ -120,7 +131,7 @@ module.exports = function(app, models, io, logger){
 		nlp_parser.parseToDependencyGraphs(req.body.text, function(err, graphs) {
 			if(err) {
 				var msg = "There was an error attempting to parse sentence";
-				logger.error(msg);
+				logger.error(msg, err);
 				return general.send500(res, msg);
 			}
 			
@@ -146,7 +157,7 @@ module.exports = function(app, models, io, logger){
 		nlp_parser.parseRootChildData(req.body, function(err, result) {
 			if(err) {
 				var msg = "There was an error attempting to mark root and children";
-				logger.error(msg);
+				logger.error(msg, err);
 				return general.send500(res, msg);
 			}
 
@@ -164,7 +175,7 @@ module.exports = function(app, models, io, logger){
 		nlp_parser.parseToDotProductGraph(req.body, function(err, result) {
 			if(err) {
 				var msg = "There was an error attempting to parse sentence";
-				logger.error(msg);
+				logger.error(msg, err);
 				return general.send500(res, msg);
 			}
 			res.json(result);
@@ -181,12 +192,79 @@ module.exports = function(app, models, io, logger){
 		nlp_parser.parseToEdgeVertex(req.body, function(err, result) {
 			if(err) {
 				var msg = "There was an error attempting to get edges and vertices";
-				logger.error(msg);
+				logger.error(msg, err);
 				return general.send500(res, msg);
 			}
 			res.json(result);
 			res.end();
 		});
+	});
+
+	app.post('/nlp-parser/full-parse-result/?', function(req, res) {
+		if(logger.DO_LOG){
+			logger.info('Request for nlp parser full results.');
+		}
+		
+		var result = {};
+
+		async.series([function(callback) {
+			nlp_parser.posTagSentences(req.body.text, function(err, output) {
+				if(err) {
+					var msg = "There was an error attempting to tag the sentence";
+					logger.error(msg, err);
+					result.pos = err;
+				} else {
+					result.pos = output;
+				}
+				
+				callback();
+			});
+		}, function(callback) {
+			console.log("hit2");
+			nlp_parser.parseToAnnotationGraphs(req.body.text, function(err, graphs) {
+				if(err) {
+					var msg = "There was an error attempting to annotate sentence";
+					logger.error(msg, err);
+					result.annotation = msg;
+					callback();
+				}
+
+				graphs.toArray(function(err, graphArray) {
+					console.log(graphArray.length);
+					var internalResult = [];
+					async.eachSeries(graphArray, function(graph, internalCallback) {
+						internalResult.push(graph.pennStringSync());
+						internalCallback();
+					}, function() {
+						result.annotation = internalResult;
+						callback();
+					});	
+				});
+			});
+		}, function(callback) {
+			nlp_parser.parseToDependencyGraphs(req.body.text, function(err, graphs) {
+				if(err) {
+					var msg = "There was an error attempting to parse sentence dependency graph";
+					logger.error(msg, err);
+					result.dependency = msg;
+					callback();
+				}
+				
+				graphs.toArray(function(err, graphArray) {
+					var internalResult = [];
+					async.eachSeries(graphArray, function(graph, internalCallback) {
+						internalResult.push(graph.toString());
+						internalCallback();
+					}, function() {
+						result.dependency = internalResult;
+						callback();
+					});
+				});
+			});
+		}],function() {
+			res.json(result);
+			res.end();
+		})
 	});
 };
 

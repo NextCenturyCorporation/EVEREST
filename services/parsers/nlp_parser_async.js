@@ -114,7 +114,7 @@ module.exports = function(models, io, logger) {
 	};
 
 	me.posTagSentences = function(sentence, callback) {
-		posTagger.getTaggedSentence(sentence, callback);
+		posTagger.getTaggedSentencesString(sentence, callback);
 	};
 
 	me.parseToAnnotationGraphs = function(sentence, callback) {
