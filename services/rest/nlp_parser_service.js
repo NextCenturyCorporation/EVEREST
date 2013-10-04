@@ -154,7 +154,7 @@ module.exports = function(app, models, io, logger){
 			logger.info('Request for nlp parser to parse text to a root and child details.');
 		}
 		
-		nlp_parser.parseRootChildData(req.body, function(err, result) {
+		nlp_parser.parseRootChildData(req.body.text, function(err, result) {
 			if(err) {
 				var msg = "There was an error attempting to mark root and children";
 				logger.error(msg, err);
@@ -172,7 +172,7 @@ module.exports = function(app, models, io, logger){
 			logger.info('Request for nlp parser to parse text to a dot product graph string.');
 		}
 		
-		nlp_parser.parseToDotProductGraph(req.body, function(err, result) {
+		nlp_parser.parseToDotProductGraph(req.body.text, function(err, result) {
 			if(err) {
 				var msg = "There was an error attempting to parse sentence";
 				logger.error(msg, err);
@@ -189,7 +189,7 @@ module.exports = function(app, models, io, logger){
 			logger.info('Request for nlp parser to parse text to edges and vertices.');
 		}
 		
-		nlp_parser.parseToEdgeVertex(req.body, function(err, result) {
+		nlp_parser.parseToEdgeVertex(req.body.text, function(err, result) {
 			if(err) {
 				var msg = "There was an error attempting to get edges and vertices";
 				logger.error(msg, err);
@@ -212,15 +212,23 @@ module.exports = function(app, models, io, logger){
 				if(err) {
 					var msg = "There was an error attempting to tag the sentence";
 					logger.error(msg, err);
-					result.pos = err;
+					console.log(err);
+					result.pos = msg;
+					callback();
 				} else {
-					result.pos = output;
+					output.toArray(function(err, resultArray) {
+						var internalResult = [];
+						async.eachSeries(resultArray, function(sentence, internalCallback) {
+							internalResult.push(sentence);
+							internalCallback();
+						}, function() {
+							result.pos = internalResult;
+							callback();
+						});
+					});
 				}
-				
-				callback();
 			});
 		}, function(callback) {
-			console.log("hit2");
 			nlp_parser.parseToAnnotationGraphs(req.body.text, function(err, graphs) {
 				if(err) {
 					var msg = "There was an error attempting to annotate sentence";
@@ -230,7 +238,6 @@ module.exports = function(app, models, io, logger){
 				}
 
 				graphs.toArray(function(err, graphArray) {
-					console.log(graphArray.length);
 					var internalResult = [];
 					async.eachSeries(graphArray, function(graph, internalCallback) {
 						internalResult.push(graph.pennStringSync());
@@ -257,6 +264,67 @@ module.exports = function(app, models, io, logger){
 						internalCallback();
 					}, function() {
 						result.dependency = internalResult;
+						callback();
+					});
+				});
+			});
+		}, function(callback) {
+			nlp_parser.parseRootChildData(req.body.text, function(err, output) {
+				if(err) {
+					var msg = "There was an error attempting to mark root and children";
+					logger.error(msg, err);
+					result.dependency = msg;
+					callback();
+				}
+
+				output.toArray(function(err, resultArray) {
+					var internalResult = [];
+					async.eachSeries(resultArray, function(sentence, internalCallback) {
+						internalResult.push(sentence);
+						internalCallback();
+					}, function() {
+						result.root_child_data = internalResult;
+						callback();
+					});
+				});
+			});
+		}, function(callback) {
+			nlp_parser.parseToDotProductGraph(req.body.text, function(err, output) {
+				if(err) {
+					var msg = "There was an error attempting to parse sentence";
+					logger.error(msg, err);
+					result.dependency = msg;
+					callback();
+				}
+				
+				output.toArray(function(err, resultArray) {
+					var internalResult = [];
+					async.eachSeries(resultArray, function(sentence, internalCallback) {
+						internalResult.push(sentence);
+						internalCallback();
+					}, function() {
+						result.dot_product = internalResult;
+						callback();
+					});
+				});
+			});
+		}, function(callback) {
+			nlp_parser.parseToEdgeVertex(req.body.text, function(err, output) {
+				if(err) {
+					var msg = "There was an error attempting to get edges and vertices";
+					logger.error(msg, err);
+					result.edge_vertex = msg;
+					callback();
+				}
+				
+
+				output.toArray(function(err, resultArray) {
+					var internalResult = [];
+					async.eachSeries(resultArray, function(sentence, internalCallback) {
+						internalResult.push(sentence);
+						internalCallback();
+					}, function() {
+						result.edge_vertex = internalResult;
 						callback();
 					});
 				});

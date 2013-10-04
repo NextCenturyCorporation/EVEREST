@@ -126,14 +126,14 @@ module.exports = function(models, io, logger) {
 	};
 
 	me.parseRootChildData = function(sentence, callback) {
-
+		parser.getRootChildrenAsString(sentence, callback);
 	};
 
 	me.parseToDotProductGraph = function(sentence, callback) {
-
+		parser.getDotNotation(sentence, callback);
 	};
 
 	me.parseToEdgeVertex = function(sentence, callback) {
-
+		parser.getEdgeVertexNotationAsString(sentence, callback);
 	};
 };

@@ -10,7 +10,7 @@ var twitterIngest = module.exports = function(app, models, io, logger) {
 	me.io = io;
 	me.models = models;
 
-	me.twitterIngestService = new TwitterIngestService(models, io, logger);
+	me.twitterIngestService = new TwitterIngestService(models, io, logger, true);
 	
 	//list
 	me.app.get('/twitter-ingest/?', function(req, res) {
