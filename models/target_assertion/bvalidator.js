@@ -3,8 +3,8 @@ module.exports = function(services, logger) {
 	var targetAssertion = services.targetAssertion;
 
 	/**
-  	* Default messages to include with validation errors.
-   	**/
+	 * Default messages to include with validation errors.
+	**/
 	me.messages = {
 		name:			"Name value is incorrect",
 		description:	"Description value is incorrect",
@@ -66,7 +66,7 @@ module.exports = function(services, logger) {
 	};
   
 
-  	/**
+	/**
 	 * targetAssertionExists verifies the uniqueness of the entire object.
 	 * Makes an async call to the data service to retrieve a matching object
 	 * matching against all object attributes.
@@ -107,6 +107,6 @@ module.exports = function(services, logger) {
 			actual : actual,
 			message : message
 		});
-	}
+	};
 
 };
