@@ -7,7 +7,6 @@ module.exports = function(models, io, logger) {
 	var validationModel = models.rawFeedValidation;
 	
 	me.list = function(req, callback){
-		//TODO handle paging
 		paramHandler.handleDefaultParams(req, function(params){
 			if (params !== null){
 				models.rawFeed.find().limit(params.count).skip(params.offset).sort({_id: params.sort}).execFind(callback);
@@ -15,7 +14,10 @@ module.exports = function(models, io, logger) {
 				models.rawFeed.find({}, callback);
 			}
 		});
-		//models.rawFeed.find({}, callback);
+	};
+	
+	me.getTotalCount = function(req, callback){
+		models.rawFeed.count({}, callback);
 	};
 	
 	me.listFields = function(config, fields, callback){

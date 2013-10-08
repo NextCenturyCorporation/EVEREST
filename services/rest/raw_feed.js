@@ -25,8 +25,15 @@ module.exports = function(app, models, io, logger) {
 				me.logger.error("RawFeed: "+err, err);
 				responseHandler.send500(res, errMsg);
 			} else {
-				res.jsonp(rawFeeds);
-				res.end();
+				rawFeedService.getTotalCount(req.query, function(err, numFeeds){
+					if (err){
+						me.logger.error("RawFeed: "+err, err);
+						responseHandler.send500(res, "Error getting count of raw feeds");
+					} else {
+						res.jsonp({raw_feeds: rawFeeds, total_count: numFeeds});
+						res.end();
+					}
+				});
 			}
 		});
 	});
