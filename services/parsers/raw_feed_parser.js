@@ -17,7 +17,7 @@ module.exports = function(models, io, logger) {
 	me.parseAndSave = function(id, callback) {
 		logger.debug("Call to parse raw feed with id: " + id);
 
-		raw_feed_service.get({_id: id}, function(err, docs) {
+		raw_feed_service.get(id, function(err, docs) {
 			if(err) {
 				logger.error("There was an error finding the feed to parse");
 				callback(err, null);
