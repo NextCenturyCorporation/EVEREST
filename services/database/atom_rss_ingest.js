@@ -113,16 +113,18 @@ module.exports = function(models, io, logger) {
 				logger.error(error);
 			})
 			.on('meta', function (meta) {
-			 	logger.debug(meta);
+				logger.debug(meta);
 				// console.log('===== %s =====', meta.title);
 			})
 			.on('readable', function() {
+				//TODO: refactor.  Not certain that we want an assignment in the boolean check in the while statement
+				//      Do not want to declare a function inside a loop.  Will create the function with each pass.
 				var stream = this, item;
 				while (item = stream.read()) {
 					var link = item.link;
 					if(link && !me.feed.links[link]) {
 						me.feed.links[link] = link;
-					    actionEmitter.rawFeedDataRecievedEvent({feedSource: 'RSS', text:JSON.stringify(item)}, function(err, valid, newfeed){
+							actionEmitter.rawFeedDataRecievedEvent({feedSource: 'RSS', text:JSON.stringify(item)}, function(err, valid, newfeed){
 							actionEmitter.rawFeedParseEvent(newfeed._id);
 						});
 					}
