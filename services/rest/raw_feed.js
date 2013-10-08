@@ -115,7 +115,7 @@ module.exports = function(app, models, io, logger) {
 				res.end();
 			} else {
 				res.json({deleted_count: count});
-				res.end;
+				res.end();
 			}
 		});
 	});
@@ -128,13 +128,13 @@ module.exports = function(app, models, io, logger) {
 		
 		rawFeedService.del({}, function(err, count){
 			if(err){
-				var msg = "Error deleting raw feeds"
+				var msg = "Error deleting raw feeds";
 				logger.error(msg, err);
-				responseHandler.send500(res, msg)
+				responseHandler.send500(res, msg);
 			}
 
 			res.json({deleted_count: count});
-			res.end;
+			res.end();
 		});
 	});
 };
