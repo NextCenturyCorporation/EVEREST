@@ -134,7 +134,7 @@ module.exports = function(services, logger) {
 		} else {
 			callback(null, false);
 		}
-  	};
+	};
   
   
 	me.error = function(property, actual, errors, msg) {
