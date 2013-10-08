@@ -1,12 +1,21 @@
 var revalidator = require('revalidator');
 var actionEmitter = require('../action_emitter.js');
+var paramHandler = require('../list_default_handler.js');
 
 module.exports = function(models, io, logger) {
 	var me = this;
 	var validationModel = models.rawFeedValidation;
 	
-	me.list = function(config, callback){
-		models.rawFeed.find({}, callback);
+	me.list = function(req, callback){
+		//TODO handle paging
+		paramHandler.handleDefaultParams(req, function(params){
+			if (params !== null){
+				models.rawFeed.find().limit(params.count).skip(params.offset).sort({_id: params.sort}).execFind(callback);
+			} else {
+				models.rawFeed.find({}, callback);
+			}
+		});
+		//models.rawFeed.find({}, callback);
 	};
 	
 	me.listFields = function(config, fields, callback){
