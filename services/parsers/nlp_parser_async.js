@@ -13,7 +13,7 @@ module.exports = function(models, io, logger) {
 	var PosTagger = java.import('com.nextcentury.TripletExtraction.CoreNlpPOSTagger');
 	var posTagger = new PosTagger();
 
-	var ArrayList = java.import('java.util.ArrayList');
+	//var ArrayList = java.import('java.util.ArrayList');
 
 	//var assertion_service = services.assertionService;
 	
@@ -63,7 +63,7 @@ module.exports = function(models, io, logger) {
 					logger.error("No triplets were able to be extracted", err);
 				} else {
 					async.each(tuples, function(tuple, callback) {
-						var assertion_object = {}
+						var assertion_object = {};
 
 						if(alpha_report_object._id) {
 								assertion_object.alpha_report_id = alpha_report_object._id.toString();
@@ -98,7 +98,6 @@ module.exports = function(models, io, logger) {
 	 * callback signature  function(tuple object(s))
 	 */
 	me.parseToTuples = function(textData, callback) {
-		var tuples = [];
 
 		parser.parseText(textData, function(err, results) {
 			var tuples = results;

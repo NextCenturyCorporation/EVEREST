@@ -20,7 +20,7 @@ var twitterIngest = module.exports = function(app, models, io, logger) {
 				logger.error("twitterIngest: " + errMsg, err);
 				general.send500(res, errMsg);
 			} else {
-				returnArray = []
+				returnArray = [];
 				async.each(keys, function(key, callback) {
 					returnArray.push({
 						consumer_key: key.consumer_key,
@@ -43,6 +43,7 @@ var twitterIngest = module.exports = function(app, models, io, logger) {
 	//create
 	me.app.post('/twitter-ingest/?', function(req, res) {
 		//new feed
+		//TODO: data is never used, what were we trying to do here?
 		var data = req.body;
 		me.twitterIngestService.create(req.body, function(err, newKey) {
 			if(err) {
@@ -61,7 +62,7 @@ var twitterIngest = module.exports = function(app, models, io, logger) {
 		if(logger.DO_LOG){ 
 			logger.info('Request for twitter ingest start');
 		}
-		var filters = []
+		var filters = [];
 		if(req.body.filters) {
 			filters = req.body.filters;
 		}

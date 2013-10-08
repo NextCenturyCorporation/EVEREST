@@ -111,7 +111,7 @@ module.exports = function(models, io, logger) {
 				}
 				docs.updatedDate = new Date();
 				me.validateAlphaReport(docs, function(valid){
-			 		if (valid.valid) {
+					if (valid.valid) {
 						docs.save(function(err){
 							if(err){
 								updCallback(err, valid, data);
