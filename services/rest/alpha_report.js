@@ -96,7 +96,7 @@ module.exports = function(app, models, io, logger) {
 				general.send500(res, 'Error updating AlphaReport');
 			} else if (val && !val.valid) {
 				logger.info('Invalid AlphaReport ' + JSON.stringify(val.errors));
-				general.send500(res, ' Invalid AlphaReport ')
+				general.send500(res, ' Invalid AlphaReport ');
 			} else {
 				logger.info('AlphaReport updated ' + JSON.stringify(updated));
 				res.json({id:updated._id});
