@@ -68,7 +68,7 @@ module.exports = function(services, logger) {
 	**/
 	me.rawFeedExists = function (value, errors, callback) {
 		if (value !== undefined) {
-			services.rawFeedService.readFeedByProperty('_id', value, function(err, docs) {
+			services.rawFeedService.findWhere({_id: value}, function(err, docs) {
 				if (err) {
 					me.error('_id', value, errors, 'Error reading raw_feed ' + err);
 					logger.info({ error : "Error readRawFeedByPropery " + err });

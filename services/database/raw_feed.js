@@ -14,8 +14,7 @@ module.exports = function(models, io, logger) {
 	};
 	
 	me.get = function(id, callback) {
-		//models.rawFeed.find({_id: id}, callback);
-		models.rawFeed.findById(id, callback);
+		models.rawFeed.find({_id: id}, callback);
 	};
 	
 	me.getFields = function(id, fields, callback){
@@ -48,19 +47,11 @@ module.exports = function(models, io, logger) {
 			}
 		});
 	};
-		
-	me.readFeedByProperty = function(property, value, readCallback){
-		if ( (property !== undefined) && (value !== undefined) ) {
-			var query = models.rawFeed.find({});
-			query.where(property, value);
-			query.exec(readCallback);
-		}
-	};
 	
 	me.update = function(id, data, callback) {
 		validateRawFeed(data, function(valid){
 			if (valid.valid) {
-				models.rawFeed.findById(id, function(err, docs){
+				models.rawFeed.findWhere({_id: id}, function(err, docs){
 					if (err) {
 						logger.info("Error getting raw_feed "+err);
 						callback(err, valid, data);
@@ -112,8 +103,3 @@ module.exports = function(models, io, logger) {
 		}	
 	};
 };
-
-
-
-
-
