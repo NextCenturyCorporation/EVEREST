@@ -81,6 +81,9 @@ module.exports = function(app, models, io, logger) {
 		if(logger.DO_LOG){
 			logger.info("Update assertion "+req.params.id);
 		}
+		
+		var data = req.body;
+		
 		assertionService.update(req.params.id, req.body, function(err, val, updated) {
 			if(err){
 				logger.error('Error updating assertion', err);
