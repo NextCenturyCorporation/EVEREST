@@ -83,6 +83,7 @@ module.exports = function(app, models, io, logger){
 			res.json(result);
 			res.end();
 
+			//TODO: array is never used, what were we trying to do here?
 			var array = output.toArray();
 
 			var result = [];
@@ -332,7 +333,7 @@ module.exports = function(app, models, io, logger){
 		}],function() {
 			res.json(result);
 			res.end();
-		})
+		});
 	});
 };
 
