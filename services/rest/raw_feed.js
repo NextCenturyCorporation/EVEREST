@@ -26,8 +26,8 @@ module.exports = function(app, models, io, logger) {
 				responseHandler.send500(res, errMsg);
 			} else {
 				res.jsonp(rawFeeds);
+				res.end();
 			}
-			res.end();
 		});
 	});
 	
@@ -39,15 +39,13 @@ module.exports = function(app, models, io, logger) {
 		rawFeedService.get(req.params.id, function(err, docs){
 			if(err) {
 				logger.info("Error getting raw feed "+err);
-				res.status(500);
-				res.jsonp({error: 'Error'});
+				responseHandler.send500(res, "Error getting raw feed " + err);
 			} else if(docs) {
 				res.jsonp(docs);
+				res.end();
 			} else {
-				res.status(404);
-				res.jsonp({error: 'Not found'});
+				responseHandler.send404(res);
 			}
-			res.end();
 		});
 	});
 
@@ -60,42 +58,36 @@ module.exports = function(app, models, io, logger) {
 		}
 		rawFeedService.create(req.body, function(err, val, newFeed) {
 			if(err){
-				logger.error('Error saving raw_feed ', err);
-				res.status(500);
-				res.json({error: 'Error'});
+				logger.error('Error saving raw feed ', err);
+				responseHandler.send500(res, 'Error saving raw feed ' + err);
 			} else if (!val.valid) {
 				logger.info('Invalid raw_feed ' + JSON.stringify(val.errors));
-				res.status(500);
-				res.json({error: val.errors}, data);
+				responseHandler.send500(res, 'Invalid raw feed ' + JSON.stringify(val.errors));
 			} else {
-				logger.info('Raw_feed saved ' + JSON.stringify(newFeed));
+				logger.info('Raw feed saved ' + JSON.stringify(newFeed));
 				res.json({_id:newFeed._id});
+				res.end();
 			}
-			res.end();
 		});
 	});
 
 	// Update
 	app.post('/rawfeed/:id([0-9a-f]+)', function(req,res){
-		var data = req.body;
-
 		if(logger.DO_LOG){
 			logger.info("Update feed " + req.params.id, data);
 		}
 		rawFeedService.update(req.params.id, req.body, function(err, val, updFeed) {
 			if(err){
-				logger.error('Error updating raw_feed', err);
-				res.status(500);
-				res.json({error: 'Error'});
+				logger.error('Error updating raw feed', err);
+				responseHandler.send500(res, 'Error updating raw feed ' + err);
 			} else if (!val.valid) {
-				logger.info('Invalid raw_feed ' + JSON.stringify(val.errors));
-				res.status(500);
-				res.json({error: val.errors}, data);
+				logger.info('Invalid raw feed ' + JSON.stringify(val.errors));
+				responseHandler.send500(res, 'Invalid raw feed ' + JSON.stringify(val.errors));
 			} else {
-				logger.info('Raw_feed updated ' + JSON.stringify(updFeed));
+				logger.info('Raw feed updated ' + JSON.stringify(updFeed));
 				res.json({id:updFeed._id});
+				res.end();
 			}
-			res.end();
 		});
 	});
 
@@ -108,15 +100,8 @@ module.exports = function(app, models, io, logger) {
 		}
 
 		rawFeedService.del({_id:id}, function(err, count){
-			if(err){
-				logger.error('Error deleting raw feed ' + id, err);
-				res.status('500');
-				res.json({error: 'Invalid raw feed ' + id});
-				res.end();
-			} else {
-				res.json({deleted_count: count});
-				res.end();
-			}
+			res.json({deleted_count: count});
+			res.end;
 		});
 	});
 	
@@ -127,14 +112,8 @@ module.exports = function(app, models, io, logger) {
 		}
 		
 		rawFeedService.del({}, function(err, count){
-			if(err){
-				var msg = "Error deleting raw feeds";
-				logger.error(msg, err);
-				responseHandler.send500(res, msg);
-			}
-
 			res.json({deleted_count: count});
-			res.end();
+			res.end;
 		});
 	});
 };
