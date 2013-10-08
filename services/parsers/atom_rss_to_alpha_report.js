@@ -9,11 +9,17 @@ String.prototype.stripHTMLFromFeed = function() {
 
 
 module.exports = function(models, io, logger) {
-	var self = this;
+	
+	// bbn 10-08-13  I changed this self = this pattern back to just using "this"
+	//               The call to createAlphaReportCallback did not seem to be finding
+	//               the function and the JavaScript parser indicated that the
+	//               "var createAlphaReportCallback = function" was never being read/called
+	
+	//var self = this;
 
 	var alphaReportService = new AlphaReportService(models, io, logger);
 	
-	self.parseAndSave = function(raw_feed_object) {
+	this.parseAndSave = function(raw_feed_object) {
 		var alpha_report_object = {};
 
 		alpha_report_object.raw_data_id = raw_feed_object._id;
@@ -27,6 +33,7 @@ module.exports = function(models, io, logger) {
 		var feedContent = parsed_text.description || parsed_text.content || parsed_text.summary;
 		alpha_report_object.source_id = feedId;
 		alpha_report_object.message_date = parsedDate;
+		
 		if(feedContent) {
 			var content = feedContent.stripHTMLFromFeed();
 			//This makes an attempt to clean up some of the extra things reuters likes to 
@@ -37,7 +44,7 @@ module.exports = function(models, io, logger) {
 			}
 			alpha_report_object.message_body = content;
 		}
-		if(language && typeof language == 'string') {
+		if(language && typeof language === 'string') {
 			alpha_report_object.lang = language;
 		}
 		if(author) {
@@ -49,7 +56,7 @@ module.exports = function(models, io, logger) {
 			if(url) {
 				reporter_object.url = url;
 			}
-			if(language && typeof language == 'string') {
+			if(language && typeof language === 'string') {
 				reporter_object.lang = language;
 			}
 			reporter_service.saveReporter(reporter_object, function(err, valid, newReporter) {
@@ -59,17 +66,17 @@ module.exports = function(models, io, logger) {
 					logger.info('Invalid Reporter ' + JSON.stringify(valid.errors));
 				} else {
 					alpha_report_object.reporter_id = newReporter._id;
-					alphaReportService.create(alpha_report_object, createAlphaReportCallback);
+					alphaReportService.create(alpha_report_object, this.createAlphaReportCallback);
 				}
 			});
 
 		} else {
-			alphaReportService.create(alpha_report_object, createAlphaReportCallback);
+			alphaReportService.create(alpha_report_object, this.createAlphaReportCallback);
 		}
 	};
 
 
-	var createAlphaReportCallback = function(err, valid, res) {
+	this.createAlphaReportCallback = function(err, valid, res) {
 		if (err) {
 			logger.debug(res);
 		} else if (!valid.valid) {
