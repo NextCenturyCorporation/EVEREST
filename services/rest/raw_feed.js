@@ -106,7 +106,7 @@ module.exports = function(app, models, io, logger) {
 
 		rawFeedService.del({_id:id}, function(err, count){
 			res.json({deleted_count: count});
-			res.end;
+			res.end();
 		});
 	});
 	
@@ -118,7 +118,7 @@ module.exports = function(app, models, io, logger) {
 		
 		rawFeedService.del({}, function(err, count){
 			res.json({deleted_count: count});
-			res.end;
+			res.end();
 		});
 	});
 };
