@@ -146,20 +146,20 @@ module.exports = function(models, io, logger, createDefault) {
 	};
 
 	// me.handleIncomingData = function(data) {
-	// 	var me = this;
-
-	// 	me.logger.debug("Saving feed item: " + data.user.screen_name + ": " + data.text);
+	//	var me = this;
+	
+	//	me.logger.debug("Saving feed item: " + data.user.screen_name + ": " + data.text);
 		
-	// 	me.rawFeedService.saveFeed({feedSource: 'Twitter', text:JSON.stringify(data)}, function(err, valid, newfeed){
-	// 		if(err){
-	// 			me.logger.error('Error saving raw feed', err);
-	// 		} else if(!valid.valid) {
-	// 			me.logger.error('Validation error with ' + JSON.stringify(valid.errors));
-	// 		} else {
-	// 			me.logger.debug('Saved raw feed object ' + newfeed._id);
-	// 			me.callParser(newfeed._id);
-	// 		}
-	// 	});
+	//	me.rawFeedService.saveFeed({feedSource: 'Twitter', text:JSON.stringify(data)}, function(err, valid, newfeed){
+	//		if(err){
+	//			me.logger.error('Error saving raw feed', err);
+	//		} else if(!valid.valid) {
+	//			me.logger.error('Validation error with ' + JSON.stringify(valid.errors));
+	//		} else {
+	//			me.logger.debug('Saved raw feed object ' + newfeed._id);
+	//			me.callParser(newfeed._id);
+	//		}
+	//	});
 	// };
 
 	me.callParser = function(id) {
