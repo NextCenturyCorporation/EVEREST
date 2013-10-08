@@ -51,10 +51,8 @@ module.exports = function(app, models, io, logger) {
 
 	// Create
 	app.post('/rawfeed/?', function(req, res){
-		var data = req.body;
-
 		if(logger.DO_LOG){
-			logger.info("Receiving new feed", data);
+			logger.info("Receiving new feed", req.body);
 		}
 		rawFeedService.create(req.body, function(err, val, newFeed) {
 			if(err){
@@ -74,7 +72,7 @@ module.exports = function(app, models, io, logger) {
 	// Update
 	app.post('/rawfeed/:id([0-9a-f]+)', function(req,res){
 		if(logger.DO_LOG){
-			logger.info("Update feed " + req.params.id, data);
+			logger.info("Update feed " + req.params.id, req.body);
 		}
 		rawFeedService.update(req.params.id, req.body, function(err, val, updFeed) {
 			if(err){
