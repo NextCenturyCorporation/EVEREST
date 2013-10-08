@@ -110,7 +110,7 @@ module.exports = function(services, logger) {
 	*/
 	me.targetAssertionsExist = function(values, errors, callback){
 		if(typeof(values) === 'undefined' || values.length < 1) {
-			callback(undefined, true)
+			callback(undefined, true);
 		} else {
 			async.each(values, function(assertion, eachCallback){
 				targetAssertion.findWhere({_id: assertion}, function(err, locs){
