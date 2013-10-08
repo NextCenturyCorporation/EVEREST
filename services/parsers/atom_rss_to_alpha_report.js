@@ -1,6 +1,6 @@
 var AlphaReportService = require('../database/alpha_report.js');
 var reporter_service = require('../database/reporter.js');
-var AssertionService = require('../database/assertion.js');
+//var AssertionService = require('../database/assertion.js');  // not used
 var actionEmitter = require('../action_emitter.js');
 
 String.prototype.stripHTMLFromFeed = function() {
