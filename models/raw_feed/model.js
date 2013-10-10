@@ -1,11 +1,11 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
- var rawFeedModel = {
-	createdDate: {type: Date, "default": Date.now},
+var rawFeedModel = {
+	createdDate: {type: Date, "default": Date.now, index: true},
 	updatedDate: {type: Date, "default": Date.now},
 	text: {type: String, required: true},
-	feedSource: {type: String, enum: ['Twitter', 'Email','RSS'], required: true}
+	feedSource: {type: String, enum: ['Twitter', 'Email', 'RSS'], required: true, index: true}
 };
 
 var rawFeedSchema = new Schema(rawFeedModel);
