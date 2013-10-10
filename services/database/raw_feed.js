@@ -11,12 +11,24 @@ module.exports = function(models, io, logger) {
 			if (params !== null){
 				var sortObject = {};
 				sortObject[params.sortKey] = params.sort;
-				console.log(sortObject);
 				models.rawFeed.find().skip(params.offset).sort(sortObject).limit(params.count).execFind(callback);
 			} else {
 				models.rawFeed.find({}, callback);
 			}
 		});
+	};
+	
+	//temporary way to get database indexes for sorting
+	me.getIndexes = function(req, callback){
+		var keys = Object.keys(models.rawFeed.schema.paths);
+		var indexes = ["_id"];
+		for (var i = 0; i < keys.length; i++){
+			if (models.rawFeed.schema.paths[keys[i]]._index){
+				indexes.push(keys[i].toString());
+			}
+		}
+		
+		callback(indexes);
 	};
 	
 	me.getTotalCount = function(req, callback){
