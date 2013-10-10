@@ -9,7 +9,9 @@ module.exports = function(models, io, logger) {
 	me.list = function(req, callback){
 		paramHandler.handleDefaultParams(req, function(params){
 			if (params !== null){
-				models.rawFeed.find().limit(params.count).skip(params.offset).sort({params.sortKey: params.sort}).execFind(callback);
+				var sortObject = {};
+				sortObject[params.sortKey] = params.sort;
+				models.rawFeed.find().limit(params.count).skip(params.offset).sort(sortObject).execFind(callback);
 			} else {
 				models.rawFeed.find({}, callback);
 			}
