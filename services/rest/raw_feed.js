@@ -38,6 +38,21 @@ module.exports = function(app, models, io, logger) {
 		});
 	});
 	
+	app.get('/rawfeed/indexes', function(req, res){
+		if(logger.DO_LOG){ 
+			logger.info('Request for list of indexes');
+		}
+		
+		rawFeedService.getIndexes(req.query, function(indexes){
+			if (!indexes){
+				responseHandler.send500(res, "Error getting indexes of raw feeds");
+			} else {
+				res.jsonp(indexes);
+				res.end();
+			}
+		});
+	});
+	
 	// Review
 	app.get('/rawfeed/:id([0-9a-f]+)', function(req, res){
 		if(0 && logger.DO_LOG){
