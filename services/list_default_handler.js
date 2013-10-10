@@ -8,7 +8,8 @@ var handleDefaultParams = function (incomingParams, handleCallback) {
 	var params = {
 		count : config.paramDefaults.listCount,
 		offset : config.paramDefaults.listOffset,
-		sort : config.paramDefaults.listSort
+		sort : config.paramDefaults.listSort,
+		sortKey: "_id"
 	};
   
 	if(queryData.count) {
@@ -19,6 +20,9 @@ var handleDefaultParams = function (incomingParams, handleCallback) {
 	}
 	if(queryData.sort) {
 		params.sort = ((queryData.sort === 'desc') ? -1 : 1); 
+	}
+	if(queryData.sortKey) {
+		params.sortKey = queryData.sortKey;
 	}
 	handleCallback(params);
 };	
