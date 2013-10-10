@@ -12,7 +12,7 @@ module.exports = function(models, io, logger) {
 				var sortObject = {};
 				sortObject[params.sortKey] = params.sort;
 				console.log(sortObject);
-				models.rawFeed.find().limit(params.count).skip(params.offset).sort(sortObject).execFind(callback);
+				models.rawFeed.find().skip(params.offset).sort(sortObject).limit(params.count).execFind(callback);
 			} else {
 				models.rawFeed.find({}, callback);
 			}
