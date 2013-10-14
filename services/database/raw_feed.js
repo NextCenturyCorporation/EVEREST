@@ -11,7 +11,8 @@ module.exports = function(models, io, logger) {
 			if (params !== null){
 				var sortObject = {};
 				sortObject[params.sortKey] = params.sort;
-				models.rawFeed.find().skip(params.offset).sort(sortObject).limit(params.count).execFind(callback);
+				var config = {}
+				models.rawFeed.find(config).skip(params.offset).sort(sortObject).limit(params.count).execFind(callback);
 			} else {
 				models.rawFeed.find({}, callback);
 			}
@@ -31,24 +32,24 @@ module.exports = function(models, io, logger) {
 		callback(indexes);
 	};
 	
-	me.getTotalCount = function(req, callback){
-		models.rawFeed.count({}, callback);
-	};
-	
-	me.listFields = function(config, fields, callback){
-		models.rawFeed.find(config, fields, callback);
+	me.getTotalCount = function(config, callback){
+		models.rawFeed.count(config, callback);
 	};
 	
 	me.get = function(id, callback) {
-		models.rawFeed.find({_id: id}, callback);
+		me.findWhere({_id: id}, callback);
 	};
 	
 	me.getFields = function(id, fields, callback){
-		models.rawFeed.find({_id: id}, fields, callback);
+		me.findWhereFields({_id: id}, fields, callback);
 	};
 	
 	me.findWhere = function(config, callback){
 		models.rawFeed.find(config, callback);
+	};
+
+	me.findWhereFields = function(config, fields, callback){
+		models.rawFeed.find(config, fields, callback);
 	};
 	
 	me.create = function(data, callback) {

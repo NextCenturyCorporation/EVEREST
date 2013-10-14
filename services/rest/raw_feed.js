@@ -25,7 +25,8 @@ module.exports = function(app, models, io, logger) {
 				me.logger.error("RawFeed: "+err, err);
 				responseHandler.send500(res, errMsg);
 			} else {
-				rawFeedService.getTotalCount(req.query, function(err, numFeeds){
+				var config = {};
+				rawFeedService.getTotalCount(config, function(err, numFeeds){
 					if (err){
 						me.logger.error("RawFeed: "+err, err);
 						responseHandler.send500(res, "Error getting count of raw feeds");
