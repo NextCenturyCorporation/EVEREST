@@ -19,12 +19,13 @@ module.exports = function(app, models, io, logger) {
 		}
 
 		//params
-		rawFeedService.list(req.query, function(err, rawFeeds, config){
+		rawFeedService.list(req.query, function(err, rawFeeds){//, config){
 			if(err){
 				var errMsg = "Error listing raw feeds";
 				me.logger.error("RawFeed: "+err, err);
 				responseHandler.send500(res, errMsg);
 			} else {
+				var config = {};
 				rawFeedService.getTotalCount(config, function(err, numFeeds){
 					if (err){
 						me.logger.error("RawFeed: "+err, err);

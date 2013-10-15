@@ -21,9 +21,10 @@ module.exports = function(models, io, logger) {
 					}
 				};
 				
-				models.rawFeed.find(config).skip(params.offset).sort(sortObject).limit(params.count).execFind(function(err, docs){
+				models.rawFeed.find(config).skip(params.offset).sort(sortObject).limit(params.count).execFind(callback);
+				/*function(err, docs){
 					callback(err, docs, config);
-				});
+				});*/
 			} else {
 				models.rawFeed.find({}, function(err, docs){
 					callback(err, docs, {});
