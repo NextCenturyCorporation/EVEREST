@@ -19,7 +19,9 @@ module.exports = function(models, io, logger) {
 					}
 				};
 				
-				models.rawFeed.find(config).skip(params.offset).sort(sortObject).limit(params.count).execFind(callback);
+				models.rawFeed.find(config).skip(params.offset).sort(sortObject).limit(params.count).execFind(function(error, response){
+					callback(error, response);
+				});
 			} else {
 				models.rawFeed.find({}, callback);
 			}
