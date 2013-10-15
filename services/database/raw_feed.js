@@ -11,7 +11,14 @@ module.exports = function(models, io, logger) {
 			if (params !== null){
 				var sortObject = {};
 				sortObject[params.sortKey] = params.sort;
-				var config = {}
+				
+				var config = {
+					createdDate :{
+						$gte: params.start,
+						$lte: params.end
+					}
+				};
+				
 				models.rawFeed.find(config).skip(params.offset).sort(sortObject).limit(params.count).execFind(callback);
 			} else {
 				models.rawFeed.find({}, callback);
