@@ -11,10 +11,23 @@ module.exports = function(models, io, logger) {
 			if (params !== null){
 				var sortObject = {};
 				sortObject[params.sortKey] = params.sort;
-				var config = {}
-				models.rawFeed.find(config).skip(params.offset).sort(sortObject).limit(params.count).execFind(callback);
+				
+				//would it be more efficient to not even include this config (or just lte
+				//or gte) if they dont exist?
+				var config = {
+					createdDate :{
+						$gte: params.start,
+						$lte: params.end
+					}
+				};
+				
+				models.rawFeed.find(config).skip(params.offset).sort(sortObject).limit(params.count).execFind(function(err, docs){
+					callback(err, docs, config);
+				});
 			} else {
-				models.rawFeed.find({}, callback);
+				models.rawFeed.find({}, function(err, docs){
+					callback(err, docs, {});
+				});
 			}
 		});
 	};
