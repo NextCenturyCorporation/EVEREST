@@ -21,10 +21,7 @@ config.defaultTwitterKey = {
 config.paramDefaults = {
 	listCount: null,
 	listOffset: 0,
-	listSort: 1,
-	listSortKey: "_id",
-	listStart: new Date(0),
-	listEnd: new Date('01/01/3000')
+	listSort: 1
 };
 
 module.exports = config;

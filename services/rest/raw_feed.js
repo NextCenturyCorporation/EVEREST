@@ -19,7 +19,7 @@ module.exports = function(app, models, io, logger) {
 		}
 
 		//params
-		rawFeedService.list(req.query, function(err, rawFeeds){//, config){
+		rawFeedService.list(req.query, function(err, rawFeeds){
 			if(err){
 				var errMsg = "Error listing raw feeds";
 				me.logger.error("RawFeed: "+err, err);
