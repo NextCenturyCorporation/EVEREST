@@ -34,6 +34,21 @@ module.exports = function(app, models, io, logger) {
 		});
 	});
 	
+	app.get('/assertion/indexes', function(req, res){
+		if(logger.DO_LOG){
+			logger.info('Request for list of indexes for assertion');
+			
+			assertionService.getIndexes(req.query, function(indexes){
+				if (!indexes){
+					responseHandler.send500(res, 'Error getting indexes of assertions');
+				} else {
+					res.jsonp(indexes);
+					res.end();
+				}
+			});
+		}
+	});
+	
 	//Create
 	app.post('/assertion/?', function(req,res){
 		if(logger.DO_LOG){
