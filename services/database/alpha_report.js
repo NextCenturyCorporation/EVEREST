@@ -17,9 +17,44 @@ module.exports = function(models, io, logger) {
 	/**
 	 *	Returns a list of all the alpha reports
 	 */
-	me.list = function(params, callback){
-		//TODO handle apging params
-		models.alphaReport.find(params, callback);
+	me.list = function(req, callback){
+		paramHandler.handleDefaultParams(req, function(params){
+			if (params !== null){
+				var sortObject = {};
+				sortObject[params.sortKey] = params.sort;
+				
+				var config = {
+					createdDate : {
+						$gte: params.start,
+						$lte: params.end
+					}
+				};
+				
+				models.alphaReport.find(config).skip(params.offset).sort(sortObject).limit(params.count).execFind(function(error, response){
+					callback(error, response, config);
+				});
+			} else {
+				models.alphaReport.find({}, function(error, response){
+					callback(error, response, {});
+				});
+			}
+		});
+	};
+	
+	me.getIndexes = function(req, callback){
+		var keys = Object.keys(models.alphaReport.schema.paths);
+		var indexes = ["_id"];
+		for (var i = 0; i < keys.length; i++){
+			if (models.alphaReport.schema.paths[keys[i]]._index){
+				indexes.push(keys[i].toString());
+			}
+		}
+		
+		callback(indexes);
+	};
+	
+	me.getTotalCount = function(config, callback){
+		models.alphaReport.count(config, callback);
 	};
 
 	me.listFields = function(params, field_string, callback) {

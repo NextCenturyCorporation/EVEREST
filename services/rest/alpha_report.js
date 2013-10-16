@@ -18,15 +18,37 @@ module.exports = function(app, models, io, logger) {
 		}
 		var params = {};
 
-		alphaReportService.list(params, function(err, docs){
+		alphaReportService.list(params, function(err, docs, config){
 			if(err){
 				logger.info("Error listing alpha reports " + err);
-				general.send500(res);
+				responseHandler.send500(res, "Error listing alpha reports");
 			} else {
-				res.jsonp(docs);
-				res.end();
+				alphaReportService.getTotalCount(config, function(err, numDocs){
+					if (err){
+						me.logger.error("Assertion: "+err, err);
+						responseHandler.send500(res, "Error getting count of alpha reports");
+					} else {
+						res.jsonp({alpha-reports: docs, total_count: numDocs});
+						res.end();
+					}
+				});
 			}
 		});
+	});
+	
+	app.get('/alpha-report/indexes', function(req, res){
+		if(logger.DO_LOG){
+			logger.info('Request for list of indexes for alpha report');
+			
+			alphaReportService.getIndexes(req.query, function(indexes){
+				if (!indexes){
+					responseHandler.send500(res, 'Error getting indexes of alpha reports');
+				} else {
+					res.jsonp(indexes);
+					res.end();
+				}
+			});
+		}
 	});
 	
 	//list all alpha reports, only showing source_id and id

@@ -23,7 +23,9 @@ module.exports = function(models, io, logger) {
 					callback(error, response, config);
 				});
 			} else {
-				models.rawFeed.find({}, callback);
+				models.rawFeed.find({}, function(error, response){
+					callback(error, response, {});
+				});
 			}
 		});
 	};
