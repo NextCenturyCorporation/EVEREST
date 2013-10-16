@@ -43,12 +43,15 @@ module.exports = function(models, io, logger) {
 	
 	me.getIndexes = function(req, callback){
 		var keys = Object.keys(models.assertion.schema.paths);
+		console.log(keys);
 		var indexes = ["_id"];
 		for (var i = 0; i < keys.length; i++){
 			if (models.assertion.schema.paths[keys[i]]._index){
 				indexes.push(keys[i].toString());
 			}
 		}
+		
+		callback(indexes);
 	};
 	
 	me.getTotalCount = function(config, callback){
