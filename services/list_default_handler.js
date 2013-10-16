@@ -9,7 +9,9 @@ var handleDefaultParams = function (incomingParams, handleCallback) {
 		count : config.paramDefaults.listCount,
 		offset : config.paramDefaults.listOffset,
 		sort : config.paramDefaults.listSort,
-		sortKey: "_id"
+		sortKey: config.paramDefaults.listSortKey,
+		start: config.paramDefaults.listStart,
+		end: config.paramDefaults.listEnd
 	};
   
 	if(queryData.count) {
@@ -23,6 +25,18 @@ var handleDefaultParams = function (incomingParams, handleCallback) {
 	}
 	if(queryData.sortKey) {
 		params.sortKey = queryData.sortKey;
+	}
+	if(queryData.start) {
+		var d = new Date(queryData.start);
+		if (d){		
+			params.start = d;
+		}
+	}
+	if(queryData.end){
+		var d = new Date(queryData.end);
+		if (d && d > params.start){
+			params.end = d;
+		}
 	}
 	handleCallback(params);
 };	
