@@ -16,15 +16,21 @@ module.exports = function(app, models, io, logger) {
 		if(logger.DO_LOG){
 			logger.info("Request for assertion list");
 		}
-		assertionService.list({}, function(err, docs){
+		assertionService.list(req.query, function(err, docs, config){
 			if(err){
 				logger.info("Error listing assertions "+err);
-				res.status(500);
-				res.json({error: 'Error'});
+				responseHandler.send500(res, "Error listing assertions");
 			} else {
-				res.json(docs);
+				assertionService.getTotalCount(config, function(err, numDocs){
+					if (err){
+						me.logger.error("Assertion: "+err, err);
+						responseHandler.send500(res, "Error getting count of assertions");
+					} else {
+						res.jsonp({assertions: docs, total_count: numDocs});
+						res.end();
+					}
+				});
 			}
-			res.end();
 		});
 	});
 	

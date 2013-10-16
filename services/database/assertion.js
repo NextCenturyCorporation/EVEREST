@@ -4,10 +4,10 @@ var revalidator = require('revalidator');
 var AlphaReportService = require('./alpha_report.js');
 var ReporterService = require('./reporter.js');
 var actionEmitter = require('../action_emitter.js');
+var paramHandler = require('../list_default_handler.js');
 
 module.exports = function(models, io, logger) {
 	var me = this;
-
 	var validationModel = models.assertionValidation;
 	var services = {
 		assertionService: me,
@@ -19,9 +19,40 @@ module.exports = function(models, io, logger) {
 	/**
 	 * Returns a list of all the assertions
 	 */
-	me.list = function(config, callback){
-		//TODO handle paging
-		models.assertion.find({}, callback);
+	me.list = function(req, callback){
+		paramHandler.handleDefaultParams(req, function(params){
+			if (params !== null){
+				var sortObject = {};
+				sortObject[params.sortKey] = params.sort;
+				
+				var config = {
+					createdDate : {
+						$gte: params.start,
+						$lte: params.end
+					}
+				};
+				
+				models.assertion.find(config).skip(params.offset).sort(sortObject).limit(params.count).execFind(function(error, response){
+					callback(error, response, config);
+				});
+			} else {
+				models.assertion.find({}, callback);
+			}
+		});
+	};
+	
+	me.getIndexes = function(req, callback){
+		var keys = Object.keys(models.assertion.schema.paths);
+		var indexes = ["_id"];
+		for (var i = 0; i < keys.length; i++){
+			if (models.assertion.schema.paths[keys[i]]._index){
+				indexes.push(keys[i].toString());
+			}
+		}
+	};
+	
+	me.getTotalCount = function(config, callback){
+		models.assertion.count(config, callback);
 	};
 
 	/**
