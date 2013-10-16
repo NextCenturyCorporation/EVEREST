@@ -51,7 +51,7 @@ module.exports = function(models, io, logger) {
 		}
 	};*/
 	me.parseAndSave = function(alpha_report_object) {
-		logger.info('Attempting to parse alpha_report_object with id' + alpha_report_object._id);
+		logger.info('Attempting to parse alpha_report_object with id ' + alpha_report_object._id);
 		if(alpha_report_object.message_body) {
 			
 			parser.parseText(alpha_report_object.message_body, function(err, results) {
@@ -106,6 +106,7 @@ module.exports = function(models, io, logger) {
 			}
 			if(tuples.length === 0) {
 				logger.error("No triplets were able to be extracted", err);
+				callback(err, tuples);
 			} else {
 				callback(null, tuples);
 			}

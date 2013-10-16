@@ -61,7 +61,7 @@ module.exports = function(models, io, logger) {
 				newFeed.updatedDate = new Date();
 				newFeed.save(function(err){
 					if(err){
-						me.logger.error('Error saving location', err);
+						me.logger.error('Error saving raw feed', err);
 					} else {
 						actionEmitter.saveFeedEvent({data: newFeed});
 					}

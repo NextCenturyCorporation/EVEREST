@@ -54,7 +54,7 @@ module.exports = function(app, models, io, logger){
 			for(var i = 0; i < size; i++) {
 				tuple = tuples.getSync(i);
 				results.push({
-					sentence: req.body.text,
+					text: req.body.text,
 					entity1: tuple.getEntity1StringSync(),
 					relationship: tuple.getRelationStringSync(),
 					entity2: tuple.getEntity2StringSync()
@@ -209,6 +209,26 @@ module.exports = function(app, models, io, logger){
 		var result = {};
 
 		async.series([function(callback) {
+			nlp_parser.parseToTuples(req.body.text, function(err, tuples) {
+				var results = [];
+				var tuple;
+
+				var size = tuples.sizeSync();
+				for(var i = 0; i < size; i++) {
+					tuple = tuples.getSync(i);
+					results.push({
+						entity1: tuple.getEntity1StringSync(),
+						relationship: tuple.getRelationStringSync(),
+						entity2: tuple.getEntity2StringSync()
+					});
+				}
+
+				if (tuples) {
+					result.tuples = results;
+				}
+				callback();
+			});
+		},function(callback) {
 			nlp_parser.posTagSentences(req.body.text, function(err, output) {
 				if(err) {
 					var msg = "There was an error attempting to tag the sentence";
