@@ -18,14 +18,14 @@ module.exports = function(app, models, io, logger) {
 		}
 		var params = {};
 
-		alphaReportService.list(params, function(err, docs, config){
+		alphaReportService.list(req.query, function(err, docs, config){
 			if(err){
 				logger.info("Error listing alpha reports " + err);
 				responseHandler.send500(res, "Error listing alpha reports");
 			} else {
 				alphaReportService.getTotalCount(config, function(err, numDocs){
 					if (err){
-						me.logger.error("Assertion: "+err, err);
+						me.logger.error("Alpha Report: "+err, err);
 						responseHandler.send500(res, "Error getting count of alpha reports");
 					} else {
 						res.jsonp({alpha_reports: docs, total_count: numDocs});
