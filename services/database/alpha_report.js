@@ -2,6 +2,7 @@ var Bvalidator = require('../../models/alpha_report/bvalidator.js');
 var revalidator = require('revalidator');
 var RawFeedService = require('./raw_feed');
 var actionEmitter = require('../action_emitter.js');
+var paramHandler = require('../list_default_handler.js');
 
 module.exports = function(models, io, logger) {
 	var me = this;
