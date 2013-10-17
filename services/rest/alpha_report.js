@@ -1,5 +1,5 @@
 var AlphaReportService = require('../database/alpha_report.js');
-var general = require('../general_response');
+var responseHandler = require('../general_response');
 
 module.exports = function(app, models, io, logger) {
 	var me = this;

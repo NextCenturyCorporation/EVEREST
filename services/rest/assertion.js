@@ -1,5 +1,5 @@
 var AssertionService = require('../database/assertion.js');
-var generalResponse = require('../general_response.js');
+var responseHandler = require('../general_response');
 
 module.exports = function(app, models, io, logger) {
 	var me = this;
