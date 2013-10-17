@@ -20,24 +20,33 @@ module.exports = function(serviceList, io ,logger){
 	};
 
 	this.saveAlphaReportEventHandler = function() {
-		var obj = Array.prototype.slice.call(arguments[0], 0);
-		obj['type'] = 'AlphaReport';
-		io.sockets.to('EVEREST.data.workflow').emit('item_saved', obj);
+		var args = Array.prototype.slice.call(arguments[0], 0);
+		var obj = args[0];
+		if(obj.data) {
+			obj = obj.data;
+		}
+		io.sockets.to('EVEREST.data.workflow').emit('item_saved', {type: 'AlphaReport', eventObject: obj});
 		logger.debug('Emitted socket with item_saved for AlphaReport');
 		serviceList.NlpParserAsync.parseAndSave.callWithAllArgs(arguments);
 	};
 
 	this.saveAssertionEventHandler = function() {
-		var obj = Array.prototype.slice.call(arguments[0], 0);
-		obj['type'] = 'Assertion';
-		io.sockets.to('EVEREST.data.workflow').emit('item_saved', obj);
+		var args = Array.prototype.slice.call(arguments[0], 0);
+		var obj = args[0];
+		if(obj.data) {
+			obj = obj.data;
+		}
+		io.sockets.to('EVEREST.data.workflow').emit('item_saved', {type: 'Assertion', eventObject: obj});
 		logger.debug('Emitted socket with item_saved for Assertion');
 	};
 
 	this.saveFeedEventHandler = function() {
-		var obj = Array.prototype.slice.call(arguments[0], 0);
-		obj['type'] = 'RawFeed';
-		io.sockets.to('EVEREST.data.workflow').emit('item_saved', obj);
+		var args = Array.prototype.slice.call(arguments[0], 0);
+		var obj = args[0];
+		if(obj.data) {
+			obj = obj.data;
+		}
+		io.sockets.to('EVEREST.data.workflow').emit('item_saved', {type: 'RawFeed', eventObject: obj});
 		logger.debug('Emitted socket with item_saved for RawFeed');
 	};
 
