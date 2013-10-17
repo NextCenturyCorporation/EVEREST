@@ -108,7 +108,7 @@ module.exports = function(models, io, logger, createDefault) {
 			} else {
 				stream.stream('statuses/filter', { track: filters }, function(newStream) {
 					stream.activeStream = newStream;
-					
+					stream.activeStream.filters = filters;
 					newStream.on('data', function(data) {
 						me.logger.debug("Saving feed item: " + data.user.screen_name + ": " + data.text);
 						

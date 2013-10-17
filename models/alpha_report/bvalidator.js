@@ -33,7 +33,7 @@ module.exports = function(services, logger) {
 			if (value !== undefined) {
 				if (!found) {
 					me.error(property, value, errors, "RawDataFeed does not exist.");
-					logger.info("rawFeedExists " + value + " does not exist.");
+					logger.debug("rawFeedExists " + value + " does not exist.");
 				}
 			}
 			
@@ -43,7 +43,7 @@ module.exports = function(services, logger) {
 				if (value !== undefined) {
 					if (!found) {
 						me.error(property, value, errors, "Language value does not exist.");
-						logger.info("languageExists " + value + " does not exist.");
+						logger.debug("languageExists " + value + " does not exist.");
 					}
 				}
 				
@@ -51,7 +51,7 @@ module.exports = function(services, logger) {
 					var property = 'record';
 					if (found) {
 						me.error(property, object, errors, "alpha_report already exists.");
-						logger.info("alphaReportExists " + JSON.stringify(object));
+						logger.debug("alphaReportExists " + JSON.stringify(object));
 					}
 					
 					done();
@@ -71,13 +71,13 @@ module.exports = function(services, logger) {
 			services.rawFeedService.findWhere({_id: value}, function(err, docs) {
 				if (err) {
 					me.error('_id', value, errors, 'Error reading raw_feed ' + err);
-					logger.info({ error : "Error readRawFeedByPropery " + err });
+					logger.error({ error : "Error readRawFeedByPropery " + err });
 					callback(err, false);
 				} else if (0 !== docs.length) {
-					logger.info("raw_feed found for rawFeedExists" + JSON.stringify(docs));
+					logger.debug("raw_feed found for rawFeedExists" + JSON.stringify(docs));
 					callback(err, true);
 				} else {
-					logger.info("raw_feed not found " + value);
+					logger.debug("raw_feed not found " + value);
 					callback(err, false);
 				}
 			});
@@ -98,13 +98,13 @@ module.exports = function(services, logger) {
 	//		dataLayer.readLocationByObject(object, function(err, locs){
 	//			if (err) {
 	//				error('record', object, errors, 'Error reading location ' + err);
-	//				logger.info({ error : "Error getting locationByObject " + err });
+	//				logger.debug({ error : "Error getting locationByObject " + err });
 	//				callback(err, false);
 	//			} else if (0 !== locs.length) {
-	//				logger.info("Location found for locationExists" + JSON.stringify(locs));
+	//				logger.debug("Location found for locationExists" + JSON.stringify(locs));
 	//				callback(err, true);
 	//			} else {
-	//				logger.info("Location not found " + JSON.stringify(object));
+	//				logger.debug("Location not found " + JSON.stringify(object));
 	//				callback(err, false);
 	//			}
 	//		});
@@ -116,13 +116,13 @@ module.exports = function(services, logger) {
 		services.alphaReportService.findWhere(searchObject, function(err, locs){
 			if (err) {
 				me.error('record', object, errors, 'Error reading alpha_report ' + err);
-				logger.info({ error : "Error readAlphaReportByObject " + err });
+				logger.error({ error : "Error readAlphaReportByObject " + err });
 				callback(err, false);
 			} else if (0 !== locs.length) {
-				logger.info("alpha_report found for alphaReportExists" + JSON.stringify(locs));
+				logger.debug("alpha_report found for alphaReportExists" + JSON.stringify(locs));
 				callback(err, true);
 			} else {
-				logger.info("alpha_report not found " + JSON.stringify(searchObject));
+				logger.debug("alpha_report not found " + JSON.stringify(searchObject));
 				callback(err, false);
 			}
 		});

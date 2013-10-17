@@ -40,6 +40,10 @@ var twitterIngest = module.exports = function(app, models, io, logger) {
 		});
 	});
 
+	me.app.get('/twitter-ingest/twitStreams?', function(req, res) {
+		res.jsonp(me.twitterIngestService.twitStreams);
+	});
+
 	//create
 	me.app.post('/twitter-ingest/?', function(req, res) {
 		//new feed

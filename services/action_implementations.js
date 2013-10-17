@@ -20,19 +20,24 @@ module.exports = function(serviceList, io ,logger){
 	};
 
 	this.saveAlphaReportEventHandler = function() {
-		io.sockets.to('EVEREST.data.workflow').emit('item_saved', {type: 'AlphaReport'});
+		var obj = Array.prototype.slice.call(arguments[0], 0);
+		obj['type'] = 'AlphaReport';
+		io.sockets.to('EVEREST.data.workflow').emit('item_saved', obj);
 		logger.debug('Emitted socket with item_saved for AlphaReport');
-
 		serviceList.NlpParserAsync.parseAndSave.callWithAllArgs(arguments);
 	};
 
 	this.saveAssertionEventHandler = function() {
-		io.sockets.to('EVEREST.data.workflow').emit('item_saved', {type: 'Assertion'});
+		var obj = Array.prototype.slice.call(arguments[0], 0);
+		obj['type'] = 'Assertion';
+		io.sockets.to('EVEREST.data.workflow').emit('item_saved', obj);
 		logger.debug('Emitted socket with item_saved for Assertion');
 	};
 
 	this.saveFeedEventHandler = function() {
-		io.sockets.to('EVEREST.data.workflow').emit('item_saved', {type: 'RawFeed'});
+		var obj = Array.prototype.slice.call(arguments[0], 0);
+		obj['type'] = 'RawFeed';
+		io.sockets.to('EVEREST.data.workflow').emit('item_saved', obj);
 		logger.debug('Emitted socket with item_saved for RawFeed');
 	};
 
