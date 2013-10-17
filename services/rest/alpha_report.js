@@ -28,7 +28,7 @@ module.exports = function(app, models, io, logger) {
 						me.logger.error("Alpha Report: "+err, err);
 						responseHandler.send500(res, "Error getting count of alpha reports");
 					} else {
-						res.jsonp({alpha_reports: docs, total_count: numDocs});
+						res.jsonp({docs: docs, total_count: numDocs});
 						res.end();
 					}
 				});

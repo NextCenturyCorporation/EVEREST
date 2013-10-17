@@ -26,7 +26,7 @@ module.exports = function(app, models, io, logger) {
 						me.logger.error("Assertion: "+err, err);
 						responseHandler.send500(res, "Error getting count of assertions");
 					} else {
-						res.jsonp({assertions: docs, total_count: numDocs});
+						res.jsonp({docs: docs, total_count: numDocs});
 						res.end();
 					}
 				});

@@ -31,7 +31,7 @@ module.exports = function(app, models, io, logger) {
 						me.logger.error("RawFeed: "+err, err);
 						responseHandler.send500(res, "Error getting count of raw feeds");
 					} else {
-						res.jsonp({raw_feeds: rawFeeds, total_count: numFeeds});
+						res.jsonp({docs: rawFeeds, total_count: numFeeds});
 						res.end();
 					}
 				});

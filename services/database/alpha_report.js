@@ -30,7 +30,6 @@ module.exports = function(models, io, logger) {
 						$lte: params.end
 					}
 				};
-				console.log(params);
 				
 				models.alphaReport.find(config).skip(params.offset).sort(sortObject).limit(params.count).execFind(function(error, response){
 					callback(error, response, config);
