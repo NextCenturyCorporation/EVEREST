@@ -61,7 +61,7 @@ module.exports = function(app, models, io, logger) {
 			if(err){
 				var msg = 'Error saving assertion';
 				logger.error(msg, err);
-				generalResponse.send500(res, msg);
+				responseHandler.send500(res, msg);
 			} else if (!val.valid) {
 				logger.info('Invalid assertion ' + JSON.stringify(val.errors));
 				res.status(500);
@@ -85,7 +85,7 @@ module.exports = function(app, models, io, logger) {
 			if(err) {
 				var msg = 'Error getting assertion';
 				logger.error(msg, err);
-				generalResponse.send500(res, msg);
+				responseHandler.send500(res, msg);
 			} else if(docs) {
 				res.json(docs);
 				res.end();
