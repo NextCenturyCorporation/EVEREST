@@ -61,7 +61,7 @@ module.exports = function(app, models, io, logger) {
 		alphaReportService.listFields(params, "_id source_id", function(err, docs){
 			if(err){
 				logger.info("Error listing alpha report id - source_id" + err);
-				general.send500(res);
+				responseHandler.send500(res);
 			} else {
 				res.jsonp(docs);
 				res.end();
@@ -77,10 +77,10 @@ module.exports = function(app, models, io, logger) {
 		alphaReportService.create(req.body, function(err, val, newAlphaReport) {
 			if(err){
 				logger.error('Error saving AlphaReport', err);
-				general.send500(res, 'Error saving AlphaReport');
+				responseHandler.send500(res, 'Error saving AlphaReport');
 			} else if (!val.valid) {
 				logger.info('Invalid AlphaReport ' + JSON.stringify(val.errors));
-				general.send500(res, 'Invalid AlphaReport');
+				responseHandler.send500(res, 'Invalid AlphaReport');
 			} else {
 				logger.info('AlphaReport saved ' + JSON.stringify(newAlphaReport));
 				res.json({_id:newAlphaReport._id});
@@ -97,12 +97,12 @@ module.exports = function(app, models, io, logger) {
 		alphaReportService.get(req.params.id, function(err, docs){
 			if(err){
 				logger.info('Error getting alpha report ' + err);
-				general.send500(res);
+				responseHandler.send500(res);
 			} else if(docs) {
 				res.jsonp(docs);
 				res.end();
 			} else {
-				general.send404(res);
+				responseHandler.send404(res);
 			}
 		});
 	});
@@ -115,10 +115,10 @@ module.exports = function(app, models, io, logger) {
 		alphaReportService.update(req.params.id, req.body, function(err, val, updated) {
 			if(err){
 				logger.error('Error updating AlphaReport', err);
-				general.send500(res, 'Error updating AlphaReport');
+				responseHandler.send500(res, 'Error updating AlphaReport');
 			} else if (val && !val.valid) {
 				logger.info('Invalid AlphaReport ' + JSON.stringify(val.errors));
-				general.send500(res, ' Invalid AlphaReport ');
+				responseHandler.send500(res, ' Invalid AlphaReport ');
 			} else {
 				logger.info('AlphaReport updated ' + JSON.stringify(updated));
 				res.json({id:updated._id});

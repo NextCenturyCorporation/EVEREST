@@ -355,5 +355,171 @@ module.exports = function(app, models, io, logger){
 			res.end();
 		});
 	});
+
+	app.post('/nlp-parser/full-parse-result/:id([0-9a-f]+)', function(req, res) {
+		if(logger.DO_LOG){
+			logger.info('Request for nlp parser full results.');
+		}
+		
+		alphaReportService.get(req.params.id, function(err, reports) {
+			if(err || reports.length == 0) {
+				var msg = ("Could not find alpha report with id: " + req.params.id);
+				logger.error(msg, err);
+				return general.send500(res, msg);
+			} else {
+				var report = reports[0];
+
+
+				var result = {};
+
+				async.series([function(callback) {
+					nlp_parser.parseToTuples(report.message_body, function(err, tuples) {
+						var results = [];
+						var tuple;
+
+						var size = tuples.sizeSync();
+						for(var i = 0; i < size; i++) {
+							tuple = tuples.getSync(i);
+							results.push({
+								entity1: tuple.getEntity1StringSync(),
+								relationship: tuple.getRelationStringSync(),
+								entity2: tuple.getEntity2StringSync()
+							});
+						}
+
+						if (tuples) {
+							result.tuples = results;
+						}
+						callback();
+					});
+				},function(callback) {
+					nlp_parser.posTagSentences(report.message_body, function(err, output) {
+						if(err) {
+							var msg = "There was an error attempting to tag the sentence";
+							logger.error(msg, err);
+							console.log(err);
+							result.pos = msg;
+							callback();
+						} else {
+							output.toArray(function(err, resultArray) {
+								var internalResult = [];
+								async.eachSeries(resultArray, function(sentence, internalCallback) {
+									internalResult.push(sentence);
+									internalCallback();
+								}, function() {
+									result.pos = internalResult;
+									callback();
+								});
+							});
+						}
+					});
+				}, function(callback) {
+					nlp_parser.parseToAnnotationGraphs(report.message_body, function(err, graphs) {
+						if(err) {
+							var msg = "There was an error attempting to annotate sentence";
+							logger.error(msg, err);
+							result.annotation = msg;
+							callback();
+						}
+
+						graphs.toArray(function(err, graphArray) {
+							var internalResult = [];
+							async.eachSeries(graphArray, function(graph, internalCallback) {
+								internalResult.push(graph.pennStringSync());
+								internalCallback();
+							}, function() {
+								result.annotation = internalResult;
+								callback();
+							});	
+						});
+					});
+				}, function(callback) {
+					nlp_parser.parseToDependencyGraphs(report.message_body, function(err, graphs) {
+						if(err) {
+							var msg = "There was an error attempting to parse sentence dependency graph";
+							logger.error(msg, err);
+							result.dependency = msg;
+							callback();
+						}
+						
+						graphs.toArray(function(err, graphArray) {
+							var internalResult = [];
+							async.eachSeries(graphArray, function(graph, internalCallback) {
+								internalResult.push(graph.toString());
+								internalCallback();
+							}, function() {
+								result.dependency = internalResult;
+								callback();
+							});
+						});
+					});
+				}, function(callback) {
+					nlp_parser.parseRootChildData(report.message_body, function(err, output) {
+						if(err) {
+							var msg = "There was an error attempting to mark root and children";
+							logger.error(msg, err);
+							result.dependency = msg;
+							callback();
+						}
+
+						output.toArray(function(err, resultArray) {
+							var internalResult = [];
+							async.eachSeries(resultArray, function(sentence, internalCallback) {
+								internalResult.push(sentence);
+								internalCallback();
+							}, function() {
+								result.root_child_data = internalResult;
+								callback();
+							});
+						});
+					});
+				}, function(callback) {
+					nlp_parser.parseToDotProductGraph(report.message_body, function(err, output) {
+						if(err) {
+							var msg = "There was an error attempting to parse sentence";
+							logger.error(msg, err);
+							result.dependency = msg;
+							callback();
+						}
+						
+						output.toArray(function(err, resultArray) {
+							var internalResult = [];
+							async.eachSeries(resultArray, function(sentence, internalCallback) {
+								internalResult.push(sentence);
+								internalCallback();
+							}, function() {
+								result.dot_product = internalResult;
+								callback();
+							});
+						});
+					});
+				}, function(callback) {
+					nlp_parser.parseToEdgeVertex(report.message_body, function(err, output) {
+						if(err) {
+							var msg = "There was an error attempting to get edges and vertices";
+							logger.error(msg, err);
+							result.edge_vertex = msg;
+							callback();
+						}
+						
+
+						output.toArray(function(err, resultArray) {
+							var internalResult = [];
+							async.eachSeries(resultArray, function(sentence, internalCallback) {
+								internalResult.push(sentence);
+								internalCallback();
+							}, function() {
+								result.edge_vertex = internalResult;
+								callback();
+							});
+						});
+					});
+				}],function() {
+					res.json(result);
+					res.end();
+				});
+			}
+		});
+	});
 };
 
