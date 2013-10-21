@@ -61,7 +61,7 @@ module.exports = function(models, io, logger) {
 		models.rawFeed.find(config, callback);
 	};
 
-	me.findDates = function(start, end, callback) {
+	me.findDates = function(callback) {
 		models.rawFeed.find({},{_id: 0, createdDate:1}, function(err, dates) {
 			var errorMsg = new Error("Could not get feed Dates: " + err);
 			if(err) {
