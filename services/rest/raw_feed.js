@@ -53,6 +53,21 @@ module.exports = function(app, models, io, logger) {
 			}
 		});
 	});
+
+	app.get('/rawfeed/dates', function(req, res){
+		if(logger.DO_LOG){ 
+			logger.info('Request for list of dates');
+		}
+		
+		rawFeedService.findDates(function(dates){
+			if (!dates){
+				responseHandler.send500(res, "Error getting dates of raw feeds");
+			} else {
+				res.jsonp(dates);
+				res.end();
+			}
+		});
+	});
 	
 	// Review
 	app.get('/rawfeed/:id([0-9a-f]+)', function(req, res){

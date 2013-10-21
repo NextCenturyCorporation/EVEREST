@@ -110,18 +110,20 @@ module.exports = function(models, io, logger, createDefault) {
 					stream.activeStream = newStream;
 					stream.activeStream.filters = filters;
 					newStream.on('data', function(data) {
-						me.logger.debug("Saving feed item: " + data.user.screen_name + ": " + data.text);
-						
-						actionEmitter.rawFeedDataRecievedEvent({feedSource: 'Twitter', text:JSON.stringify(data)}, function(err, valid, newfeed){
-							if(err){
-								me.logger.error('Error saving raw feed', err);
-							} else if(!valid.valid) {
-								me.logger.error('Validation error with ' + JSON.stringify(valid.errors));
-							} else {
-								me.logger.debug('Saved raw feed object ' + newfeed._id);
-								me.callParser(newfeed._id);
-							}
-						});
+						if(data && data.user && data.user.screen_name) {
+							me.logger.debug("Saving feed item: " + data.user.screen_name + ": " + data.text);
+
+							actionEmitter.rawFeedDataRecievedEvent({feedSource: 'Twitter', text:JSON.stringify(data)}, function(err, valid, newfeed){
+								if(err){
+									me.logger.error('Error saving raw feed', err);
+								} else if(!valid.valid) {
+									me.logger.error('Validation error with ' + JSON.stringify(valid.errors));
+								} else {
+									me.logger.debug('Saved raw feed object ' + newfeed._id);
+									me.callParser(newfeed._id);
+								}
+							});
+						}
 					});
 					newStream.on('end', function () {
 						me.activeStream = null;
