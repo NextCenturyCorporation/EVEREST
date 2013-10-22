@@ -61,7 +61,8 @@ module.exports = function(models, io, logger){
 	};
 	
 	me.save = function(assertion_object){
-		console.log(assertion_object);
+		logger.info(Object.keys(assertion_object));
+		logger.info(assertion_object);
 		logger.info('Attempting to save assertion_object to titan with id ' + assertion_object._id);
 		var alpha_report_object = {};
 		var titan_assertion_object = {};
