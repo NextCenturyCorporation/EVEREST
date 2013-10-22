@@ -80,7 +80,7 @@ module.exports = function(models, io, logger) {
 					if(err){
 						logger.error('Error saving AlphaReport ', err);
 					} else {
-						actionEmitter.saveAlphaReportEvent({data: newAlphaReport});
+						actionEmitter.saveAlphaReportEvent(newAlphaReport);
 					}
 					saveCallback(err, valid, newAlphaReport);
 

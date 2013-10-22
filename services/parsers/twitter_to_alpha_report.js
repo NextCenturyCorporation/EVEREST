@@ -85,11 +85,11 @@ module.exports = function(models, io, logger) {
 
 					} else if (!valid.valid) {
 						logger.info('Invalid alpha_report ' + JSON.stringify(valid.errors));
-					} else {
+					} /*else {
 						process.nextTick(function() {
 							actionEmitter.saveAlphaReportEvent(res);
 						});
-					}
+					}*/
 				});
 			}
 		});

@@ -1,6 +1,7 @@
 var AlphaReportService = require('../database/alpha_report.js');
 var Nlp_Parser = require('../parsers/nlp_parser_async.js');
 var general = require('../general_response');
+var actionEmitter = require('../action_emitter.js');
 
 var async = require('async');
 
@@ -13,7 +14,7 @@ module.exports = function(app, models, io, logger){
 	me.models = models;
 
 	var alphaReportService = new AlphaReportService(models, io, logger);
-
+	
 	//var services = {assertion: new AssertionService(models, io, logger)};
 	var nlp_parser = new Nlp_Parser(models, io, logger);
 	
@@ -38,6 +39,36 @@ module.exports = function(app, models, io, logger){
 				logger.info({error: "Not found"});
 			}
 		});
+	};	
+
+	// start the parser
+	app.get('/nlp-parser/parse-raw-feeds/?', function(req, res){
+		if(logger.DO_LOG){
+			logger.info('Request for nlp parser start on raw feeds.');
+		}
+		
+		me.parse_raw_feeds(function(err) {
+			res.json({success: true});
+			res.end();
+		});
+	});
+
+	me.parse_raw_feeds = function(callback){
+		models.rawFeed.find({}, function(err, rawFeeds) {
+			async.each(rawFeeds, function(feed, asyncCallback) {
+				models.alphaReport.find({raw_data_id: feed._id}, function(err, alpha) {
+					if(alpha.length === 0) {
+						process.nextTick(function() {
+							console.log("triggering parsing");
+							actionEmitter.rawFeedParseEvent(feed._id);
+						});
+					}
+					asyncCallback();
+				})
+			}, function(err) {
+				callback(err);
+			});
+		})
 	};
 	
 	// post text to get back tuples

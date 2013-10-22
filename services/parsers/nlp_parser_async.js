@@ -13,7 +13,8 @@ module.exports = function(models, io, logger) {
 	var PosTagger = java.import('com.nextcentury.TripletExtraction.CoreNlpPOSTagger');
 	var posTagger = new PosTagger();
 
-	//var ArrayList = java.import('java.util.ArrayList');
+	var ArrayList = java.import('java.util.ArrayList');
+	var Triplet = java.import('com.nextcentury.TripletExtraction.Triplet');
 
 	//var assertion_service = services.assertionService;
 	
@@ -55,13 +56,19 @@ module.exports = function(models, io, logger) {
 		if(alpha_report_object.message_body) {
 			
 			parser.parseText(alpha_report_object.message_body, function(err, results) {
-				var tuples = results;
+				var tuples = results.toArraySync();
+
 				if(err) {
 					logger.error("An error occurred while extracting triplets", err);
 				}
 				if(tuples.length === 0) {
 					logger.error("No triplets were able to be extracted", err);
 				} else {
+					if(!Array.isArray(tuples)) {
+						logger.debug("Converting tuple result to array for handling");
+						tuples = [results];
+					}
+					
 					async.each(tuples, function(tuple, callback) {
 						var assertion_object = {};
 
@@ -71,10 +78,15 @@ module.exports = function(models, io, logger) {
 						if(alpha_report_object.reporter_id) {
 							assertion_object.reporter_id = alpha_report_object.reporter_id.toString();
 						}
+
+
+
 						assertion_object.entity1 = tuple.getEntity1StringSync().toString();
 						assertion_object.relationship = tuple.getRelationStringSync().toString();
 						assertion_object.entity2 = tuple.getEntity2StringSync().toString();
 						
+						console.log("calling the built");
+
 						actionEmitter.assertionBuiltEvent(assertion_object, callback);
 					});
 				}
