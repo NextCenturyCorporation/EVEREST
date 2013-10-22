@@ -60,6 +60,7 @@ module.exports = function(serviceList, io ,logger){
 
 	this.assertionBuiltEventHandler = function() {
 		serviceList.Assertion.create.callWithAllArgs(arguments);
+		serviceList.AssertionToTitan.save.callWithAllArgs(arguments);
 	};
 
 	//More Implemented event handlers below....
