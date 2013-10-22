@@ -54,7 +54,7 @@ module.exports = function(models, io, logger){
 		});
 	};
 	
-	me.saveToTitan = function(assertion_object){
+	me.save = function(assertion_object){
 		var alpha_report_object = {};
 		var ar_id = assertion_object.alpha_report_id;
 		var entity1 = {
@@ -94,6 +94,6 @@ module.exports = function(models, io, logger){
 					});
 				});
 			}
-		};
+		});
 	};
 };
