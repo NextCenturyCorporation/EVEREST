@@ -7,7 +7,7 @@ var request = require('request');
 var titanAddress = 'http://everest-build:8182/graphs/graph';
 var mongoAddress = 'http://everest-build:8081/';
 
-module.exports = function(models, io, logger){
+var a = function(models, io, logger){
 	var me = this;
 	
 	me.buildNode = function(node){
@@ -38,24 +38,33 @@ module.exports = function(models, io, logger){
 	};
 	
 	me.attachToMetadata = function(meta, node, callback){
-		request.post(buildNode(node), function(error, response, body){
-			node._titan_id = JSON.parse(body).results._id;
-			request({
-				uri: buildEdge({
-					source: node._titan_id,
-					target: meta._titan_id,
-					_label: 'metadata of' 
-				}),
-				method: 'POST'
-			}, function(error, response, body){
-				console.log(JSON.parse(body).results);
-				callback();
-			});
+		request.post(me.buildNode(node), function(err, res, body){
+			if (err){
+				logger.info('An error occured while attempting to save node', err);
+			} else {
+				node._titan_id = JSON.parse(body).results._id;
+				request({
+					uri: me.buildEdge({
+						source: node._titan_id,
+						target: meta._titan_id,
+						_label: 'metadata of' 
+					}),
+					method: 'POST'
+				}, function(err, res, body){
+					if (err){
+						logger.info('An error occured while attempting to attach node to metadata', err);
+					} else {
+						callback(body);
+					}
+				});
+			}
 		});
 	};
 	
 	me.save = function(assertion_object){
+		logger.info('Attempting to save assertion_object to titan with id ' + assertion_object._id);
 		var alpha_report_object = {};
+		var titan_assertion_object = {};
 		var ar_id = assertion_object.alpha_report_id;
 		var entity1 = {
 			name: assertion_object.entity1,
@@ -75,24 +84,40 @@ module.exports = function(models, io, logger){
 		};
 		
 		request(mongoAddress + 'alpha-report/' + ar_id, function(err, res, body){
-			alpha_report_object = JSON.parse(body)[0];
-			console.log(alpha_report_object);
-			
-			if ( alpha_report_object._titan_id <= 0 ){
-				request.post(buildNode(alpha_report_object), function(err, res, body){
-					alpha_report_object._titan_id = JSON.parse(body).results._id;
-					console.log(alpha_report_object);
+			if (err) {
+				logger.error("An error occurred while retrieving alpha_report", err);
+			} else {
+				alpha_report_object = JSON.parse(body)[0];
+				console.log(alpha_report_object);
 				
-					attachToMeta(alpha_report_object, entity1, function(){
-						attachToMeta(alpha_report_object, entity2, function(){
-							relationship.source = entity1._titan_id;
-							relationship.target = entity2._titan_id;
-							request.post(buildEdge(relationship), function(err, res, body){
-								console.log(JSON.parse(body).results);
+				if ( !alpha_report_object._titan_id ){
+					request.post(me.buildNode(alpha_report_object), function(err, res, body){
+						if (err){
+							logger.info('An error occured while attempting to save the metadata node');
+						} else {
+							titan_assertion_object.metadata = JSON.parse(body).results;
+							alpha_report_object._titan_id = titan_assertion_object.metadata._id;
+							console.log(alpha_report_object);
+						
+							me.attachToMetadata(alpha_report_object, entity1, function(body){
+							titan_assertion_object.entity1 = JSON.parse(body).results;
+								me.attachToMetadata(alpha_report_object, entity2, function(body){
+									titan_assertion_object.entity2 = JSON.parse(body).results;
+									relationship.source = entity1._titan_id;
+									relationship.target = entity2._titan_id;
+									request.post(me.buildEdge(relationship), function(err, res, body){
+										if (err){
+											logger.info('An error occured while attempting to save assertion_object', err);
+										} else {
+											titan_assertion_object.relationship = JSON.parse(body).results;
+											console.log(titan_assertion_object);
+										}
+									});
+								});
 							});
-						});
+						}
 					});
-				});
+				}
 			}
 		});
 	};
