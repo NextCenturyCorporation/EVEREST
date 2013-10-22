@@ -47,28 +47,35 @@ module.exports = function(app, models, io, logger){
 			logger.info('Request for nlp parser start on raw feeds.');
 		}
 		
-		me.parse_raw_feeds(function(err) {
-			res.json({success: true});
-			res.end();
-		});
+		me.parse_raw_feeds(0);
+
+		res.json({success: true});
+		res.end();
 	});
 
-	me.parse_raw_feeds = function(callback){
-		models.rawFeed.find({}, function(err, rawFeeds) {
+	me.parse_raw_feeds = function(offset){
+		models.rawFeed.find({}).sort({_id: 1}).skip(offset).limit(1000).execFind(function(err, rawFeeds) {
+
 			async.each(rawFeeds, function(feed, asyncCallback) {
 				models.alphaReport.find({raw_data_id: feed._id}, function(err, alpha) {
 					if(alpha.length === 0) {
 						process.nextTick(function() {
-							console.log("triggering parsing");
 							actionEmitter.rawFeedParseEvent(feed._id);
 						});
 					}
 					asyncCallback();
 				})
-			}, function(err) {
-				callback(err);
 			});
-		})
+		});
+
+		models.rawFeed.count({}, function(err, count) {
+			console.log(offset+1000);
+			console.log(count);
+			if((offset + 1000) < count) {
+				logger.debug("Calling next thousand at offset " + (offset+1000));
+				me.parse_raw_feeds(offset + 1000);
+			}
+		});
 	};
 	
 	// post text to get back tuples
@@ -264,7 +271,6 @@ module.exports = function(app, models, io, logger){
 				if(err) {
 					var msg = "There was an error attempting to tag the sentence";
 					logger.error(msg, err);
-					console.log(err);
 					result.pos = msg;
 					callback();
 				} else {

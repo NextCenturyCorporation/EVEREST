@@ -31,11 +31,11 @@ module.exports = function(services, logger) {
 			if (value !== undefined) {
 				if (!found) {
 					me.error(property, value, errors, "Alpha Report does not exist.");
-					logger.info("alphaReportExists " + value + " does not exist.");
+					logger.debug("alphaReportExists " + value + " does not exist.");
 				}
 			} else {
 				me.error(property, value, errors, "alphaReportExists  undefined property value.");
-				logger.info("alphaReportExists " + property + ":" + value + " does not exist.");
+				logger.debug("alphaReportExists " + property + ":" + value + " does not exist.");
 			}
 			
 			value = object.reporter_id;
@@ -44,7 +44,7 @@ module.exports = function(services, logger) {
 				if (value !== undefined) {
 					if (!found) {
 						me.error(property, value, errors, "Reporter does not exist.");
-						logger.info("reporterExists " + value + " does not exist.");
+						logger.debug("reporterExists " + value + " does not exist.");
 					}
 				}
 				
@@ -52,7 +52,7 @@ module.exports = function(services, logger) {
 					var property = 'record';
 					if (found) {
 						me.error(property, object, errors, "assertion already exists.");
-						logger.info("assertionExists " + JSON.stringify(object));
+						logger.debug("assertionExists " + JSON.stringify(object));
 					}
 					
 					done();
@@ -72,13 +72,13 @@ module.exports = function(services, logger) {
 			services.alphaReportService.findWhere({'_id': value}, function(err, docs) {
 				if (err) {
 					me.error('_id', value, errors, 'Error reading alpha_report ' + err);
-					logger.info({ error : "Error readAlphaReportByPropery " + err });
+					logger.error({ error : "Error readAlphaReportByPropery " + err });
 					callback(err, false);
 				} else if (0 !== docs.length) {
-					logger.info("alpha_report found for alphaReportExists" + JSON.stringify(docs));
+					logger.debug("alpha_report found for alphaReportExists" + JSON.stringify(docs));
 					callback(err, true);
 				} else {
-					logger.info("alpha_report not found " + value);
+					logger.debug("alpha_report not found " + value);
 					callback(err, false);
 				}
 			});
@@ -98,13 +98,13 @@ module.exports = function(services, logger) {
 			services.reporterService.readReporterByProperty('_id', value, function(err, docs) {
 				if (err) {
 					me.error('_id', value, errors, 'Error reading reporter ' + err);
-					logger.info({ error : "Error readReporterByPropery " + err });
+					logger.error({ error : "Error readReporterByPropery " + err });
 					callback(err, false);
 				} else if (0 !== docs.length) {
-					logger.info("reporter found for reporterExists" + JSON.stringify(docs));
+					logger.debug("reporter found for reporterExists" + JSON.stringify(docs));
 					callback(err, true);
 				} else {
-					logger.info("reporter not found " + value);
+					logger.debug("reporter not found " + value);
 					callback(err, false);
 				}
 			});
@@ -121,13 +121,13 @@ module.exports = function(services, logger) {
 			services.assertionService.readAssertionByObject(object, function(err, locs){
 				if (err) {
 					me.error('record', object, errors, 'Error reading assertion ' + err);
-					logger.info({ error : "Error readAssertionByObject " + err });
+					logger.error({ error : "Error readAssertionByObject " + err });
 					callback(err, false);
 				} else if (0 !== locs.length) {
-					logger.info("assertion found for assertionExists" + JSON.stringify(locs));
+					logger.debug("assertion found for assertionExists" + JSON.stringify(locs));
 					callback(err, true);
 				} else {
-					logger.info("assertion not found " + JSON.stringify(object));
+					logger.debug("assertion not found " + JSON.stringify(object));
 					callback(err, false);
 				}
 			});

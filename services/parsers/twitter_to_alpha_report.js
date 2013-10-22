@@ -21,6 +21,9 @@ module.exports = function(models, io, logger) {
 		alpha_report_object.source_name = raw_feed_object.feedSource;
 
 		var object_text = raw_feed_object.text;
+
+		//logger.error("\n\n\n" + object_text + "\n\n\n");
+
 		var parsed_text = JSON.parse(object_text);
 
 		alpha_report_object.source_id = parsed_text.id_str;
