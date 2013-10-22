@@ -76,18 +76,6 @@ module.exports = function(models, io, logger) {
 						assertion_object.entity2 = tuple.getEntity2StringSync().toString();
 						
 						actionEmitter.assertionBuiltEvent(assertion_object, callback);
-
-						/*var assertion_object;
-						if(alpha_report_object._id) {
-								assertion_object.alpha_report_id = alpha_report_object._id.toString();
-						}
-						if(alpha_report_object.reporter_id) {
-							assertion_object.reporter_id = alpha_report_object.reporter_id.toString();
-						}
-						assertion_object.entity1 = tuple.getEntity1StringSync().toString();
-						assertion_object.relationship = tuple.getRelationStringSync().toString();
-						assertion_object.entity2 = tuple.getEntity2StringSync().toString();
-						assertion_service.saveAssertion(assertion_object, callback);*/
 					});
 				}
 			});

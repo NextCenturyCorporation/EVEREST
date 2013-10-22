@@ -58,5 +58,9 @@ module.exports = function(serviceList, io ,logger){
 		serviceList.AlphaReport.validateAlphaReport.callWithAllArgs(arguments);
 	};
 
+	this.assertionBuiltEventHandler = function() {
+		serviceList.Assertion.create.callWithAllArgs(arguments);
+	};
+
 	//More Implemented event handlers below....
 };
