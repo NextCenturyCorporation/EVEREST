@@ -1,13 +1,12 @@
 /**
 	This will run only if the titan server is already running.
-	Comparisons would have to go onto mongo.
 */
 
 var request = require('request');
 var titanAddress = 'http://everest-build:8182/graphs/graph';
 var mongoAddress = 'http://everest-build:8081/';
 
-var a = function(models, io, logger){
+module.exports = function(models, io, logger){
 	var me = this;
 	
 	me.buildNode = function(node){
