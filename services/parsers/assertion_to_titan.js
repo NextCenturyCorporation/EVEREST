@@ -9,7 +9,7 @@ var mongoAddress = 'http://everest-build:8081/';
 module.exports = function(models, io, logger){
 	var me = this;
 	
-	me.buildNode = function(node){
+	me.buildNode = function(node, meta){
 		var query = titanAddress + '/vertices?';
 	
 		var keys = Object.keys(node);
@@ -22,6 +22,7 @@ module.exports = function(models, io, logger){
 			
 			query += '&';
 		});
+
 		return query;
 	};
 	
@@ -61,27 +62,25 @@ module.exports = function(models, io, logger){
 	};
 	
 	me.save = function(assertion_object){
-		logger.info(Object.keys(assertion_object));
-		logger.info(assertion_object);
 		logger.info('Attempting to save assertion_object to titan with id ' + assertion_object._id);
 		var alpha_report_object = {};
 		var titan_assertion_object = {};
 		var ar_id = assertion_object.alpha_report_id;
 		var entity1 = {
 			name: assertion_object.entity1,
-			type: 'entity1',
-			mongo_assert_id: assertion_object._id
+			type: 'entity1'
+			//mongo_assert_id: assertion_object._id
 		};
 		
 		var entity2 = {
 			name: assertion_object.entity2,
-			type: 'entity2',
-			mongo_assert_id: assertion_object._id
+			type: 'entity2'
+			//mongo_assert_id: assertion_object._id
 		};
 		
 		var relationship = {
-			_label: assertion_object.relationship,
-			mongo_assert_id: assertion_object._id
+			_label: assertion_object.relationship
+			//mongo_assert_id: assertion_object._id
 		};
 		
 		request(mongoAddress + 'alpha-report/' + ar_id, function(err, res, body){
@@ -89,17 +88,16 @@ module.exports = function(models, io, logger){
 				logger.error("An error occurred while retrieving alpha_report", err);
 			} else {
 				alpha_report_object = JSON.parse(body)[0];
-				console.log(alpha_report_object);
-				
 				
 				if ( alpha_report_object ){
+					alpha_report_object.name = 'alpha report';
+					alpha_report_object.type = 'metadata';
 					request.post(me.buildNode(alpha_report_object), function(err, res, body){
 						if (err){
 							logger.info('An error occured while attempting to save the metadata node');
 						} else {
 							titan_assertion_object.metadata = JSON.parse(body).results;
 							alpha_report_object._titan_id = titan_assertion_object.metadata._id;
-							console.log(alpha_report_object);
 						
 							me.attachToMetadata(alpha_report_object, entity1, function(body){
 							titan_assertion_object.entity1 = JSON.parse(body).results;
