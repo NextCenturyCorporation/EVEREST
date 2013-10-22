@@ -61,6 +61,7 @@ module.exports = function(models, io, logger){
 	};
 	
 	me.save = function(assertion_object){
+		console.log(assertion_object);
 		logger.info('Attempting to save assertion_object to titan with id ' + assertion_object._id);
 		var alpha_report_object = {};
 		var titan_assertion_object = {};
@@ -89,7 +90,8 @@ module.exports = function(models, io, logger){
 				alpha_report_object = JSON.parse(body)[0];
 				console.log(alpha_report_object);
 				
-				if ( !alpha_report_object._titan_id ){
+				
+				if ( alpha_report_object ){
 					request.post(me.buildNode(alpha_report_object), function(err, res, body){
 						if (err){
 							logger.info('An error occured while attempting to save the metadata node');
