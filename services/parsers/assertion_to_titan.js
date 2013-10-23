@@ -96,25 +96,29 @@ module.exports = function(models, io, logger){
 						if (err){
 							logger.info('An error occured while attempting to save the metadata node');
 						} else {
+							console.log(body);
 							titan_assertion_object.metadata = JSON.parse(body).results;
-							alpha_report_object._titan_id = titan_assertion_object.metadata._id;
-						
-							me.attachToMetadata(alpha_report_object, entity1, function(body){
-							titan_assertion_object.entity1 = JSON.parse(body).results;
-								me.attachToMetadata(alpha_report_object, entity2, function(body){
-									titan_assertion_object.entity2 = JSON.parse(body).results;
-									relationship.source = entity1._titan_id;
-									relationship.target = entity2._titan_id;
-									request.post(me.buildEdge(relationship), function(err, res, body){
-										if (err){
-											logger.info('An error occured while attempting to save assertion_object', err);
-										} else {
-											titan_assertion_object.relationship = JSON.parse(body).results;
-											console.log(titan_assertion_object);
-										}
+							if(JSON.parse(body).results !== undefined){
+								titan_assertion_object.metadata = JSON.parse(body).results;
+								alpha_report_object._titan_id = titan_assertion_object.metadata._id;
+							
+								me.attachToMetadata(alpha_report_object, entity1, function(body){
+								titan_assertion_object.entity1 = JSON.parse(body).results;
+									me.attachToMetadata(alpha_report_object, entity2, function(body){
+										titan_assertion_object.entity2 = JSON.parse(body).results;
+										relationship.source = entity1._titan_id;
+										relationship.target = entity2._titan_id;
+										request.post(me.buildEdge(relationship), function(err, res, body){
+											if (err){
+												logger.info('An error occured while attempting to save assertion_object', err);
+											} else {
+												titan_assertion_object.relationship = JSON.parse(body).results;
+												console.log(titan_assertion_object);
+											}
+										});
 									});
 								});
-							});
+							}
 						}
 					});
 				}
