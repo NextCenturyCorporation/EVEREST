@@ -67,3 +67,9 @@ exports.targetEventValidation = targetEventModel.targetEventValidation;
 
 var twitterKeyModel = require('./twitter_key/model.js');
 exports.twitterKey = twitterKeyModel.twitterKey;
+
+var patientModel = require('./patient/model.js');
+exports.patient = patientModel.patient;
+
+var reminderModel = require('./reminder/model.js');
+exports.reminder = reminderModel.reminder;
