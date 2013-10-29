@@ -17,7 +17,7 @@ var location = module.exports = function(app, models, io, logger) {
 	});
 	
 	//list - lists name and id
-	app.get('/location/names/', function(req,res){
+	app.get('/location/names/?', function(req,res){
 		if(logger.DO_LOG){
 			logger.info("Request for location name list");
 		}
@@ -46,15 +46,6 @@ var location = module.exports = function(app, models, io, logger) {
 		}
 		locationService.getLocationByName(req.params.name, res);
 	});
-
-	// search
-	//FIXME express does not support a search request.
-	/*app.search('/location/?', function(req,res){
-		if (logger.DO_LOG){
-			logger.info("Search for location "+JSON.stringify(req.body));
-		}
-		locationService.searchLocation(req.body, res);
-	});*/
 	
 	//Update
 	app.post('/location/:id([0-9a-f]+)', function(req,res){
