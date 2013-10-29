@@ -27,7 +27,7 @@ module.exports = function(app, models, io, logger) {
 	});
 	
 	//list - lists name and id
-	app.get('/target-assertion/names/', function(req,res){
+	app.get('/target-assertion/names/?', function(req,res){
 		if(logger.DO_LOG){
 			logger.info("Request for target-assertion name list");
 		}
@@ -84,7 +84,7 @@ module.exports = function(app, models, io, logger) {
 		if(logger.DO_LOG){
 			logger.info("Request for targetAssertionByName "+req.params.name);
 		}
-		targetAssertionService.getTargetAssertionByName(req.params.name, function(err, docs){
+		targetAssertionService.findWhere({name: req.params.name}, function(err, docs){
 			if(err) {
 				logger.info("Error getting targetAssertionByName "+err);
 				responseHandler.send500(res, "Error getting targetAssertionByName "+err);
