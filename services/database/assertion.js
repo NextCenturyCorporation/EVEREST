@@ -5,6 +5,7 @@ var AlphaReportService = require('./alpha_report.js');
 var ReporterService = require('./reporter.js');
 var actionEmitter = require('../action_emitter.js');
 var paramHandler = require('../list_default_handler.js');
+var async = require('async');
 
 module.exports = function(models, io, logger) {
 	var me = this;
@@ -54,6 +55,28 @@ module.exports = function(models, io, logger) {
 		
 		callback(indexes);
 	};
+
+	me.findDates = function(callback) {
+		models.assertion.find({},{_id: 0, createdDate:1}, function(err, dates) {
+			var errorMsg = new Error("Could not get feed Dates: " + err);
+			if(err) {
+				callback(errorMsg);
+			} else {
+				async.map(dates, me.flattenArray, function(err,results) {
+					if(err) {
+						callback(errorMsg);
+					} else {
+						callback(results);
+					}
+				});
+			}
+		});
+	};
+
+	me.flattenArray = function (string, callback) {
+		callback(null, Date.parse(string.createdDate));
+	};
+
 	
 	me.getTotalCount = function(config, callback){
 		models.assertion.count(config, callback);

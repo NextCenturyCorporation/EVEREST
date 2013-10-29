@@ -48,6 +48,21 @@ module.exports = function(app, models, io, logger) {
 			});
 		}
 	});
+
+	app.get('/assertion/dates', function(req, res){
+		if(logger.DO_LOG){ 
+			logger.info('Request for list of dates');
+		}
+		
+		assertionService.findDates(function(dates){
+			if (!dates){
+				responseHandler.send500(res, "Error getting dates of raw feeds");
+			} else {
+				res.jsonp(dates);
+				res.end();
+			}
+		});
+	});
 	
 	//Create
 	app.post('/assertion/?', function(req,res){
