@@ -50,6 +50,21 @@ module.exports = function(app, models, io, logger) {
 			});
 		}
 	});
+
+	app.get('/alpha-report/dates', function(req, res){
+		if(logger.DO_LOG){ 
+			logger.info('Request for list of dates');
+		}
+		
+		alphaReportService.findDates(function(dates){
+			if (!dates){
+				responseHandler.send500(res, "Error getting dates of raw feeds");
+			} else {
+				res.jsonp(dates);
+				res.end();
+			}
+		});
+	});
 	
 	//list all alpha reports, only showing source_id and id
 	app.get('/alpha-report/source_ids/?', function(req,res){
