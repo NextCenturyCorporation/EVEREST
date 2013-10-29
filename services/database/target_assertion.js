@@ -55,6 +55,7 @@ module.exports = function(models, io, logger) {
 						logger.info("Error getting target_assertion "+err);
 						callback(err, valid, data);
 					} else if(docs) {
+						docs = docs[0]//FindWhere will always return an array of size one.
 						for(var e in data){
 							//Make sure not to change _id
 							if(e !== '_id'){
