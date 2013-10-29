@@ -102,6 +102,8 @@ ConfirmedReport.prototype.flattenConfirmedReport = function(report, callback) {
 						fieldCallback();
 					}
 				});
+			} else {
+				callback();
 			}
 		}
 	},function(err) {
