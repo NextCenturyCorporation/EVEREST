@@ -113,11 +113,12 @@ module.exports = function(models, io, logger) {
 	me.update = function(id, data, callback) {
 		validateRawFeed(data, function(valid){
 			if (valid.valid) {
-				models.rawFeed.findWhere({_id: id}, function(err, docs){
+				me.get(id, function(err, docs){
 					if (err) {
 						logger.info("Error getting raw_feed "+err);
 						callback(err, valid, data);
 					} else if (docs) {
+						docs = docs[0];//Since me.get will always return an array of size 1;
 						for (var e in data) {
 							//Make sure not to change _id
 							if (e !== '_id') {
