@@ -125,7 +125,7 @@ module.exports = function(app, models, io, logger){
 			var array = output.toArray();
 
 			var result = [];
-			async.each(graphArray, function(graph, callback) {
+			async.each(array, function(graph, callback) {
 				result.push(graph.pennStringSync());
 				callback();
 			}, function() {
