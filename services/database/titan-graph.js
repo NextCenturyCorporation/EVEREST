@@ -136,10 +136,7 @@ module.exports = function(models, io, logger) {
 		var ar_id = gremlin.v(ar).toJSON()[0]._id;
 		var comparedTo = [];
 		
-		//gremlin-node has an issue that assesses all values that end with an f as a float
-		for (var i = 0; i < 100; i++){
-			var d = alphas[i];
-		//alphas.forEach(function(d){
+		alphas.forEach(function(d){
 			var score = 0.0;		
 			
 			var ar_nodes = gremlin.v(ar).inE().outV().toJSON();
@@ -187,9 +184,8 @@ module.exports = function(models, io, logger) {
 				score: 100 * score / 8
 			});
 			
-	  	  	//graphDB.commitSync();
-	  	 }	
-		//});
+	  	  	//graphDB.commitSync();	
+		});
 		return comparedTo.sort(function(a,b){ return b.score - a.score });
 	};
 };
