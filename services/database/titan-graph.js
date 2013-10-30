@@ -7,6 +7,15 @@ var TitanFactory = gremlin.java.import('com.thinkaurelius.titan.core.TitanFactor
 var graphDB = TitanFactory.openSync('/home/user/Documents/titan/databases/assertions-2000');
 gremlin.SetGraph(graphDB);
 
+var indexOfId = function(array, id){
+	for (var i = 0; i < array.length; i++ ){
+		if (id === JSON.parse(array[i]).item_id){
+			return i;
+		}
+	}
+	return -1;
+}
+
 module.exports = function(models, io, logger) {
 	var me = this;
 	var alphaReportService = new AlphaReportService(models, io, logger);
@@ -34,7 +43,7 @@ module.exports = function(models, io, logger) {
 	};
 
 	me.compare = function(id, callback){
-		callback(null, me.compareToAlphaReports(id));
+		callback(null, me.compareToAll(id));
 	};
 	
 	me.addVertex = function(object, id_replace){
@@ -88,6 +97,8 @@ module.exports = function(models, io, logger) {
 			relationship._titan_id = gremlin.e(rel).toJSON()[0]._id;
 		    graphDB.commitSync();
 		    
+		    me.compareToAll(ar._titan_id);
+		    
 			callback(null, { 
 				metadata: ar, 
 				entity1: entity1, 
@@ -131,61 +142,93 @@ module.exports = function(models, io, logger) {
 		return assertions;
 	};
 	
-	me.compareToAlphaReports = function(ar){
+	me.compareToAll = function(ar_id){
 		var alphas = gremlin.V().has('name', 'alpha report').toJSON();
-		var ar_id = gremlin.v(ar).toJSON()[0]._id;
-		var comparedTo = [];
+		var a_json = gremlin.v(ar_id).toJSON()[0];
 		
+		//gremlin.v(ar_id).iterator().nextSync().setPropertySync('comparedTo', []);
+		//graphDB.commitSync();
+		var comparedTo = a_json.comparedTo;
 		alphas.forEach(function(d){
-			var score = 0.0;		
-			
-			var ar_nodes = gremlin.v(ar).inE().outV().toJSON();
-			var d_nodes = gremlin.v(d._id).inE().outV().toJSON();
-			
-			var ar_edges = gremlin.v(ar).inE().outV().inE().toJSON();
-			var d_edges = gremlin.v(d._id).inE().outV().inE().toJSON();
-			
-			var ar_asserts = gremlin.v(ar).inE().outV().inE().outV().path().toJSON();
-			var d_asserts = gremlin.v(d._id).inE().outV().inE().outV().path().toJSON();
-			
-			if (ar_nodes.length === d_nodes.length){
-				score = score + 1.0;
-			}
-			
-			if (ar_edges.length === d_edges.length){
-				score = score + 1.0;
-			}
-			
-			var ar_v_matches = me.getMatchingVertices(ar_id, d_nodes);
-			score += ar_v_matches.length / d_nodes.length;
 
-			var d_v_matches = me.getMatchingVertices(d._id, ar_nodes);
-			score += d_v_matches.length / ar_nodes.length;
-			
-			var ar_e_matches = me.getMatchingEdges(ar_id, d_edges);
-			score += ar_e_matches.length / d_edges.length;
-			
-			var d_e_matches = me.getMatchingEdges(d._id, ar_edges);
-			score += d_e_matches.length / ar_edges.length;
-			
-			var ar_matches = me.getMatchingOrientation(ar_id, d_asserts);
-			score += ar_matches.length / d_asserts.length;
-			
-			var d_matches = me.getMatchingOrientation(d._id, ar_asserts);
-			score += d_matches.length / ar_asserts.length;
-			
-			/*ar.setPropertySync('comparedTo', [JSON.stringify({
-				item_id: d._id,
-				score: score
-			})]);*/
-			
-			comparedTo.push({
-				item_id: d._id,
-				score: 100 * score / 8
-			});
-			
-	  	  	//graphDB.commitSync();	
+			var score = 0.0;
+			var d_json = gremlin.v(d._id).toJSON()[0];
+			//gremlin.v(d._id).iterator().nextSync().setPropertySync('comparedTo', []);
+			//graphDB.commitSync();
+			var d_comparedTo = d_json.comparedTo;
+			if (indexOfId(comparedTo, d._id) === -1){
+				var ar_nodes = gremlin.v(ar_id).inE().outV().toJSON();
+				var d_nodes = gremlin.v(d._id).inE().outV().toJSON();
+				
+				var ar_edges = gremlin.v(ar_id).inE().outV().inE().toJSON();
+				var d_edges = gremlin.v(d._id).inE().outV().inE().toJSON();
+				
+				var ar_asserts = gremlin.v(ar_id).inE().outV().inE().outV().path().toJSON();
+				var d_asserts = gremlin.v(d._id).inE().outV().inE().outV().path().toJSON();
+				
+				if (ar_nodes.length === d_nodes.length){
+					score = score + 1.0;
+				}
+				
+				if (ar_edges.length === d_edges.length){
+					score = score + 1.0;
+				}
+				
+				if (d_nodes.length !== 0 && ar_nodes.length !== 0){
+					var ar_v_matches = me.getMatchingVertices(ar_id, d_nodes);
+					score += ar_v_matches.length / d_nodes.length;
+	
+					var d_v_matches = me.getMatchingVertices(d._id, ar_nodes);
+					score += d_v_matches.length / ar_nodes.length;
+				}
+				
+				if (d_edges.length !== 0 && ar_edges.length !== 0){
+					var ar_e_matches = me.getMatchingEdges(ar_id, d_edges);
+					score += ar_e_matches.length / d_edges.length;
+					
+					var d_e_matches = me.getMatchingEdges(d._id, ar_edges);
+					score += d_e_matches.length / ar_edges.length;
+				}
+				
+				if (d_asserts.length !== 0 && ar_asserts.length !== 0){
+					var ar_matches = me.getMatchingOrientation(ar_id, d_asserts);
+					score += ar_matches.length / d_asserts.length;
+					
+					var d_matches = me.getMatchingOrientation(d._id, ar_asserts);
+					score += d_matches.length / ar_asserts.length;
+				}
+				
+				comparedTo.push(JSON.stringify({
+					item_id: d._id,
+					score: 100 * score / 8
+				}));
+				
+				d_comparedTo.push(JSON.stringify({
+					item_id: ar_id,
+					score: 100 * score / 8
+				}));
+								
+				gremlin.v(d._id).iterator().nextSync().setPropertySync('comparedTo', d_comparedTo);
+		  	  	graphDB.commitSync();	
+	  	  	}
 		});
-		return comparedTo.sort(function(a,b){ return b.score - a.score });
+		var parsed = [];
+		comparedTo.sort(function(a,b){
+			var ja = JSON.parse(a);
+			var jb = JSON.parse(b);
+			if (jb.score === ja.score){
+				return ja.item_id - jb.item_id;
+			} else {
+				return jb.score - ja.score;
+			}
+		});
+		
+		gremlin.v(ar_id).iterator().nextSync().setPropertySync('comparedTo', comparedTo);
+		graphDB.commitSync();
+		
+		comparedTo.forEach(function(d){
+			parsed.push(JSON.parse(d));
+		});
+		return parsed;
 	};
 };
