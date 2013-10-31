@@ -118,21 +118,16 @@ module.exports = function(app, models, io, logger){
 				logger.error(msg, err);
 				return general.send500(res, msg);
 			}
-			res.json(result);
-			res.end();
-
-			//TODO: array is never used, what were we trying to do here?
-			var array = output.toArray();
-
-			var result = [];
-			async.each(array, function(graph, callback) {
-				result.push(graph.pennStringSync());
-				callback();
-			}, function() {
-				res.json(result);
-				res.end();
-			});
-		});
+			var array = output.toArraySync();
+		 	var result = [];
+		 	async.each(array, function(str, callback) {
+		 		result.push(str);
+		 		callback();
+		 	}, function() {
+		 		res.json(result);
+		 		res.end();
+		 	});
+		 });
 	});
 
 	//annotation graph
