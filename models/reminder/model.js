@@ -10,6 +10,7 @@ var reminderModel = {
     createdDate: Date,
     updatedDate: Date,
     title: String,
+    moreInfo: String,
     performedBy: String,
     exceptions: [String],
     moreInfo: String,
