@@ -16,9 +16,4 @@ module.exports = function(models, io, logger) {
             callback(err, { valid: true }, newReminder);
         });
     };
-
-    //return a collection of reminders that match the list of given reminder ids
-    me.matchIds = function(ids, callback) {
-        models.reminder.where('_id').in(ids).exec(callback);
-    };
 };

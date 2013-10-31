@@ -54,13 +54,4 @@ module.exports = function(models, io, logger) {
             }
         });
     };
-
-    me.reminders = function(id, callback) {
-        reminderService.matchIds(['526844f990cea5193100000d', '5268450890cea51931000010'], function(err, reminders) {
-            if(err) {
-                logger.error('database.patient.reminders: Error retrieving patient reminders ' + err);
-            }
-            callback(err, reminders);
-        });
-    };
 };
