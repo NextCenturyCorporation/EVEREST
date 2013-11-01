@@ -5,7 +5,7 @@ var paramHandler = require('../list_default_handler.js');
 var gremlin = require('gremlin');
 var async = require('async');
 var TitanFactory = gremlin.java.import('com.thinkaurelius.titan.core.TitanFactory');
-var graphDB = TitanFactory.openSync('/home/user/Documents/titan/databases/assertions-2000-pure');
+var graphDB = TitanFactory.openSync('/titan/databases/assertions-200b');
 gremlin.SetGraph(graphDB);
 
 var indexOfId = function(array, id){
