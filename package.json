@@ -17,8 +17,7 @@
         "java":">=0.2.2",
         "async":">=0.2.9",
         "feedparser": ">=0.16.1",
-        "request": ">=2.27",
-        "gremlin": ">= 0.0.1"
+        "request": ">=2.27"
     },
     "scripts": {
     	"test": "./node_modules/.bin/mocha"
