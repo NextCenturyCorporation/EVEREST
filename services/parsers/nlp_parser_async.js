@@ -5,7 +5,7 @@ var actionEmitter = require('../action_emitter.js');
 module.exports = function(models, io, logger) {
 	var me = this;
 
-	java.classpath.push('./java_lib/Triplet_Extraction.jar');
+	//java.classpath.push('./java_lib/Triplet_Extraction.jar');
 	
 	var Parser = java.import('com.nextcentury.TripletExtraction.CoreNlpParser');
 	var parser = new Parser();

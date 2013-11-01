@@ -59,8 +59,16 @@ module.exports = function(serviceList, io ,logger){
 	};
 
 	this.assertionBuiltEventHandler = function() {
-		serviceList.Assertion.create.callWithAllArgs(arguments);
-		serviceList.AssertionToTitan.save.callWithAllArgs(arguments);
+		var args = Array.prototype.slice.call(arguments[0], 0);
+		var obj = args[0];
+		if(obj.data) {
+			obj = obj.data;
+		}
+		serviceList.Assertion.create(obj, function(err, valid, newAssertion){
+			if (!err){
+				serviceList.TitanGraph.create(newAssertion);
+			}
+		});
 	};
 
 	//More Implemented event handlers below....

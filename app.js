@@ -103,6 +103,15 @@ server.listen(config.port, function(){
   logger.debug("Express server listening on port " + server.address().port + " in " + app.settings.env + " mode");
 });
 
+var fs = require('fs');
+var java = require('java');
+var jar = fs.readdirSync(__dirname + '/java_lib');
+
+for ( var i=0,l=jar.length; i<l; i++ ){
+	if ( jar[i].indexOf('jar') !== -1 ){
+    	java.classpath.push(__dirname + '/java_lib/' + jar[i]);
+    }
+}
 
 //Event routes
 logger.debug('Loading events');

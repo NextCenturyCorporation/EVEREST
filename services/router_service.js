@@ -49,6 +49,9 @@ module.exports = function(app, io, logger){
 
 	var TargetEvent = require('./rest/target_event.js');
 	new TargetEvent(app, models, io, logger);
+	
+	var TitanGraph = require('./rest/titan_graph.js');
+	new TitanGraph(app, models, io, logger);
 
 	var TwitterIngest = require('./rest/twitter_ingest.js');
 	new TwitterIngest(app, models, io, logger);
