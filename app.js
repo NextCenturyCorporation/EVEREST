@@ -107,8 +107,7 @@ var fs = require('fs');
 var java = require('java');
 java.classpath.push(__dirname + '/java_lib/Triplet_Extraction.jar');
 
-fs.renameSync(__dirname + '/titan/GremlinJSPipeline-0.1.14.jar', __dirname + '/java_lib/GremlinJSPipeline-0.1.14.jar');
-//fs.renameSync(__dirname + '/node_modules/gremlin/lib/GremlinJSPipeline-0.1.14.jar', __dirname + '/java_lib/GremlinJSPipeline-0.1.14.jar');
+fs.renameSync(__dirname + '/node_modules/gremlin/lib/GremlinJSPipeline-0.1.14.jar', __dirname + '/java_lib/GremlinJSPipeline-0.1.14.jar');
 java.classpath.push(__dirname + '/java_lib/GremlinJSPipeline-0.1.14.jar');
 
 var jar = fs.readdirSync(__dirname + '/node_modules/gremlin/lib/dependencies');
