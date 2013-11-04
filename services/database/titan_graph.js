@@ -5,7 +5,7 @@ var paramHandler = require('../list_default_handler.js');
 var gremlin = require('gremlin');
 var async = require('async');
 var TitanFactory = gremlin.java.import('com.thinkaurelius.titan.core.TitanFactory');
-var graphDB = TitanFactory.openSync('./titan/assertions');	//from same dir as app.js?
+var graphDB = TitanFactory.openSync('titan/assertions');	//from same dir as app.js?
 gremlin.SetGraph(graphDB);
 
 var indexOfId = function(array, id){
@@ -64,7 +64,6 @@ module.exports = function(models, io, logger) {
 	};
 	
 	me.create = function(assertion_object, callback){
-		console.log(assertion_object);
 		var entity1 = {
 			name: assertion_object.entity1,
 			type: 'entity1',
@@ -83,31 +82,35 @@ module.exports = function(models, io, logger) {
 		};
 		
 		alphaReportService.get(assertion_object.alpha_report_id, function(err, docs){
-			var ar = JSON.parse(JSON.stringify(docs[0]));
-			ar.name = 'alpha report';
-			ar.type = 'metadata';
-			ar.comparedTo = [];
-			
-			var meta = me.addVertex(ar, 'mongo_ar_id');
-			
-			var v1 = me.addVertex(entity1, 'mongo_assert_id');
-			graphDB.addEdgeSync(null, v1, meta, 'metadata of');
+			if ( err ){
+				callback("Alpha Report ID does not exist", {});
+			} else {
+				var ar = JSON.parse(JSON.stringify(docs[0]));
+				ar.name = 'alpha report';
+				ar.type = 'metadata';
+				ar.comparedTo = [];
 				
-			var v2 = me.addVertex(entity2, 'mongo_assert_id');
-			graphDB.addEdgeSync(null, v2, meta, 'metadata of');
-			
-			var rel = graphDB.addEdgeSync(null, v1, v2, assertion_object.relationship);
-			relationship._titan_id = gremlin.e(rel).toJSON()[0]._id;
-		    graphDB.commitSync();
-		    
-		    me.compare(ar._titan_id);
-			
-			callback(null, { 
-				metadata: ar, 
-				entity1: entity1, 
-				entity2: entity2,
-				relationship: relationship
-			});
+				var meta = me.addVertex(ar, 'mongo_ar_id');
+				
+				var v1 = me.addVertex(entity1, 'mongo_assert_id');
+				graphDB.addEdgeSync(null, v1, meta, 'metadata of');
+					
+				var v2 = me.addVertex(entity2, 'mongo_assert_id');
+				graphDB.addEdgeSync(null, v2, meta, 'metadata of');
+				
+				var rel = graphDB.addEdgeSync(null, v1, v2, assertion_object.relationship);
+				relationship._titan_id = gremlin.e(rel).toJSON()[0]._id;
+			    graphDB.commitSync();
+			    
+			    me.compare(ar._titan_id);
+				
+				callback(null, { 
+					metadata: ar, 
+					entity1: entity1, 
+					entity2: entity2,
+					relationship: relationship
+				});
+			}
 		});
 	};
 	
