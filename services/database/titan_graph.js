@@ -82,7 +82,7 @@ module.exports = function(models, io, logger) {
 		};
 		
 		alphaReportService.get(assertion_object.alpha_report_id, function(err, docs){
-			if ( err ){
+			if ( err || docs[0] === undefined ){
 				callback("Alpha Report ID does not exist", {});
 			} else {
 				var ar = JSON.parse(JSON.stringify(docs[0]));
