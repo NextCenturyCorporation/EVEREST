@@ -1,5 +1,5 @@
 .project
-.settings/
+.settings
 node_modules/
-*.log
-*~
+logs/*.log
+**/*.jar
