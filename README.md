@@ -1,6 +1,4 @@
-Event Representation and Structuring of Text
+EVEREST
+=======
 
-Requires:
-	-npm
-	-nodejs
-	-mongo
+Event Representation and Structuring of Text
