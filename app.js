@@ -106,7 +106,7 @@ server.listen(config.port, function(){
 var fs = require('fs');
 var java = require('java');
 
-var jar = fs.readdirSync(__dirname + './java_lib/');
+var jar = fs.readdirSync(__dirname + '/java_lib/');
 console.log(jar);
 for ( var i=0,l=jar.length; i<l; i++ ){
 	if ( jar[i].indexOf('jar') !== -1 && jar[i].indexOf('logback') === -1){
