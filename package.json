@@ -1,0 +1,26 @@
+{
+    "name": "everest",
+    "version": "0.0.1",
+    "main": "app.js",
+	"private": true,
+    "dependencies": {
+    	"express": ">=3.0.x",
+    	"jade": ">= 0.0.1",
+    	"winston": ">=0.6.1",
+    	"mongoose": ">=2.7.1",
+    	"cluster": ">=0.7.7",
+    	"socket.io": ">=0.9.6",
+    	"mocha": ">=1.3.0",
+    	"node-gcm": ">=0.9.2",
+    	"ntwitter":">=0.2.10",
+    	"revalidator":">=0.1.3",
+        "java":">=0.2.2",
+        "async":">=0.2.9",
+        "feedparser": ">=0.16.1",
+        "request": ">=2.27",
+        "gremlin": ">= 0.0.1"
+    },
+    "scripts": {
+    	"test": "./node_modules/.bin/mocha"
+    }
+}

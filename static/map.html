@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script type="text/javascript"
+     	src="http://maps.googleapis.com/maps/api/js?key=AIzaSyD__9YMgk4Vo4B9oWP0flBlYop5JjEhO_U&sensor=false">
+    </script>
+    <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+	<title>Centurion</title>
+	<link href="stylesheets/style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript">
+//Enable socket.io
+var socket = io.connect();
+
+//This will contain the 
+var events = [];
+//This will contain the event data, accessible by eventData.{id}
+var eventData = {};
+//This will contain all the locations, accessible by locations.{id}
+var locations = {};
+
+//Map object
+var map = null;
+
+/**
+ * Socket.io listener for a new event emmitter
+ * When a new event broadcast is received, it updates the map, and
+ * limits the page to a max of 10 events
+ */
+socket.on('event', function(data){
+	//Only display 10 events on a page, if there are 10, clear the first one
+	if(events.length >= 10){
+		var toRemove = events.splice(0, 1);
+		console.log('Clearing event '+toRemove)
+		//Check if the location would still be used
+		var deleteLoc = true;
+		for(var i = 0; i < events.length; i++){
+			if(eventData[events[i]].location._id == eventData[toRemove].location._id){
+				deleteLoc = false;
+				break;
+			}
+		}
+		if(deleteLoc){
+			console.log('Removing unused location');
+	 		locations[eventData[toRemove].location._id].marker.setMap(null);
+	 		locations[eventData[toRemove].location._id].circle.setMap(null);
+	 		delete locations[eventData[toRemove].location._id];
+ 		}
+		delete eventData[toRemove];
+	}
+	//alert('New event!');
+	$.getJSON("/events/"+data.id, function(event){
+		events.push(event._id);
+		eventData[event._id] = event;
+		addMarker(event.location, true);
+	});
+});
+
+/**
+ * Sets up the map, centered so you can see the entire world, suitable for when there are no events.
+ * When events and locations are added, it zooms to those.
+ */
+function showMap(){
+	var options = {
+			center: new google.maps.LatLng(12, 0),
+	          zoom: 2,
+	          mapTypeId: google.maps.MapTypeId.ROADMAP
+	        };
+	map = new google.maps.Map(document.getElementById("map"), options);
+}
+
+/**
+ * Function to add an onClick listener, and display all related events when the
+ * specific marker is clicked. If bounce is true, it also disables the animation.
+ */
+function attachClick(locationId, bounce){
+	google.maps.event.addListener(locations[locationId].marker, 'click', function(){
+		clearEvents();
+		for(var i = events.length -1; i >= 0; i--){
+			if(eventData[events[i]].location._id == locationId){
+				if(bounce){
+					locations[locationId].marker.setAnimation(null);
+				}
+				displayEvent(eventData[events[i]]);
+			}
+		}
+	});
+}
+
+/**
+ * Adds a new location marker and circle to the map. If the location already has a marker,
+ * it pans to the marker. If bounce is true, it sets the marker's animation to bounce
+ */
+function addMarker(location, bounce){
+	var loc = new google.maps.LatLng(location.latitude, location.longitude);
+	//Only add a location once
+	if(locations[location._id] == null){
+		var marker = new google.maps.Marker({
+			map:map,
+			draggable:false,
+			animation: google.maps.Animation.DROP,
+			position:loc,
+		    title:location.name
+		});
+		var circleOpts = {
+			      strokeColor: "#FF0000",
+			      strokeOpacity: 0.8,
+			      strokeWeight: 2,
+			      fillColor: "#FF0000",
+			      fillOpacity: 0.35,
+			      map: map,
+			      center: loc,
+			      radius: location.radius
+			    };
+		var circle = new google.maps.Circle(circleOpts);
+		locations[location._id] = location;
+		locations[location._id].marker = marker;
+		locations[location._id].circle = circle;
+	}
+	if(bounce){
+		locations[location._id].marker.setAnimation(google.maps.Animation.BOUNCE);
+	}
+	map.panTo(loc);
+	map.setZoom(14);
+	attachClick(location._id, bounce);
+}
+
+/**
+ * Clears the event div
+ */
+function clearEvents(){
+	$('#event').empty();
+}
+
+/**
+ * Displays an event's information in the event div
+ */
+function displayEvent(event){
+	$("#event").append('<table border="0">');
+	$("#event").append('<tr><td><b>Title:</b></td><td><b>'+event.title+'</b></td></tr>');
+	$("#event").append('<tr><td>Description:&nbsp;</td><td>'+event.description+'</td></tr>');
+	$("#event").append('<tr><td>Type:</td><td>'+event.type+'</td></tr>');
+	$("#event").append('<tr><td>Status:</td><td>'+event.status+'</td></tr>');
+	$("#event").append('<tr><td>Time:</td><td>'+event.timestmp+'</td></tr>');
+	$("#event").append('<tr><td>GID:</td><td>'+event.GID+'</td></tr>');
+	$("#event").append('<tr><td>Radius:</td><td>'+event.radius+'</td></tr>');
+    $("#event").append('<tr><td>Location:</td><td>'+event.location.name+'</td></tr>');
+	$("#event").append('<tr><td>Contact:</td><td>'+event.contact.name+'</td></tr>');
+	$("#event").append('<tr><td>Phone:</td><td>'+event.contact.phone+'</td></tr>');
+	$("#event").append('<tr><td>Email:</td><td>'+event.contact.email+'</td></tr>');
+	$("#event").append("</table><br/><hr/><br/>");
+}
+
+/**
+ * Loads the event list, and the details of each event in the list
+ */
+function getAll(){
+	showMap();
+	/* Get the list of events */
+	$.getJSON("/events/?count=10", function(data) {
+		$.each(data, function(i, item) {
+			//Keep the IDs in order, so we know which ones to remove first
+			events.splice(0,0,item._id);
+			//Get the details of each event
+			$.getJSON("/events/"+item._id, function(event){
+					eventData[event._id] = event;
+					addMarker(event.location, false);
+			});//End get event
+		}); //End each event
+	}); //End get events
+};
+</script>
+</head>
+<body onload="getAll()">
+<div id="topbar">
+	<div id="TopSection">
+		<h1 id="sitename">Centurion Alert System</h1>
+		<div id="topbarnav"></div>
+		<div class="clear"></div>
+		<ul id="topmenu">
+			<li class="active"><a href="#">Map and Alert Status</a></li>
+		</ul>
+	</div>
+</div>
+<div id="wrap">
+	<div id="contents" style="height:850px">
+		<div style="height:620px;width:100%">
+			<div id="map" style="height:600px;width:74%;float:left;" ></div>
+			<div id="event" style="width:25%;float:right;height:600px;overflow:auto"></div>
+		</div>
+		<div style="height:200px;width:100%" id="timeline"></div>
+	</div>
+</div>
+
+
+<div id="footer">
+	<div id="footercontent">
+		<div id="previews">
+			<div class="clear"></div>
+		</div>
+		<div id="copyright">&copy;2012 - Next Century Corporation</div>
+	</div>
+</div>
+</body>
+</html>

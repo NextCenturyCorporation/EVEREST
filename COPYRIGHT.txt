@@ -1,0 +1,18 @@
+EVEREST
+
+Portions of this software were developed under contract to the U.S. Government,
+and are made available pursuant to the DFARS clauses cited below.
+
+Copyright 2009-2013, Next Century Corporation.
+The U.S. Government has Unlimited Rights in this computer software pursuant to the
+clause DFARS 252.227-7014 of contract no. N00014-13-P-1133. Any reproduction of this
+computer software, or portions thereof, marked with this legend must also reproduce these markings.
+
+
+This product further may include software developed by other individuals, entities, or agencies.  These groups have granted rights to include in the code baseline, without further claim or copyright.
+
+The product further references the following libraries or capabilities which are NOT included as part of this copyright statement, and are hereby listed with their license terms.
+* Stanford coreNLP, developed by Stanford University, licensed under GNU General Public License, Version 2 or later, http://nlp.stanford.edu/software/corenlp.shtml 
+* revalidator, developed by flatiron, licensed under Apache 2.0, http://flatironjs.org
+* ntwitter, developed by AvianFlu, licensed under the MIT License, https://github.com/AvianFlu/ntwitter
+

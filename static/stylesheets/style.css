@@ -1,0 +1,50 @@
+@charset "utf-8";
+* {
+	margin: 0px;
+	padding: 0px;
+}
+body {background:url(/images/bg.jpg) repeat; font-family:Georgia, "Times New Roman", Times, serif; font-size:12px;}
+#wrap {width:85%; margin:auto;}
+.clear {clear:both;}
+a {color:#000000;}
+a:visited,active {color:#666666;}
+.hide {display:none;}
+/*Header*/
+#topbar {background:url(/images/topbg.jpg) repeat-x; height:89px;}
+#topbar #TopSection {width:85%; margin:auto;}
+#sitename {display:block; height:40px; float:left; padding:3px; font:Georgia, "Times New Roman", Times, serif; font-size:30px; font-weight:normal; color:#FFFFCC;}
+#sitename span {text-transform:lowercase; font-style:italic; color:#D1DDED; font-size:34px;}
+#sitename a, #sitename a:visited, #sitename a:active, #sitename a:hover{color:#FFFFCC; text-decoration:none;}
+#sitename span a, #sitename span a:visited, #sitename span a:active, #sitename span a:hover {color:#D1DDED; text-decoration:none;}
+#topbarnav { height:36px; padding-top:10px; text-align:right; color:#ffffcc;}
+#topbarnav a{color:#FFFFCC;}
+#topbarnav a:visited,active {color:#FFFFCC;}
+#topbarnav a:hover {color:#FFFFFF; text-decoration:none;}
+#topbarnav .searchform { float:right; margin:0px 15px 0px 0px;}
+.searchform .keywordfield {border:solid 1px #333333; background:#F8F2DA; padding:3px;}
+#topbarnav .topnavitems {float:right; display:block;}
+#wrap #header { background:url(/images/header.jpg) no-repeat; height:229px; margin-top:10px;}
+#header .introtext {display:block; padding:60px 300px 25px 125px; text-align:right; font-weight:normal; color:#FFFFFF; font-size:25px;}
+.highlight {background:#FFFFFF; color:#0099CC;}
+.highlight2 {color:#FFFF99; font-size:28px; font-style:italic;}
+
+#headershort {background: url(/images/headershort.jpg) no-repeat; height:119px;}
+#headershort .subheader {font-size:48px; color:#F1E8CB; font-family:Georgia, "Times New Roman", Times, serif; font-weight:normal; display:block; padding:55px 55px 0px 20px; }
+/* Top Menu */
+#topmenu {list-style:none; text-align:center; padding-top:4px;}
+#topmenu li {display:inline;}
+#topmenu a, #topmenu a:visited, #topmenu a:active {	display:block;	text-decoration:none; color:#9B7746; float:left; 	height:30px; padding:9px 15px 0px 17px; background:url(/images/menubg1.jpg) no-repeat right top;}
+#topmenu a:hover {display:block; text-decoration:none; color:#333333; float:left; height:30px; padding:9px 15px 0px 17px; background:url(/images/menubg2.jpg) no-repeat right top;}
+#topmenu .active a, #topmenu .active a:visited, #topmenu .active a:active {display:block; text-decoration:none; color:#333333; float:left; height:30px; padding:9px 15px 0px 17px; background:url(/images/menubg2.jpg) no-repeat right top;}
+/* Contents */
+#contents {font-size:11px;}
+#contents a:hover {text-decoration:none;}
+#contents p {color:#666666; line-height:22px;}
+#contents h2 {color:#8D6932; font-weight:normal;}
+
+/*Footer*/
+
+#footer {background: url(/images/footer.jpg) repeat-x; padding:60px 0px 0px 5px; background-color:#333333; position:relative; bottom:0; width:100%;}
+#footercontent {width:85%; margin:auto; padding:10px;}
+#copyright {margin:20px 0xp 20px 0px; padding:20px 0px 20px 0px; color:#FFFFFF; border-top:solid 1px #333333; }
+#footer a,#footer a:visited, #footer a:active, #footer a:hover {color:#FFFFCC;}
