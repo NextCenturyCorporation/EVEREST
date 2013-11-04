@@ -105,15 +105,11 @@ server.listen(config.port, function(){
 
 var fs = require('fs');
 var java = require('java');
-java.classpath.push(__dirname + '/java_lib/Triplet_Extraction.jar');
 
-fs.renameSync(__dirname + '/node_modules/gremlin/lib/GremlinJSPipeline-0.1.14.jar', __dirname + '/java_lib/GremlinJSPipeline-0.1.14.jar');
-java.classpath.push(__dirname + '/java_lib/GremlinJSPipeline-0.1.14.jar');
-
-var jar = fs.readdirSync(__dirname + '/node_modules/gremlin/lib/dependencies');
+var jar = fs.readdirSync(__dirname + './java_lib/');
+console.log(jar);
 for ( var i=0,l=jar.length; i<l; i++ ){
 	if ( jar[i].indexOf('jar') !== -1 && jar[i].indexOf('logback') === -1){
-		fs.renameSync(__dirname + '/node_modules/gremlin/lib/dependencies/' + jar[i], __dirname + '/java_lib/' + jar[i]);
 		java.classpath.push(__dirname + '/java_lib/' + jar[i]);
     }
 }
