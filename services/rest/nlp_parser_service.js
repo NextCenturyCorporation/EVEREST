@@ -54,7 +54,7 @@ module.exports = function(app, models, io, logger){
 	});
 
 	me.parse_raw_feeds = function(offset){
-		models.rawFeed.find({}).sort({_id: 1}).skip(offset).limit(1000).execFind(function(err, rawFeeds) {
+		models.rawFeed.find({}).sort({_id: 1}).skip(offset).limit(1000).exec(function(err, rawFeeds) {
 
 			async.each(rawFeeds, function(feed, asyncCallback) {
 				models.alphaReport.find({raw_data_id: feed._id}, function(err, alpha) {

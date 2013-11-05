@@ -34,9 +34,9 @@ this.listLocations = function(req, res){
 this.findLocations = function(req, callback) {
 	paramHandler.handleDefaultParams(req.query, function(params) {
 		if (params !== null) {
-			models.location.find().limit(params.count).skip(params.offset).sort({_id: params.sort}).execFind(callback);
+			models.location.find().limit(params.count).skip(params.offset).sort({_id: params.sort}).exec(callback);
 		} else {
-			models.location.find().execFind(callback);
+			models.location.find().exec(callback);
 		}
 	});
 };

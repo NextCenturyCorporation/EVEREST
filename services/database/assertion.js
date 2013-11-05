@@ -33,7 +33,7 @@ module.exports = function(models, io, logger) {
 					}
 				};
 				
-				models.assertion.find(config).skip(params.offset).sort(sortObject).limit(params.count).execFind(function(error, response){
+				models.assertion.find(config).skip(params.offset).sort(sortObject).limit(params.count).exec(function(error, response){
 					callback(error, response, config);
 				});
 			} else {
