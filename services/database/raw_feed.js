@@ -152,10 +152,10 @@ module.exports = function(models, io, logger) {
 	
 	var validateRawFeed = function(data, valCallback) {
 		var services = {rawFeed: me};
-		// is the JSON semantically valid for the location object?
+		// is the JSON semantically valid for the raw feed object?
 		var valid = revalidator.validate(data, validationModel);
 		if (valid.valid) {
-			// does the location object comply with business validation logic
+			// does the raw feed object comply with business validation logic
 			//bvalidator.validate(data, function(valid) {
 			//	valCallback(valid);
 			//});

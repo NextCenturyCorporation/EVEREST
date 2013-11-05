@@ -72,7 +72,7 @@ module.exports = function(services, logger) {
 	 * matching against all object attributes.
 	 * If found, submits an error to the errors collection.
 	 * Returns in the callback any system error and a boolean indicating whether
-	 * or not the location was found. 
+	 * or not the target assertion was found. 
 	**/
 	me.targetAssertionExists = function(object, errors, callback) {
 		targetAssertion.findWhere(object, function(err, locs){

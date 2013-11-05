@@ -1,5 +1,5 @@
 /**
- * location business validation library
+ * confirmed report business validation library
  */
 var async = require('async');
 
@@ -51,7 +51,7 @@ module.exports = function(services, logger) {
 				property = 'profile_id';
 				me.profileIsValid(value, errors, function(err, profileValid) {
 					if(!profileValid){
-						me.error(property, value, errors, "Target event could not be found based on " + property);
+						me.error(property, value, errors, "Profile could not be found based on " + property);
 						me.logger.info("profileIsValid " + value);
 					}
 

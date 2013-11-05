@@ -26,14 +26,14 @@ module.exports = function(app, io, logger){
 	var Incident = require('./rest/incident.js');
 	new Incident(app, models, io, logger);
 
-	var Location = require('./rest/location.js');
-	new Location(app, models, io, logger);
-
 	var NlpParser = require('./rest/nlp_parser_service.js');
 	new NlpParser(app, models, io, logger);
 
 	var Options = require('./rest/options.js');
 	new Options(app, models, io, logger);
+
+	var Place = require('./rest/place.js');
+	new Place(app, models, io, logger);
 
 	var Profile = require('./rest/profile.js');
 	new Profile(app, models, io, logger);

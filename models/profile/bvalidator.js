@@ -66,13 +66,13 @@ var dataLayer = require('../../services/database/profile.js');
 	 **   or not the name was found. 
 	**/
   var nameExists = function (value, errors, callback) {
-		dataLayer.readProfileByProperty('name', value, function(err, locs) {
+		dataLayer.readProfileByProperty('name', value, function(err, docs) {
 			if (err) {
 				error('name', value, errors, 'Error reading profile name ' + err);
 				logger.info({ error : "Error getting profileByName " + err });
 				callback(err, false);
-			} else if (0 !== locs.length) {
-				logger.info("Profile found for nameExists" + JSON.stringify(locs));
+			} else if (0 !== docs.length) {
+				logger.info("Profile found for nameExists" + JSON.stringify(docs));
 				callback(err, true);
 			} else {
 				logger.info("Profile name not found " + value);
@@ -88,16 +88,16 @@ var dataLayer = require('../../services/database/profile.js');
 	 **   matching against all object attributes.
 	 ** If found, submits an error to the errors collection.
 	 ** Returns in the callback any system error and a boolean indicating whether
-	 **   or not the location was found. 
+	 **   or not the profile was found. 
 	**/
   var profileExists = function(object, errors, callback) {
-		dataLayer.findWhere(object, function(err, locs){
+		dataLayer.findWhere(object, function(err, docs){
 			if (err) {
 				error('record', object, errors, 'Error reading profile ' + err);
 				logger.info({ error : "Error getting profileByObject " + err });
 				callback(err, false);
-			} else if (0 !== locs.length) {
-				logger.info("Profile found for profileExists" + JSON.stringify(locs));
+			} else if (0 !== docs.length) {
+				logger.info("Profile found for profileExists" + JSON.stringify(docs));
 				callback(err, true);
 			} else {
 				logger.info("Profile not found " + JSON.stringify(object));

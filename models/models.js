@@ -35,10 +35,10 @@ var incidentModel = require('./incident/model.js');
 exports.incident = incidentModel.incident;
 exports.incidentValidation = incidentModel.incidentValidation;
 
-//location
-var locationModel = require('./location/model.js');
-exports.location = locationModel.location;
-exports.locationValidation = locationModel.locationValidation;
+//place
+var placeModel = require('./place/model.js');
+exports.place = placeModel.place;
+exports.placeValidation = placeModel.placeValidation;
 
 //profile
 var profileModel = require('./profile/model.js');

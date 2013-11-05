@@ -21,15 +21,28 @@ module.exports = function(models, io, logger) {
 	var me = this;
 	var alphaReportService = new AlphaReportService(models, io, logger);
 	
+	me.list = function(config, callback){
+		var verts = gremlin.V().toJSON();
+		var edges = gremlin.E().toJSON();
+		var error = verts.error || gremlin.error;
+		callback(error, verts.concat(edges));
+	};
+	
 	me.listVertices = function(config, callback){
 		var all = {};
-		var field = Object.keys(config)[0];
-		if ( config[field] === 'alpha report' || config[field] === 'target event' ){
-			all = gremlin.V().has(field, config[field]).toJSON();
+		var keys = Object.keys(config);
+		
+		if (keys.length === 1){
+			var field = keys[0];
+			if ( config[field] === 'alpha report' || config[field] === 'target event' ){
+				all = gremlin.V().has(field, config[field]).toJSON();
+			} else {
+				all = gremlin.V().has(field, config[field]).outE().has("label","metadata of").inV().toJSON();
+			}
 		} else {
-			all = gremlin.V().has(field, config[field]).outE().has("label","metadata of").inV().toJSON();
+			all = gremlin.V().toJSON();
 		}
-			
+		
 		callback(all.error, all);
 	};
 	

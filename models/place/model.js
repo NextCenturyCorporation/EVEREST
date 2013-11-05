@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-var locationDataModel = {
+var placeDataModel = {
 	createdDate: {type: Date},
 	updatedDate: {type: Date},
 	name: {type: String, required:true},
@@ -10,28 +10,28 @@ var locationDataModel = {
 	radius:	{type: Number, "default": 0, required: true}
 };
 
-var LocationSchema = new Schema(locationDataModel);
-LocationSchema.index({_id : -1}, {unique: true});
-var location = mongoose.model('Location', LocationSchema);
+var PlaceSchema = new Schema(placeDataModel);
+PlaceSchema.index({_id : -1}, {unique: true});
+var place = mongoose.model('Place', PlaceSchema);
 
 // Describe the JSON semantic validation schema
-var locationValidation = {
+var placeValidation = {
 	properties: {
 		createdDate: {
-			description: 'Date this location was created in datastore',
+			description: 'Date this place was created in datastore',
 			type: 'date'
 		},
 		updatedDate: {
-			description: 'Date this location was last updated in datastore',
+			description: 'Date this place was last updated in datastore',
 			type: 'date'
 		},
 		name: {
-			description: 'Name of the location',
+			description: 'Name of the place',
 			type: 'string',
 			required: true
 		},
 		latitude: {
-			description: 'Latitude value for the location',
+			description: 'Latitude value for the place',
 			type: 'number',
 			minimum: -90.0,
 			maximum: 90.0,
@@ -42,7 +42,7 @@ var locationValidation = {
 			required: true
 		},
 		longitude: {
-			description: 'Longitude value for the location',
+			description: 'Longitude value for the place',
 			type: 'number',
 			minimum: -180.0,
 			maximum: 180.0,
@@ -61,5 +61,5 @@ var locationValidation = {
 	}	
 };
 
-exports.location = location;
-exports.locationValidation = locationValidation;
+exports.place = place;
+exports.placeValidation = placeValidation;

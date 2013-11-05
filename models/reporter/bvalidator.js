@@ -65,20 +65,20 @@ var logger = new (winston.Logger)({
 	 ** languageExists verifies the value of the language attribute
 	 ** Makes an async call to the data service to retrieve a matching language 
 	 ** Returns in the callback any system error and a boolean indicating whether
-	 **   or not the location was found. 
+	 **   or not the place was found. 
 	**/
 	var languageExists = function(value, errors, callback) {
 		callback(null, true);
-//		dataLayer.readLocationByObject(object, function(err, locs){
+//		dataLayer.readPlaceByObject(object, function(err, locs){
 //			if (err) {
-//				error('record', object, errors, 'Error reading location ' + err);
-//				logger.info({ error : "Error getting locationByObject " + err });
+//				error('record', object, errors, 'Error reading place ' + err);
+//				logger.info({ error : "Error getting placeByObject " + err });
 //				callback(err, false);
 //			} else if (0 !== locs.length) {
-//				logger.info("Location found for locationExists" + JSON.stringify(locs));
+//				logger.info("Place found for placeExists" + JSON.stringify(locs));
 //				callback(err, true);
 //			} else {
-//				logger.info("Location not found " + JSON.stringify(object));
+//				logger.info("Place not found " + JSON.stringify(object));
 //				callback(err, false);
 //			}
 //		});

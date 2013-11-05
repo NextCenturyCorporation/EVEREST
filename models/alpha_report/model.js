@@ -11,7 +11,7 @@ var alphaReportModel = {
 	message_date: {type: Date},
 	message_body: {type: String},
 	reporter_id: {type: ObjectId},
-	location_name: {type: String}, //FIXME   why is this here? name from twitter
+	place_name: {type: String}, //FIXME   why is this here? name from twitter
 	longitude: {type: Number},
 	latitude: {type: Number},
 	radius: {type: Number},
@@ -61,8 +61,8 @@ var alphaReportValidation = {
 			description: "The id of the reporter who created the message for this alpha report",
 			type: 'string'
 		},*/
-		location_name: {
-			description: "The location of the origin of the alpha report",
+		place_name: {
+			description: "The place of the origin of the alpha report",
 			type: 'string'
 		},
 		latitude: {

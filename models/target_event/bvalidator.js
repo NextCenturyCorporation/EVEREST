@@ -63,13 +63,13 @@ module.exports = function(services, logger) {
 	 **   or not the name was found. 
 	**/
 	me.nameExists = function (value, errors, callback) {
-		targetEvent.findWhere({name: value}, function(err, locs) {
+		targetEvent.findWhere({name: value}, function(err, docs) {
 			if (err) {
 				me.error('name', value, errors, 'Error reading targetEvent name ' + err);
 				logger.info({ error : "Error getting targetEventByName " + err });
 				callback(err, false);
-			} else if (0 !== locs.length) {
-				logger.info("TargetEvent found for nameExists" + JSON.stringify(locs));
+			} else if (0 !== docs.length) {
+				logger.info("TargetEvent found for nameExists" + JSON.stringify(docs));
 				callback(err, true);
 			} else {
 				logger.info("TargetEvent name not found " + value);
@@ -84,16 +84,16 @@ module.exports = function(services, logger) {
 	 **   matching against all object attributes.
 	 ** If found, submits an error to the errors collection.
 	 ** Returns in the callback any system error and a boolean indicating whether
-	 **   or not the location was found. 
+	 **   or not the target event was found. 
 	**/
 	me.targetEventExists = function(object, errors, callback) {
-		targetEvent.findWhere(object, function(err, locs) {
+		targetEvent.findWhere(object, function(err, docs) {
 			if (err) {
 				me.error('record', object, errors, 'Error reading targetEvent ' + err);
 				logger.info({ error : "Error getting targetEventByObject " + err });
 				callback(err, false);
-			} else if (0 !== locs.length) {
-				logger.info("TargetEvent found for targetEventExists" + JSON.stringify(locs));
+			} else if (0 !== docs.length) {
+				logger.info("TargetEvent found for targetEventExists" + JSON.stringify(docs));
 				callback(err, true);
 			} else {
 				logger.info("TargetEvent not found " + JSON.stringify(object));
@@ -101,7 +101,7 @@ module.exports = function(services, logger) {
 			}
 		});
 	};
-  
+  	location
 	/**
 	*	targetAssertionExists verifies that the value supplied points to
 	*	a valid target assertion 
@@ -113,13 +113,13 @@ module.exports = function(services, logger) {
 			callback(undefined, true);
 		} else {
 			async.each(values, function(assertion, eachCallback){
-				targetAssertion.findWhere({_id: assertion}, function(err, locs){
+				targetAssertion.findWhere({_id: assertion}, function(err, docs){
 					if ( err ) {
 						me.error('assertions', values, errors, 'Error reading assertion ' + err);
 						logger.info({ error : "Error getting targetAssertionByID " + err });
 						eachCallback(true);
-					} else if ( 0 !== locs.length ) {
-						logger.info("TargetAssertion found for targetAssertionExists" + JSON.stringify(locs));
+					} else if ( 0 !== docs.length ) {
+						logger.info("TargetAssertion found for targetAssertionExists" + JSON.stringify(docs));
 						eachCallback(null);
 					} else {
 						logger.info("TargetAssertion id not found " + assertion);

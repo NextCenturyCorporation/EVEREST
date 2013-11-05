@@ -125,10 +125,10 @@ module.exports = function(models, io, logger) {
 	 * valCallback takes the form of  function(valid structure)
 	 */
 	me.validateAssertion = function(data, valCallback) {
-		// is the JSON semantically valid for the location object?
+		// is the JSON semantically valid for the assertion object?
 		var valid = revalidator.validate(data, models.assertionValidation);
 		if (valid.valid) {
-			// does the location object comply with business validation logic
+			// does the assertion object comply with business validation logic
 			bvalidator.validate(data, function(valid) {
 				valCallback(valid);
 			});

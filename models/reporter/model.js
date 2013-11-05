@@ -9,7 +9,7 @@ var reporterDataModel = {
 	source_name: {type: String, enum:['Twitter', 'Email','RSS'], required: true},
 	source_id: {type: String},
 	screen_name: {type: String},
-	location_name: {type: String},
+	place_name: {type: String},
 	email: {type: String},
 	phone: {type: String},
 	ip: {type: String},
@@ -52,7 +52,7 @@ var reporterValidation = {
 			description: 'The reporters screen name',					//no spaces?
 			type: 'string'
 		},
-		location_name: {
+		place_name: {
 			description: 'Where the reporter is located',
 			type: 'string'
 		},

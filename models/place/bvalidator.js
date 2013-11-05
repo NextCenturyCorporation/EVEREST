@@ -1,5 +1,5 @@
 /**
- * location business validation library
+ * place business validation library
  */
 var winston = require('winston');
 
@@ -10,7 +10,7 @@ var logger = new (winston.Logger)({
 		new (winston.transports.File)({filename: 'logs/general.log'})] //,
 });
 
-var dataLayer = require('../../services/database/location.js');
+var dataLayer = require('../../services/database/place.js');
 
 (function (exports) {
   exports.validate = validate;
@@ -45,15 +45,15 @@ var dataLayer = require('../../services/database/location.js');
 		nameExists( value, errors, function (err, found) {
 			var property = 'name';
 			if (found) {
-				error(property, value, errors, "Location " + property + " already exists.");
+				error(property, value, errors, "Place " + property + " already exists.");
 				logger.info("nameExists " + value);
 			}
 	
-			locationExists( object, errors, function (err, found) {
+			placeExists( object, errors, function (err, found) {
 				var property = 'record';
 				if (found) {
-					error(property, value, errors, "Location already exists.");
-					logger.info("locationExists " + JSON.stringify(object));
+					error(property, value, errors, "Place already exists.");
+					logger.info("placeExists " + JSON.stringify(object));
 				}
 				done();
 			});
@@ -61,23 +61,23 @@ var dataLayer = require('../../services/database/location.js');
 	}
 
 	/**
-	 ** nameExists verifies the uniqueness of the location name in the object.
-	 ** Makes an async call to the data service to retrieve a matching location.
+	 ** nameExists verifies the uniqueness of the place name in the object.
+	 ** Makes an async call to the data service to retrieve a matching place.
 	 ** If found, submits an error to the errors collection.
 	 ** Returns in the callback any system error and a boolean indicating whether
 	 **   or not the name was found. 
 	**/
   var nameExists = function (value, errors, callback) {
-		dataLayer.readLocationByProperty('name', value, function(err, locs) {
+		dataLayer.readPlaceByProperty('name', value, function(err, locs) {
 			if (err) {
-				error('name', value, errors, 'Error reading location name ' + err);
-				logger.info({ error : "Error getting locationByName " + err });
+				error('name', value, errors, 'Error reading place name ' + err);
+				logger.info({ error : "Error getting placeByName " + err });
 				callback(err, false);
 			} else if (0 !== locs.length) {
-				logger.info("Location found for nameExists" + JSON.stringify(locs));
+				logger.info("Place found for nameExists" + JSON.stringify(locs));
 				callback(err, true);
 			} else {
-				logger.info("Location name not found " + value);
+				logger.info("Place name not found " + value);
 				callback(err, false);
 			}
 		});
@@ -85,24 +85,24 @@ var dataLayer = require('../../services/database/location.js');
   
   
 	/**
-	 ** locationExists verifies the uniqueness of the entire location object.
-	 ** Makes an async call to the data service to retrieve a matching location
+	 ** placeExists verifies the uniqueness of the entire place object.
+	 ** Makes an async call to the data service to retrieve a matching place
 	 **   matching against all object attributes.
 	 ** If found, submits an error to the errors collection.
 	 ** Returns in the callback any system error and a boolean indicating whether
-	 **   or not the location was found. 
+	 **   or not the place was found. 
 	**/
-  var locationExists = function(object, errors, callback) {
-		dataLayer.readLocationByObject(object, function(err, locs){
+  var placeExists = function(object, errors, callback) {
+		dataLayer.readPlaceByObject(object, function(err, locs){
 			if (err) {
-				error('record', object, errors, 'Error reading location ' + err);
-				logger.info({ error : "Error getting locationByObject " + err });
+				error('record', object, errors, 'Error reading place ' + err);
+				logger.info({ error : "Error getting placeByObject " + err });
 				callback(err, false);
 			} else if (0 !== locs.length) {
-				logger.info("Location found for locationExists" + JSON.stringify(locs));
+				logger.info("Place found for placeExists" + JSON.stringify(locs));
 				callback(err, true);
 			} else {
-				logger.info("Location not found " + JSON.stringify(object));
+				logger.info("Place not found " + JSON.stringify(object));
 				callback(err, false);
 			}
 		});

@@ -86,52 +86,47 @@ module.exports = function(services, logger) {
 		}
 	};
   
-  
 	/**
 	 ** languageExists verifies the value of the language attribute
 	 ** Makes an async call to the data service to retrieve a matching language 
 	 ** Returns in the callback any system error and a boolean indicating whether
-	 **   or not the location was found. 
+	 **   or not the place was found. 
 	**/
 	me.languageExists = function(value, errors, callback) {
 		callback(null, true);
-	//		dataLayer.readLocationByObject(object, function(err, locs){
+	//		dataLayer.readPlaceByObject(object, function(err, docs){
 	//			if (err) {
-	//				error('record', object, errors, 'Error reading location ' + err);
-	//				logger.debug({ error : "Error getting locationByObject " + err });
+	//				error('record', object, errors, 'Error reading place ' + err);
+	//				logger.debug({ error : "Error getting placeByObject " + err });
 	//				callback(err, false);
-	//			} else if (0 !== locs.length) {
-	//				logger.debug("Location found for locationExists" + JSON.stringify(locs));
+	//			} else if (0 !== docs.length) {
+	//				logger.debug("Place found for placeExists" + JSON.stringify(docs));
 	//				callback(err, true);
 	//			} else {
-	//				logger.debug("Location not found " + JSON.stringify(object));
+	//				logger.debug("Place not found " + JSON.stringify(object));
 	//				callback(err, false);
 	//			}
 	//		});
 	};
   
 	me.alphaReportExists = function(object, errors, callback) {
-		
 		var searchObject = { source_name : object.source_name, source_id : object.source_id };
-		services.alphaReportService.findWhere(searchObject, function(err, locs){
+		services.alphaReportService.findWhere(searchObject, function(err, docs){
 			if (err) {
 				me.error('record', object, errors, 'Error reading alpha_report ' + err);
 				logger.error({ error : "Error readAlphaReportByObject " + err });
 				callback(err, false);
-			} else if (0 !== locs.length) {
-				logger.debug("alpha_report found for alphaReportExists" + JSON.stringify(locs));
+			} else if (0 !== docs.length) {
+				logger.debug("alpha_report found for alphaReportExists" + JSON.stringify(docs));
 				callback(err, true);
 			} else {
 				logger.debug("alpha_report not found " + JSON.stringify(searchObject));
 				callback(err, false);
 			}
 		});
-
 	};
   
-  
 	me.error = function(property, actual, errors, msg) {
-	
 		var lookup = {
 			property : property
 		};
@@ -142,11 +137,11 @@ module.exports = function(services, logger) {
 			var msg = lookup[match.toLowerCase()] || "";
 			return msg;
 		});
+		
 		errors.push({
 			property : property,
 			actual : actual,
 			message : message
 		});
 	};
-
 };
