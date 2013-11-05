@@ -66,7 +66,9 @@ module.exports = function(serviceList, io ,logger){
 		}
 		serviceList.Assertion.create(obj, function(err, valid, newAssertion){
 			if (!err){
-				serviceList.TitanGraph.create(newAssertion);
+				serviceList.TitanGraph.create(newAssertion, function(err, newTitanGraph){
+					console.log(newTitanGraph);
+				});
 			}
 		});
 	};
