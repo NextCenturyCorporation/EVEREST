@@ -55,6 +55,10 @@ module.exports = function(models, io, logger) {
 		callback(all.error, all);
 	};
 	
+	me.compare = function(id, callback){
+		callback(null, me.compareAll(id));
+	};
+	
 	me.addVertex = function(object, id_replace){
 		var v = graphDB.addVertexSync(null);
 		var keys = Object.keys(object);
@@ -113,7 +117,7 @@ module.exports = function(models, io, logger) {
 				relationship._titan_id = gremlin.e(rel).toJSON()[0]._id;
 			    graphDB.commitSync();
 			    
-			    me.compare(ar._titan_id);
+			    me.compareAll(ar._titan_id);
 				
 				callback(null, { 
 					metadata: ar, 
@@ -159,7 +163,7 @@ module.exports = function(models, io, logger) {
 		return assertions;
 	};
 	
-	me.compare = function(id, callback){
+	me.compareAll = function(id){
 		id = parseInt(id, 10);
 		var alphas = gremlin.V().has('name', 'alpha report').toJSON();
 		var targets = gremlin.V().has('name', 'target event').toJSON();
@@ -254,7 +258,6 @@ module.exports = function(models, io, logger) {
 			parsed.push(JSON.parse(d));
 		});
 		
-		callback(null, parsed);
 		return parsed;
 	};
 };
