@@ -19,11 +19,11 @@ var placeValidation = {
 	properties: {
 		createdDate: {
 			description: 'Date this place was created in datastore',
-			type: 'date'
+			type: 'object'
 		},
 		updatedDate: {
 			description: 'Date this place was last updated in datastore',
-			type: 'date'
+			type: 'object'
 		},
 		name: {
 			description: 'Name of the place',
