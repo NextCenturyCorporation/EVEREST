@@ -100,7 +100,7 @@ module.exports = function(services, logger){
 			property : property
 		};
 	
-		var message = msg || validate.messages[property] || "no default message";
+		var message = msg || me.validate.messages[property] || "no default message";
 	
 		message = message.replace(/%\{([a-z]+)\}/ig, function(_, match) {
 			var msg = lookup[match.toLowerCase()] || "";

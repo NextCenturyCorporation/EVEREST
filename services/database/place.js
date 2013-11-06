@@ -2,7 +2,6 @@
  * Runs while connected to a database
  */
 var models = require('../../models/models');
-var validationModel = require('../../models/place/model.js');
 var Bvalidator = require('../../models/place/bvalidator.js');
 var revalidator = require('revalidator');
 var paramHandler = require('../list_default_handler');
@@ -38,8 +37,6 @@ module.exports = function(models, io, logger){
 					callback(err, res, config);
 				});
 			} else {
-			
-				console.log("B");
 				models.place.find({}, function(err, res){
 					callback(err, res, {});
 				});
@@ -97,6 +94,10 @@ module.exports = function(models, io, logger){
 	 */
 	me.create = function(data, saveCallback){
 		console.log(data);
+		data.latitude = parseFloat(data.latitude);
+		data.longitude = parseFloat(data.longitude);
+		data.radius = parseFloat(data.radius);
+		
 		me.validatePlace(data, function(valid){
 			if (valid.valid){
 				logger.info("Valid Place");

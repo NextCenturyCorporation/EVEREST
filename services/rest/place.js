@@ -1,7 +1,7 @@
 var PlaceService = require('../database/place.js');
 var responseHandler = require('../general_response');
 
-var place = module.exports = function(app, models, io, logger) {
+module.exports = function(app, models, io, logger) {
 	var me = this;
 
 	me.logger = logger;
