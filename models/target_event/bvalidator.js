@@ -101,7 +101,6 @@ module.exports = function(services, logger) {
 			}
 		});
 	};
-  	location
 	/**
 	*	targetAssertionExists verifies that the value supplied points to
 	*	a valid target assertion 

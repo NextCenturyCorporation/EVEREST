@@ -1,6 +1,4 @@
 var AlphaReportService = require('./alpha_report.js');
-var actionEmitter = require('../action_emitter.js');
-var paramHandler = require('../list_default_handler.js');
 
 var gremlin = require('gremlin');
 var async = require('async');
@@ -15,7 +13,7 @@ var indexOfId = function(array, id){
 		}
 	}
 	return -1;
-}
+};
 
 module.exports = function(models, io, logger) {
 	var me = this;
@@ -53,7 +51,7 @@ module.exports = function(models, io, logger) {
 	};
 	
 	me.getPath = function(id, callback){
-		var all = gremlin.v(id).inE().outV().inE().outV().path().toJSON()
+		var all = gremlin.v(id).inE().outV().inE().outV().path().toJSON();
 		callback(all.error, all);
 	};
 	
@@ -132,7 +130,7 @@ module.exports = function(models, io, logger) {
 		for (var i = 0; i < array.length; i++){
 			var match = gremlin.v(id).inE().outV().has("name", array[i].name);
 			
-			if ( match.toJSON().length != 0 ){
+			if ( match.toJSON().length !== 0 ){
 				verts.push(match.toJSON());
 			}
 		}
@@ -143,7 +141,7 @@ module.exports = function(models, io, logger) {
 		var edges = [];
 		for (var i = 0; i < array.length; i++){
 			var match = gremlin.v(id).inE().outV().inE().has("label", array[i]._label);
-			if ( match.toJSON().length != 0 ){
+			if ( match.toJSON().length !== 0 ){
 				edges.push(match.toJSON());
 			}
 		}
@@ -154,7 +152,7 @@ module.exports = function(models, io, logger) {
 		var assertions = [];
 		for (var i = 0; i < array.length; i++){
 			var match = gremlin.v(id).inE().outV().has("name", array[i][2].name).inE().has("label", array[i][3]._label).outV().has("name", array[i][4].name);
-			if ( match.toJSON().length != 0 ){
+			if ( match.toJSON().length !== 0 ){
 				assertions.push(match.toJSON());
 			}
 		}
@@ -172,8 +170,8 @@ module.exports = function(models, io, logger) {
 		//graphDB.commitSync();
 		var comparedTo = a_json.comparedTo;
 		
-		//async.each(alphas, function(d){
-		alphas.forEach(function(d){
+		//async.each(all, function(d){
+		all.forEach(function(d){
 			var score = 0.0;
 			//gremlin.v(d._id).iterator().nextSync().setPropertySync('comparedTo', []);
 			//graphDB.commitSync();
@@ -255,6 +253,8 @@ module.exports = function(models, io, logger) {
 		comparedTo.forEach(function(d){
 			parsed.push(JSON.parse(d));
 		});
+		
+		callback(null, parsed);
 		return parsed;
 	};
 };
