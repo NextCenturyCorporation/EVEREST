@@ -1,7 +1,6 @@
 /**
  * Runs while connected to a database
  */
-var models = require('../../models/models');
 var Bvalidator = require('../../models/place/bvalidator.js');
 var revalidator = require('revalidator');
 var paramHandler = require('../list_default_handler');
@@ -21,7 +20,6 @@ module.exports = function(models, io, logger){
 	me.list = function(req, callback){
 		paramHandler.handleDefaultParams(req, function(params){
 			if (params !== null){
-				console.log("A");
 				var sortObject = {};
 				sortObject[params.sortKey] = params.sort;
 				
@@ -93,7 +91,6 @@ module.exports = function(models, io, logger){
 	 * On success, it returns id:<ID-hash>
 	 */
 	me.create = function(data, saveCallback){
-		console.log(data);
 		data.latitude = parseFloat(data.latitude);
 		data.longitude = parseFloat(data.longitude);
 		data.radius = parseFloat(data.radius);
@@ -154,9 +151,7 @@ module.exports = function(models, io, logger){
 				logger.info('Error getting Place ' + err);
 				updCallback(err, null, data);
 			} else if (docs) {
-				console.log(docs);
 				docs = docs[0]; //There will only be one place from the get
-				console.log(docs);
 				for (var e in data){
 					if (e !== '_id'){
 						docs[e] = data[e];
@@ -174,8 +169,8 @@ module.exports = function(models, io, logger){
 							}
 						});
 					} else {
-						//valid.valid = false;
-						//valid.errors = {expected: id, message: "Updated Place information is not valid."};
+						valid.valid = false;
+						valid.errors = {expected: id, message: "Updated Place information is not valid."};
 						updCallback(err, valid, data);
 					}
 				});
