@@ -3,7 +3,7 @@ var revalidator = require('revalidator');
 var AlphaReportService = require('./alpha_report.js');
 var ProfileService = require('./profile.js');
 var TargetEventService = require('./target_event.js');
-var actionEmitter = require('../action_emitter.js');
+//var actionEmitter = require('../action_emitter.js');
 var paramHandler = require('../list_default_handler.js');
 var async = require('async');
 
@@ -177,8 +177,8 @@ module.exports = function(models, io, logger) {
 				logger.info("Valid Confirmed Report");
 				
 				var newConfirmedReport = new models.confirmedReport(data);
-				newConfirmedReport.createdDate = new Date();
-				newConfirmedReport.updatedDate = new Date();
+				//newConfirmedReport.createdDate = new Date();
+				//newConfirmedReport.updatedDate = new Date();
 				newConfirmedReport.save(function(err){
 					if (err){
 						logger.error('Error saving Confirmed Report ', err);

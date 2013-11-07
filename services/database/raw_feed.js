@@ -33,7 +33,7 @@ module.exports = function(models, io, logger) {
 	};
 	
 	//temporary way to get database indexes for sorting
-	me.getIndexes = function(req, callback){
+	me.getIndexes = function(callback){
 		var keys = Object.keys(models.rawFeed.schema.paths);
 		var indexes = ["_id"];
 		for (var i = 0; i < keys.length; i++){

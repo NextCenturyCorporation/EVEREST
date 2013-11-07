@@ -2,8 +2,8 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var placeDataModel = {
-	createdDate: {type: Date},
-	updatedDate: {type: Date},
+	createdDate: {type: Date, "default": Date.now},
+	updatedDate: {type: Date, "default": Date.now},
 	name: {type: String, required:true},
 	latitude: {type: Number, required:true},
 	longitude:	{type: Number, required: true},

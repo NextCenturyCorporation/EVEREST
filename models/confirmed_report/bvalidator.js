@@ -6,63 +6,68 @@ var async = require('async');
 module.exports = function(services, logger) {
 	var me = this;
 
-	me.logger = logger;
-	me.services = services;
+	me.validate = function(object, callback) {
+		var errors = [];
 
+		me.done = function() {
+			var bVal = {valid: !(errors.length), errors: errors};
+			callback(bVal);
+		};
+
+		me.validateObject(object, errors, me.done);
+	};
+	
 	/**
 	* Default messages to include with validation errors.
 	*/
 	me.messages = {
-		alpha_report_id: "Alpha report id is invalid",
-		target_event_id: "Target event id is invalid",
+		alpha_report_id: "Alpha Report id is invalid",
+		target_event_id: "Target Event id is invalid",
 		profile_id: "Profile id is invalid",
 		assertions: "Assertions are invalid"
-	};
-	
-	me.validate = function(object, callback) {
-		var errors = [];
-
-		function done() {
-			var bVal = { valid: !(errors.length), errors: errors };
-			callback(bVal);
-		}
-
-		me.validateObject(object, errors, done);
 	};
 
 	me.validateObject = function(object, errors, done) {
 		var value = object.alpha_report_id;
 		me.alphaReportExists(value, errors, function (err, found) {
 			var property = 'alpha_report_id';
-			if (!found) {
-				me.error(property, value, errors, "Alpha report could not be found based on " + property);
-				me.logger.info("questionExists " + value);
-			}
-
-			value = object.target_event_id;
-			property = 'target_event_id';
-			me.targetEventIsValid(value, errors, function(err, targetEventValid) {
-				if(!targetEventValid){
-					me.error(property, value, errors, "Target event could not be found based on " + property);
-					me.logger.info("targetEventIsValid " + value);
+			if (value !== undefined){
+				if (!found) {
+					me.error(property, value, errors, "Alpha Report does not exist.");
+					logger.debug("alphaReportExists " + value + " does not exist.");
 				}
-
-				value = object.profile_id;
-				property = 'profile_id';
-				me.profileIsValid(value, errors, function(err, profileValid) {
-					if(!profileValid){
-						me.error(property, value, errors, "Profile could not be found based on " + property);
-						me.logger.info("profileIsValid " + value);
+			}	
+			
+			value = object.target_event_id;
+			me.targetEventExists(value, errors, function(err, found) {
+				var property = 'target_event_id';
+				if (value !== undefined) {
+					if (!found){
+						me.error(property, value, errors, "Target Event does not exist.");
+						logger.debug("targetEventExists " + value + " does not exist.");
 					}
-
-					value = object.assertions;
-					property = 'assertions';
-					me.assertionsAreValid(value, errors, function(err, assertionsValid) {
-						if(!assertionsValid) {
-							me.error(property, value, errors, "Assertions are invalid");
-							me.logger.info("assertionsAreValid " + value);
+				}
+				
+				value = object.profile_id;
+				me.profileExists(value, errors, function(err, found) {
+					var property = 'profile_id';
+					if (value !== undefined) {
+						if (!found) {
+							me.error(property, value, errors, "Profile does not exist.");
+							logger.debug("profileExists " + value + " does not exist");
 						}
-
+					}
+					
+					value = object.assertions;
+					me.assertionsExist(value, errors, function(err, found) {
+						var property = 'assertions';
+						if (value !== undefined) {
+							if (!found) {
+								me.error(property, value, errors, "Assertions do not exist.");
+								logger.info("assertionsExist " + value + " do not exist");
+							}
+						}
+						
 						done();
 					});
 				});
@@ -72,27 +77,27 @@ module.exports = function(services, logger) {
 
 	//alpha report exists
 	me.alphaReportExists = function(value, errors, callback) {
-		me.services.alphaReportService.get(value, function(err, docs) {
+		services.alphaReportService.get(value, function(err, docs) {
 			if (err) {
 				me.error('alpha_report_id', value, errors, 'Error reading alpha_report_id ' + err);
-				me.logger.error("Error getting alphaReport by id ", err);
+				logger.error("Error getting alphaReport by id ", err);
 				callback(err, false);
 			} else if (0 !== docs.length) {
-				me.logger.info("Alpha Report found for alphaReportExists" + JSON.stringify(docs));
+				logger.info("Alpha Report found for alphaReportExists" + JSON.stringify(docs));
 				callback(err, true);
 			} else {
-				me.logger.info("Alpha Report not found " + value);
+				logger.info("Alpha Report not found " + value);
 				callback(err, false);
 			}
 		});
 	};
 
-	me.targetEventIsValid = function(value, errors, callback) {
+	me.targetEventExists = function(value, errors, callback) {
 		if(typeof(value) === 'undefined' || !value) {
 			callback(null, true);
 		} else {
 
-			me.services.targetEventService.get(value, function(err, docs){
+			services.targetEventService.get(value, function(err, docs){
 				if (err) {
 					me.error('target_event_id', value, errors, 'Error reading target_event_id ' + err);
 					me.logger.error("Error getting targetEvent by id ", err);
@@ -108,46 +113,46 @@ module.exports = function(services, logger) {
 		}
 	};
 
-	me.profileIsValid = function(value, errors, callback) {
+	me.profileExists = function(value, errors, callback) {
 		if(typeof(value) === 'undefined' || !value) {
 			callback(null, true);
 		} else {
-			me.services.profileService.get(value, function(err, docs) {
+			services.profileService.get(value, function(err, docs) {
 				if (err) {
 					me.error('profile_id', value, errors, 'Error reading profile ' + err);
-					me.logger.error("Error getting profile by id ", err);
+					logger.error("Error getting profile by id ", err);
 					callback(err, false);
 				} else if (0 !== docs.length) {
-					me.logger.info("Profile found for profile" + JSON.stringify(docs));
+					logger.info("Profile found for profile" + JSON.stringify(docs));
 					callback(err, true);
 				} else {
-					me.logger.info("Profile string not found " + value);
+					logger.info("Profile string not found " + value);
 					callback(err, false);
 				}
 			});
 		}
 	};
 
-	me.assertionsAreValid = function(value, errors, callback) {
-		if(typeof(value) === 'undefined' || value.length === 0) {
+	me.assertionsExist = function(value, errors, callback) {
+		if (typeof(value) === 'undefined' || value.length === 0) {
 			callback(null, true);
 		} else {
 			async.each(value, function(assertion, eachCallback) {
-				me.services.profileService.get(assertion, function(err, assertionDoc) {
+				services.profileService.get(assertion, function(err, assertionDoc) {
 					if (err) {
 						me.error('assertions', value, errors, 'Error reading assertion ' + err);
-						me.logger.error("Error getting assertion by id ", err);
+						logger.error("Error getting assertion by id ", err);
 						eachCallback(err);
 					} else if (0 !== assertionDoc.length) {
-						me.logger.info("Assertion found for assertionsAreValid" + JSON.stringify(assertionDoc));
+						logger.info("Assertion found for assertionsAreValid" + JSON.stringify(assertionDoc));
 						eachCallback(err);
 					} else {
-						me.logger.info("Assertion not found " + value);
+						logger.info("Assertion not found " + value);
 						eachCallback(err);
 					}
 				});
-			}, function(err) {
-				if(err) {
+			}, function (err) {
+				if (err) {
 					callback(err, false);
 				} else {
 					callback(err, true);

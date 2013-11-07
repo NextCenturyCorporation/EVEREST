@@ -91,9 +91,9 @@ module.exports = function(models, io, logger){
 	 * On success, it returns id:<ID-hash>
 	 */
 	me.create = function(data, saveCallback){
-		data.latitude = parseFloat(data.latitude);
-		data.longitude = parseFloat(data.longitude);
-		data.radius = parseFloat(data.radius);
+		//data.latitude = parseFloat(data.latitude);
+		//data.longitude = parseFloat(data.longitude);
+		//data.radius = parseFloat(data.radius);
 		
 		me.validatePlace(data, function(valid){
 			if (valid.valid){

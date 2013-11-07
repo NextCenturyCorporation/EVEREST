@@ -3,8 +3,8 @@ var Schema = mongoose.Schema;
 var ObjectId = Schema.ObjectId;
 
 var assertionModel = {
-	createdDate: {type: Date},
-	updatedDate: {type: Date},
+	createdDate: {type: Date, "default": Date.now},
+	updatedDate: {type: Date, "default": Date.now},
 	alpha_report_id: {type: ObjectId, required: true},
 	reporter_id: {type: ObjectId},
 	entity1: {type: String, required: true},

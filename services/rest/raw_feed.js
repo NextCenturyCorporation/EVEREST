@@ -2,19 +2,12 @@ var RawFeedService = require('../database/raw_feed.js');
 var responseHandler = require('../general_response');
 
 module.exports = function(app, models, io, logger) {
-	
-	var me = this;
-
-	me.app = app;
-	me.models = models;
-	me.io = io;
-	me.logger = logger;
 
 	var rawFeedService = new RawFeedService(models, io, logger);
 
 	// Get a list of all rawFeeds
 	app.get('/rawfeed/?', function(req, res){
-		if(logger.DO_LOG){ 
+		if (logger.DO_LOG){ 
 			logger.info('Request for list of feeds');
 		}
 
@@ -22,13 +15,12 @@ module.exports = function(app, models, io, logger) {
 		rawFeedService.list(req.query, function(err, rawFeeds, config){
 			if(err){
 				var errMsg = "Error listing raw feeds";
-				me.logger.error("RawFeed: "+err, err);
+				logger.error("RawFeed: "+err, err);
 				responseHandler.send500(res, errMsg);
 			} else {
-				//var config = {};
 				rawFeedService.getTotalCount(config, function(err, numFeeds){
 					if (err){
-						me.logger.error("RawFeed: "+err, err);
+						logger.error("RawFeed: "+err, err);
 						responseHandler.send500(res, "Error getting count of raw feeds");
 					} else {
 						res.jsonp({docs: rawFeeds, total_count: numFeeds});
@@ -44,9 +36,9 @@ module.exports = function(app, models, io, logger) {
 			logger.info('Request for list of indexes');
 		}
 		
-		rawFeedService.getIndexes(req.query, function(indexes){
+		rawFeedService.getIndexes(function(indexes){
 			if (!indexes){
-				responseHandler.send500(res, "Error getting indexes of raw feeds");
+				responseHandler.send500(res, "Error getting indexes of Raw Feeds");
 			} else {
 				res.jsonp(indexes);
 				res.end();

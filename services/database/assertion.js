@@ -116,8 +116,8 @@ module.exports = function(models, io, logger) {
 				logger.info("Valid Assertion");
 				
 				var newAssertion = new models.assertion(data);
-				newAssertion.createdDate = new Date();
-				newAssertion.updatedDate = new Date();
+				//newAssertion.createdDate = new Date();
+				//newAssertion.updatedDate = new Date();
 				newAssertion.save(function(err){
 					if (err) {
 						logger.error('Error saving Assertion ', err);

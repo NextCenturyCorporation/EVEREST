@@ -3,8 +3,8 @@ var Schema = mongoose.Schema;
 //var ObjectId = Schema.ObjectId;
 
 var reporterDataModel = {
-	createdDate: {type: Date},
-	updatedDate: {type: Date},
+	createdDate: {type: Date, "default": Date.now},
+	updatedDate: {type: Date, "default": Date.now},
 	name: {type: String, required: true},
 	source_name: {type: String, enum:['Twitter', 'Email','RSS'], required: true},
 	source_id: {type: String},

@@ -112,8 +112,8 @@ module.exports = function(models, io, logger) {
 				logger.info("Valid Reporter");
 				
 				var newReporter = new models.reporter(data);
-				newReporter.createdDate = new Date();
-				newReporter.updatedDate = new Date();
+				//newReporter.createdDate = new Date();
+				//newReporter.updatedDate = new Date();
 				newReporter.save(function(err){
 					if (err){
 						logger.error('Error saving Reporter ', err);
