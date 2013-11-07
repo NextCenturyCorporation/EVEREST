@@ -150,7 +150,7 @@ module.exports = function(models, io, logger){
 			if (err){
 				logger.info('Error getting Place ' + err);
 				updCallback(err, null, data);
-			} else if (docs) {
+			} else if (docs[0]) {
 				docs = docs[0]; //There will only be one place from the get
 				for (var e in data){
 					if (e !== '_id'){

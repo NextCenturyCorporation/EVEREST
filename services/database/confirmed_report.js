@@ -63,11 +63,13 @@ module.exports = function(models, io, logger) {
 			}
 		});
 	};
-	
+
+
 	me.getFlattened = function(id, callback) {
 		me.get(id, function(err, report) {
 			//FIXME handle err
-			me.flattenConfirmedReport(report, callback);
+			console.log(report);
+			me.flattenConfirmedReport(report[0], callback);
 		});
 	};
 	
@@ -75,7 +77,6 @@ module.exports = function(models, io, logger) {
 		var fieldsToFlatten = ['alpha_report_id'/*, 'target_event_id'*/, 'profile_id', 'assertions'];
 	
 		async.each(fieldsToFlatten, function(field, fieldCallback) {
-			console.log(fieldCallback);
 			if (field === 'assertions' && report.assertions.length > 0) {
 				var flattenedAssertions = [];
 				async.each(report.assertions, function(assertion, assertionCallback) {
@@ -245,7 +246,7 @@ module.exports = function(models, io, logger) {
 			if (err) {
 				logger.info("Error getting Confirmed Report "+err);
 				updCallback(err, null, data);
-			} else if (docs) {
+			} else if (docs[0]) {
 				docs = docs[0]; //There will only be one Confirmed Report from the get
 				for (var e in data) {
 					if (e !== '_id') {
