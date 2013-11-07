@@ -112,6 +112,7 @@ module.exports = function(models, io, logger) {
 		me.validateAlphaReport(data, function(valid) {
 			if (valid.valid) {
 				logger.info("Valid Alpha Report");
+				
 				var newAlphaReport = new models.alphaReport(data);
 				newAlphaReport.save(function(err){
 					if (err){
@@ -122,8 +123,7 @@ module.exports = function(models, io, logger) {
 
 					saveCallback(err, valid, newAlphaReport);
 				});
-			}
-			else {
+			} else {
 				saveCallback(undefined, valid, data);
 			}
 		});

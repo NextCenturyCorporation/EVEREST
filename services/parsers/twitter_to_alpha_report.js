@@ -1,5 +1,5 @@
 var AlphaReportService = require('../database/alpha_report.js');
-var reporter_service = require('../database/reporter.js');
+var ReporterService = require('../database/reporter.js');
 var AssertionService = require('../database/assertion.js');
 var actionEmitter = require('../action_emitter.js');
 
@@ -7,6 +7,7 @@ module.exports = function(models, io, logger) {
 	var me = this;
 
 	var alphaReportService = new AlphaReportService(models, io, logger);
+	var reporterService = new ReporterService(models, io, logger);
 
 	me.parseTwitterDate = function(text) {
 		return new Date(Date.parse(text.replace(/( +)/, ' UTC$1')));
@@ -71,8 +72,7 @@ module.exports = function(models, io, logger) {
 
 
 		// TODO  Need to figure out what the callback is for parseAndSave and call it
-		
-		reporter_service.saveReporter(reporter_object, function(err, valid, newReporter) {
+		reporterService.create(reporter_object, function(err, valid, newReporter) {
 			if(err) {
 				//var msg = "There was an error saving off a parsed Reporter object";
 				//me.callback(msg, null);

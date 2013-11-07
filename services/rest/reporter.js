@@ -1,75 +1,212 @@
-var reporterService = require('../database/reporter.js');
+var ReporterService = require('../database/reporter.js');
+var responseHandler = require('../general_response');
 
 module.exports = function(app, models, io, logger){
+	var reporterService = new ReporterService(models, io, logger);
 	
-	var me = this;
-
-	me.logger = logger;
-	me.app = app;
-	me.io = io;
-	me.models = models;
-
-	//list all fields of all reporters
-	app.get('/reporter/?', function(req,res){
-		if(logger.DO_LOG){
-			logger.info('Request for a list of all reporters');
+	app.get('/reporter/?', function(req, res) {
+		if (logger.DO_LOG) {
+			logger.info('Request for a list of all Reporters');
 		}
-		reporterService.listReporters(res);
+
+		reporterService.list(req.query, function(err, docs, config) {
+			if (err) {
+				logger.info("Error listing Reporters " + err);
+				responseHandler.send500(res, "Error listing Reporters");
+			} else {
+				reporterService.getTotalCount(config, function(err, count) {
+					if (err){
+						logger.error("Reporter: " + err, err);
+						responseHandler.send500(res, "Error getting count of Reporters");
+					} else {
+						res.jsonp({docs: docs, total_count: count});
+						res.end();
+					}
+				});
+			}
+		});
 	});
-	
-	//list all reporters, only showing name and id
+
+	app.get('/reporter/indexes', function(req, res){
+		if(logger.DO_LOG){
+			logger.info('Request for list of indexes for Reporter');
+			
+			reporterService.getIndexes(function(indexes) {
+				if (!indexes) {
+					responseHandler.send500(res, 'Error getting indexes of Reporters');
+				} else {
+					res.jsonp(indexes);
+					res.end();
+				}
+			});
+		}
+	});
+
+	app.get('/reporter/dates', function(req, res) {
+		if (logger.DO_LOG) { 
+			logger.info('Request for list of dates');
+		}
+		
+		reporterService.findDates(function(dates) {
+			if (!dates) {
+				responseHandler.send500(res, "Error getting dates of raw feeds");
+			} else {
+				res.jsonp(dates);
+				res.end();
+			}
+		});
+	});
+		
+	/** 
+	 * list the _id and name of all Reporters 
+	 */
 	app.get('/reporter/names/?', function(req,res){
-		if(logger.DO_LOG){
-			logger.info('Request for reporter name list');
+		if (logger.DO_LOG) {
+			logger.info('Request for Reporter name list');
 		} 
-		reporterService.listReporterNames(res);
+		
+		var params = {};
+		reporterService.listFields(params, "_id name", function(err, docs) {
+			if (err) {
+				logger.info("Error listing Reporter id - name " + err);
+				responseHandler.send500(res);
+			} else {
+				res.jsonp(docs);
+				res.end();
+			}
+		});
 	});
 	
-	//Create a single reporter based on posted information
+	/** 
+	 * list the _id and source_id of all Reporters 
+	 */
+	app.get('/reporter/source_ids/?', function(req,res){
+		if (logger.DO_LOG) {
+			logger.info('Request for Reporter source_id list');
+		}
+		
+		var params = {};
+		reporterService.listFields(params, "_id source_id", function(err, docs) {
+			if (err) {
+				logger.info("Error listing Reporter id - source_id " + err);
+				responseHandler.send500(res);
+			} else {
+				res.jsonp(docs);
+				res.end();
+			}
+		});
+	});
+	
+	/**
+	 * List all reporters whose source name was source_name (either Twitter, Email or RSS)
+	 */
+	app.get('/reporter/:source_name(Twitter|Email|RSS)', function(req, res){
+		if (logger.DO_LOG) {
+			logger.info('Request for Reporter source of' + req.params.source_name);
+		}
+		
+		reporterService.findWhere({source_name: req.params.source_name}, function(err, docs) {
+			if (err) {
+				logger.error("Error listing Reporters with source_name " + req.params.source_name, err);
+				responseHandler.send500(res);
+			} else {
+				res.jsonp(docs);
+				res.end();
+			}
+		});
+	});
+	
+	/**
+	 * Create a new Reporter
+	 */
 	app.post('/reporter/?', function(req,res){
-		if(logger.DO_LOG){
-			logger.info('Receiving new reporter', req.body);
+		if (logger.DO_LOG) {
+			logger.info('Receiving new Reporter ', req.body);
 		}
-		reporterService.createReporter(req.body, res);
+		
+		reporterService.create(req.body, function(err, val, newReporter) {
+			if(err){
+				logger.error('Error saving Reporter', err);
+				responseHandler.send500(res, 'Error saving Reporter');
+			} else if (!val.valid) {
+				logger.info('Invalid Reporter ' + JSON.stringify(val.errors));
+				responseHandler.send500(res, 'Invalid Reporter');
+			} else {
+				logger.info('Reporter saved ' + JSON.stringify(newReporter));
+				res.json({_id: newReporter._id});
+				res.end();
+			}
+		});
 	});
 	
-	//Review  '/reporter/:{param_name}(contents to go in param_name)'
-	app.get('/reporter/:id([0-9a-f]+)', function(req,res){     
-		if(logger.DO_LOG ){
-			logger.info('Request for reporter ' + req.params.id);
+	/**
+	 * Review  '/reporter/:{param_name}(contents to go in param_name)'
+	 */
+	app.get('/reporter/:id([0-9a-f]+)', function(req,res){
+		if (logger.DO_LOG) {
+			logger.info('Request for Reporter ' + req.params.id);
 		}
-		reporterService.getReporter(req.params.id, res);
+		
+		reporterService.get(req.params.id, function(err, docs) {
+			if (err) {
+				logger.info('Error getting Reporter ' + err);
+				responseHandler.send500(res);
+			} else if (docs) {
+				res.jsonp(docs[0]);
+				res.end();
+			} else {
+				responseHandler.send404(res);
+			}
+		});
 	});
 	
-	//Review all reporters whose source name was source_name (either Twitter or Email)
-	app.get('/reporter/:source_name(Twitter|Email|RSS)', function(req,res){
-		if(logger.DO_LOG){
-			logger.info('Request for reporter source of' + req.params.source_name);
+	/**
+	 * Update Reporter by id
+	 */
+	app.post('/reporter/:id([0-9a-f]+)', function(req, res) {
+		if (logger.DO_LOG) {
+			logger.info('Update Reporter ' + req.params.id);
 		}
-		reporterService.getReporterBySource(req.params.source_name, res);
+		reporterService.update(req.params.id, req.body, function(err, val, updated) {
+			if (err) {
+				logger.error('Error updating Reporter', err);
+				responseHandler.send500(res, 'Error updating Reporter');
+			} else if (val && !val.valid) {
+				logger.info('Invalid Reporter ' + JSON.stringify(val.errors));
+				responseHandler.send500(res, ' Invalid Reporter ');
+			} else {
+				logger.info('Reporter updated ' + JSON.stringify(updated));
+				res.json({id: updated._id});
+				res.end();
+			}
+		});
 	});
 	
-	//Update a single reporter based on the specified id
-	app.post('/reporter/:id([0-9a-f]+)', function(req,res){
-		if(logger.DO_LOG){
-			logger.info('Update reporter ' + req.params.id);
+	/**
+	 * Delete a single Reporter with specified id
+	 */
+	app.del('/reporter/:id([0-9a-f]+)', function(req, res){
+		if (logger.DO_LOG) {
+			logger.info('Deleting Reporter with id: ' + req.params.id);
 		}
-		reporterService.updateReporter(req.params.id, req.body, res);
+		
+		reporterService.del({_id: req.params.id}, function(err, count) {
+			res.json({deleted_count: count});
+			res.end();
+		});
 	});
 	
-	//Delete a single reporter by the specified id
-	app.del('/reporter/:id([0-9a-f]+)', function(req,res){
-		if(logger.DO_LOG){
-			logger.info('Deleting reporter with id: ' + req.params.id);
-		}
-		reporterService.deleteReporter(req.params.id, res);
-	});
-	
-	//Delete all reporters
+	/**
+	 * Delete all Reporters
+	 */
 	app.del('/reporter/', function(req, res){
 		if(logger.DO_LOG){
-			logger.info('Deleting all reporter entries');
+			logger.info('Deleting all Reporters');
 		}
-		reporterService.deleteReporters(res);
+		
+		reporterService.del({}, function(err, count) {
+			res.json({deleted_count: count});
+			res.end();
+		});
 	});
 };

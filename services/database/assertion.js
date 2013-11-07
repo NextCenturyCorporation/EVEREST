@@ -13,7 +13,7 @@ module.exports = function(models, io, logger) {
 	var services = {
 		assertionService: me,
 		alphaReportService: new AlphaReportService(models, io, logger),
-		reporterService: ReporterService //TODO fix this too
+		reporterService: new ReporterService(models, io, logger)
 	};
 	
 	var bvalidator = new Bvalidator(services, logger);

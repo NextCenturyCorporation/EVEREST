@@ -99,11 +99,10 @@ module.exports = function(services, logger) {
 	 */
 	me.reporterExists = function (value, errors, callback) {
 		if (value !== undefined) {
-			//TODO change to findWhere when reporter has it
-			services.reporterService.readReporterByProperty('_id', value, function(err, docs) {
+			services.reporterService.get(value, function(err, docs) {
 				if (err) {
 					me.error('_id', value, errors, 'Error reading Reporter ' + err);
-					logger.error({ error : "Error readReporterByProperty " + err });
+					logger.error({ error : "Error Reporter get by id " + err });
 					callback(err, false);
 				} else if (0 !== docs.length) {
 					logger.debug("Reporter found for reporterExists" + JSON.stringify(docs));

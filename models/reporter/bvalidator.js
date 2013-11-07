@@ -1,73 +1,60 @@
 /**
- * reporter business validation library
+ * Reporter business validation library
  */
-var winston = require('winston');
-var dataLayerReporter = require('../../services/database/reporter.js');
-
-//Load and set up the logger
-var logger = new (winston.Logger)({
-	//Make it log to both the console and a file 
-	transports : [new (winston.transports.Console)(),
-		new (winston.transports.File)({filename: 'logs/general.log'})] //,
-});
-
-
-(function (exports) {
-	exports.validate = validate;
-
-	function validate(object, callback) {
-		var errors = [];
+module.exports = function(services, logger) {
+	var me = this;
 	
-		function done() {
-			var bVal = { valid: !(errors.length), errors: errors };
+	me.validate = function(object, callback) {
+		var errors = [];
+		
+		me.done = function() {
+			var bVal = {valid: !(errors.length), errors: errors};
 			callback(bVal);
-		}
-
-		validateObject(object, errors, done);
-	}
-
+		};
+		
+		me.validateObject(object, errors, me.done);
+	};
+	
 	/**
 	 * Default messages to include with validation errors.
 	 */
-	validate.messages = {
-		lang:					"language value is incorrect",
-		record:				"There is a record-level error"
+	me.messages = {
+		lang: "language value is incorrect",
+		record:	"There is a record-level error"
 	};
-
-
-	function validateObject(object, errors, done) {
+	
+	me.validateObject = function(object, errors, done) {
 		// TODO: put in the logic checks against the object (ie., does the attribute exist)
 		//       to insulate the lower level functions from bad data
 		var value = object.lang;
-		languageExists( value, errors, function (err, found) {
+		me.languageExists(value, errors, function (err, found) {
 			var property = 'lang';
 			if (value !== undefined) {
 				if (!found) {
-					error(property, value, errors, "Language value does not exist.");
+					me.error(property, value, errors, "Language value does not exist.");
 					logger.info("languageExists " + value + " does not exist.");
 				}
 			}
 			
-			reporterExists( object, errors, function (err, found) {
+			me.reporterExists(object, errors, function (err, found) {
 				var property = 'record';
 				if (found) {
-					error(property, object, errors, "reporter already exists.");
+					me.error(property, object, errors, "Reporter already exists.");
 					logger.info("reportertExists " + JSON.stringify(object));
 				}
 				
 				done();
 			});
 		});
-	}
-
-  
+	};
+	
 	/**
-	 ** languageExists verifies the value of the language attribute
-	 ** Makes an async call to the data service to retrieve a matching language 
-	 ** Returns in the callback any system error and a boolean indicating whether
-	 **   or not the place was found. 
-	**/
-	var languageExists = function(value, errors, callback) {
+	 * languageExists verifies the value of the language attribute
+	 * Makes an async call to the data service to retrieve a matching language 
+	 * Returns in the callback any system error and a boolean indicating whether
+	 *   or not the place was found. 
+	 */
+	me.languageExists = function(value, errors, callback) {
 		callback(null, true);
 //		dataLayer.readPlaceByObject(object, function(err, locs){
 //			if (err) {
@@ -82,45 +69,42 @@ var logger = new (winston.Logger)({
 //				callback(err, false);
 //			}
 //		});
-  };
+	};
   
-  var reporterExists = function(object, errors, callback) {
-		
-		var searchObject = { source_name : object.source_name, name : object.name };
-		dataLayerReporter.readReporterByObject(searchObject, function(err, locs){
+	me.reporterExists = function(object, errors, callback) {
+		var searchObject = {source_name: object.source_name, name: object.name};
+		services.reporterService.findWhere(searchObject, function(err, docs){
 			if (err) {
-				error('record', object, errors, 'Error reading reporter ' + err);
+				me.error('record', object, errors, 'Error reading Reporter ' + err);
 				logger.info({ error : "Error readReporterByObject " + err });
 				callback(err, false);
-			} else if (0 !== locs.length) {
-				logger.info("reporter found for reporterExists" + JSON.stringify(locs));
+			} else if (0 !== docs.length) {
+				logger.info("Reporter found for reporterExists" + JSON.stringify(docs));
 				callback(err, true);
 			} else {
-				logger.info("reporter not found " + JSON.stringify(searchObject));
+				logger.info("Reporter not found " + JSON.stringify(searchObject));
 				callback(err, false);
 			}
 		});
-
-  };
+	};
   
   
-	function error(property, actual, errors, msg) {
-	
+	me.error = function(property, actual, errors, msg) {
 		var lookup = {
-			property : property
+			property: property
 		};
 	
-		var message = msg || validate.messages[property] || "no default message";
+		var message = msg || me.messages[property] || "no default message";
 	
 		message = message.replace(/%\{([a-z]+)\}/ig, function(_, match) {
 			var msg = lookup[match.toLowerCase()] || "";
 			return msg;
 		});
+		
 		errors.push({
 			property : property,
 			actual : actual,
 			message : message
 		});
-	}
-
-})(typeof(window) === 'undefined' ? module.exports : (window.json = window.json || {}));
+	};
+};
