@@ -177,10 +177,10 @@ module.exports = function(models, io, logger) {
 	me.update = function(id, data, updCallback) {
 		me.get(id, function(err, docs) {
 			if (err) {
-				logger.info("Error getting AlphaReport "+err);
+				logger.info("Error getting Reporter "+err);
 				updCallback(err, null, data);
 			} else if (docs) {
-				docs = docs[0]; //There will only be one alpha report from the get
+				docs = docs[0]; //There will only be one report from the get
 				for (var e in data) {
 					if (e !== '_id') {
 						docs[e] = data[e];
@@ -199,12 +199,12 @@ module.exports = function(models, io, logger) {
 						});
 					} else {
 						valid.valid = false;
-						valid.errors = {expected: id, message: "Updated Alpha Report information not valid"};
+						valid.errors = {expected: id, message: "Updated Reporter information not valid"};
 						updCallback(err, valid, data);
 					}
 				});
 			} else {
-				var errorMSG = new Error("Could not find Alpha Report to update");
+				var errorMSG = new Error("Could not find Reporter to update");
 				updCallback(errorMSG, null, data);
 			}
 		});
