@@ -18,10 +18,10 @@ var relationship = new Schema({
 var targetAssertionModel = {
 		createdBy: {type: Schema.Types.ObjectId},		// value supplied by the service of the profile creating the object
 		updatedBy: {type: Schema.Types.ObjectId},		// value supplied by the service of the profile updating the object
-		createdDate: {type: Date},									// value supplied by the service
-		updatedDate: {type: Date},									// value supplied by the service
-		name: {type: String, required: true},				// text identifier of the assertion
-		description: {type: String},								// description of the assertion
+		createdDate: {type: Date, "default": Date.now},	// value supplied by the service
+		updatedDate: {type: Date, "default": Date.now},	// value supplied by the service
+		name: {type: String, required: true},			// text identifier of the assertion
+		description: {type: String},					// description of the assertion
 		entity1: {type: [entity], required: true},
 		relationship: {type: [relationship]},
 		entity2: {type: [entity]}
@@ -35,11 +35,11 @@ var targetAssertionValidation = {
 	properties: {
 		createdDate: {
 			description: 'Date this was created in datastore',
-			type: 'date'
+			type: 'object'
 		},
 		updatedDate: {
 			description: 'Date this was last updated in datastore',
-			type: 'date'
+			type: 'object'
 		},
 		name: {
 			description: 'Name of the assertion',

@@ -1,143 +1,151 @@
-var target_assertion_service = require('../database/target_assertion.js');
-var responseHandler = require('../general_response');
+var TargetAssertionService = require("../database/target_assertion.js");
+var responseHandler = require("../general_response");
 
 module.exports = function(app, models, io, logger) {
+	var targetAssertionService = new TargetAssertionService(models, io, logger);
 	
-	var me = this;
-	me.logger = logger;
-	me.app = app;
-	me.io = io;
-	me.models = models;
-	var targetAssertionService = new target_assertion_service(models, io, logger);
-	
-	//list - lists full object
-	app.get('/target-assertion/?', function(req,res){
-		if(logger.DO_LOG){
-			logger.info("Request for target-assertion list");
+	app.get("/target-assertion/?", function(req, res) {
+		if (logger.DO_LOG) {
+			logger.info("Request for list of all Target Assertions");
 		}
-		targetAssertionService.list({}, function(err, docs){
-			if(err){
-				logger.info("Error listing target-assertions "+err);
-				responseHandler.send500(res, "Error listing target-assertions "+err);
+		
+		targetAssertionService.list(req.query, function(err, docs, config) {
+			if (err) {
+				logger.error("Error listing Target Assertions", err);
+				responseHandler.send500(res, "Error listing Target Assertion");
 			} else {
-				res.json(docs);
-				res.end();
+				targetAssertionService.getTotalCount(config, function(err, count) {
+					if (err) {
+						logger.error("Target Assertions: " + err, err);
+						responseHandler.send500(res, "Error getting count of Target Assertions");
+					} else {
+						res.jsonp({docs: docs, total_count: count});
+						res.end();
+					}
+				});
 			}
 		});
 	});
 	
-	//list - lists name and id
-	app.get('/target-assertion/names/?', function(req,res){
-		if(logger.DO_LOG){
-			logger.info("Request for target-assertion name list");
+	app.get("/target-assertion/indexes", function(req, res) {
+		if (logger.DO_LOG) {
+			logger.info("Request for list of indexes for Target Assertion");
 		}
-		targetAssertionService.listFields({}, '_id name', function(err, docs){
-			if(err){
-				logger.info("Error listing target-assertion id - name "+err);
-				responseHandler.send500(res, "Error listing target-assertion id - name "+err);
+		
+		targetAssertionService.getIndexes(function(indexes) {
+			if (!indexes) {
+				responseHandler.send500(res, "Error getting indexes of Target Assertions");
 			} else {
-				res.json(docs);
+				res.jsonp(indexes);
 				res.end();
 			}
 		});
-	});
-
-	//Create
-	app.post('/target-assertion/?', function(req,res){
-		if(logger.DO_LOG){
-			logger.info("Receiving new target-assertion");
+	}); 
+	
+	app.get("/target-assertion/dates", function(req, res) {
+		if (logger.DO_LOG) {
+			logger.info("Request for list of dates for Target Assertion");
 		}
-		targetAssertionService.create(req.body, function(err, val, newObj) {
-			if(err){
-				logger.error('Error saving target-assertion', err);
-				responseHandler.send500(res, 'Error saving target-assertion'+err);
+		
+		targetAssertionService.findDates(function(dates) {
+			if (!dates) {
+				responseHandler.send500(res, "Error getting dates of Target Assertions");
+			} else {
+				res.jsonp(dates);
+				res.end();
+			}
+		});
+	}); 
+	
+	/**
+	 * Create a new Target Assertion
+	 */
+	app.post("/target-assertion/?", function(req,res) {
+		if (logger.DO_LOG) {
+			logger.info("Receiving new Target Assertion", req.body);
+		}
+		
+		targetAssertionService.create(req.body, function(err, val, newTargetAssertion) {
+			if (err) {
+				logger.error("Error saving Target Assertion", err);
+				responseHandler.send500(res, "Error saving Target Assertion"+err);
 			} else if (!val.valid) {
-				logger.info('Invalid target-assertion ' + JSON.stringify(val.errors));
-				responseHandler.send500(res, 'Invalid target-assertion ' + JSON.stringify(val.errors));
+				logger.info("Invalid Target Assertion " + JSON.stringify(val.errors));
+				responseHandler.send500(res, "Invalid Target Assertion " + JSON.stringify(val.errors));
 			} else {
-				logger.info('TargetAssertion saved ' + JSON.stringify(newObj));
-				res.json({_id:newObj._id});
+				logger.info("Target Assertion saved " + JSON.stringify(newTargetAssertion));
+				res.jsonp({_id: newTargetAssertion._id});
 				res.end();
 			}
 		});
 	});
 
-	//review
-	app.get('/target-assertion/:id([0-9a-f]+)', function(req,res){
-		if(logger.DO_LOG){
-			logger.info("Request for target-assertion "+req.params.id);
+	/**
+	 * Review Target Assertion with specified id
+	 * "/target-assertion/:{param_name}(contents to go in param_name)"
+	 */
+	app.get("/target-assertion/:id([0-9a-f]+)", function(req, res) {
+		if (logger.DO_LOG) {
+			logger.info("Request for Target Assertion " + req.params.id);
 		}
-		targetAssertionService.get(req.params.id, function(err, docs){
-			if(err) {
-				logger.error("Error getting target-assertion ",err);
-				responseHandler.send500(res, "Error getting target-assertion "+err);
-			} else if(docs) {
-				res.json(docs);
+		
+		targetAssertionService.get(req.params.id, function(err, docs) {
+			if (err) {
+				logger.error("Error getting Target Assertion",err);
+				responseHandler.send500(res, "Error getting Target Assertion " + err);
+			} else if (docs[0]) {
+				res.jsonp(docs[0]);
 				res.end();
 			} else {
 				responseHandler.send404(res);
 			}
 		});
 	});
-
-	app.get('/target-assertion/:name', function(req,res){
-		if(logger.DO_LOG){
-			logger.info("Request for targetAssertionByName "+req.params.name);
+	
+	/**
+	 * Update Target Assertion with specified id
+	 */
+	app.post("/target-assertion/:id([0-9a-f]+)", function(req, res) {
+		if (logger.DO_LOG) {
+			logger.info("Update Target Assertion "+req.params.id);
 		}
-		targetAssertionService.findWhere({name: req.params.name}, function(err, docs){
-			if(err) {
-				logger.info("Error getting targetAssertionByName "+err);
-				responseHandler.send500(res, "Error getting targetAssertionByName "+err);
-			} else if(0 !== docs.length) {
-				res.json(docs);
-				res.end();
-			} else {
-				responseHandler.send404(res);
-			}
-		});
-	});
-
-	//Update
-	app.post('/target-assertion/:id([0-9a-f]+)', function(req,res){
-		if(logger.DO_LOG){
-			logger.info("Update target-assertion "+req.params.id);
-		}
-		targetAssertionService.update(req.params.id, req.body, function(err, val, updLoc) {
-			if(err){
-				logger.error('Error updating target-assertion', err);
-				responseHandler.send500(res, 'Error updating target-assertion '+err);
+		
+		targetAssertionService.update(req.params.id, req.body, function(err, val, updated) {
+			if (err) {
+				logger.error("Error updating Target Assertion", err);
+				responseHandler.send500(res, "Error updating Target Assertion " + err);
 			} else if (!val.valid) {
-				logger.info('Invalid target-assertion ' + JSON.stringify(val.errors));
-				responseHandler.send500(res, 'Invalid target-assertion ' + JSON.stringify(val.errors));
+				logger.info("Invalid Target Assertion " + JSON.stringify(val.errors));
+				responseHandler.send500(res, "Invalid Target Assertion " + JSON.stringify(val.errors));
 			} else {
-				logger.info('TargetAssertion updated ' + JSON.stringify(updLoc));
-				res.json({_id:updLoc._id});
+				logger.info("Target Assertion updated " + JSON.stringify(updated));
+				res.jsonp({_id: updated._id});
 				res.end();
 			}
 		});
 	});
 	
 	//delete by id
-	app.del('/target-assertion/:id([0-9a-f]+)', function(req, res) {
-		if(logger.DO_LOG) {
-			logger.info("Deleting target-assertion with id: " + req.params.id);
+	app.del("/target-assertion/:id([0-9a-f]+)", function(req, res) {
+		if (logger.DO_LOG) {
+			logger.info("Deleting Target Assertion with id: " + req.params.id);
 		}
-		targetAssertionService.del({_id: req.body.id}, function(err, count) {
-			res.json({deleted_count: count});
+		
+		targetAssertionService.del({_id: req.params.id}, function(err, count) {
+			res.jsonp({deleted_count: count});
 			res.end();
 		});
 	});
 	
 	//delete all
-	app.del('/target-assertion/', function(req, res) {
+	app.del("/target-assertion/", function(req, res) {
 		if(logger.DO_LOG) {
-			logger.info("Deleting all target-assertions");
+			logger.info("Deleting all Target Assertions");
 		}
+		
 		targetAssertionService.del({}, function(err, count) {
-			res.json({deleted_count: count});
+			res.jsonp({deleted_count: count});
 			res.end();
 		});
 	});
-
 };
-

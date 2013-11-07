@@ -1,117 +1,207 @@
-var bvalidator = require('../../models/target_assertion/bvalidator.js');
+var Bvalidator = require('../../models/target_assertion/bvalidator.js');
 var revalidator = require('revalidator');
+//var actionEmitter = require('../action_emitter.js');
+var paramHandler = require('../list_default_handler.js');
+var async = require('async');
 
 module.exports = function(models, io, logger) {
 	var me = this;
 	var validationModel = models.targetAssertionValidation;
-
-	me.list = function(config, callback) {
-		//TODO handle paging
-		models.targetAssertion.find({}, callback);
+	
+	var services = {
+		targetAssertionService: me
 	};
+	var bvalidator = new Bvalidator(services, logger);
 
-	me.listFields = function(config, fields, callback) {
-		models.targetAssertion.find({}, fields, callback);
-	};
-
-	me.get = function(id, callback) {
-		models.targetAssertion.find({_id: id}, callback);
-	};
-
-	me.getFields = function(id, fields, callback) {
-		models.targetAssertion.find({_id: id}, fields, callback);
-	};
-
-	me.findWhere = function(config, callback) {
-		models.targetAssertion.find(config, callback);
-	};
-
-	me.create = function(data, callback) {
-		validateTargetAssertion(data, function(valid) {
-			if (valid.valid) {
-				logger.info("Valid target_assertion");
-				var newObj = new models.targetAssertion(data);
-				newObj.createdDate = new Date();
-				newObj.updatedDate = new Date();
-				newObj.save(function(err){
-					if(err){
-						console.log(err);
-						logger.error('Error saving target_assertion', err);
+	me.list = function(req, callback) {
+		paramHandler.handleDefaultParams(req, function(params){
+			if (params !== null){
+				var sortObject = {};
+				sortObject[params.sortKey] = params.sort;
+				
+				var config = {
+					createdDate :{
+						$gte: params.start,
+						$lte: params.end
 					}
-					callback(err, valid, newObj);
+				};
+				
+				models.targetAssertion.find(config).skip(params.offset).sort(sortObject).limit(params.count).exec(function(err, res){
+					callback(err, res, config);
+				});
+			} else {
+				models.targetAssertion.find({}, function(err, res){
+					callback(err, res, {});
 				});
 			}
-			else {
-				callback(undefined, valid, data);
+		});
+	};
+	
+		
+	/**
+	 *	Returns a list of indexed attributes for Target Assertion
+	 */
+	me.getIndexes = function(callback){
+		var keys = Object.keys(models.targetAssertion.schema.paths);
+		var indexes = ["_id"];
+		for (var i = 0; i < keys.length; i++) {
+			if (models.targetAssertion.schema.paths[keys[i]]._index) {
+				indexes.push(keys[i].toString());
+			}
+		}
+		
+		callback(indexes);
+	};
+	
+	/**
+	 *	Returns a sorted list containing _id and createdDate for all Target Assertions
+	 */
+	me.findDates = function(callback) {
+		models.targetAssertion.find({}, {_id: 0, createdDate:1}, function(err, dates) {
+			var errorMsg = new Error("Could not get feed Dates: " + err);
+			if (err) {
+				callback(errorMsg);
+			} else {
+				async.map(dates, me.flattenArray, function(err, results) {
+					if(err) {
+						callback(errorMsg);
+					} else {
+						callback(results);
+					}
+				});
 			}
 		});
 	};
 
-	me.update = function(id, data, callback) {
-		validateTargetAssertion(data, function(valid){
+	/**
+	 *	Returns the Date version of parameter string.createDate
+	 */
+	me.flattenArray = function (string, callback) {
+		callback(null, Date.parse(string.createdDate));
+	};
+
+	/**
+	 *	Returns the number of Target Assertions that fit the parameter config
+	 */
+	me.getTotalCount = function(config, callback){
+		models.targetAssertion.count(config, callback);
+	};
+
+	/**
+	 *
+	 */
+	me.listFields = function(params, field_string, callback) {
+		models.targetAssertion.find(params, field_string, callback);
+	};
+
+	/**
+	 * create is a "generic" save method callable from both
+	 * request-response methods and parser-type methods for population of Target Assertion data
+	 * 
+	 * saveTargetAssertion calls the validateTargetAssertion module to ensure that the
+	 * data being saved to the database is complete and has integrity.
+	 * 
+	 * saveCallback takes the form function(err, valid object, Target Assertion object)
+	 */
+	me.create = function(data, saveCallback) {
+		me.validateTargetAssertion(data, function(valid) {
 			if (valid.valid) {
-				me.findWhere({_id: id}, function(err, docs){
-					if(err) {
-						logger.info("Error getting target_assertion "+err);
-						callback(err, valid, data);
-					} else if(docs) {
-						docs = docs[0]//FindWhere will always return an array of size one.
-						for(var e in data){
-							//Make sure not to change _id
-							if(e !== '_id'){
-								docs[e] = data[e];
-							}
-						}
-						docs.updatedDate = new Date();
-						docs.save(function(err){
-							if(err){
-								callback(err, valid, data);
-							} else {
-								callback(err, valid, docs);
-							}
-						});			
+				logger.info("Valid Target Assertion");
+				
+				var newTargetAssertion = new models.targetAssertion(data);
+				newTargetAssertion.save(function(err){
+					if (err) {
+						logger.error('Error saving Target Assertion', err);
 					} else {
-						valid.valid = false;
-						valid.errors = {expected: id, message: "TargetAssertion not found"};
-						callback(err, valid, data);
+						//actionEmitter.saveTargetAssertionEvent(newTargetAssertion);
 					}
+					
+					saveCallback(err, valid, newTargetAssertion);
 				});
+			} else {
+				saveCallback(undefined, valid, data);
 			}
-			else {
-				callback(undefined, valid, data);
+		});
+	};
+	
+	/**
+	 * validateTargetAssertion validates a Target Assertion object against the Target Assertion semantic rules
+	 * and the business rules associated with a Target Assertion
+	 *
+	 * validateTargetAssertion calls the JSON validation module revalidator and
+	 * calls the business validation module bvalidator for the Target Assertion object
+
+	 * data is the Target Assertion object being validated
+	 * 
+	 * valCallback takes the form function(valid structure)
+	 */
+	me.validateTargetAssertion = function(data, valCallback) {
+		// is the JSON semantically valid for the Target Assertion object?
+		var valid = revalidator.validate(data, validationModel);
+		if (valid.valid) {
+			// does the Target Assertion object comply with business validation logic
+			bvalidator.validate(data, function(valid) {
+				valCallback(valid);
+			});
+		} else {
+			valCallback(valid);
+		}	
+	};
+	
+	/**
+	 * Returns the Target Assertion object with id specified in URL
+	 */
+	me.get = function(id, callback) {
+		models.targetAssertion.find({_id: id}, callback);
+	};
+	
+	/**
+	 * generic read method to return all documents that have a matching
+	 * set of key, value pairs specified by config
+	 * 
+	 * callback takes the form function(err, docs)
+	 */
+	me.findWhere = function(config, callback) {
+		models.targetAssertion.find(config, callback);
+	};
+	
+	
+	me.update = function(id, data, updCallback) {
+		me.get(id, function(err, docs){
+			if (err) {
+				logger.error("Error getting Target Assertion", err);
+				updCallback(err, null, data);
+			} else if (docs[0]) {
+				docs = docs[0]; //get will always return an array of size one.
+				for (var e in data){
+					//Make sure not to change _id
+					if (e !== '_id') {
+						docs[e] = data[e];
+					}
+				}
+				
+				docs.updatedDate = new Date();
+				me.validateTargetAssertion(docs, function(valid){
+					if (valid.valid) {
+						docs.save(function(err) {
+							if (err) {
+								updCallback(err, valid, data);
+							} else {
+								updCallback(err, valid, docs);
+							}
+						});	
+					} else {
+						updCallback(err, valid, data);
+					}	
+				});	
+			} else {
+				var errorMsg = new Error("Could not find Target Assertion to update.");
+				updCallback(errorMsg, null, data);
 			}
 		});
 	};
 
 	me.del = function(config, callback) {
 		models.targetAssertion.remove(config, callback);
-	};
-
-	/**
-	 * validateTargetAssertion validates a target_assertion object against the target_assertion semantic rules
-	 * and the business rules associated with a target_assertion
-	 *
-	 * validateTargetAssertion calls the JSON validation module  revalidator and
-	 * calls the business validation module bvalidator for the target_assertion object
-
-	 * data is the target_assertion object being validated
-	 * 
-	 * valCallback takes the form of  function(valid structure)
-	 */
-	var validateTargetAssertion = function(data, valCallback) {
-		var services = {targetAssertion: me};
-
-		var Bvalidator = new bvalidator(services, logger);
-		// is the JSON semantically valid for the target_assertion object?
-		var valid = revalidator.validate(data, validationModel);
-		if (valid.valid) {
-			// does the target_assertion object comply with business validation logic
-			Bvalidator.validate(data, function(valid) {
-				valCallback(valid);
-			});
-		}
-		else {
-			valCallback(valid);
-		}	
 	};
 };

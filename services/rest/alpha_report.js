@@ -68,7 +68,7 @@ module.exports = function(app, models, io, logger) {
 		var params = {};
 		alphaReportService.listFields(params, "_id source_id", function(err, docs) {
 			if (err) {
-				logger.info("Error listing alpha report id - source_id " + err);
+				logger.error("Error listing alpha report id - source_id", err);
 				responseHandler.send500(res);
 			} else {
 				res.jsonp(docs);
