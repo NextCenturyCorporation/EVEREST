@@ -7,8 +7,10 @@ module.exports = function(models, io, logger) {
 	var me = this;
 	var validationModel = models.rawFeedValidation;
 	
+	/**
+	 *	Returns a list of all the Raw Feeds
+	 */
 	me.list = function(req, callback){
-
 		paramHandler.handleDefaultParams(req, function(params){
 			if (params !== null){
 				var sortObject = {};
@@ -21,18 +23,20 @@ module.exports = function(models, io, logger) {
 					}
 				};
 				
-				models.rawFeed.find(config).skip(params.offset).sort(sortObject).limit(params.count).exec(function(error, response){
-					callback(error, response, config);
+				models.rawFeed.find(config).skip(params.offset).sort(sortObject).limit(params.count).exec(function(err, res){
+					callback(err, res, config);
 				});
 			} else {
-				models.rawFeed.find({}, function(error, response){
-					callback(error, response, {});
+				models.rawFeed.find({}, function(err, res){
+					callback(err, res, {});
 				});
 			}
 		});
 	};
 	
-	//temporary way to get database indexes for sorting
+	/**
+	 *	Returns a list of indexed attributes for Raw Feed
+	 */
 	me.getIndexes = function(callback){
 		var keys = Object.keys(models.rawFeed.schema.paths);
 		var indexes = ["_id"];
@@ -45,29 +49,16 @@ module.exports = function(models, io, logger) {
 		callback(indexes);
 	};
 	
-	me.getTotalCount = function(config, callback){
-		models.rawFeed.count(config, callback);
-	};
-	
-	me.get = function(id, callback) {
-		me.findWhere({_id: id}, callback);
-	};
-	
-	me.getFields = function(id, fields, callback){
-		me.findWhereFields({_id: id}, fields, callback);
-	};
-	
-	me.findWhere = function(config, callback){
-		models.rawFeed.find(config, callback);
-	};
-
+	/**
+	 *	Returns a sorted list containing _id and createdDate for all Raw Feeds
+	 */
 	me.findDates = function(callback) {
-		models.rawFeed.find({},{_id: 0, createdDate:1}, function(err, dates) {
+		models.rawFeed.find({}, {_id: 0, createdDate:1}, function(err, dates) {
 			var errorMsg = new Error("Could not get feed Dates: " + err);
-			if(err) {
+			if (err) {
 				callback(errorMsg);
 			} else {
-				async.map(dates, me.flattenArray, function(err,results) {
+				async.map(dates, me.flattenArray, function(err, results) {
 					if(err) {
 						callback(errorMsg);
 					} else {
@@ -78,40 +69,70 @@ module.exports = function(models, io, logger) {
 		});
 	};
 
+	/**
+	 *	Returns the Date version of parameter string.createDate
+	 */
 	me.flattenArray = function (string, callback) {
 		callback(null, Date.parse(string.createdDate));
 	};
 
-
-	me.findWhereFields = function(config, fields, callback){
-		models.rawFeed.find(config, fields, callback);
+	/**
+	 *	Returns the number of Raw Feeds that fit the parameter config
+	 */
+	me.getTotalCount = function(config, callback){
+		models.rawFeed.count(config, callback);
 	};
 	
+	/**
+	 *
+	 */
+	me.listFields = function(params, field_string, callback){
+		models.rawFeed.find(params, field_string, callback);
+	};
+	
+	/**
+	 * create is a "generic" save method callable from both
+	 * request-response methods and parser-type methods for population of Raw Feed data
+	 * 
+	 * saveRawFeed calls the validateRawFeed module to ensure that the
+	 * data being saved to the database is complete and has integrity.
+	 * 
+	 * saveCallback takes the form function(err, valid object, Raw Feed object)
+	 */
 	me.create = function(data, callback) {
 		me.validateRawFeed(data, function(valid) {
 			if (valid.valid) {
 				logger.info("Valid raw_feed");
 				var newFeed = new models.rawFeed(data);
-				newFeed.createdDate = new Date();
-				newFeed.updatedDate = new Date();
+				//newFeed.createdDate = new Date();
+				//newFeed.updatedDate = new Date();
 				newFeed.save(function(err){
-					if(err){
-						me.logger.error('Error saving raw feed', err);
+					if (err){
+						logger.error('Error saving raw feed', err);
 					} else {
-						actionEmitter.saveFeedEvent({data: newFeed});
+						actionEmitter.saveFeedEvent(newFeed);
+						//actionEmitter.saveFeedEvent({data: newFeed});
 					}
 	
 					callback(err, valid, newFeed);
 				});
-			}
-			else {
+			} else {
 				callback(undefined, valid, data);
 			}
 		});
 	};
 	
+	/**
+	 * validateRawFeed validates an Alpha Report object against the Raw Feed
+	 * semantic rules and the business rules associated with an RawFeed
+	 *
+	 * validateRawFeed calls the JSON validation module revalidator
+	 *
+	 * data is the object being validated
+	 * 
+	 * valCallback takes the form function(valid structure)
+	 */
 	me.validateRawFeed = function(data, valCallback) {
-		var services = {rawFeed: me};
 		// is the JSON semantically valid for the raw feed object?
 		var valid = revalidator.validate(data, validationModel);
 		if (valid.valid) {
@@ -125,59 +146,66 @@ module.exports = function(models, io, logger) {
 		}	
 	};
 	
-	me.update = function(id, data, callback) {
-		me.validateRawFeed(data, function(valid){
-			if (valid.valid) {
-				me.get(id, function(err, docs){
-					if (err) {
-						logger.info("Error getting raw_feed "+err);
-						callback(err, valid, data);
-					} else if (docs) {
-						docs = docs[0]; //Since me.get will always return an array of size 1;
-						for (var e in data) {
-							//Make sure not to change _id
-							if (e !== '_id') {
-								docs[e] = data[e];
-							}
-						}
-						
-						docs.updatedDate = new Date();
-						docs.save(function(err){
-							if (err){
-								callback(err, valid, data);
+	/**
+	 * Returns the Raw Feed object with id specified in URL
+	 */
+	me.get = function(id, callback) {
+		me.findWhere({_id: id}, callback);
+	};
+	
+	/**
+	 * generic read method to return all documents that have a matching
+	 * set of key, value pairs specified by config
+	 * 
+	 * callback takes the form function(err, docs)
+	 */
+	me.findWhere = function(config, callback){
+		models.rawFeed.find(config, callback);
+	};
+	
+	/**
+	 * update calls validateRawFeed then updates the object
+	 *
+	 * callback takes the form function(err, valid object, Raw Feed object)
+	 */
+	me.update = function(id, data, updCallback) {
+		me.get(id, function(err, docs) {
+			if (err) {
+				logger.error("Error getting Raw Feed", err);
+				updCallback(err, null, data);
+			} else if (docs[0]) {
+				docs = docs[0]; //Since me.get will always return an array of size 1
+				for (var e in data) {
+					//Make sure not to change _id
+					if (e !== '_id') {
+						docs[e] = data[e];
+					}
+				}
+				
+				docs.updatedDate = new Date();
+				me.validateRawFeed(data, function(valid) {
+					if (valid.valid) {
+						docs.save(function(err) {
+							if (err) {
+								updCallback(err, valid, data);
 							} else {
-								callback(err, valid, docs);
+								updCallback(err, valid, docs);
 							}
-						});			
+						});	
 					} else {
 						valid.valid = false;
-						valid.errors = {expected: id, message: "Raw_feed not found"};
-						callback(err, valid, data);
+						valid.errors = {expected: id, message: "Updated Raw Feed information not valid"};
+						updCallback(err, valid, data);
 					}
-				});
-			}
-			else {
-				callback(undefined, valid, data);
+				});		
+			} else {
+				var errorMsg = new Error("Could not find Raw Feed to update.");
+				updCallback(errorMsg, null, data);
 			}
 		});
 	};
 	
 	me.del = function(params, callback){
 		models.rawFeed.remove(params, callback);
-	};
-	
-	me.validateRawFeed = function(data, valCallback) {
-		var services = {rawFeed: me};
-		// is the JSON semantically valid for the raw feed object?
-		var valid = revalidator.validate(data, validationModel);
-		if (valid.valid) {
-			// does the raw feed object comply with business validation logic
-			//bvalidator.validate(data, function(valid) {
-			//	valCallback(valid);
-			//});
-			valCallback(valid);
-		} else {
-			valCallback(valid);
-		}	
 	};
 };

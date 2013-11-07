@@ -1,29 +1,25 @@
-var RawFeedService = require('../database/raw_feed.js');
-var responseHandler = require('../general_response');
+var RawFeedService = require("../database/raw_feed.js");
+var responseHandler = require("../general_response");
 
 module.exports = function(app, models, io, logger) {
-
 	var rawFeedService = new RawFeedService(models, io, logger);
 
-	// Get a list of all rawFeeds
-	app.get('/rawfeed/?', function(req, res){
+	app.get("/rawfeed/?", function(req, res){
 		if (logger.DO_LOG){ 
-			logger.info('Request for list of feeds');
+			logger.info("Request for list of feeds");
 		}
 
-		//params
-		rawFeedService.list(req.query, function(err, rawFeeds, config){
+		rawFeedService.list(req.query, function(err, docs, config){
 			if(err){
-				var errMsg = "Error listing raw feeds";
-				logger.error("RawFeed: "+err, err);
-				responseHandler.send500(res, errMsg);
+				logger.error("Error listing Raw Feeds", err);
+				responseHandler.send500(res, "Error listing Raw Feeds");
 			} else {
-				rawFeedService.getTotalCount(config, function(err, numFeeds){
+				rawFeedService.getTotalCount(config, function(err, count){
 					if (err){
-						logger.error("RawFeed: "+err, err);
-						responseHandler.send500(res, "Error getting count of raw feeds");
+						logger.error("RawFeed: " + err, err);
+						responseHandler.send500(res, "Error getting count of Raw Feeds");
 					} else {
-						res.jsonp({docs: rawFeeds, total_count: numFeeds});
+						res.jsonp({docs: docs, total_count: count});
 						res.end();
 					}
 				});
@@ -31,13 +27,13 @@ module.exports = function(app, models, io, logger) {
 		});
 	});
 	
-	app.get('/rawfeed/indexes', function(req, res){
-		if(logger.DO_LOG){ 
-			logger.info('Request for list of indexes');
+	app.get("/rawfeed/indexes", function(req, res){
+		if (logger.DO_LOG){ 
+			logger.info("Request for list of indexes for Raw Feed");
 		}
 		
-		rawFeedService.getIndexes(function(indexes){
-			if (!indexes){
+		rawFeedService.getIndexes(function(indexes) {
+			if (!indexes) {
 				responseHandler.send500(res, "Error getting indexes of Raw Feeds");
 			} else {
 				res.jsonp(indexes);
@@ -46,32 +42,59 @@ module.exports = function(app, models, io, logger) {
 		});
 	});
 
-	app.get('/rawfeed/dates', function(req, res){
-		if(logger.DO_LOG){ 
-			logger.info('Request for list of dates');
+	app.get("/rawfeed/dates", function(req, res){
+		if (logger.DO_LOG) { 
+			logger.info("Request for list of dates for Raw Feed");
 		}
 		
 		rawFeedService.findDates(function(dates){
 			if (!dates){
-				responseHandler.send500(res, "Error getting dates of raw feeds");
+				responseHandler.send500(res, "Error getting dates of Raw Feeds");
 			} else {
 				res.jsonp(dates);
 				res.end();
 			}
 		});
 	});
-	
-	// Review
-	app.get('/rawfeed/:id([0-9a-f]+)', function(req, res){
-		if(0 && logger.DO_LOG){
-			logger.info("Request for raw feed " + req.params.id);
+
+	/**
+	 * Create a new Raw Feed
+	 */
+	app.post("/rawfeed/?", function(req, res){
+		if (logger.DO_LOG) {
+			logger.info("Receiving new Raw Feed", req.body);
 		}
-		rawFeedService.get(req.params.id, function(err, docs){
-			if(err) {
-				logger.info("Error getting raw feed "+err);
-				responseHandler.send500(res, "Error getting raw feed " + err);
-			} else if(docs) {
-				res.jsonp(docs);
+		
+		rawFeedService.create(req.body, function(err, val, newFeed) {
+			if(err){
+				logger.error("Error saving Raw Feed ", err);
+				responseHandler.send500(res, "Error saving Raw Feed " + err);
+			} else if (!val.valid) {
+				logger.info("Invalid Raw Feed " + JSON.stringify(val.errors));
+				responseHandler.send500(res, "Invalid Raw Feed " + JSON.stringify(val.errors));
+			} else {
+				logger.info("Raw Feed saved " + JSON.stringify(newFeed));
+				res.jsonp({_id: newFeed._id});
+				res.end();
+			}
+		});
+	});
+	
+	/**
+	 * Review a Raw Feed by id
+	 * '/rawfeed/:{param_name}(contents to go in param_name)'
+	 */
+	app.get("/rawfeed/:id([0-9a-f]+)", function(req, res){
+		if (logger.DO_LOG) {
+			logger.info("Request for Raw Feed " + req.params.id);
+		}
+		
+		rawFeedService.get(req.params.id, function(err, docs) {
+			if (err) {
+				logger.error("Error getting Raw Feed", err);
+				responseHandler.send500(res, "Error getting Raw Feed");
+			} else if (docs[0]) {
+				res.jsonp(docs[0]);
 				res.end();
 			} else {
 				responseHandler.send404(res);
@@ -79,68 +102,52 @@ module.exports = function(app, models, io, logger) {
 		});
 	});
 
-	// Create
-	app.post('/rawfeed/?', function(req, res){
-		if(logger.DO_LOG){
-			logger.info("Receiving new feed", req.body);
+	/**
+	 * Update Raw Feed by id
+	 */
+	app.post("/rawfeed/:id([0-9a-f]+)", function(req,res) {
+		if (logger.DO_LOG) {
+			logger.info("Update Raw Feed " + req.params.id, req.body);
 		}
-		rawFeedService.create(req.body, function(err, val, newFeed) {
-			if(err){
-				logger.error('Error saving raw feed ', err);
-				responseHandler.send500(res, 'Error saving raw feed ' + err);
-			} else if (!val.valid) {
-				logger.info('Invalid raw_feed ' + JSON.stringify(val.errors));
-				responseHandler.send500(res, 'Invalid raw feed ' + JSON.stringify(val.errors));
+		rawFeedService.update(req.params.id, req.body, function(err, val, updated) {
+			if (err) {
+				logger.error("Error updating Raw Feed", err);
+				responseHandler.send500(res, "Error updating Raw Feed " + err);
+			} else if (val && !val.valid) {
+				logger.info("Invalid Raw Feed " + JSON.stringify(val.errors));
+				responseHandler.send500(res, "Invalid Raw Feed " + JSON.stringify(val.errors));
 			} else {
-				logger.info('Raw feed saved ' + JSON.stringify(newFeed));
-				res.json({_id:newFeed._id});
+				logger.info("Raw Feed updated " + JSON.stringify(updated));
+				res.jsonp({id: updated._id});
 				res.end();
 			}
 		});
 	});
 
-	// Update
-	app.post('/rawfeed/:id([0-9a-f]+)', function(req,res){
-		if(logger.DO_LOG){
-			logger.info("Update feed " + req.params.id, req.body);
-		}
-		rawFeedService.update(req.params.id, req.body, function(err, val, updFeed) {
-			if(err){
-				logger.error('Error updating raw feed', err);
-				responseHandler.send500(res, 'Error updating raw feed ' + err);
-			} else if (!val.valid) {
-				logger.info('Invalid raw feed ' + JSON.stringify(val.errors));
-				responseHandler.send500(res, 'Invalid raw feed ' + JSON.stringify(val.errors));
-			} else {
-				logger.info('Raw feed updated ' + JSON.stringify(updFeed));
-				res.json({id:updFeed._id});
-				res.end();
-			}
-		});
-	});
-
-	// Delete an individual raw_feed
-	app.del('/rawfeed/:id([0-9a-f]+)',function(req, res){
-		var id = req.params.id;
-
-		if(logger.DO_LOG){
-			logger.info("Deleting raw feed with id: " + id);
+	/**
+	 * Delete Raw Feed with specified id
+	 */
+	app.del("/rawfeed/:id([0-9a-f]+)", function(req, res) {
+		if (logger.DO_LOG) {
+			logger.info("Deleting Raw Feed with id: " + req.params.id);
 		}
 
-		rawFeedService.del({_id:id}, function(err, count){
-			res.json({deleted_count: count});
+		rawFeedService.del({_id: req.params.id}, function(err, count){
+			res.jsonp({deleted_count: count});
 			res.end();
 		});
 	});
 	
-	// Delete all raw_feed entries
-	app.del('/rawfeed/',function(req, res){
-		if(logger.DO_LOG){
-			logger.info("Deleting all raw feed entries");
+	/**
+	 * Delete all Raw Feeds
+	 */
+	app.del("/rawfeed/",function(req, res){
+		if (logger.DO_LOG) {
+			logger.info("Deleting all Raw Feeds");
 		}
 		
 		rawFeedService.del({}, function(err, count){
-			res.json({deleted_count: count});
+			res.jsonp({deleted_count: count});
 			res.end();
 		});
 	});

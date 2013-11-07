@@ -94,7 +94,7 @@ module.exports = function(app, models, io, logger) {
 				responseHandler.send500(res, 'Invalid Alpha Report');
 			} else {
 				logger.info('Alpha Report saved ' + JSON.stringify(newAlphaReport));
-				res.json({_id:newAlphaReport._id});
+				res.jsonp({_id: newAlphaReport._id});
 				res.end();
 			}
 		});
@@ -137,7 +137,7 @@ module.exports = function(app, models, io, logger) {
 				responseHandler.send500(res, ' Invalid Alpha Report ');
 			} else {
 				logger.info('Alpha Report updated ' + JSON.stringify(updated));
-				res.json({id: updated._id});
+				res.jsonp({id: updated._id});
 				res.end();
 			}
 		});
@@ -152,7 +152,7 @@ module.exports = function(app, models, io, logger) {
 		}
 		
 		alphaReportService.del({_id: req.params.id}, function(err, count) {
-			res.json({deleted_count: count});
+			res.jsonp({deleted_count: count});
 			res.end();
 		});
 	});
@@ -166,7 +166,7 @@ module.exports = function(app, models, io, logger) {
 		}
 		
 		alphaReportService.del({}, function(err, count) {
-			res.json({deleted_count: count});
+			res.jsonp({deleted_count: count});
 			res.end();
 		});
 	});
