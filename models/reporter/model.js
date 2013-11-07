@@ -27,11 +27,11 @@ var reporterValidation = {
 	properties: {
 		createdDate: {
 			description: 'Date this reporter was created in datastore',
-			type: 'date'
+			type: 'object'
 		},
 		updatedDate: {
 			description: 'Date this reporter was last updated in datastore',
-			type: 'date'
+			type: 'object'
 		},
 		name: {
 			description : 'The name of the reporter',

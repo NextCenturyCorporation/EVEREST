@@ -29,7 +29,7 @@ module.exports = function(models, io, logger) {
 						$lte: params.end
 					}
 				};
-				
+
 				models.reporter.find(config).skip(params.offset).sort(sortObject).limit(params.count).exec(function(err, res){
 					callback(err, res, config);
 				});
@@ -112,6 +112,8 @@ module.exports = function(models, io, logger) {
 				logger.info("Valid Reporter");
 				
 				var newReporter = new models.reporter(data);
+				newReporter.createdDate = new Date();
+				newReporter.updatedDate = new Date();
 				newReporter.save(function(err){
 					if (err){
 						logger.error('Error saving Reporter ', err);
@@ -198,8 +200,8 @@ module.exports = function(models, io, logger) {
 							}
 						});
 					} else {
-						valid.valid = false;
-						valid.errors = {expected: id, message: "Updated Reporter information not valid"};
+						//valid.valid = false;
+						//valid.errors = {expected: id, message: "Updated Reporter information not valid"};
 						updCallback(err, valid, data);
 					}
 				});

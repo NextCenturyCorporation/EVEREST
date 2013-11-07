@@ -1,5 +1,5 @@
 var ReporterService = require('../database/reporter.js');
-var responseHandler = require('../general_response.js');
+var responseHandler = require('../general_response');
 
 module.exports = function(app, models, io, logger){
 	var reporterService = new ReporterService(models, io, logger);
