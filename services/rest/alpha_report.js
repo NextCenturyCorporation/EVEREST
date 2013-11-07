@@ -11,7 +11,7 @@ module.exports = function(app, models, io, logger) {
 
 		alphaReportService.list(req.query, function(err, docs, config) {
 			if (err) {
-				logger.info("Error listing Alpha Reports " + err);
+				logger.error("Error listing Alpha Reports", err);
 				responseHandler.send500(res, "Error listing Alpha Reports");
 			} else {
 				alphaReportService.getTotalCount(config, function(err, count) {
@@ -49,7 +49,7 @@ module.exports = function(app, models, io, logger) {
 		
 		alphaReportService.findDates(function(dates) {
 			if (!dates) {
-				responseHandler.send500(res, "Error getting dates of raw feeds");
+				responseHandler.send500(res, "Error getting dates of Alpha Reports");
 			} else {
 				res.jsonp(dates);
 				res.end();
@@ -87,13 +87,13 @@ module.exports = function(app, models, io, logger) {
 		
 		alphaReportService.create(req.body, function(err, val, newAlphaReport) {
 			if(err){
-				logger.error('Error saving AlphaReport', err);
-				responseHandler.send500(res, 'Error saving AlphaReport');
+				logger.error('Error saving Alpha Report', err);
+				responseHandler.send500(res, 'Error saving Alpha Report');
 			} else if (!val.valid) {
-				logger.info('Invalid AlphaReport ' + JSON.stringify(val.errors));
-				responseHandler.send500(res, 'Invalid AlphaReport');
+				logger.info('Invalid Alpha Report ' + JSON.stringify(val.errors));
+				responseHandler.send500(res, 'Invalid Alpha Report');
 			} else {
-				logger.info('AlphaReport saved ' + JSON.stringify(newAlphaReport));
+				logger.info('Alpha Report saved ' + JSON.stringify(newAlphaReport));
 				res.json({_id:newAlphaReport._id});
 				res.end();
 			}
@@ -112,7 +112,7 @@ module.exports = function(app, models, io, logger) {
 			if (err) {
 				logger.info('Error getting Alpha Report ' + err);
 				responseHandler.send500(res);
-			} else if (docs) {
+			} else if (docs[0]) {
 				res.jsonp(docs[0]);
 				res.end();
 			} else {

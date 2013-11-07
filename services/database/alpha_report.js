@@ -148,8 +148,7 @@ module.exports = function(models, io, logger) {
 			bvalidator.validate(data, function(valid) {
 				valCallback(valid);
 			});
-		}
-		else {
+		} else {
 			valCallback(valid);
 		}
 	};
@@ -179,7 +178,7 @@ module.exports = function(models, io, logger) {
 	me.update = function(id, data, updCallback) {
 		me.get(id, function(err, docs) {
 			if (err) {
-				logger.info("Error getting AlphaReport "+err);
+				logger.info("Error getting Alpha Report "+err);
 				updCallback(err, null, data);
 			} else if (docs) {
 				docs = docs[0]; //There will only be one alpha report from the get

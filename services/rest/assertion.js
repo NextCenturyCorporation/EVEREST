@@ -92,7 +92,7 @@ module.exports = function(app, models, io, logger) {
 			if (err) {
 				logger.error('Error getting Assertion ', err);
 				responseHandler.send500(res, 'Error getting Assertion');
-			} else if (docs) {
+			} else if (docs[0]) {
 				res.json(docs[0]);
 				res.end();
 			} else {

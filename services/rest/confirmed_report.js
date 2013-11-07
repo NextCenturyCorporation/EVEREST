@@ -1,172 +1,205 @@
 /*global require*/
 // Identify require as a global function/keyword for JSHint
 
-var ConfirmedReportService = require('../database/confirmed_report.js');
-var responseHandler = require('../general_response');
+var ConfirmedReportService = require("../database/confirmed_report.js");
+var responseHandler = require("../general_response");
 
-module.exports = function(app, models, io, log) {
-	var me = this;
+module.exports = function(app, models, io, logger) {
+	var confirmedReportService = new ConfirmedReportService(models, io, logger);
 
-	me.app = app;
-	me.models = models;
-	me.logger = log;
-	me.io = io;
-
-	var confirmedReportService = new ConfirmedReportService(me.models, me.io, me.logger);
-
-	//list
-	me.app.get('/confirmed-report/?', function(req, res){
-		if(me.logger.DO_LOG){
-			me.logger.info('Request for a list of all confirmed reports');
+	app.get("/confirmed-report/?", function(req, res){
+		if (logger.DO_LOG) {
+			logger.info("Request for a list of all Confirmed Reports");
 		}
 
-		//TODO params
-		confirmedReportService.list({}, function(err, reports) {
+		confirmedReportService.list(req.query, function(err, docs, config) {
 			if(err) {
-				var errMsg = "Error attempting to list confirmed reports";
-				me.logger.error("confirmedReport: " + errMsg, err);
-				responseHandler.send500(res, errMsg);
+				logger.error("Error listing Confirmed Reports ", err);
+				responseHandler.send500(res, "Error listing Confirmed Reports");
 			} else {
-				res.jsonp(reports);
+				confirmedReportService.getTotalCount(config, function(err, count){
+					if (err) {
+						logger.error("Confirmed Report: " + err, err);
+						responseHandler.send500(res, "Error getting count of Confirmed Reports");
+					} else {
+						res.jsonp({docs: docs, total_count: count});
+						res.end();
+					}
+				});
+			}
+		});
+	});
+	
+	app.get("/confirmed-report/indexes", function(req, res) {
+		if(logger.DO_LOG){
+			logger.info("Request for list of indexes for Confirmed Report");
+			
+			confirmedReportService.getIndexes(function(indexes) {
+				if (!indexes) {
+					responseHandler.send500(res, "Error getting indexes of Confirmed Reports");
+				} else {
+					res.jsonp(indexes);
+					res.end();
+				}
+			});
+		}
+	});
+	
+	app.get("/confirmed-report/dates", function(req, res) {
+		if (logger.DO_LOG) { 
+			logger.info("Request for list of dates");
+		}
+		
+		confirmedReportService.findDates(function(dates) {
+			if (!dates) {
+				responseHandler.send500(res, "Error getting dates of Confirmed Reports");
+			} else {
+				res.jsonp(dates);
 				res.end();
 			}
 		});
 	});
 
-	//get
-	me.app.get('/confirmed-report/:id([0-9a-f]+)', function(req,res){     
-		if(me.logger.DO_LOG ){
-			me.logger.info('Request for confirmed report ' + req.params.id);
+
+	/**
+	 * Create a new Confirmed Report
+	 */
+	app.post("/confirmed-report/?", function(req,res) {
+		if (logger.DO_LOG) {
+			logger.info("Receiving new Confirmed Report", req.body);
 		}
 
-		confirmedReportService.get(req.params.id, function(err, report) {
-			if(err) {
-				var errMsg = "Error attempting to get confirmed report";
-				me.logger.error("confirmedReport: " + errMsg, err);
-				responseHandler.send500(res, errMsg);
-			} else {
-				res.jsonp(report);
-				res.end();
-			}
-		});
-	});
-
-	//delete
-	me.app.del('/confirmed-report/:id([0-9a-f]+)', function(req,res){
-		if(me.logger.DO_LOG){
-			me.logger.info('Deleting confirmed report with id: ' + req.params.id);
+		var data = req.body;
+		if (data.assertions) {
+			data.assertions = data.assertions.split(",");
 		}
 
-		var id = req.params.id;
-
-		confirmedReportService.del({_id: id}, function(err, count) {
-			if(err) {
-				var errMsg = "Error attempting to delete confirmed report";
-				me.logger.error("confirmedReport: " + errMsg, err);
-				responseHandler.send500(res, errMsg);
+		confirmedReportService.create(data, function(err, val, newConfirmedReport) {
+			if (err) {
+				logger.error("Error saving Confirmed Report", err);
+				responseHandler.send500(res, "Error saving Confirmed Report");
+			} else if ( !val.valid ){
+				logger.info("Invalid Confirmed Report " + JSON.stringify(val.errors));
+				responseHandler.send500(res, "Invalid Confirmed Report");
 			} else {
-				res.json({deleted_count: count, _id: id});
+				logger.info("Confirmed Report saved " + JSON.stringify(newConfirmedReport));
+				res.jsonp({_id: newConfirmedReport._id});
 				res.end();
 			}
 		});
 	});
 	
-	//Delete all
-	me.app.del('/confirmed-report/?', function(req, res){
-		if(me.logger.DO_LOG){
-			me.logger.info('Deleting all confirmed report entries');
+	/**
+	 * "/confirmed-report/:{param_name}(contents go in param_name)
+	 * Review Confirmed Report by id
+	 */
+	app.get("/confirmed-report/:id([0-9a-f]+)", function(req, res) {     
+		if (logger.DO_LOG ) {
+			logger.info("Request for Confirmed Report " + req.params.id);
 		}
-		confirmedReportService.del({}, function(err, count) {
-			if(err) {
-				var errMsg = "Error attempting to delete confirmed reports";
-				me.logger.error("confirmedReport: " + errMsg, err);
-				responseHandler.send500(res, errMsg);
-			} else {
-				res.json({deleted_count: count});
+		console.log(req.params.id);
+		confirmedReportService.get(req.params.id, function(err, docs) {
+			if (err) {
+				logger.error("Error getting Confirmed Report", err);
+				responseHandler.send500(res, "Error getting Confirmed Report");
+			} else if (docs[0]) {
+				res.jsonp(docs[0]);
 				res.end();
+			} else {
+				responseHandler.send404(res);
 			}
 		});
 	});
 
-	//create
-	me.app.post('/confirmed-report/?', function(req,res){
-		if(me.logger.DO_LOG){
-			me.logger.info('Receiving new confirmed report', req.body);
+
+	/**
+	 * Update Confirmed Report by id
+	 */
+	app.post("/confirmed-report/:id([0-9a-f]+)", function(req, res) {
+		if (logger.DO_LOG) {
+			logger.info("Update Confirmed Report " + req.params.id);
 		}
 
 		var data = req.body;
-
-		if(data.assertions) {
-			data.assertions = data.assertions.split(',');
+		if (data.assertions) {
+			data.assertions = data.assertions.split(",");
 		}
 
-		confirmedReportService.create(data, function(err, newConfirmedReport) {
-			if(err) {
-				var errMsg = "Error attempting to create confirmed report";
-				me.logger.error("confirmedReport: " + errMsg, err);
-				responseHandler.send500(res, errMsg);
+		confirmedReportService.update(req.params.id, data, function(err, val, newConfirmedReport) {
+			if (err) {
+				logger.error("Error updating Confirmed Report", err);
+				responseHandler.send500(res, "Error updating Confirmed Report");
+			} else if (val && !val.valid) {
+				logger.info("Invalid Confirmed Report " + JSON.stringify(val.errors));
+				responseHandler.send500(res, "Invalid Confirmed Report");
 			} else {
-				res.json({_id: newConfirmedReport._id});
+				res.jsonp({_id: newConfirmedReport._id});
 				res.end();
 			}
 		});
 	});
 
-	me.app.post('/confirmed-report/:id([0-9a-f]+)', function(req,res){
-		if(me.logger.DO_LOG){
-			me.logger.info('Update confirmed report ' + req.params.id);
-		}
-
-		var data = req.body;
-
-		if(data.assertions) {
-			data.assertions = data.assertions.split(',');
-		}
-
-		confirmedReportService.update(req.params.id, data, function(err, newConfirmedReport) {
-			if(err) {
-				var errMsg = "Error attempting to update confirmed report";
-				me.logger.error("confirmedReport: " + errMsg, err);
-				responseHandler.send500(res, errMsg);
-			} else {
-				res.json({_id: newConfirmedReport._id});
-				res.end();
-			}
-		});
-	});
-
-	me.app.get('/confirmed-report/full/?', function(req, res){
-		if(me.logger.DO_LOG){
-			me.logger.info('Request for a list of all confirmed reports flattened');
+	app.get("/confirmed-report/full/?", function(req, res){
+		if (logger.DO_LOG) {
+			logger.info("Request for a list of all Confirmed Reports flattened");
 		}
 		//confirmedReportService.listFlattenedRequest(req.params, res);
 
-		confirmedReportService.listFlattened(req.query, function(err, reports) {
-			if(err) {
-				var errMsg = "Error attempting to list confirmed reports";
-				me.logger.error("confirmedReport: " + errMsg, err);
-				responseHandler.send500(res, errMsg);
-			} else {
-				res.jsonp(reports);
+		confirmedReportService.listFlattened(req.query, function(err, docs) {
+			if (err) {
+				logger.error("Error listing flattened Confirmed Reports", err);
+				responseHandler.send500(res, "Error listing flattened Confirmed Reports");
+			} else if (docs) {
+				res.jsonp(docs);
 				res.end();
+			} else {
+				responseHandler.send404(res);
 			}
 		});
 	});
 
-	me.app.get('/confirmed-report/full/:id([0-9a-f]+)', function(req,res){     
-		if(me.logger.DO_LOG ){
-			me.logger.info('Request for confirmed report ' + req.params.id);
+	app.get("/confirmed-report/full/:id([0-9a-f]+)", function(req,res){     
+		if (logger.DO_LOG ){
+			logger.info("Request for flattened Confirmed Report " + req.params.id);
 		}
 		
-		confirmedReportService.get(req.params.id, function(err, report) {
-			if(err) {
-				var errMsg = "Error attempting to get confirmed report";
-				me.logger.error("confirmedReport: " + errMsg, err);
-				responseHandler.send500(res, errMsg);
-			} else {
-				res.jsonp(report);
+		confirmedReportService.get(req.params.id, function(err, docs) {
+			if (err) {
+				logger.error("Error getting flattened Confirmed Report", err);
+				responseHandler.send500(res, "Error getting flattened Confirmed Report");
+			} else if (docs) {
+				res.jsonp(docs[0]);
 				res.end();
+			} else {
+				responseHandler.send404(res);
 			}
+		});
+	});
+	
+	
+	/**
+	 * Delete a single Confirmed Report with specified id
+	 */
+	app.del("/confirmed-report/:id([0-9a-f]+)", function(req,res){
+		if (logger.DO_LOG) {
+			logger.info("Deleting Confirmed Report with id: " + req.params.id);
+		}
+
+		confirmedReportService.del({_id: req.params.id}, function(err, count) {
+			res.jsonp({deleted_count: count});
+			res.end();
+		});
+	});
+	
+	//Delete all
+	app.del("/confirmed-report/?", function(req, res){
+		if (logger.DO_LOG) {
+			logger.info("Deleting all Confirmed Report entries");
+		}
+		
+		confirmedReportService.del({}, function(err, count) {
+			res.jsonp({deleted_count: count});
+			res.end();
 		});
 	});
 };

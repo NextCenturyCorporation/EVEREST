@@ -148,8 +148,7 @@ module.exports = function(models, io, logger) {
 			bvalidator.validate(data, function(valid) {
 				valCallback(valid);
 			});
-		}
-		else {
+		} else {
 			valCallback(valid);
 		}
 	};

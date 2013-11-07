@@ -151,7 +151,7 @@ module.exports = function(app, models, io, logger){
 			if (err) {
 				logger.info('Error getting Reporter ' + err);
 				responseHandler.send500(res);
-			} else if (docs) {
+			} else if (docs[0]) {
 				res.jsonp(docs[0]);
 				res.end();
 			} else {

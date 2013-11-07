@@ -88,7 +88,7 @@ module.exports = function(models, io, logger) {
 	};
 	
 	me.create = function(data, callback) {
-		validateRawFeed(data, function(valid) {
+		me.validateRawFeed(data, function(valid) {
 			if (valid.valid) {
 				logger.info("Valid raw_feed");
 				var newFeed = new models.rawFeed(data);
@@ -110,21 +110,37 @@ module.exports = function(models, io, logger) {
 		});
 	};
 	
+	me.validateRawFeed = function(data, valCallback) {
+		var services = {rawFeed: me};
+		// is the JSON semantically valid for the raw feed object?
+		var valid = revalidator.validate(data, validationModel);
+		if (valid.valid) {
+			// does the raw feed object comply with business validation logic
+			//bvalidator.validate(data, function(valid) {
+			//	valCallback(valid);
+			//});
+			valCallback(valid);
+		} else {
+			valCallback(valid);
+		}	
+	};
+	
 	me.update = function(id, data, callback) {
-		validateRawFeed(data, function(valid){
+		me.validateRawFeed(data, function(valid){
 			if (valid.valid) {
 				me.get(id, function(err, docs){
 					if (err) {
 						logger.info("Error getting raw_feed "+err);
 						callback(err, valid, data);
 					} else if (docs) {
-						docs = docs[0];//Since me.get will always return an array of size 1;
+						docs = docs[0]; //Since me.get will always return an array of size 1;
 						for (var e in data) {
 							//Make sure not to change _id
 							if (e !== '_id') {
 								docs[e] = data[e];
 							}
 						}
+						
 						docs.updatedDate = new Date();
 						docs.save(function(err){
 							if (err){
@@ -150,7 +166,7 @@ module.exports = function(models, io, logger) {
 		models.rawFeed.remove(params, callback);
 	};
 	
-	var validateRawFeed = function(data, valCallback) {
+	me.validateRawFeed = function(data, valCallback) {
 		var services = {rawFeed: me};
 		// is the JSON semantically valid for the raw feed object?
 		var valid = revalidator.validate(data, validationModel);
@@ -160,8 +176,7 @@ module.exports = function(models, io, logger) {
 			//	valCallback(valid);
 			//});
 			valCallback(valid);
-		}
-		else {
+		} else {
 			valCallback(valid);
 		}	
 	};
