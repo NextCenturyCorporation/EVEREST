@@ -34,6 +34,55 @@ module.exports = function(models, io, logger) {
 		});
 	};
 
+			
+	/**
+	 *	Returns a list of indexed attributes for Raw Feed
+	 */
+	me.getIndexes = function(callback){
+		var keys = Object.keys(models.rawFeed.schema.paths);
+		var indexes = ["_id"];
+		for (var i = 0; i < keys.length; i++) {
+			if (models.rawFeed.schema.paths[keys[i]]._index) {
+				indexes.push(keys[i].toString());
+			}
+		}
+		
+		callback(indexes);
+	};
+	
+	/**
+	 *	Returns a sorted list containing _id and createdDate for all Raw Feed
+	 */
+	me.findDates = function(callback) {
+		models.rawFeed.find({}, {_id: 0, createdDate:1}, function(err, dates) {
+			var errorMsg = new Error("Could not get feed Dates: " + err);
+			if (err) {
+				callback(errorMsg);
+			} else {
+				async.map(dates, me.flattenArray, function(err, results) {
+					if(err) {
+						callback(errorMsg);
+					} else {
+						callback(results);
+					}
+				});
+			}
+		});
+	};
+
+	/**
+	 *	Returns the Date version of parameter string.createDate
+	 */
+	me.flattenArray = function (string, callback) {
+		callback(null, Date.parse(string.createdDate));
+	};
+
+	/**
+	 *	Returns the number of Raw Feed that fit the parameter config
+	 */
+	me.getTotalCount = function(config, callback){
+		models.rawFeed.count(config, callback);
+	};
 	
 	/**
 	 *
