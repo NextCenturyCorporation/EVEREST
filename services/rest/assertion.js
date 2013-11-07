@@ -58,11 +58,11 @@ module.exports = function(app, models, io, logger) {
 	});
 	
 	/**
-	 * Create a new assertion
+	 * Create a new Assertion
 	 */
-	app.post('/assertion/?', function(req,res) {
+	app.post('/assertion/?', function(req, res) {
 		if (logger.DO_LOG) {
-			logger.info("Receiving new Assertion");
+			logger.info("Receiving new Assertion ", req.body);
 		}
 
 		assertionService.create(req.body, function(err, val, newAssertion) {
@@ -81,7 +81,7 @@ module.exports = function(app, models, io, logger) {
 	});
 
 	/**
-	 * Review assertion by id
+	 * Review Assertion by id
 	 */
 	app.get('/assertion/:id([0-9a-f]+)', function(req,res) {
 		if (logger.DO_LOG) {
@@ -102,7 +102,7 @@ module.exports = function(app, models, io, logger) {
 	});
 	
 	/**
-	 * Update assertion by id
+	 * Update Assertion by id
 	 */
 	app.post('/assertion/:id([0-9a-f]+)', function(req, res) {
 		if (logger.DO_LOG) {
@@ -125,7 +125,7 @@ module.exports = function(app, models, io, logger) {
 	});
 	
 	/**
-	 * Delete a single assertion with specified id
+	 * Delete a single Assertion with specified id
 	 */
 	app.del('/assertion/:id([0-9a-f]+)', function(req, res) {
 		if (logger.DO_LOG) {
@@ -139,7 +139,7 @@ module.exports = function(app, models, io, logger) {
 	});
 	
 	/**
-	 * Delete all assertions
+	 * Delete all Assertions
 	 */
 	app.del('/assertion/', function(req, res){
 		if (logger.DO_LOG) {

@@ -2,33 +2,24 @@ var AlphaReportService = require('../database/alpha_report.js');
 var responseHandler = require('../general_response');
 
 module.exports = function(app, models, io, logger) {
-	var me = this;
-
-	me.logger = logger;
-	me.models = models;
-	me.app = app;
-	me.io = io;
-
 	var alphaReportService = new AlphaReportService(models, io, logger);
 
-		//list all fields of all alpha reports
-	app.get('/alpha-report/?', function(req,res){
-		if(logger.DO_LOG){
-			logger.info('Request for a list of all alpha reports');
+	app.get('/alpha-report/?', function(req, res) {
+		if (logger.DO_LOG) {
+			logger.info('Request for a list of all Alpha Reports');
 		}
-		var params = {};
 
-		alphaReportService.list(req.query, function(err, docs, config){
-			if(err){
-				logger.info("Error listing alpha reports " + err);
-				responseHandler.send500(res, "Error listing alpha reports");
+		alphaReportService.list(req.query, function(err, docs, config) {
+			if (err) {
+				logger.info("Error listing Alpha Reports " + err);
+				responseHandler.send500(res, "Error listing Alpha Reports");
 			} else {
-				alphaReportService.getTotalCount(config, function(err, numDocs){
+				alphaReportService.getTotalCount(config, function(err, count) {
 					if (err){
-						me.logger.error("Alpha Report: "+err, err);
-						responseHandler.send500(res, "Error getting count of alpha reports");
+						logger.error("Alpha Report: " + err, err);
+						responseHandler.send500(res, "Error getting count of Alpha Reports");
 					} else {
-						res.jsonp({docs: docs, total_count: numDocs});
+						res.jsonp({docs: docs, total_count: count});
 						res.end();
 					}
 				});
@@ -38,11 +29,11 @@ module.exports = function(app, models, io, logger) {
 	
 	app.get('/alpha-report/indexes', function(req, res){
 		if(logger.DO_LOG){
-			logger.info('Request for list of indexes for alpha report');
+			logger.info('Request for list of indexes for Alpha Report');
 			
-			alphaReportService.getIndexes(req.query, function(indexes){
-				if (!indexes){
-					responseHandler.send500(res, 'Error getting indexes of alpha reports');
+			alphaReportService.getIndexes(function(indexes) {
+				if (!indexes) {
+					responseHandler.send500(res, 'Error getting indexes of Alpha Reports');
 				} else {
 					res.jsonp(indexes);
 					res.end();
@@ -51,13 +42,13 @@ module.exports = function(app, models, io, logger) {
 		}
 	});
 
-	app.get('/alpha-report/dates', function(req, res){
-		if(logger.DO_LOG){ 
+	app.get('/alpha-report/dates', function(req, res) {
+		if (logger.DO_LOG) { 
 			logger.info('Request for list of dates');
 		}
 		
-		alphaReportService.findDates(function(dates){
-			if (!dates){
+		alphaReportService.findDates(function(dates) {
+			if (!dates) {
 				responseHandler.send500(res, "Error getting dates of raw feeds");
 			} else {
 				res.jsonp(dates);
@@ -66,16 +57,18 @@ module.exports = function(app, models, io, logger) {
 		});
 	});
 	
-	//list all alpha reports, only showing source_id and id
+	/** 
+	 * list the _id and source_id of all Alpha Reports 
+	 */
 	app.get('/alpha-report/source_ids/?', function(req,res){
-		if(logger.DO_LOG){
-			logger.info('Request for alpha report source_id list');
+		if (logger.DO_LOG) {
+			logger.info('Request for Alpha Report source_id list');
 		}
+		
 		var params = {};
-
-		alphaReportService.listFields(params, "_id source_id", function(err, docs){
-			if(err){
-				logger.info("Error listing alpha report id - source_id" + err);
+		alphaReportService.listFields(params, "_id source_id", function(err, docs) {
+			if (err) {
+				logger.info("Error listing alpha report id - source_id " + err);
 				responseHandler.send500(res);
 			} else {
 				res.jsonp(docs);
@@ -84,11 +77,14 @@ module.exports = function(app, models, io, logger) {
 		});
 	});
 	
-	//Create a single alpha report based on posted information
+	/**
+	 * Create a new Alpha Report
+	 */
 	app.post('/alpha-report/?', function(req,res){
-		if(logger.DO_LOG){
-			logger.info('Receiving new alpha report', req.body);
+		if (logger.DO_LOG) {
+			logger.info('Receiving new Alpha Report ', req.body);
 		}
+		
 		alphaReportService.create(req.body, function(err, val, newAlphaReport) {
 			if(err){
 				logger.error('Error saving AlphaReport', err);
@@ -104,17 +100,20 @@ module.exports = function(app, models, io, logger) {
 		});
 	});
 	
-	//Review  '/alpha-report/:{param_name}(contents to go in param_name)'
+	/**
+	 * Review  '/alpha-report/:{param_name}(contents to go in param_name)'
+	 */
 	app.get('/alpha-report/:id([0-9a-f]+)', function(req,res){
-		if(logger.DO_LOG ){
-			logger.info('Request for alpha-report ' + req.params.id);
+		if (logger.DO_LOG) {
+			logger.info('Request for Alpha Report ' + req.params.id);
 		}
-		alphaReportService.get(req.params.id, function(err, docs){
-			if(err){
-				logger.info('Error getting alpha report ' + err);
+		
+		alphaReportService.get(req.params.id, function(err, docs) {
+			if (err) {
+				logger.info('Error getting Alpha Report ' + err);
 				responseHandler.send500(res);
-			} else if(docs) {
-				res.jsonp(docs);
+			} else if (docs) {
+				res.jsonp(docs[0]);
 				res.end();
 			} else {
 				responseHandler.send404(res);
@@ -122,46 +121,53 @@ module.exports = function(app, models, io, logger) {
 		});
 	});
 	
-	//Update a single alpha report based on the specified id
-	app.post('/alpha-report/:id([0-9a-f]+)', function(req,res){
-		if(logger.DO_LOG){
-			logger.info('Update alpha report ' + req.params.id);
+	/**
+	 * Update Alpha Report by id
+	 */
+	app.post('/alpha-report/:id([0-9a-f]+)', function(req, res) {
+		if (logger.DO_LOG) {
+			logger.info('Update Alpha Report ' + req.params.id);
 		}
 		alphaReportService.update(req.params.id, req.body, function(err, val, updated) {
-			if(err){
-				logger.error('Error updating AlphaReport', err);
-				responseHandler.send500(res, 'Error updating AlphaReport');
+			if (err) {
+				logger.error('Error updating Alpha Report', err);
+				responseHandler.send500(res, 'Error updating Alpha Report');
 			} else if (val && !val.valid) {
-				logger.info('Invalid AlphaReport ' + JSON.stringify(val.errors));
-				responseHandler.send500(res, ' Invalid AlphaReport ');
+				logger.info('Invalid Alpha Report ' + JSON.stringify(val.errors));
+				responseHandler.send500(res, ' Invalid Alpha Report ');
 			} else {
-				logger.info('AlphaReport updated ' + JSON.stringify(updated));
-				res.json({id:updated._id});
+				logger.info('Alpha Report updated ' + JSON.stringify(updated));
+				res.json({id: updated._id});
 				res.end();
 			}
 		});
 	});
 	
-	//Delete a single alpha report by the specified id
-	app.del('/alpha-report/:id([0-9a-f]+)', function(req,res){
-		if(logger.DO_LOG){
-			logger.info('Deleting alpha report with id: ' + req.params.id);
+	/**
+	 * Delete a single Alpha Report with specified id
+	 */
+	app.del('/alpha-report/:id([0-9a-f]+)', function(req, res){
+		if (logger.DO_LOG) {
+			logger.info('Deleting Alpha Report with id: ' + req.params.id);
 		}
+		
 		alphaReportService.del({_id: req.params.id}, function(err, count) {
 			res.json({deleted_count: count});
 			res.end();
 		});
 	});
 	
-	//Delete all reporters
+	/**
+	 * Delete all Alpha Reports
+	 */
 	app.del('/alpha-report/', function(req, res){
 		if(logger.DO_LOG){
-			logger.info('Deleting all alpha report entries');
+			logger.info('Deleting all Alpha Reports');
 		}
+		
 		alphaReportService.del({}, function(err, count) {
 			res.json({deleted_count: count});
 			res.end();
 		});
 	});
 };
-

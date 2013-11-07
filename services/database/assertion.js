@@ -19,7 +19,7 @@ module.exports = function(models, io, logger) {
 	var bvalidator = new Bvalidator(services, logger);
 
 	/**
-	 * Returns a list of all the assertions
+	 * Returns a list of all the Assertions
 	 */
 	me.list = function(req, callback){
 		paramHandler.handleDefaultParams(req, function(params){
@@ -46,7 +46,7 @@ module.exports = function(models, io, logger) {
 	};
 	
 	/**
-	 * Returns a list of all indexed attributes for assertion
+	 * Returns a list of all indexed attributes for Assertion
 	 */
 	me.getIndexes = function(callback){
 		var keys = Object.keys(models.assertion.schema.paths);
@@ -61,15 +61,15 @@ module.exports = function(models, io, logger) {
 	};
 
 	/**
-	 * Returns a sorted list containing _id and createdDate for all assertions
+	 * Returns a sorted list containing _id and createdDate for all Assertions
 	 */
 	me.findDates = function(callback) {
 		models.assertion.find({}, {_id: 0, createdDate:1}, function(err, dates) {
-			var errorMsg = new Error("Could not get feed Dates: " + err);
+			var errorMsg = new Error("Could not get Assertion Dates: " + err);
 			if (err) {
 				callback(errorMsg);
 			} else {
-				async.map(dates, me.flattenArray, function(err,results) {
+				async.map(dates, me.flattenArray, function(err, results) {
 					if(err) {
 						callback(errorMsg);
 					} else {
@@ -88,7 +88,7 @@ module.exports = function(models, io, logger) {
 	};
 
 	/**
-	 * Returns the number of assertions that fit the param config
+	 * Returns the number of Assertions that fit the parameter config
 	 */
 	me.getTotalCount = function(config, callback){
 		models.assertion.count(config, callback);
@@ -103,7 +103,7 @@ module.exports = function(models, io, logger) {
 
 	/**
 	 * create is a "generic" save method callable from both
-	 * request-response methods and parser-type methods for population of assertion data
+	 * request-response methods and parser-type methods for population of Assertions data
 	 * 
 	 * create calls the validateAssertion module to ensure that the
 	 * data being saved to the database is complete and has integrity.
@@ -113,14 +113,14 @@ module.exports = function(models, io, logger) {
 	me.create = function(data, saveCallback) {
 		me.validateAssertion(data, function(valid) {
 			if (valid.valid) {
-				logger.info("Valid assertion");
+				logger.info("Valid Assertion");
 				
 				var newAssertion = new models.assertion(data);
 				newAssertion.createdDate = new Date();
 				newAssertion.updatedDate = new Date();
 				newAssertion.save(function(err){
 					if (err) {
-						logger.error('Error saving assertion ', err);
+						logger.error('Error saving Assertion ', err);
 					} else {
 						actionEmitter.saveAssertionEvent(newAssertion);
 						//actionEmitter.saveAssertionEvent({data: newAssertion});
@@ -135,11 +135,11 @@ module.exports = function(models, io, logger) {
 	};
 
 	/**
-	 * validateAssertion validates an assertion object against the assertion
-	 * semantic rules and the business rules associated with an assertion
+	 * validateAssertion validates an Assertions object against the Assertions
+	 * semantic rules and the business rules associated with an Assertions
 	 *
 	 * validateAssertion calls the JSON validation module revalidator and
-	 * calls the business validation module bvalidator for the assertion object
+	 * calls the business validation module bvalidator for the Assertions object
 
 	 * data is the object being validated
 	 * 
@@ -160,44 +160,44 @@ module.exports = function(models, io, logger) {
 	};
 
 	/**
-	 * Returns the assertion with the id specified in the URL
+	 * Returns the Assertions with the id specified in the URL
 	 */
 	me.get = function(id, callback) {
 		me.findWhere({_id: id}, callback);
 	};
 
 	/**
-	 * findWhere is a generic read method to return all documents that have
+	 * generic read method to return all documents that have
 	 * a matching set of key, value pairs specified by config
 	 *
-	 * callback takes the form of function(err, docs)
+	 * callback takes the form function(err, docs)
 	 */
 	me.findWhere = function(config, callback) {
 		models.assertion.find(config, callback);
 	};
 
 	/**
-	 * update calls the validateAssertion then updates the object
+	 * update calls validateAssertion then updates the object
 	 * 
 	 * callback takes the form function(err, valid object, Assertion object)
 	 */
 	me.update = function(id, data, updCallback) {
-		me.validateAssertion(data, function(valid){
-			if (valid.valid) {
-				models.assertion.get(id, function(err, docs){
-					if (err) {
-						logger.info("Error getting assertion " + err);
-						updCallback(err, valid, data);
-					} else if (docs) {
-						docs = docs[0];
-						for (var e in data) {
-							//Make sure not to change _id
-							if (e !== '_id') {
-								docs[e] = data[e];
-							}
-						}
-						
-						docs.updatedDate = new Date();
+		me.get(id, function(err, docs){
+			if (err) {
+				logger.info("Error getting Assertion " + err);
+				updCallback(err, null, data);
+			} else if (docs) {
+				docs = docs[0]; //There will only be one Assertion from the get
+				for (var e in data) {
+					//Make sure not to change _id
+					if (e !== '_id') {
+						docs[e] = data[e];
+					}
+				}
+				
+				docs.updatedDate = new Date();
+				me.validateAssertion(docs, function(valid){
+					if (valid.valid){
 						docs.save(function(err){
 							if (err) {
 								updCallback(err, valid, data);
@@ -207,18 +207,19 @@ module.exports = function(models, io, logger) {
 						});
 					} else {
 						valid.valid = false;
-						valid.errors = {expected: id, message: "Assertion not found"};
+						valid.errors = {expected: id, message: "Updated Assertion information not valid."};
 						updCallback(err, valid, data);
 					}
 				});
 			} else {
-				updCallback(undefined, valid, data);
+				var errorMsg = new Error('Could not find Assertion to update');
+				updCallback(errorMsg, null, data);
 			}
 		});
 	};
 
 	/**
-	 * Remove all assertions that match the parameter config
+	 * Remove all Assertions that match the parameter config
 	 */
 	me.del = function(config, callback) {
 		models.assertion.remove(config, callback);

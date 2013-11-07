@@ -19,16 +19,16 @@ module.exports = function(services, logger) {
 	 * Default messages to include with validation errors.
 	 */
 	me.messages = {
-		raw_data_id:	"raw_data_id value is incorrect",
-		lang:					"language value is incorrect",
-		record:				"There is a record-level error"
+		raw_data_id: "raw_data_id value is incorrect",
+		lang: "language value is incorrect",
+		record: "There is a record-level error"
 	};
 
 	me.validateObject = function(object, errors, done) {
 		// TODO: put in the logic checks against the object (ie., does the attribute exist)
 		//       to insulate the lower level functions from bad data
 		var value = object.raw_data_id;
-		me.rawFeedExists( value, errors, function (err, found) {
+		me.rawFeedExists(value, errors, function(err, found) {
 			var property = 'raw_data_id';
 			if (value !== undefined) {
 				if (!found) {
@@ -38,7 +38,7 @@ module.exports = function(services, logger) {
 			}
 			
 			value = object.lang;
-			me.languageExists( value, errors, function (err, found) {
+			me.languageExists(value, errors, function(err, found) {
 				var property = 'lang';
 				if (value !== undefined) {
 					if (!found) {
@@ -47,10 +47,10 @@ module.exports = function(services, logger) {
 					}
 				}
 				
-				me.alphaReportExists( object, errors, function (err, found) {
+				me.alphaReportExists(object, errors, function(err, found) {
 					var property = 'record';
 					if (found) {
-						me.error(property, object, errors, "alpha_report already exists.");
+						me.error(property, object, errors, "Alpha Report already exists.");
 						logger.debug("alphaReportExists " + JSON.stringify(object));
 					}
 					
@@ -61,23 +61,24 @@ module.exports = function(services, logger) {
 	};
 
 	/**
-	 ** rawFeedExists verifies that, if the raw_feed_id is supplied, the raw_feed document exists.
-	 ** Makes an async call to the data service to retrieve a matching raw_feed.
-	 ** Returns in the callback any system error and a boolean indicating whether
-	 **   or not the name was found. 
-	**/
+	 * rawFeedExists verifies that, if the raw_feed_id is supplied, 
+	 * the Raw Feed document exists.
+	 * Makes an async call to the data service to retrieve a matching raw_feed.
+	 * Returns in the callback any system error and a boolean indicating whether
+	 *   or not the name was found. 
+	 */
 	me.rawFeedExists = function (value, errors, callback) {
 		if (value !== undefined) {
 			services.rawFeedService.findWhere({_id: value}, function(err, docs) {
 				if (err) {
-					me.error('_id', value, errors, 'Error reading raw_feed ' + err);
+					me.error('_id', value, errors, 'Error reading Raw Feed ' + err);
 					logger.error({ error : "Error readRawFeedByPropery " + err });
 					callback(err, false);
 				} else if (0 !== docs.length) {
-					logger.debug("raw_feed found for rawFeedExists" + JSON.stringify(docs));
+					logger.debug("Raw Feed found for rawFeedExists" + JSON.stringify(docs));
 					callback(err, true);
 				} else {
-					logger.debug("raw_feed not found " + value);
+					logger.debug("Raw Feed not found " + value);
 					callback(err, false);
 				}
 			});
@@ -110,17 +111,17 @@ module.exports = function(services, logger) {
 	};
   
 	me.alphaReportExists = function(object, errors, callback) {
-		var searchObject = { source_name : object.source_name, source_id : object.source_id };
+		var searchObject = {source_name: object.source_name, source_id : object.source_id};
 		services.alphaReportService.findWhere(searchObject, function(err, docs){
 			if (err) {
-				me.error('record', object, errors, 'Error reading alpha_report ' + err);
-				logger.error({ error : "Error readAlphaReportByObject " + err });
+				me.error('record', object, errors, 'Error reading Alpha Report ' + err);
+				logger.error({ error : "Error Alpha Report findWhere " + err });
 				callback(err, false);
 			} else if (0 !== docs.length) {
-				logger.debug("alpha_report found for alphaReportExists" + JSON.stringify(docs));
+				logger.debug("Alpha Report found for alphaReportExists" + JSON.stringify(docs));
 				callback(err, true);
 			} else {
-				logger.debug("alpha_report not found " + JSON.stringify(searchObject));
+				logger.debug("Alpha Report not found " + JSON.stringify(searchObject));
 				callback(err, false);
 			}
 		});
