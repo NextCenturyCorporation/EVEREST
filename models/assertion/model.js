@@ -1,11 +1,12 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
+var ObjectId = Schema.ObjectId;
 
 var assertionModel = {
 	createdDate: {type: Date},
 	updatedDate: {type: Date},
-	alpha_report_id: {type: Schema.Types.ObjectId, required: true},
-	reporter_id: {type: Schema.Types.ObjectId},
+	alpha_report_id: {type: ObjectId, required: true},
+	reporter_id: {type: ObjectId},
 	entity1: {type: String, required: true},
 	relationship: {type: String, required: true},
 	entity2: {type: String, required: true}

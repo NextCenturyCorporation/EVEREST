@@ -2,61 +2,54 @@ var AssertionService = require('../database/assertion.js');
 var responseHandler = require('../general_response');
 
 module.exports = function(app, models, io, logger) {
-	var me = this;
-
-	me.logger = logger;
-	me.app = app;
-	me.io = io;
-	me.models = models;
-
 	var assertionService = new AssertionService(models, io, logger);
 
-	//list - lists full object
-	app.get('/assertion/?', function(req,res){
-		if(logger.DO_LOG){
-			logger.info("Request for assertion list");
+	app.get('/assertion/?', function(req,res) {
+		if (logger.DO_LOG) {
+			logger.info("Request for Assertion list");
 		}
-		assertionService.list(req.query, function(err, docs, config){
-			if(err){
-				logger.info("Error listing assertions "+err);
-				responseHandler.send500(res, "Error listing assertions");
+		
+		assertionService.list(req.query, function(err, docs, config) {
+			if (err) {
+				logger.error("Error listing Assertions " + err);
+				responseHandler.send500(res, "Error listing Assertions");
 			} else {
-				assertionService.getTotalCount(config, function(err, numDocs){
-					if (err){
-						me.logger.error("Assertion: "+err, err);
-						responseHandler.send500(res, "Error getting count of assertions");
+				assertionService.getTotalCount(config, function(err, count) {
+					if (err) {
+						logger.error("Assertion: " + err, err);
+						responseHandler.send500(res, "Error getting count of Assertions");
 					} else {
-						res.jsonp({docs: docs, total_count: numDocs});
+						res.jsonp({docs: docs, total_count: count});
 						res.end();
 					}
 				});
 			}
 		});
 	});
-	
-	app.get('/assertion/indexes', function(req, res){
-		if(logger.DO_LOG){
-			logger.info('Request for list of indexes for assertion');
-			
-			assertionService.getIndexes(req.query, function(indexes){
-				if (!indexes){
-					responseHandler.send500(res, 'Error getting indexes of assertions');
-				} else {
-					res.jsonp(indexes);
-					res.end();
-				}
-			});
-		}
-	});
 
-	app.get('/assertion/dates', function(req, res){
-		if(logger.DO_LOG){ 
-			logger.info('Request for list of dates');
+	app.get('/assertion/indexes', function(req, res) {
+		if (logger.DO_LOG) {
+			logger.info('Request for list of indexes for Assertion');
 		}
 		
-		assertionService.findDates(function(dates){
+		assertionService.getIndexes(function(indexes) {
+			if (!indexes) {
+				responseHandler.send500(res, 'Error getting indexes of Assertions');
+			} else {
+				res.jsonp(indexes);
+				res.end();
+			}
+		});
+	});
+
+	app.get('/assertion/dates', function(req, res) {
+		if (logger.DO_LOG) { 
+			logger.info('Request for list of dates for Assertion');
+		}
+		
+		assertionService.findDates(function(dates) {
 			if (!dates){
-				responseHandler.send500(res, "Error getting dates of raw feeds");
+				responseHandler.send500(res, "Error getting dates of Assertions");
 			} else {
 				res.jsonp(dates);
 				res.end();
@@ -64,95 +57,95 @@ module.exports = function(app, models, io, logger) {
 		});
 	});
 	
-	//Create
-	app.post('/assertion/?', function(req,res){
-		if(logger.DO_LOG){
-			logger.info("Receiving new assertion");
+	/**
+	 * Create a new assertion
+	 */
+	app.post('/assertion/?', function(req,res) {
+		if (logger.DO_LOG) {
+			logger.info("Receiving new Assertion");
 		}
 
-		var data = req.body;
-
-		assertionService.create(data, function(err, val, newAssertion) {
-			if(err){
-				var msg = 'Error saving assertion';
-				logger.error(msg, err);
-				responseHandler.send500(res, msg);
+		assertionService.create(req.body, function(err, val, newAssertion) {
+			if (err) {
+				logger.error('Error saving Assertion', err);
+				responseHandler.send500(res, 'Error saving Assertion');
 			} else if (!val.valid) {
-				logger.info('Invalid assertion ' + JSON.stringify(val.errors));
-				res.status(500);
-				res.json({error: val.errors}, data);
-				res.end();
+				logger.info('Invalid Assertion ' + JSON.stringify(val.errors));
+				responseHandler.send500(res, 'Invalid Assertion');
 			} else {
 				logger.info('Assertion saved ' + JSON.stringify(newAssertion));
-				res.json({id:newAssertion._id});
+				res.json({id: newAssertion._id});
 				res.end();
 			}
 		});
 	});
 
-
-	//Review
-	app.get('/assertion/:id([0-9a-f]+)', function(req,res){
-		if(0 && logger.DO_LOG){
-			logger.info("Request for assertion "+req.params.id);
+	/**
+	 * Review assertion by id
+	 */
+	app.get('/assertion/:id([0-9a-f]+)', function(req,res) {
+		if (logger.DO_LOG) {
+			logger.info("Request for Assertion " + req.params.id);
 		}
-		assertionService.get(req.params.id, function(err, docs){
-			if(err) {
-				var msg = 'Error getting assertion';
-				logger.error(msg, err);
-				responseHandler.send500(res, msg);
-			} else if(docs) {
-				res.json(docs);
+		
+		assertionService.get(req.params.id, function(err, docs) {
+			if (err) {
+				logger.error('Error getting Assertion ', err);
+				responseHandler.send500(res, 'Error getting Assertion');
+			} else if (docs) {
+				res.json(docs[0]);
 				res.end();
 			} else {
-				res.status(404);
-				res.json({error: 'Not found'});
-				res.end();
+				responseHandler.send404(res);
 			}
 		});
 	});
 	
-	//Update
-	app.post('/assertion/:id([0-9a-f]+)', function(req,res){
-		if(logger.DO_LOG){
-			logger.info("Update assertion "+req.params.id);
+	/**
+	 * Update assertion by id
+	 */
+	app.post('/assertion/:id([0-9a-f]+)', function(req, res) {
+		if (logger.DO_LOG) {
+			logger.info("Update Assertion " + req.params.id);
 		}
-		
-		var data = req.body;
 		
 		assertionService.update(req.params.id, req.body, function(err, val, updated) {
-			if(err){
-				logger.error('Error updating assertion', err);
-				res.status(500);
-				res.json({error: 'Error'});
+			if (err) {
+				logger.error('Error updating Assertion ', err);
+				responseHandler.send500(res, 'Error updating Assertion');
 			} else if (!val.valid) {
-				logger.info('Invalid assertion ' + JSON.stringify(val.errors));
-				res.status(500);
-				res.json({error: val.errors}, data);
+				logger.info('Invalid Assertion ' + JSON.stringify(val.errors));
+				responseHandler.send500(res, 'Invalid Assertion');
 			} else {
 				logger.info('Assertion updated ' + JSON.stringify(updated));
-				res.json({id:updated._id});
+				res.jsonp({id:updated._id});
+				res.end();
 			}
-			res.end();
 		});
 	});
 	
-	//Delete a single alpha report by the specified id
-	app.del('/assertion/:id([0-9a-f]+)', function(req,res){
-		if(logger.DO_LOG){
-			logger.info('Deleting assertion with id: ' + req.params.id);
+	/**
+	 * Delete a single assertion with specified id
+	 */
+	app.del('/assertion/:id([0-9a-f]+)', function(req, res) {
+		if (logger.DO_LOG) {
+			logger.info('Deleting Assertion with id: ' + req.params.id);
 		}
+		
 		assertionService.del({_id: req.params.id}, function(err, count) {
 			res.json({deleted_count: count});
 			res.end();
 		});
 	});
 	
-	//Delete all reporters
+	/**
+	 * Delete all assertions
+	 */
 	app.del('/assertion/', function(req, res){
-		if(logger.DO_LOG){
-			logger.info('Deleting all assertion entries');
+		if (logger.DO_LOG) {
+			logger.info('Deleting all Assertions');
 		}
+		
 		assertionService.del({}, function(err, count) {
 			res.json({deleted_count: count});
 			res.end();
