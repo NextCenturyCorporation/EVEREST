@@ -69,7 +69,7 @@ module.exports = function(app, models, io, logger) {
 		alphaReportService.listFields(params, "_id source_id", function(err, docs) {
 			if (err) {
 				logger.error("Error listing alpha report id - source_id", err);
-				responseHandler.send500(res);
+				responseHandler.send500(res, "Error listing alpha report id - source_id");
 			} else {
 				res.jsonp(docs);
 				res.end();
@@ -111,7 +111,7 @@ module.exports = function(app, models, io, logger) {
 		alphaReportService.get(req.params.id, function(err, docs) {
 			if (err) {
 				logger.info('Error getting Alpha Report ' + err);
-				responseHandler.send500(res);
+				responseHandler.send500(res, 'Error getting Alpha Report');
 			} else if (docs[0]) {
 				res.jsonp(docs[0]);
 				res.end();

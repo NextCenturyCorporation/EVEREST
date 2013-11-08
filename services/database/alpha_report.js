@@ -79,14 +79,14 @@ module.exports = function(models, io, logger) {
 	};
 
 	/**
-	 *	Returns the Date version of parameter string.createDate
+	 *	Returns the Date version of parameter string.createdDate
 	 */
 	me.flattenArray = function (string, callback) {
 		callback(null, Date.parse(string.createdDate));
 	};
 	
 	/**
-	 *	Returns the number of Alpha Reports that fit the parameter config
+	 *	Returns the number of Alpha Reports that fit the specified config
 	 */
 	me.getTotalCount = function(config, callback){
 		models.alphaReport.count(config, callback);

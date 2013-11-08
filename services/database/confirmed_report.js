@@ -103,7 +103,7 @@ module.exports = function(models, io, logger) {
 						}
 					});
 				} else {
-					callback();
+					callback(null, report);
 				}
 			}
 		}, function(err) {
