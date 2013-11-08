@@ -35,11 +35,11 @@ var targetEventValidation = {
 	properties: {
 		createdDate: {
 			description: 'Date this was created in datastore',
-			type: 'date'
+			type: 'object'
 		},
 		updatedDate: {
 			description: 'Date this was last updated in datastore',
-			type: 'date'
+			type: 'object'
 		},
 		name: {
 			description: 'Name of the event',
