@@ -1,12 +1,21 @@
 var AssertionService = require('../database/assertion.js');
 var responseHandler = require('../general_response');
+var histogramDataModule = require('../modules/histogramDataModule.js');
 
 module.exports = function(app, models, io, logger) {
 	var assertionService = new AssertionService(models, io, logger);
+<<<<<<< Updated upstream
 
 	app.get('/assertion/?', function(req,res) {
 		if (logger.DO_LOG) {
 			logger.info("Request for Assertion list");
+=======
+	var assertionHistogram = new histogramDataModule(models.assertion);
+	//list - lists full object
+	app.get('/assertion/?', function(req,res){
+		if(logger.DO_LOG){
+			logger.info("Request for assertion list");
+>>>>>>> Stashed changes
 		}
 		
 		assertionService.list(req.query, function(err, docs, config) {
@@ -42,14 +51,36 @@ module.exports = function(app, models, io, logger) {
 		});
 	});
 
+<<<<<<< Updated upstream
 	app.get('/assertion/dates', function(req, res) {
 		if (logger.DO_LOG) { 
 			logger.info('Request for list of dates for Assertion');
+=======
+	app.get('/assertion/dates/?', function(req, res){
+		if(logger.DO_LOG){ 
+			logger.info('Request for list of dates');
+>>>>>>> Stashed changes
 		}
 		
 		assertionService.findDates(function(dates) {
 			if (!dates){
 				responseHandler.send500(res, "Error getting dates of Assertions");
+			} else {
+				res.jsonp(dates);
+				res.end();
+			}
+		});
+	});
+
+	//A mode and base date are passed in, the will return the dates that fall within that mode,
+	//given the basedate.
+	app.get('/assertion/dates/:mode/:date/?', function(req, res){
+		if(logger.DO_LOG){ 
+			logger.info('Request for list of dates');
+		}
+		assertionHistogram.findDatesByFrequency(req.params.mode, req.params.date, function(dates){
+			if (!dates){
+				responseHandler.send500(res, "Error getting dates of raw feeds");
 			} else {
 				res.jsonp(dates);
 				res.end();

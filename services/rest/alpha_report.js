@@ -1,8 +1,10 @@
 var AlphaReportService = require('../database/alpha_report.js');
 var responseHandler = require('../general_response');
+var histogramDataModule = require('../modules/histogramDataModule.js');
 
 module.exports = function(app, models, io, logger) {
 	var alphaReportService = new AlphaReportService(models, io, logger);
+	var alphaReportHistogram = new histogramDataModule(models.alphaReport);
 
 	app.get('/alpha-report/?', function(req, res) {
 		if (logger.DO_LOG) {
@@ -42,6 +44,7 @@ module.exports = function(app, models, io, logger) {
 		}
 	});
 
+<<<<<<< Updated upstream
 	app.get('/alpha-report/dates', function(req, res) {
 		if (logger.DO_LOG) { 
 			logger.info('Request for list of dates');
@@ -50,6 +53,31 @@ module.exports = function(app, models, io, logger) {
 		alphaReportService.findDates(function(dates) {
 			if (!dates) {
 				responseHandler.send500(res, "Error getting dates of Alpha Reports");
+=======
+	app.get('/alpha-report/dates/?', function(req, res){
+		if(logger.DO_LOG){ 
+			logger.info('Request for list of dates');
+		}
+		alphaReportService.findDates(function(dates){
+			if (!dates){
+				responseHandler.send500(res, "Error getting dates of raw feeds");
+>>>>>>> Stashed changes
+			} else {
+				res.jsonp(dates);
+				res.end();
+			}
+		});
+	});
+
+	//A mode and base date are passed in, the will return the dates that fall within that mode,
+	//given the basedate.
+	app.get('/alpha-report/dates/:mode/:date/?', function(req, res){
+		if(logger.DO_LOG){ 
+			logger.info('Request for list of dates');
+		}
+		alphaReportHistogram.findDatesByFrequency(req.params.mode, req.params.date, function(dates){
+			if (!dates){
+				responseHandler.send500(res, "Error getting dates of raw feeds");
 			} else {
 				res.jsonp(dates);
 				res.end();
