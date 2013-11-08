@@ -44,16 +44,6 @@ module.exports = function(app, models, io, logger) {
 		}
 	});
 
-<<<<<<< Updated upstream
-	app.get('/alpha-report/dates', function(req, res) {
-		if (logger.DO_LOG) { 
-			logger.info('Request for list of dates');
-		}
-		
-		alphaReportService.findDates(function(dates) {
-			if (!dates) {
-				responseHandler.send500(res, "Error getting dates of Alpha Reports");
-=======
 	app.get('/alpha-report/dates/?', function(req, res){
 		if(logger.DO_LOG){ 
 			logger.info('Request for list of dates');
@@ -61,7 +51,6 @@ module.exports = function(app, models, io, logger) {
 		alphaReportService.findDates(function(dates){
 			if (!dates){
 				responseHandler.send500(res, "Error getting dates of raw feeds");
->>>>>>> Stashed changes
 			} else {
 				res.jsonp(dates);
 				res.end();

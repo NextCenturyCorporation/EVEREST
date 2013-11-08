@@ -4,20 +4,12 @@ var histogramDataModule = require('../modules/histogramDataModule.js');
 
 module.exports = function(app, models, io, logger) {
 	var assertionService = new AssertionService(models, io, logger);
-<<<<<<< Updated upstream
-
-	app.get('/assertion/?', function(req,res) {
-		if (logger.DO_LOG) {
-			logger.info("Request for Assertion list");
-=======
 	var assertionHistogram = new histogramDataModule(models.assertion);
 	//list - lists full object
 	app.get('/assertion/?', function(req,res){
 		if(logger.DO_LOG){
 			logger.info("Request for assertion list");
->>>>>>> Stashed changes
 		}
-		
 		assertionService.list(req.query, function(err, docs, config) {
 			if (err) {
 				logger.error("Error listing Assertions " + err);
@@ -50,16 +42,9 @@ module.exports = function(app, models, io, logger) {
 			}
 		});
 	});
-
-<<<<<<< Updated upstream
-	app.get('/assertion/dates', function(req, res) {
-		if (logger.DO_LOG) { 
-			logger.info('Request for list of dates for Assertion');
-=======
 	app.get('/assertion/dates/?', function(req, res){
 		if(logger.DO_LOG){ 
 			logger.info('Request for list of dates');
->>>>>>> Stashed changes
 		}
 		
 		assertionService.findDates(function(dates) {

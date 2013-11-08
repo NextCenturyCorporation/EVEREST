@@ -1,20 +1,14 @@
 var RawFeedService = require("../database/raw_feed.js");
 var responseHandler = require("../general_response");
+var histogramDataModule = require('../modules/histogramDataModule.js');
 
 module.exports = function(app, models, io, logger) {
 	var rawFeedService = new RawFeedService(models, io, logger);
-<<<<<<< Updated upstream
-
-	app.get("/rawfeed/?", function(req, res){
-		if (logger.DO_LOG){ 
-			logger.info("Request for list of feeds");
-=======
 	var rawFeedHistogram = new histogramDataModule(models.rawFeed);
 	// Get a list of all rawFeeds
 	app.get('/rawfeed/?', function(req, res){
 		if(logger.DO_LOG){ 
 			logger.info('Request for list of feeds');
->>>>>>> Stashed changes
 		}
 
 		rawFeedService.list(req.query, function(err, docs, config){
@@ -49,17 +43,10 @@ module.exports = function(app, models, io, logger) {
 			}
 		});
 	});
-
-<<<<<<< Updated upstream
-	app.get("/rawfeed/dates", function(req, res){
-		if (logger.DO_LOG) { 
-			logger.info("Request for list of dates for Raw Feed");
-=======
 	//Returns an array of all rawfeed created_dates in milliseconds.
 	app.get('/rawfeed/dates/?', function(req, res){
 		if(logger.DO_LOG){ 
 			logger.info('Request for list of dates');
->>>>>>> Stashed changes
 		}
 		rawFeedService.findDates(function(dates){
 			if (!dates){
@@ -70,8 +57,6 @@ module.exports = function(app, models, io, logger) {
 			}
 		});
 	});
-<<<<<<< Updated upstream
-=======
 
 	//A mode and base date are passed in, the will return the dates that fall within that mode,
 	//given the basedate.
@@ -106,7 +91,6 @@ module.exports = function(app, models, io, logger) {
 			}
 		});
 	});
->>>>>>> Stashed changes
 
 	/**
 	 * Create a new Raw Feed
