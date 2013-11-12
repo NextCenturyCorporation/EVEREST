@@ -1,12 +1,14 @@
 var RawFeedService = require("../database/raw_feed.js");
 var responseHandler = require("../general_response");
+var histogramDataModule = require('../modules/histogramDataModule.js');
 
 module.exports = function(app, models, io, logger) {
 	var rawFeedService = new RawFeedService(models, io, logger);
-
-	app.get("/rawfeed/?", function(req, res){
-		if (logger.DO_LOG){ 
-			logger.info("Request for list of feeds");
+	var rawFeedHistogram = new histogramDataModule(models.rawFeed);
+	// Get a list of all rawFeeds
+	app.get('/rawfeed/?', function(req, res){
+		if(logger.DO_LOG){ 
+			logger.info('Request for list of feeds');
 		}
 
 		rawFeedService.list(req.query, function(err, docs, config){
@@ -41,18 +43,51 @@ module.exports = function(app, models, io, logger) {
 			}
 		});
 	});
-
-	app.get("/rawfeed/dates", function(req, res){
-		if (logger.DO_LOG) { 
-			logger.info("Request for list of dates for Raw Feed");
+	//Returns an array of all rawfeed created_dates in milliseconds.
+	app.get('/rawfeed/dates/?', function(req, res){
+		if(logger.DO_LOG){ 
+			logger.info('Request for list of dates');
 		}
-		
 		rawFeedService.findDates(function(dates){
 			if (!dates){
 				responseHandler.send500(res, "Error getting dates of Raw Feeds");
 			} else {
 				res.jsonp(dates);
 				res.end();
+			}
+		});
+	});
+
+	//A mode and base date are passed in, the will return the dates that fall within that mode,
+	//given the basedate.
+	app.get('/rawfeed/dates/:mode/:date/?', function(req, res){
+		if(logger.DO_LOG){ 
+			logger.info('Request for list of dates');
+		}
+		rawFeedHistogram.findDatesByFrequency(req.params.mode, req.params.date, function(dates){
+			if (!dates){
+				responseHandler.send500(res, "Error getting dates of raw feeds");
+			} else {
+				res.jsonp(dates);
+				res.end();
+			}
+		});
+	});
+	
+	// Review
+	app.get('/rawfeed/:id([0-9a-f]+)', function(req, res){
+		if(0 && logger.DO_LOG){
+			logger.info("Request for raw feed " + req.params.id);
+		}
+		rawFeedService.get(req.params.id, function(err, docs){
+			if(err) {
+				logger.info("Error getting raw feed "+err);
+				responseHandler.send500(res, "Error getting raw feed " + err);
+			} else if(docs) {
+				res.jsonp(docs);
+				res.end();
+			} else {
+				responseHandler.send404(res);
 			}
 		});
 	});

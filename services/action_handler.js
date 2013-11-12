@@ -30,7 +30,6 @@ fs.readdirSync('services/database').forEach(function(file) {
 });
 
 //TODO: Why aren't these in dot notation?  No special characters in the names, etc. 
-requiredServicesList["assertion_to_titan"] = require('./parsers/assertion_to_titan.js');
 requiredServicesList["atom_rss_to_alpha_report"] = require('./parsers/atom_rss_to_alpha_report.js');
 requiredServicesList["nlp_parser_async"] = require('./parsers/nlp_parser_async.js');
 requiredServicesList["raw_feed_parser"] = require('./parsers/raw_feed_parser.js');
