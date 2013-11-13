@@ -3,8 +3,8 @@ var Schema = mongoose.Schema;
 var ObjectId = Schema.ObjectId;
 
 var confirmedReportModel = {
-	created_date: {type: Date, "default": Date.now},
-	updated_date: {type: Date, "default": Date.now},
+	createdDate: {type: Date, "default": Date.now},
+	updatedDate: {type: Date, "default": Date.now},
 	alpha_report_id: {type: ObjectId, required: true},
 	target_event_id: {type: ObjectId},
 	target_event_percentage: {type: Number, "default": 1.0},
