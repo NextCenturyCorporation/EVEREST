@@ -15,6 +15,7 @@ module.exports = function(model) {
 			callback(errorMsg);
 		} else {
 			async.map(dates, flattenArray, function(err,results) {
+				
 				if(err) {
 					callback(errorMsg);
 				} else {
@@ -33,28 +34,29 @@ module.exports = function(model) {
 		    					if(yearMatch) {
 		    						curr = new Date(parseInt(curr)).getMonth();
 		    						return countDatesGivenRange(acc,curr);
-	    						} break;
+	    						}
 		    				case "day": 
 		    					if(yearMatch && monthMatch) {
 		    						curr = new Date(parseInt(curr)).getDate();
 		    						return countDatesGivenRange(acc,curr);
-		    					} break;
+		    					}
 		    				case "hour": 
 		    					if(yearMatch && monthMatch && dayMatch) {
 		    						curr = new Date(parseInt(curr)).getUTCHours();
 		    						return countDatesGivenRange(acc,curr);
-		    					} break;
+		    					}
 		    				case "minute": 
 		    					if(yearMatch && monthMatch && dayMatch && hourMatch) {
 		    						curr = new Date(parseInt(curr)).getUTCMinutes();
 		    						return countDatesGivenRange(acc,curr);
-		    					} break;
+		    					}
 	    					case "second": 
 	    						if(yearMatch && monthMatch && dayMatch && hourMatch && minuteMatch){
 		    						curr = new Date(parseInt(curr)).getUTCSeconds();
 		    						return countDatesGivenRange(acc,curr);
-		    					}
-		    					break;
+		    					} 
+	    					default:
+	    						return acc;
 		    			}
 			    	},{});
 			    	pushToOutputArrayCallback(reduceResults);
