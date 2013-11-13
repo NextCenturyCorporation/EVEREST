@@ -15,6 +15,7 @@ module.exports = function(app, models, io, logger) {
 		if(logger.DO_LOG){
                 logger.info('Request for graphs');
         }
+        
         titanGraphService.list(req.query, function(err, docs){
             res.jsonp(docs);
             res.end();
@@ -23,8 +24,9 @@ module.exports = function(app, models, io, logger) {
     
     app.get('/titan-graph/:id([0-9]+)', function(req, res){
         if(logger.DO_LOG){
-            logger.info('Request for graphs');
+            logger.info('Request for graph by id');
         }
+        
         titanGraphService.getPath(req.params.id, function(err, docs){
             res.jsonp(docs);
             res.end();
@@ -33,19 +35,9 @@ module.exports = function(app, models, io, logger) {
     
     app.get('/titan-graph/vertices/?', function(req, res){
         if(logger.DO_LOG){
-            logger.info('Request for graphs');
+            logger.info('Request for vertices');
         }
         titanGraphService.listVertices(req.query, function(err, docs){
-            res.jsonp(docs);
-            res.end();
-        });
-    });
-
-    app.get('/titan-graph/edges/?', function(req, res){
-        if(logger.DO_LOG){
-            logger.info('Request for graphs');
-        }
-        titanGraphService.listEdges(req.query, function(err, docs){
             res.jsonp(docs);
             res.end();
         });

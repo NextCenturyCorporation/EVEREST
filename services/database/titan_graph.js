@@ -19,18 +19,18 @@ module.exports = function(models, io, logger) {
 	var me = this;
 	var alphaReportService = new AlphaReportService(models, io, logger);
 	
-	me.list = function(config, callback){
+	me.list = function(config, callback) {
 		var verts = gremlin.V().toJSON();
 		var edges = gremlin.E().toJSON();
 		var error = verts.error || gremlin.error;
 		callback(error, verts.concat(edges));
 	};
 	
-	me.listVertices = function(config, callback){
+	me.listVertices = function(config, callback) {
 		var all = {};
 		var keys = Object.keys(config);
 		
-		if (keys.length === 1){
+		if (keys.length === 1) {
 			var field = keys[0];
 			if ( config[field] === 'alpha report' || config[field] === 'target event' ){
 				all = gremlin.V().has(field, config[field]).toJSON();
@@ -41,12 +41,6 @@ module.exports = function(models, io, logger) {
 			all = gremlin.V().toJSON();
 		}
 		
-		callback(all.error, all);
-	};
-	
-	me.listEdges = function(config, callback){
-		var field = Object.keys(config)[0];
-		var all = gremlin.E().has(field, config[field]).toJSON();
 		callback(all.error, all);
 	};
 	
