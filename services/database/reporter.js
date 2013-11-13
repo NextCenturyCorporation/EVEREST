@@ -1,8 +1,8 @@
-var Bvalidator = require('../../models/reporter/bvalidator.js');
-var revalidator = require('revalidator');
-var paramHandler = require('../list_default_handler.js');
-//var actionEmitter = require('../action_emitter.js');
-var async = require('async');
+var Bvalidator = require("../../models/reporter/bvalidator.js");
+var revalidator = require("revalidator");
+//var actionEmitter = require("../action_emitter.js");
+var paramHandler = require("../list_default_handler.js");
+var async = require("async");
 
 module.exports = function(models, io, logger) {
 	var me = this;
@@ -11,30 +11,30 @@ module.exports = function(models, io, logger) {
 	var services = {
 		reporterService: me
 	};
-	 
+	
 	var bvalidator = new Bvalidator(services, logger);
 	
 	/**
-	*	Returns a list of all the Reporters
-	*/
-	me.list = function(req, callback){
+	 * Returns a list of all Reporters
+	 */
+	me.list = function(req, callback) {
 		paramHandler.handleDefaultParams(req, function(params) {
 			if (params !== null) {
 				var sortObject = {};
 				sortObject[params.sortKey] = params.sort;
 				
 				var config = {
-					createdDate : {
+					createdDate: {
 						$gte: params.start,
 						$lte: params.end
 					}
 				};
 
-				models.reporter.find(config).skip(params.offset).sort(sortObject).limit(params.count).exec(function(err, res){
+				models.reporter.find(config).skip(params.offset).sort(sortObject).limit(params.count).exec(function(err, res) {
 					callback(err, res, config);
 				});
 			} else {
-				models.reporter.find({}, function(err, res){
+				models.reporter.find({}, function(err, res) {
 					callback(err, res, {});
 				});
 			}
@@ -44,7 +44,7 @@ module.exports = function(models, io, logger) {
 	/**
 	 *	Returns a list of indexed attributes for Reporter
 	 */
-	me.getIndexes = function(callback){
+	me.getIndexes = function(callback) {
 		var keys = Object.keys(models.reporter.schema.paths);
 		var indexes = ["_id"];
 		for (var i = 0; i < keys.length; i++) {
@@ -86,12 +86,12 @@ module.exports = function(models, io, logger) {
 	/**
 	 *	Returns the number of Reporter that fit the parameter config
 	 */
-	me.getTotalCount = function(config, callback){
+	me.getTotalCount = function(config, callback) {
 		models.reporter.count(config, callback);
 	};
 
 	/**
-	 *
+	 * Returns only the fields specified in field_string for each Reporter
 	 */
 	me.listFields = function(params, field_string, callback) {
 		models.reporter.find(params, field_string, callback);
@@ -101,7 +101,7 @@ module.exports = function(models, io, logger) {
 	 * create is a "generic" save method callable from both
 	 * request-response methods and parser-type methods for population of Reporter data
 	 * 
-	 * saveReporter calls the validateReporter module to ensure that the
+	 * create calls the validateReporter module to ensure that the
 	 * data being saved to the database is complete and has integrity.
 	 * 
 	 * saveCallback takes the form function(err, valid object, Reporter object)
@@ -112,11 +112,9 @@ module.exports = function(models, io, logger) {
 				logger.info("Valid Reporter");
 				
 				var newReporter = new models.reporter(data);
-				//newReporter.createdDate = new Date();
-				//newReporter.updatedDate = new Date();
 				newReporter.save(function(err){
 					if (err){
-						logger.error('Error saving Reporter ', err);
+						logger.error("Error saving Reporter ", err);
 					} else {
 						//actionEmitter.saveReporterEvent(newReporter);
 					}
@@ -131,7 +129,7 @@ module.exports = function(models, io, logger) {
 
 	/**
 	 * validateReporter validates an Reporter object against the Reporter
-	 * semantic rules and the business rules associated with an Reporter
+	 * semantic rules and the business rules associated with a Reporter
 	 *
 	 * validateReporter calls the JSON validation module revalidator and
 	 * calls the business validation module bvalidator for the Reporter object
@@ -154,9 +152,9 @@ module.exports = function(models, io, logger) {
 	};
 
 	/**
-	 * Returns the Reporter object with id specified in URL
+	 * Returns the Reporter object with the specified id
 	 */
-	me.get = function(id, callback){
+	me.get = function(id, callback) {
 		me.findWhere({_id: id}, callback);
 	};
 
@@ -166,24 +164,24 @@ module.exports = function(models, io, logger) {
 	 * 
 	 * callback takes the form function(err, docs)
 	 */
-	me.findWhere = function(config, callback){
+	me.findWhere = function(config, callback) {
 		models.reporter.find(config, callback);
 	};
 
 	/**
-	 * update calls validateReporter then updates the object
+	 * update gets the Reporter by the specified id then calls validateReporter
 	 *
 	 * callback takes the form function(err, valid object, Reporter object)
 	 */
 	me.update = function(id, data, updCallback) {
 		me.get(id, function(err, docs) {
 			if (err) {
-				logger.info("Error getting Reporter "+err);
+				logger.error("Error getting Reporter", err);
 				updCallback(err, null, data);
-			} else if (docs) {
-				docs = docs[0]; //There will only be one report from the get
+			} else if (docs[0]) {
+				docs = docs[0]; //There will only be one Reporter from the get
 				for (var e in data) {
-					if (e !== '_id') {
+					if (e !== "_id") {
 						docs[e] = data[e];
 					}
 				}
@@ -199,8 +197,6 @@ module.exports = function(models, io, logger) {
 							}
 						});
 					} else {
-						//valid.valid = false;
-						//valid.errors = {expected: id, message: "Updated Reporter information not valid"};
 						updCallback(err, valid, data);
 					}
 				});
@@ -211,6 +207,9 @@ module.exports = function(models, io, logger) {
 		});
 	};
 
+	/**
+	 * Remove all Target Events that match the specified config
+	 */
 	me.del = function(config, callback){
 		models.reporter.remove(config, callback);
 	};

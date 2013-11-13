@@ -1,11 +1,11 @@
-var Bvalidator = require('../../models/confirmed_report/bvalidator.js');
-var revalidator = require('revalidator');
-var AlphaReportService = require('./alpha_report.js');
-var ProfileService = require('./profile.js');
-var TargetEventService = require('./target_event.js');
-//var actionEmitter = require('../action_emitter.js');
-var paramHandler = require('../list_default_handler.js');
-var async = require('async');
+var Bvalidator = require("../../models/confirmed_report/bvalidator.js");
+var revalidator = require("revalidator");
+var AlphaReportService = require("./alpha_report.js");
+var ProfileService = require("./profile.js");
+var TargetEventService = require("./target_event.js");
+//var actionEmitter = require("../action_emitter.js");
+var paramHandler = require("../list_default_handler.js");
+var async = require("async");
 
 module.exports = function(models, io, logger) {
 	var me = this;
@@ -14,12 +14,15 @@ module.exports = function(models, io, logger) {
 	var services = {
 		confirmedReportService: me,
 		alphaReportService: new AlphaReportService(models, io, logger),
-		profileService: ProfileService,		//TODO change this
+		profileService: new ProfileService(models, io, logger),
 		targetEventService: new TargetEventService(models, io, logger)
 	};
 
 	var bvalidator = new Bvalidator(services, logger);
 
+	/**
+	 * Returns a list of all Confirmed Reports
+	 */
 	me.list = function(req, callback) {
 		paramHandler.handleDefaultParams(req, function(params) {
 			if (params !== null) {
@@ -33,7 +36,7 @@ module.exports = function(models, io, logger) {
 					}
 				};
 
-				models.confirmedReport.find({}).skip(params.offset).sort(sortObject).limit(params.count).exec(function(err, res){
+				models.confirmedReport.find(config).skip(params.offset).sort(sortObject).limit(params.count).exec(function(err, res){
 					callback(err, res, config);
 				});
 			} else {
@@ -52,7 +55,7 @@ module.exports = function(models, io, logger) {
 			} else {
 				async.each(res, function(report, callback) {
 					me.flattenConfirmedReport(report, function(err, updatedReport) {
-						if(!err) {
+						if (!err) {
 							report = updatedReport;
 						}
 						callback(err);
@@ -74,11 +77,11 @@ module.exports = function(models, io, logger) {
 	};
 
 	me.flattenConfirmedReport = function(report, callback) {
-		var fieldsToFlatten = ['alpha_report_id'/*, 'target_event_id'*/, 'profile_id', 'assertions'];
+		var fieldsToFlatten = ["alpha_report_id"/*, "target_event_id"*/, "profile_id", "assertions"];
 
 		async.each(fieldsToFlatten, function(field, fieldCallback) {
-			if (field === 'assertions') {
-				if(report.assertions.length > 0) {
+			if (field === "assertions") {
+				if (report.assertions.length > 0) {
 					var flattenedAssertions = [];
 					async.each(report.assertions, function(assertion, assertionCallback) {
 						me.flattenField(report, assertion, function(err, flattenedField) {
@@ -98,7 +101,7 @@ module.exports = function(models, io, logger) {
 					fieldCallback();
 				}
 			} else {
-				if(typeof(report[field]) !== 'undefined' && report[field] !== null) {
+				if(typeof(report[field]) !== "undefined" && report[field] !== null) {
 					me.flattenField(report, field, function(err, flattenedField) {
 						if (err) {
 							fieldCallback(err);
@@ -113,21 +116,24 @@ module.exports = function(models, io, logger) {
 				}
 			}
 		}, function(err) {
-			console.log('end');
+			console.log("end");
 			callback(err, report);
 		});
 	};
 
 	me.flattenField = function(report, field, callback) {
-		if (field === 'alpha_report_id') {
+		if (field === "alpha_report_id") {
 			services.alphaReportService.get(report.alpha_report_id, callback);
-		} else if(field === 'target_event_id') {
+		} else if (field === "target_event_id") {
 			services.targetEventService.get(report.target_event_id, callback);
-		} else if(field === 'profile_id') {
+		} else if (field === "profile_id") {
 			services.profileService.get(report.profile_id, callback);
 		}
 	};
 
+	/**
+	 * Returns a list of indexed attributes for Confirmed Report
+	 */
 	me.getIndexes = function(callback) {
 		var keys = Object.keys(models.confirmedReport.schema.paths);
 		var indexes = ["_id"];
@@ -140,6 +146,9 @@ module.exports = function(models, io, logger) {
 		callback(indexes);
 	};
 
+	/**
+	 *	Returns a sorted list containing _id and createdDate for all Confirmed Reports
+	 */
 	me.findDates = function(callback) {
 		models.confirmedReport.find({}, {_id: 0, createdDate:1}, function(err, dates) {
 			var errorMsg = new Error("Could not get Confirmed Report Dates: " + err);
@@ -157,14 +166,23 @@ module.exports = function(models, io, logger) {
 		});
 	};
 
+	/**
+	 *	Returns the Date version of parameter string.createdDate
+	 */
 	me.flattenArray = function(string, callback) {
 		callback(null, Date.parse(string.createdDate));
 	};
 
+	/**
+	 *	Returns the number of Confirmed Reports that fit the specified config
+	 */
 	me.getTotalCount = function(config, callback) {
 		models.confirmedReport.count(config, callback);
 	};
 
+	/**
+	 * Returns only the fields specified in field_string for each Confirmed Report
+	 */
 	me.listFields = function(params, field_string, callback) {
 		models.confirmedReport.find(params, field_string, callback);
 	};
@@ -173,7 +191,7 @@ module.exports = function(models, io, logger) {
 	 * create is a "generic" save method callable from both
 	 * request-response methods and parser-type methods for population of Confirmed Report data
 	 *
-	 * saveConfirmedReport calls the validateConfirmedReport module to ensure that the
+	 * create calls the validateConfirmedReport module to ensure that the
 	 * data being saved to the database is complete and has integrity.
 	 *
 	 * saveCallback takes the form function(err, valid object, Confirmed Report object)
@@ -184,13 +202,11 @@ module.exports = function(models, io, logger) {
 				logger.info("Valid Confirmed Report");
 
 				var newConfirmedReport = new models.confirmedReport(data);
-				//newConfirmedReport.createdDate = new Date();
-				//newConfirmedReport.updatedDate = new Date();
-				newConfirmedReport.save(function(err){
-					if (err){
-						logger.error('Error saving Confirmed Report ', err);
+				newConfirmedReport.save(function(err) {
+					if (err) {
+						logger.error("Error saving Confirmed Report ", err);
 					} else {
-						//actionEmitter.saveConfirmedReportEvent(newConfirmedReport);
+						//actionEmitter
 					}
 
 					saveCallback(err, valid, newConfirmedReport);
@@ -226,9 +242,9 @@ module.exports = function(models, io, logger) {
 	};
 
 	/**
-	 * Returns the Confirmed Report object with id specified in URL
+	 * Returns the Confirmed Report object with the specified id
 	 */
-	me.get = function(id, callback){
+	me.get = function(id, callback) {
 		me.findWhere({_id: id}, callback);
 	};
 
@@ -238,24 +254,24 @@ module.exports = function(models, io, logger) {
 	 *
 	 * callback takes the form function(err, docs)
 	 */
-	me.findWhere = function(config, callback){
+	me.findWhere = function(config, callback) {
 		models.confirmedReport.find(config, callback);
 	};
 
 	/**
-	 * update calls validateConfirmedReport then updates the object
+	 * update gets the Confirmed Report by the specified id then calls validateConfirmedReport
 	 *
 	 * callback takes the form function(err, valid object, Confirmed Report object)
 	 */
 	me.update = function(id, data, updCallback) {
 		me.get(id, function(err, docs) {
 			if (err) {
-				logger.info("Error getting Confirmed Report "+err);
+				logger.error("Error getting Confirmed Report", err);
 				updCallback(err, null, data);
 			} else if (docs[0]) {
 				docs = docs[0]; //There will only be one Confirmed Report from the get
 				for (var e in data) {
-					if (e !== '_id') {
+					if (e !== "_id") {
 						docs[e] = data[e];
 					}
 				}
@@ -271,8 +287,6 @@ module.exports = function(models, io, logger) {
 							}
 						});
 					} else {
-						valid.valid = false;
-						valid.errors = {expected: id, message: "Updated Confirmed Report information not valid"};
 						updCallback(err, valid, data);
 					}
 				});
@@ -283,7 +297,10 @@ module.exports = function(models, io, logger) {
 		});
 	};
 
-	me.del = function(config, callback){
+	/**
+	 * Remove all Confirmed Reports that match the specified config
+	 */
+	me.del = function(config, callback) {
 		models.confirmedReport.remove(config, callback);
 	};
 };

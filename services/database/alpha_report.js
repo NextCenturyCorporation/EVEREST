@@ -1,27 +1,27 @@
-var Bvalidator = require('../../models/alpha_report/bvalidator.js');
-var revalidator = require('revalidator');
-var RawFeedService = require('./raw_feed');
-var actionEmitter = require('../action_emitter.js');
-var paramHandler = require('../list_default_handler.js');
-var async = require('async');
+var Bvalidator = require("../../models/alpha_report/bvalidator.js");
+var revalidator = require("revalidator");
+var RawFeedService = require("./raw_feed");
+var actionEmitter = require("../action_emitter.js");
+var paramHandler = require("../list_default_handler.js");
+var async = require("async");
 
 module.exports = function(models, io, logger) {
 	var me = this;
-
 	var validationModel = models.alphaReportValidation;
 
 	var services = {
 		alphaReportService: me,
 		rawFeedService: new RawFeedService(models, io, logger)
 	};
+
 	var bvalidator = new Bvalidator(services, logger);
 
 	/**
-	 *	Returns a list of all the Alpha Reports
+	 * Returns a list of all Alpha Reports
 	 */
-	me.list = function(req, callback){
-		paramHandler.handleDefaultParams(req, function(params){
-			if (params !== null){
+	me.list = function(req, callback) {
+		paramHandler.handleDefaultParams(req, function(params) {
+			if (params !== null) {
 				var sortObject = {};
 				sortObject[params.sortKey] = params.sort;
 				
@@ -32,11 +32,11 @@ module.exports = function(models, io, logger) {
 					}
 				};
 				
-				models.alphaReport.find(config).skip(params.offset).sort(sortObject).limit(params.count).exec(function(err, res){
+				models.alphaReport.find(config).skip(params.offset).sort(sortObject).limit(params.count).exec(function(err, res) {
 					callback(err, res, config);
 				});
 			} else {
-				models.alphaReport.find({}, function(err, res){
+				models.alphaReport.find({}, function(err, res) {
 					callback(err, res, {});
 				});
 			}
@@ -46,7 +46,7 @@ module.exports = function(models, io, logger) {
 	/**
 	 *	Returns a list of indexed attributes for Alpha Report
 	 */
-	me.getIndexes = function(callback){
+	me.getIndexes = function(callback) {
 		var keys = Object.keys(models.alphaReport.schema.paths);
 		var indexes = ["_id"];
 		for (var i = 0; i < keys.length; i++) {
@@ -88,12 +88,12 @@ module.exports = function(models, io, logger) {
 	/**
 	 *	Returns the number of Alpha Reports that fit the specified config
 	 */
-	me.getTotalCount = function(config, callback){
+	me.getTotalCount = function(config, callback) {
 		models.alphaReport.count(config, callback);
 	};
 
 	/**
-	 *
+	 * Returns only the fields specified in field_string for each Alpha Report
 	 */
 	me.listFields = function(params, field_string, callback) {
 		models.alphaReport.find(params, field_string, callback);
@@ -101,9 +101,10 @@ module.exports = function(models, io, logger) {
 
 	/**
 	 * create is a "generic" save method callable from both
-	 * request-response methods and parser-type methods for population of Alpha Report data
+	 * request-response methods and parser-type methods for population 
+	 * of Alpha Report data
 	 * 
-	 * saveAlphaReport calls the validateAlphaReport module to ensure that the
+	 * create calls the validateAlphaReport module to ensure that the
 	 * data being saved to the database is complete and has integrity.
 	 * 
 	 * saveCallback takes the form function(err, valid object, Alpha Report object)
@@ -114,9 +115,9 @@ module.exports = function(models, io, logger) {
 				logger.info("Valid Alpha Report");
 				
 				var newAlphaReport = new models.alphaReport(data);
-				newAlphaReport.save(function(err){
-					if (err){
-						logger.error('Error saving Alpha Report ', err);
+				newAlphaReport.save(function(err) {
+					if (err) {
+						logger.error("Error saving Alpha Report ", err);
 					} else {
 						actionEmitter.saveAlphaReportEvent(newAlphaReport);
 					}
@@ -133,7 +134,7 @@ module.exports = function(models, io, logger) {
 	 * validateAlphaReport validates an Alpha Report object against the Alpha Report
 	 * semantic rules and the business rules associated with an AlphaReport
 	 *
-	 * validateAlphaReport calls the JSON validation module  revalidator and
+	 * validateAlphaReport calls the JSON validation module revalidator and
 	 * calls the business validation module bvalidator for the AlphaReport object
 
 	 * data is the object being validated
@@ -154,9 +155,9 @@ module.exports = function(models, io, logger) {
 	};
 
 	/**
-	 * Returns the Alpha Report object with id specified in URL
+	 * Returns the Alpha Report object with the specified id
 	 */
-	me.get = function(id, callback){
+	me.get = function(id, callback) {
 		me.findWhere({_id: id}, callback);
 	};
 
@@ -166,24 +167,24 @@ module.exports = function(models, io, logger) {
 	 * 
 	 * callback takes the form function(err, docs)
 	 */
-	me.findWhere = function(config, callback){
+	me.findWhere = function(config, callback) {
 		models.alphaReport.find(config, callback);
 	};
 
 	/**
-	 * update calls validateAlphaReport then updates the object
+	 * update gets the Alpha Report by the specified id then calls validateAlphaReport
 	 *
 	 * callback takes the form function(err, valid object, Alpha Report object)
 	 */
 	me.update = function(id, data, updCallback) {
 		me.get(id, function(err, docs) {
 			if (err) {
-				logger.info("Error getting Alpha Report "+err);
+				logger.error("Error getting Alpha Report", err);
 				updCallback(err, null, data);
 			} else if (docs[0]) {
-				docs = docs[0]; //There will only be one alpha report from the get
+				docs = docs[0]; //There will only be one Alpha Report from the get
 				for (var e in data) {
-					if (e !== '_id') {
+					if (e !== "_id") {
 						docs[e] = data[e];
 					}
 				}
@@ -211,7 +212,10 @@ module.exports = function(models, io, logger) {
 		});
 	};
 
-	me.del = function(config, callback){
+	/**
+	 * Remove all Alpha Reports that match the parameter config
+	 */
+	me.del = function(config, callback) {
 		models.alphaReport.remove(config, callback);
 	};
 };

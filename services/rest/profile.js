@@ -1,177 +1,206 @@
-var ProfileService = require('../database/profile.js');
+var ProfileService = require("../database/profile.js");
+var responseHandler = require("../general_response");
 
 module.exports = function(app, models, io, logger) {
-	
-	var me = this;
+	var profileService = new ProfileService(models, io, logger);
 
-	me.profileService = new ProfileService(models, io, logger);
-
-	//list - lists full object
-	app.get('/profile/?', function(req,res){
-		if(logger.DO_LOG){
-			logger.info("Request for profile list");
+	/**
+	 * List all Profiles
+	 */
+	app.get("/profile/?", function(req, res) {
+		if (logger.DO_LOG) {
+			logger.info("Request for a list of all Profiles");
 		}
 
-		me.profileService.list({}, function(err, profiles) {
-			if(err){
-				logger.info("Error listing profiles "+err);
-				res.status(500);
-				res.jsonp({error: 'Error'});
+		profileService.list(req.query, function(err, docs, config) {
+			if (err) {
+				logger.error("Error listing Profiles", err);
+				responseHandler.send500(res, "Error listing Profiles");
 			} else {
-				res.jsonp(profiles);
+				profileService.getTotalCount(config, function(err, count) {
+					if (err) {
+						logger.error("Profile: " + err, err);
+						responseHandler.send500(res, "Error getting count of Profiles");
+					} else {
+						res.jsonp({docs: docs, total_count: count});
+						res.end();
+					}
+				})
 			}
-			res.end();
 		});
 	});
-	
-	//list - lists name and id
-	app.get('/profile/names/', function(req,res){
-		if(logger.DO_LOG){
-			logger.info("Request for profile name list");
+
+	/**
+	 * List all indexes for the Profile object
+	 */
+	app.get("/profile/indexes/?", function(req, res) {
+		if (logger.DO_LOG) {
+			logger.info("Request for list of indexes for the Profile object");
+		}
+
+		profileService.getIndexes(function(indexes) {
+			if (!indexes) {
+				responseHandler.send500(res, "Error getting indexes for the Profile object");
+			} else {
+				res.jsonp(indexes);
+				res.end();
+			}
+		});
+	});
+
+	/**
+	 * List createdDate for all of the Profiles (in milliseconds)
+	 */
+	app.get("/profile/dates/?", function(req, res) {
+		if (logger.DO_LOG) {
+			logger.info("Request for list of dates for all Profiles");
+		}
+
+		profileService.findDates(function(dates) {
+			if (!dates) {
+				responseHandler.send500(res, "Error getting dates for Profiles");
+			} else {
+				res.jsonp(dates);
+				res.end();
+			}
+		})
+	});
+
+	/**
+	 * Lists the _id and name for all Profiles
+	 */
+	app.get("/profile/names/?", function(req, res) {
+		if (logger.DO_LOG) {
+			logger.info("Request for Profile name list");
 		}
 		
-		me.profileService.listFields({}, '_id name', function(err, docs){
-			if(err){
-				logger.info("Error listing profile id - name "+err);
-				res.status(500);
-				res.jsonp({error: 'Error'});
+		var params = {};
+		profileService.listFields(params, "_id name", function(err, docs) {
+			if (err) {
+				logger.error("Error listing Profile id - name", err);
+				responseHandler.send500(res, "Error listing Profile id - name");
 			} else {
 				res.jsonp(docs);
+				res.end();
 			}
-			res.end();
 		});
 	});
 
-	//Create
-	app.post('/profile/?', function(req,res){
-		if(logger.DO_LOG){
-			logger.info("Receiving new profile");
+	/**
+	 * Create a new Profile
+	 */
+	app.post("/profile/?", function(req, res) {
+		if (logger.DO_LOG) {
+			logger.info("Receiving new Profile");
 		}
 		
-		me.profileService.saveProfile(req.body, function(err, val, newLoc) {
-			if(err){
-				logger.error('Error saving profile', err);
-				res.status(500);
-				res.json({error: 'Error'});
+		profileService.saveProfile(req.body, function(err, val, newProfile) {
+			if (err) {
+				logger.error("Error saving Profile", err);
+				responseHandler.send500(res, "Error saving Profile");
 			} else if (!val.valid) {
-				logger.info('Invalid profile ' + JSON.stringify(val.errors));
-				res.status(500);
-				res.json({error: val.errors}, req.body);
+				logger.info("Invalid Profile " + JSON.stringify(val.errors));
+				responseHandler.send500(res, "Invalid Profile " + JSON.stringify(val.errors));
 			} else {
-				logger.info('Profile saved ' + JSON.stringify(newLoc));
-				res.json({id:newLoc._id});
+				logger.info("Profile saved " + JSON.stringify(newProfile));
+				res.jsonp({_id: newProfile._id});
+				res.end();
 			}
-			res.end();
 		});			
 	});
 
-	//get
-	app.get('/profile/:id([0-9a-f]+)', function(req,res){
-		if(logger.DO_LOG){
-			logger.info("Request for profile "+req.params.id);
+	/**
+	 * Review a Profile specified by id
+	 * /profile/:{param_name}(contents go in param_name)
+	 */
+	app.get("/profile/:id([0-9a-f]+)", function(req, res) {
+		if (logger.DO_LOG) {
+			logger.info("Request for Profile " + req.params.id);
 		}
-		me.profileService.get(req.params.id, function(err, foundProfile) {
-			if(err) {
-				logger.info("Error getting profile "+err);
-				res.status(500);
-				res.jsonp({error: 'Error'});
-			} else if(foundProfile) {
-				res.jsonp(foundProfile);
+
+		profileService.get(req.params.id, function(err, docs) {
+			if (err) {
+				logger.error("Error getting Profile", err);
+				responseHandler.send500(res, "Error getting Profile");
+			} else if(docs[0]) {
+				res.jsonp(docs[0]);
+				res.end();
 			} else {
-				res.status(404);
-				res.jsonp({error: 'Not found'});
+				responseHandler.send404(res);
 			}
-			res.end();
 		});
 	});
 
-	app.get('/profile/:name', function(req,res){
-		if(logger.DO_LOG){
-			logger.info("Request for profileByName "+req.params.name);
+	/**
+	 * Review a Profile with specified name
+	 * /profile/:{param_name}(contents go in param_name)
+	 */
+	app.get("/profile/:name", function(req, res) {
+		if (logger.DO_LOG) {
+			logger.info("Request for Profile with name " + req.params.name);
 		}
 		
-		me.findWhere({name: req.params.name}, function(err, found) {
-			if(err) {
-				logger.info("Error getting profileByName "+err);
-				res.status(500);
-				res.jsonp({error: 'Error'});
-			} else if(0 !== found.length) {
-				res.jsonp(found);
+		profileService.findWhere({name: req.params.name}, function(err, docs) {
+			if (err) {
+				logger.error("Error listing Place with name " + req.params.name, err);
+				responseHandler.send500(res, "Error getting Place by name");
+			} else if (docs) {
+				res.jsonp(docs);
+				res.end();
 			} else {
-				res.status(404);
-				res.jsonp({error: 'Not found'});
+				responseHandler.send404(res);
 			}
-			res.end();
-		});
-	});
-
-	/*// search
-	app.search('/profile/?', function(req,res){
-		if (logger.DO_LOG){
-			logger.info("Search for profile "+JSON.stringify(req.body));
-		}
-		profileService.searchProfile(req.body, res);
-	});*/
-	
-	//Update
-	app.post('/profile/:id([0-9a-f]+)', function(req,res){
-		if(logger.DO_LOG){
-			logger.info("Update profile "+req.params.id);
-		}
-		
-		me.profileService.update(req.params.id, req.body, function(err, valid, updatedProfile) {
-			if(err){
-				logger.error('Error updating profile', err);
-				res.status(500);
-				res.json({error: 'Error'});
-			} else if (!valid.valid) {
-				logger.info('Invalid profile ' + JSON.stringify(valid.errors));
-				res.status(500);
-				res.json({error: valid.errors}, req.body);
-			} else {
-				logger.info('Profile updated ' + JSON.stringify(updatedProfile));
-				res.json({id:updatedProfile._id});
-			}
-			res.end();
 		});
 	});
 	
-	//delete by id
-	app.del('/profile/:id([0-9a-f]+)', function(req, res) {
-		if(logger.DO_LOG) {
-			logger.info("Deleting profile with id: " + req.params.id);
+	/**
+	 * Update Profile with specified id
+	 */
+	app.post("/profile/:id([0-9a-f]+)", function(req, res) {
+		if (logger.DO_LOG) {
+			logger.info("Update Profile " + req.params.id);
 		}
 		
-		me.profileService.del({_id: req.params.id}, function(err) {
-			if(err){
-				logger.error('Error deleting profile ' + req.params.id, err);
-				res.status('500');
-				res.json({error:'Error deleting profile ' + req.params.id});
+		profileService.update(req.params.id, req.body, function(err, val, updated) {
+			if (err) {
+				logger.error("Error updating Profile", err);
+				responseHandler.send500(res, "Error updating Profile");
+			} else if (val && !val.valid) {
+				logger.info("Invalid Profile " + JSON.stringify(valid.errors));
+				responseHandler.send500(res, "Invalid Profile " + JSON.stringify(valid.errors))
+			} else {
+				logger.info("Profile updated " + JSON.stringify(updated));
+				res.jsonp({_id: updated._id});
 				res.end();
 			}
-			
-			res.json({status:'ok'});
+		});
+	});
+	
+	/**
+	 * Delete a single Profile with specified id
+	 */
+	app.del("/profile/:id([0-9a-f]+)", function(req, res) {
+		if (logger.DO_LOG) {
+			logger.info("Deleting Profile with id: " + req.params.id);
+		}
+		
+		profileService.del({_id: req.params.id}, function(err, count) {
+			res.jsonp({deleted_count: count});
 			res.end();
 		});
 	});
 	
-	//delete all
-	app.del('/profile/', function(req, res) {
-		if(logger.DO_LOG) {
-			logger.info("Deleting all profiles");
+	/**
+	 * Delete all Profiles
+	 */
+	app.del("/profile/", function(req, res) {
+		if (logger.DO_LOG) {
+			logger.info("Deleting all Profiles");
 		}
 		
-		me.profileService.del({}, function(err) {
-			if(err){
-				logger.error('Error deleting profiles', err);
-				res.status('500');
-				res.json({error:'Error deleting profiles'});
-				res.end();
-			}
-			
-			res.json({status:'ok'});
+		profileService.del({}, function(err, count) {
+			res.jsonp({deleted_count: count});
 			res.end();
 		});
 	});
 };
-

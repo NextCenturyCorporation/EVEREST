@@ -1,8 +1,8 @@
-var Bvalidator = require('../../models/target_assertion/bvalidator.js');
-var revalidator = require('revalidator');
-//var actionEmitter = require('../action_emitter.js');
-var paramHandler = require('../list_default_handler.js');
-var async = require('async');
+var Bvalidator = require("../../models/target_assertion/bvalidator.js");
+var revalidator = require("revalidator");
+//var actionEmitter = require("../action_emitter.js");
+var paramHandler = require("../list_default_handler.js");
+var async = require("async");
 
 module.exports = function(models, io, logger) {
 	var me = this;
@@ -11,32 +11,35 @@ module.exports = function(models, io, logger) {
 	var services = {
 		targetAssertionService: me
 	};
+
 	var bvalidator = new Bvalidator(services, logger);
 
+	/**
+	 *	Returns a list of all Target Assertions
+	 */
 	me.list = function(req, callback) {
-		paramHandler.handleDefaultParams(req, function(params){
-			if (params !== null){
+		paramHandler.handleDefaultParams(req, function(params) {
+			if (params !== null) {
 				var sortObject = {};
 				sortObject[params.sortKey] = params.sort;
 				
 				var config = {
-					createdDate :{
+					createdDate: {
 						$gte: params.start,
 						$lte: params.end
 					}
 				};
 				
-				models.targetAssertion.find(config).skip(params.offset).sort(sortObject).limit(params.count).exec(function(err, res){
+				models.targetAssertion.find(config).skip(params.offset).sort(sortObject).limit(params.count).exec(function(err, res) {
 					callback(err, res, config);
 				});
 			} else {
-				models.targetAssertion.find({}, function(err, res){
+				models.targetAssertion.find({}, function(err, res) {
 					callback(err, res, {});
 				});
 			}
 		});
 	};
-	
 		
 	/**
 	 *	Returns a list of indexed attributes for Target Assertion
@@ -58,7 +61,7 @@ module.exports = function(models, io, logger) {
 	 */
 	me.findDates = function(callback) {
 		models.targetAssertion.find({}, {_id: 0, createdDate:1}, function(err, dates) {
-			var errorMsg = new Error("Could not get feed Dates: " + err);
+			var errorMsg = new Error("Could not get Target Assertion Dates: " + err);
 			if (err) {
 				callback(errorMsg);
 			} else {
@@ -81,14 +84,14 @@ module.exports = function(models, io, logger) {
 	};
 
 	/**
-	 *	Returns the number of Target Assertions that fit the parameter config
+	 *	Returns the number of Target Assertions that fit the specified config
 	 */
-	me.getTotalCount = function(config, callback){
+	me.getTotalCount = function(config, callback) {
 		models.targetAssertion.count(config, callback);
 	};
 
 	/**
-	 *
+	 * Returns only the fields specified in field_string for each Target Assertion
 	 */
 	me.listFields = function(params, field_string, callback) {
 		models.targetAssertion.find(params, field_string, callback);
@@ -111,9 +114,9 @@ module.exports = function(models, io, logger) {
 				var newTargetAssertion = new models.targetAssertion(data);
 				newTargetAssertion.save(function(err){
 					if (err) {
-						logger.error('Error saving Target Assertion', err);
+						logger.error("Error saving Target Assertion", err);
 					} else {
-						//actionEmitter.saveTargetAssertionEvent(newTargetAssertion);
+						//actionEmitter
 					}
 					
 					saveCallback(err, valid, newTargetAssertion);
@@ -125,8 +128,8 @@ module.exports = function(models, io, logger) {
 	};
 	
 	/**
-	 * validateTargetAssertion validates a Target Assertion object against the Target Assertion semantic rules
-	 * and the business rules associated with a Target Assertion
+	 * validateTargetAssertion validates a Target Assertion object against the Target
+	 * Assertion semantic rules and the business rules associated with a Target Assertion
 	 *
 	 * validateTargetAssertion calls the JSON validation module revalidator and
 	 * calls the business validation module bvalidator for the Target Assertion object
@@ -149,7 +152,7 @@ module.exports = function(models, io, logger) {
 	};
 	
 	/**
-	 * Returns the Target Assertion object with id specified in URL
+	 * Returns the Target Assertion object with the specified id
 	 */
 	me.get = function(id, callback) {
 		models.targetAssertion.find({_id: id}, callback);
@@ -165,23 +168,26 @@ module.exports = function(models, io, logger) {
 		models.targetAssertion.find(config, callback);
 	};
 	
-	
+	/**
+	 * update gets the Target Assertion by the specified id then calls validateTargetAssertion
+	 *
+	 * callback takes the form function(err, valid object, Target Assertion object)
+	 */
 	me.update = function(id, data, updCallback) {
-		me.get(id, function(err, docs){
+		me.get(id, function(err, docs) {
 			if (err) {
 				logger.error("Error getting Target Assertion", err);
 				updCallback(err, null, data);
 			} else if (docs[0]) {
-				docs = docs[0]; //get will always return an array of size one.
-				for (var e in data){
-					//Make sure not to change _id
-					if (e !== '_id') {
+				docs = docs[0]; //There will only be one Target Assertion from the get
+				for (var e in data) {
+					if (e !== "_id") {
 						docs[e] = data[e];
 					}
 				}
 				
 				docs.updatedDate = new Date();
-				me.validateTargetAssertion(docs, function(valid){
+				me.validateTargetAssertion(docs, function(valid) {
 					if (valid.valid) {
 						docs.save(function(err) {
 							if (err) {
@@ -201,6 +207,9 @@ module.exports = function(models, io, logger) {
 		});
 	};
 
+	/**
+	 * Remove all Target Assertions that match the specified config
+	 */
 	me.del = function(config, callback) {
 		models.targetAssertion.remove(config, callback);
 	};

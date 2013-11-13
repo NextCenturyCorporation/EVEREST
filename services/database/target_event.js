@@ -1,14 +1,14 @@
-var Bvalidator = require('../../models/target_event/bvalidator.js');
-var revalidator = require('revalidator');
-var TargetAssertionService = require('../../services/database/target_assertion.js');
-//var actionEmitter = require('../action_emitter.js');
-var paramHandler = require('../list_default_handler.js');
-var async = require('async');
+var Bvalidator = require("../../models/target_event/bvalidator.js");
+var revalidator = require("revalidator");
+var TargetAssertionService = require("../../services/database/target_assertion.js");
+//var actionEmitter = require("../action_emitter.js");
+var paramHandler = require("../list_default_handler.js");
+var async = require("async");
 
 module.exports = function(models, io, logger) {
 	var me = this;
-	
 	var validationModel = models.targetEventValidation;
+
 	var services = {
 		targetEventService: me,
 		targetAssertionService: new TargetAssertionService(models, io, logger)
@@ -17,7 +17,7 @@ module.exports = function(models, io, logger) {
 	var bvalidator = new Bvalidator(services, logger);
 	
 	/**
-	 * Returns a list of all of the Target Events
+	 * Returns a list of all Target Events
 	 */
 	me.list = function(req, callback) {
 		paramHandler.handleDefaultParams(req, function(params) {
@@ -32,11 +32,11 @@ module.exports = function(models, io, logger) {
 					}
 				};
 				
-				models.targetEvent.find(config).skip(params.offset).sort(sortObject).limit(params.count).exec(function(err, res){
+				models.targetEvent.find(config).skip(params.offset).sort(sortObject).limit(params.count).exec(function(err, res) {
 					callback(err, res, config);
 				});
 			} else {
-				models.targetEvent.find({}, function(err, res){
+				models.targetEvent.find({}, function(err, res) {
 					callback(err, res, {});
 				});
 			}
@@ -49,7 +49,7 @@ module.exports = function(models, io, logger) {
 	me.getIndexes = function(callback) {
 		var keys = Object.keys(models.targetEvent.schema.paths);
 		var indexes = ["_id"];
-		for (var i = 0; i < keys.length; i++){
+		for (var i = 0; i < keys.length; i++) {
 			if (models.targetEvent.schema.paths[keys[i]]._index) {
 				indexes.push(keys[i].toString());
 			}
@@ -93,17 +93,17 @@ module.exports = function(models, io, logger) {
 	};
 	
 	/**
-	 *
+	 * Returns only the fields specified in field_string for each Target Event
 	 */
 	me.listFields = function(params, field_string, callback) {
 		models.targetEvent.find(params, field_string, callback);
 	};
 
 	/**
-	 * saveTargetEvent is a "generic" save method callable from both
+	 * create is a "generic" save method callable from both
 	 * request-response methods and parser-type methods for population of Target Event data
 	 * 
-	 * saveTargetEvent calls the validateTargetEvent module to ensure that the
+	 * create calls the validateTargetEvent module to ensure that the
 	 * target_event data being saved to the database is complete and has integrity.
 	 * 
 	 * saveCallback takes the form function(err, valid object, Target Event object)
@@ -114,11 +114,11 @@ module.exports = function(models, io, logger) {
 				logger.info("Valid Target Event");
 				
 				var newTargetEvent = new models.targetEvent(data);
-				newTargetEvent.save(function(err){
+				newTargetEvent.save(function(err) {
 					if (err) {
-						logger.error('Error saving Target Event', err);
+						logger.error("Error saving Target Event", err);
 					} else {
-						//actionEmitter.saveTargetEvent(newTargetEvent);
+						//actionEmitter
 					}
 					
 					saveCallback(err, valid, newTargetEvent);
@@ -130,15 +130,15 @@ module.exports = function(models, io, logger) {
 	};
 
 	/**
-	 * validateTargetEvent validates a target_event object against the target_event semantic rules
-	 * and the business rules associated with a target_event
+	 * validateTargetEvent validates a Target Event object against the Target 
+	 * Event semantic rules and the business rules associated with a Target Event
 	 *
-	 * validateTargetEvent calls the JSON validation module  revalidator and
-	 * calls the business validation module bvalidator for the target_event object
+	 * validateTargetEvent calls the JSON validation module revalidator and
+	 * calls the business validation module bvalidator for the Target Event object
 
-	 * data is the target_event object being validated
+	 * data is the Target Event object being validated
 	 * 
-	 * valCallback takes the form of  function(valid structure)
+	 * valCallback takes the form of function(valid structure)
 	 */
 	me.validateTargetEvent = function(data, valCallback) {
 		// is the JSON semantically valid for the Target Event object?
@@ -154,43 +154,44 @@ module.exports = function(models, io, logger) {
 	};
 
 	/** 
-	 *	Returns the Target Event object with id specified in URL
+	 *	Returns the Target Event object with the specified id
 	 */
 	me.get = function(id, callback) {
 		me.findWhere({_id: id}, callback);
 	};
 	
-	/** 
-	 * generic read method to return all documents that have a matching set
-	 * of key, value pairs specified by config
+	/**
+	 * generic read method to return all documents that have a matching
+	 * set of key, value pairs specified by config
+	 * 
+	 * callback takes the form function(err, docs)
 	 */
 	me.findWhere = function(config, callback) {
 		models.targetEvent.find(config, callback);
 	};
 	
 	/**
-	 * update calls validateTargetEvent then updates the object
+	 * update gets the Target Event by the specified id then calls validateTargetEvent
 	 *
 	 * callback takes the form function(err, valid object, Target Event object)
 	 */
 	me.update = function(id, data, updCallback) {
 		me.get(id, function(err, docs) {
 			if (err) {
-				logger.info("Error getting Target Event " + err);
+				logger.error("Error getting Target Event", err);
 				updCallback(err, null, data);
 			} else if (docs[0]) {
 				docs = docs[0]; //there will only be one Target Event from the get
 				for (var e in data) {
-					//Make sure not to change _id
-					if (e !== '_id') {
+					if (e !== "_id") {
 						docs[e] = data[e];
 					}
 				}
 				
 				docs.updatedDate = new Date();
-				me.validateTargetEvent(docs, function(valid){
+				me.validateTargetEvent(docs, function(valid) {
 					if (valid.valid) {
-						docs.save(function(err){
+						docs.save(function(err) {
 							if (err) {
 								updCallback(err, valid, data);
 							} else {
@@ -208,6 +209,9 @@ module.exports = function(models, io, logger) {
 		});
 	};
 
+	/**
+	 * Remove all Target Events that match the specified config
+	 */
 	me.del = function(config, callback) {
 		models.targetEvent.remove(config, callback);
 	};

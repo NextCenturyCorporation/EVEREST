@@ -1,153 +1,217 @@
-var bvalidator = require('../../models/profile/bvalidator.js');
-var revalidator = require('revalidator');
+var Bvalidator = require("../../models/profile/bvalidator.js");
+var revalidator = require("revalidator");
+//var actionEmitter = require("../action_emitter");
+var paramHandler = require("../list_default_handler.js");
+var async = require("async");
 
 module.exports = function(models, io, logger) {
 	var me = this;
+	var validationModel = models.profileValidation;
 
-	me.profileValidation = models.profileValidation;
+	var services = {
+		profileService: me
+	};
+
+	var bvalidator = new Bvalidator(services, logger);
 
 	/**
-	* validateProfile validates a profile object against the profile semantic rules
-	* and the business rules associated with a profile
-	*
-	* validateProfile calls the JSON validation module  revalidator and
-	* calls the business validation module bvalidator for the profile object
+	 * Returns a list of all Profiles
+	 */
+	me.list = function(req, callback) {
+		paramHandler.handleDefaultParams(req, function (params) {
+			if (params !== null) {
+				var sortObject = {};
+				sortObject[params.sortKey] = params.sort;
 
-	* data is the profile object being validated
-	* 
-	* valCallback takes the form of  function(valid structure)
-	*/
-	me.validateProfile = function(data, valCallback) {
-		// is the JSON semantically valid for the profile object?
-		var valid = revalidator.validate(data, me.profileValidation);
-		if (valid.valid) {
-			// does the profile object comply with business validation logic
-			bvalidator.validate(data, function(valid) {
-				valCallback(valid);
-			});
+				var config = {
+					createdDate: {
+						$gte: params.start,
+						$lte: params.end
+					}
+				};
+
+				models.profile.find(config).skip(params.offset).sort(sortObject).limit(params.count).exec(function(err, res){
+					callback(err, res, config);
+				});
+			} else {
+				models.profile.find({}, function(err, res){
+					callback(err, res, {});
+				});
+			}
+		});
+	};
+
+	/**
+	 * Returns a list of indexed attributes for Profile
+	 */
+	me.getIndexes = function(callback) {
+		var keys = Object.keys(models.profile.schema.paths);
+		var indexes = ["_id"];
+		for (var i = 0; i < keys.length; i++){
+			if (models.profile.schema.paths[keys[i]]._index) {
+				indexes.push(keys[i].toString());
+			}
 		}
-		else {
-			valCallback(valid);
-		}	
+
+		callback(indexes);
 	};
 
 	/**
-	 * Returns a list of all the profiles
+	 * Returns a sorted list containing _id and createdDate for all Profiles
 	 */
-	me.list = function(params, callback) {
-		//FIXME params
-		me.findWhere({}, callback);
+	me.findDates = function(callback) {
+		models.profile.find({}, {_id: 0, createdDate: 1}, function(err, dates) {
+			var errorMsg = new Error("Could not get Profile Dates: " + err);
+			if (err) {
+				callback(errorMsg);
+			} else {
+				async.map(dates, me.flattenArray, function(err, results) {
+					if (err) {
+						callback(errorMsg);
+					} else {
+						callback(results);
+					}
+				});
+			}
+		});
 	};
 
 	/**
-	 * Returns a list of all the profile ids and names
+	 * Returns the Date version of parameter string.createdDate
 	 */
-	me.listFields = function(params, fields, callback){
-		//FIXME params
-		models.profile.find({}, fields, callback);
+	me.flattenArray = function(string, callback) {
+		callback(null, Date.parse(string.createdDate));
 	};
 
 	/**
-	 * Creates a new profile from the data POSTed
-	 * See the Profile schema in models.js for details on the data to post.
-	 * All validation is handled though the schema.
+	 * Returns the number of Profiles that fit in the specified config
+	 */
+	me.getTotalCount = function(config, callback) {
+		models.profile.count(config, callback);
+	};
+
+	/**
+	 * Returns only the fields specified in field_string for each Profile
+	 */
+	me.listFields = function(params, field_string, callback) {
+		models.profile.find(params, field_string, callback);
+	};
+
+	/**
+	 * create is a "generic" save method callable from both 
+	 * request-response methods and parser-type methods for population of
+	 * Profile data
 	 *
-	 * On success, it returns id:<ID-hash>
+	 * create calls the validateProfile module to ensure that the data being
+	 * saved to the database is complete and has integrity
+	 *
+	 * saveCallback takes the form function(err, valid object, Profile object)
 	 */
 	me.create = function(data, saveCallback) {
 		me.validateProfile(data, function(valid) {
 			if (valid.valid) {
-				logger.info("Valid profile");
-				var newLoc = new models.profile(data);
-				newLoc.createdDate = new Date();
-				newLoc.updatedDate = new Date();
-				newLoc.save(function(err){
-					if(err){
-						logger.error('Error saving profile', err);
+				logger.info("Valid Profile");
+
+				var newProfile = new models.profile(data);
+				newProfile.save(function(err) {
+					if (err) {
+						logger.error("Error saving Profile ", err);
+					} else {
+						//actionEmitter
 					}
-					saveCallback(err, valid, newLoc);
+
+					saveCallback(err, valid, newProfile);
 				});
-			}
-			else {
+			} else {
 				saveCallback(undefined, valid, data);
 			}
 		});
 	};
 
 	/**
-	 * Returns the profile with the id specified in the URL
+	 * validateProfile validates a Profile object against the Profile 
+	 * semantic rules and the business rules associated with a Profile
+	 *
+	 * validateProfile calls the JSON validation module revalidator and
+	 * calls the business validation module bvalidator for the Profile object
+
+	 * data is the Profile object being validated
+	 * 
+	 * valCallback takes the form function(valid structure)
 	 */
-	me.get = function(id, getCallback){
-		models.profile.find({_id: id}, getCallback);
+	me.validateProfile = function(data, valCallback) {
+		// is the JSON semantically valid for the Profile object?
+		var valid = revalidator.validate(data, validationModel);
+		if (valid.valid) {
+			// does the Profile object comply with business validation logic
+			bvalidator.validate(data, function(valid) {
+				valCallback(valid);
+			});
+		} else {
+			valCallback(valid);
+		}	
 	};
 
+	/**
+	 * Returns the Profile object with the specified id
+	 */
+	me.get = function(id, getCallback){
+		models.findWhere({_id: id}, getCallback);
+	};
+
+	/**
+	 * generic read method to returl all documents that have a matching
+	 * set of key, value pairs specified by config
+	 * 
+	 * callback takes the form function(err, docs)
+	 */
 	me.findWhere = function(config, callback) {
 		models.profile.find(config, callback);
 	};
 
 	/**
-	 * searchProfile is experimental -- uses the SEARCH HTTP verb
-	 */
-	/*var searchProfile = function(data, res){
-		var me = this;
-
-		me.models.profile.find({name:data.name}, function(err, docs){
-			if(err) {
-				me.logger.info("Error getting profile "+err);
-				res.status(500);
-				res.json({error: 'Error'});
-			} else if(docs.length !== 0) {
-				res.json(docs);
-			} else {
-				res.status(404);
-				res.json({error: 'Not found'});
-			}
-			res.end();
-		});
-	};*/
-
-	/**
-	 * update calls the validateProfile then updates the object
+	 * update gets the Profile by the specified id then calls validateProfile
 	 * 
-	 * callback takes the form of  function(err, valid object, profile object)
+	 * callback takes the form function(err, valid object, Profile object)
 	 */
 	me.update = function(id, data, updCallback) {
-		me.validateProfile(data, function(valid){
-			if (valid.valid) {
-				models.profile.findById(id, function(err, docs){
-					if(err) {
-						logger.info("Error getting profile "+err);
-						updCallback(err, valid, data);
-					} else if(docs) {
-						for(var e in data){
-							//Make sure not to change _id
-							if(e !== '_id'){
-								docs[e] = data[e];
-							}
-						}
-						docs.updatedDate = new Date();
-						docs.save(function(err){
-							if(err){
+		me.get(id, function(err, docs){
+			if (err) {
+				logger.error("Error getting Profile", err);
+				updCallback(err, null, data);
+			} else if (docs[0]) {
+				docs = docs[0]; //There will only be one Profile from the get
+				for (var e in data) {
+					if (e !== "_id") {
+						docs[e] = data[e];
+					}
+				}
+
+				docs.updatedDate = new Date();
+				me.validateAlphaReport(docs, function(valid) {
+					if (valid.valid) {
+						docs.save(function(err) {
+							if (err) {
 								updCallback(err, valid, data);
 							} else {
 								updCallback(err, valid, docs);
 							}
-						});			
+						});	
 					} else {
-						valid.valid = false;
-						valid.errors = {expected: id, message: "Profile not found"};
 						updCallback(err, valid, data);
 					}
 				});
-			}
-			else {
-				updCallback(undefined, valid, data);
+			} else {
+				var errorMsg = new Error("Could not find Profile to update");
+				updCallback(errorMsg, null, data);
 			}
 		});
 	};
 
+	/**
+	 * Remove all Profiles that match the specified config
+	 */
 	me.del = function(config, deleteCallback) {
 		models.profile.remove(config, deleteCallback);
 	};
 };
-

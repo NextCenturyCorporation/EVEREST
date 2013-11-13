@@ -4,6 +4,9 @@ var responseHandler = require("../general_response");
 module.exports = function(app, models, io, logger) {
 	var targetAssertionService = new TargetAssertionService(models, io, logger);
 	
+	/**
+	 * List all Target Assertions
+	 */
 	app.get("/target-assertion/?", function(req, res) {
 		if (logger.DO_LOG) {
 			logger.info("Request for list of all Target Assertions");
@@ -27,7 +30,10 @@ module.exports = function(app, models, io, logger) {
 		});
 	});
 	
-	app.get("/target-assertion/indexes", function(req, res) {
+	/**
+	 * List all indexes for the Target Assertion object
+	 */
+	app.get("/target-assertion/indexes/?", function(req, res) {
 		if (logger.DO_LOG) {
 			logger.info("Request for list of indexes for Target Assertion");
 		}
@@ -41,15 +47,18 @@ module.exports = function(app, models, io, logger) {
 			}
 		});
 	}); 
-	
-	app.get("/target-assertion/dates", function(req, res) {
+		
+	/**
+	 * List createdDate for all of the Target Assertions (in milliseconds)
+	 */
+	app.get("/target-assertion/dates/?", function(req, res) {
 		if (logger.DO_LOG) {
-			logger.info("Request for list of dates for Target Assertion");
+			logger.info("Request for list of dates for all Target Assertions");
 		}
 		
 		targetAssertionService.findDates(function(dates) {
 			if (!dates) {
-				responseHandler.send500(res, "Error getting dates of Target Assertions");
+				responseHandler.send500(res, "Error getting dates for Target Assertions");
 			} else {
 				res.jsonp(dates);
 				res.end();
@@ -60,7 +69,7 @@ module.exports = function(app, models, io, logger) {
 	/**
 	 * Create a new Target Assertion
 	 */
-	app.post("/target-assertion/?", function(req,res) {
+	app.post("/target-assertion/?", function(req, res) {
 		if (logger.DO_LOG) {
 			logger.info("Receiving new Target Assertion", req.body);
 		}
@@ -68,7 +77,7 @@ module.exports = function(app, models, io, logger) {
 		targetAssertionService.create(req.body, function(err, val, newTargetAssertion) {
 			if (err) {
 				logger.error("Error saving Target Assertion", err);
-				responseHandler.send500(res, "Error saving Target Assertion"+err);
+				responseHandler.send500(res, "Error saving Target Assertion");
 			} else if (!val.valid) {
 				logger.info("Invalid Target Assertion " + JSON.stringify(val.errors));
 				responseHandler.send500(res, "Invalid Target Assertion " + JSON.stringify(val.errors));
@@ -91,7 +100,7 @@ module.exports = function(app, models, io, logger) {
 		
 		targetAssertionService.get(req.params.id, function(err, docs) {
 			if (err) {
-				logger.error("Error getting Target Assertion",err);
+				logger.error("Error getting Target Assertion", err);
 				responseHandler.send500(res, "Error getting Target Assertion " + err);
 			} else if (docs[0]) {
 				res.jsonp(docs[0]);
@@ -107,7 +116,7 @@ module.exports = function(app, models, io, logger) {
 	 */
 	app.post("/target-assertion/:id([0-9a-f]+)", function(req, res) {
 		if (logger.DO_LOG) {
-			logger.info("Update Target Assertion "+req.params.id);
+			logger.info("Update Target Assertion " + req.params.id);
 		}
 		
 		targetAssertionService.update(req.params.id, req.body, function(err, val, updated) {
@@ -125,7 +134,9 @@ module.exports = function(app, models, io, logger) {
 		});
 	});
 	
-	//delete by id
+	/**
+	 * Delete Target Assertion with specified id
+	 */
 	app.del("/target-assertion/:id([0-9a-f]+)", function(req, res) {
 		if (logger.DO_LOG) {
 			logger.info("Deleting Target Assertion with id: " + req.params.id);
@@ -137,9 +148,11 @@ module.exports = function(app, models, io, logger) {
 		});
 	});
 	
-	//delete all
+	/**
+	 * Delete all Target Assertions
+	 */
 	app.del("/target-assertion/", function(req, res) {
-		if(logger.DO_LOG) {
+		if (logger.DO_LOG) {
 			logger.info("Deleting all Target Assertions");
 		}
 		

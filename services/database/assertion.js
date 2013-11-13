@@ -1,15 +1,15 @@
-var Bvalidator = require('../../models/assertion/bvalidator.js');
-var revalidator = require('revalidator');
-
-var AlphaReportService = require('./alpha_report.js');
-var ReporterService = require('./reporter.js');
-var actionEmitter = require('../action_emitter.js');
-var paramHandler = require('../list_default_handler.js');
-var async = require('async');
+var Bvalidator = require("../../models/assertion/bvalidator.js");
+var revalidator = require("revalidator");
+var AlphaReportService = require("./alpha_report.js");
+var ReporterService = require("./reporter.js");
+var actionEmitter = require("../action_emitter.js");
+var paramHandler = require("../list_default_handler.js");
+var async = require("async");
 
 module.exports = function(models, io, logger) {
 	var me = this;
 	var validationModel = models.assertionValidation;
+
 	var services = {
 		assertionService: me,
 		alphaReportService: new AlphaReportService(models, io, logger),
@@ -19,10 +19,10 @@ module.exports = function(models, io, logger) {
 	var bvalidator = new Bvalidator(services, logger);
 
 	/**
-	 * Returns a list of all the Assertions
+	 * Returns a list of all Assertions
 	 */
-	me.list = function(req, callback){
-		paramHandler.handleDefaultParams(req, function(params){
+	me.list = function(req, callback) {
+		paramHandler.handleDefaultParams(req, function(params) {
 			if (params !== null) {
 				var sortObject = {};
 				sortObject[params.sortKey] = params.sort;
@@ -34,11 +34,11 @@ module.exports = function(models, io, logger) {
 					}
 				};
 				
-				models.assertion.find(config).skip(params.offset).sort(sortObject).limit(params.count).exec(function(err, res){
+				models.assertion.find(config).skip(params.offset).sort(sortObject).limit(params.count).exec(function(err, res) {
 					callback(err, res, config);
 				});
 			} else {
-				models.assertion.find({}, function(err, res){
+				models.assertion.find({}, function(err, res) {
 					callback(err, res, {});
 				});
 			}
@@ -70,7 +70,7 @@ module.exports = function(models, io, logger) {
 				callback(errorMsg);
 			} else {
 				async.map(dates, me.flattenArray, function(err, results) {
-					if(err) {
+					if (err) {
 						callback(errorMsg);
 					} else {
 						callback(results);
@@ -88,16 +88,16 @@ module.exports = function(models, io, logger) {
 	};
 
 	/**
-	 * Returns the number of Assertions that fit the parameter config
+	 * Returns the number of Assertions that fit the specified config
 	 */
-	me.getTotalCount = function(config, callback){
+	me.getTotalCount = function(config, callback) {
 		models.assertion.count(config, callback);
 	};
 	
 	/**
-	 *
+	 * Returns only the fields specified in field_string for each Assertion
 	 */
-	me.listFields = function(params, field_string, callback){
+	me.listFields = function(params, field_string, callback) {
 		models.assertion.find(params, field_string, callback);
 	};
 
@@ -108,7 +108,7 @@ module.exports = function(models, io, logger) {
 	 * create calls the validateAssertion module to ensure that the
 	 * data being saved to the database is complete and has integrity.
 	 * 
-	 * saveCallback takes the form function(err, valid object, assertion object)
+	 * saveCallback takes the form function(err, valid object, Assertion object)
 	 */
 	me.create = function(data, saveCallback) {
 		me.validateAssertion(data, function(valid) {
@@ -116,14 +116,11 @@ module.exports = function(models, io, logger) {
 				logger.info("Valid Assertion");
 				
 				var newAssertion = new models.assertion(data);
-				//newAssertion.createdDate = new Date();
-				//newAssertion.updatedDate = new Date();
 				newAssertion.save(function(err){
 					if (err) {
-						logger.error('Error saving Assertion ', err);
+						logger.error("Error saving Assertion ", err);
 					} else {
 						actionEmitter.saveAssertionEvent(newAssertion);
-						//actionEmitter.saveAssertionEvent({data: newAssertion});
 					}
 					
 					saveCallback(err, valid, newAssertion);
@@ -159,7 +156,7 @@ module.exports = function(models, io, logger) {
 	};
 
 	/**
-	 * Returns the Assertions with the id specified in the URL
+	 * Returns the Assertions with the specified id
 	 */
 	me.get = function(id, callback) {
 		me.findWhere({_id: id}, callback);
@@ -176,28 +173,28 @@ module.exports = function(models, io, logger) {
 	};
 
 	/**
-	 * update calls validateAssertion then updates the object
+	 * update gets the Assertion by the specified id then calls validateAssertion
 	 * 
 	 * callback takes the form function(err, valid object, Assertion object)
 	 */
 	me.update = function(id, data, updCallback) {
-		me.get(id, function(err, docs){
+		me.get(id, function(err, docs) {
 			if (err) {
-				logger.info("Error getting Assertion " + err);
+				logger.error("Error getting Assertion", err);
 				updCallback(err, null, data);
 			} else if (docs[0]) {
 				docs = docs[0]; //There will only be one Assertion from the get
 				for (var e in data) {
 					//Make sure not to change _id
-					if (e !== '_id') {
+					if (e !== "_id") {
 						docs[e] = data[e];
 					}
 				}
 				
 				docs.updatedDate = new Date();
-				me.validateAssertion(docs, function(valid){
-					if (valid.valid){
-						docs.save(function(err){
+				me.validateAssertion(docs, function(valid) {
+					if (valid.valid) {
+						docs.save(function(err) {
 							if (err) {
 								updCallback(err, valid, data);
 							} else {
@@ -205,13 +202,11 @@ module.exports = function(models, io, logger) {
 							}
 						});
 					} else {
-						valid.valid = false;
-						valid.errors = {expected: id, message: "Updated Assertion information not valid."};
 						updCallback(err, valid, data);
 					}
 				});
 			} else {
-				var errorMsg = new Error('Could not find Assertion to update');
+				var errorMsg = new Error("Could not find Assertion to update");
 				updCallback(errorMsg, null, data);
 			}
 		});
