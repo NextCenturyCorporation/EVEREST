@@ -1,4 +1,6 @@
 var AlphaReportService = require('./alpha_report.js');
+var TargetAssertionService = require('./target_assertion.js');
+var TargetEventService = require('./target_event.js');
 
 var gremlin = require('gremlin');
 var async = require('async');
@@ -18,11 +20,13 @@ var indexOfId = function(array, id){
 module.exports = function(models, io, logger) {
 	var me = this;
 	var alphaReportService = new AlphaReportService(models, io, logger);
+	var targetAssertionService = new TargetAssertionService(models, io, logger);
+	var targetEventService = new TargetEventService(models, io, logger);
 	
 	me.list = function(config, callback) {
 		var verts = gremlin.V().toJSON();
 		var edges = gremlin.E().toJSON();
-		var error = verts.error || gremlin.error;
+		var error = verts.error || edges.error;
 		callback(error, verts.concat(edges));
 	};
 	
@@ -53,9 +57,13 @@ module.exports = function(models, io, logger) {
 		callback(null, me.compareAll(id));
 	};
 	
-	me.addVertex = function(object, id_replace){
+	me.addVertex = function(object, id_replace, callback){
 		var v = graphDB.addVertexSync(null);
 		var keys = Object.keys(object);
+		console.log(object);
+		if (object.type === 'metadata') {
+			v.setPropertySync('comparedTo', []);
+		}
 		
 		//async.each(keys, function(k){
 	    keys.forEach(function(k){
@@ -63,13 +71,31 @@ module.exports = function(models, io, logger) {
 		    	if (k === '_id'){
 		    		v.setPropertySync(id_replace, object[k]);
 		    	} else {
-			        v.setPropertySync(k, object[k]);
+		        	v.setPropertySync(k, object[k]);
 				}
 			}
 	    });
 	    object._titan_id = gremlin.v(v).toJSON()[0]._id; 
 	    graphDB.commitSync();
+	    
+	    if (callback) {
+	    	callback(null, object);
+	    }
+	    
 	    return v;
+	};
+	
+	me.addEdge = function(object, id_replace, callback) {
+		console.log(object);
+		var v1 = gremlin.v(object.source_id).iterator().nextSync();
+		var v2 = gremlin.v(object.target_id).iterator().nextSync();
+		var rel = graphDB.addEdgeSync(null, v1, v2, object._label);
+		object._titan_id = gremlin.e(rel).toJSON()[0]._id;
+		graphDB.commitSync();
+		
+		if (callback) {
+	    	callback(null, object);
+	    }
 	};
 	
 	me.create = function(assertion_object, callback){
@@ -163,6 +189,8 @@ module.exports = function(models, io, logger) {
 		var targets = gremlin.V().has('name', 'target event').toJSON();
 		var all = alphas.concat(targets);
 		var a_json = gremlin.v(id).toJSON()[0];
+		console.log('new');
+		console.log(a_json);
 		
 		//gremlin.v(id).iterator().nextSync().setPropertySync('comparedTo', []);
 		//graphDB.commitSync();
@@ -170,14 +198,16 @@ module.exports = function(models, io, logger) {
 		
 		//async.each(all, function(d){
 		all.forEach(function(d){
+			console.log('currently compared to');
+			console.log(d);
 			var score = 0.0;
 			//gremlin.v(d._id).iterator().nextSync().setPropertySync('comparedTo', []);
 			//graphDB.commitSync();
 			if (indexOfId(comparedTo, d._id) === -1){
 				var d_comparedTo = gremlin.v(d._id).toJSON()[0].comparedTo;
-				
 				var ar_nodes = gremlin.v(id).inE().outV().toJSON();
 				var d_nodes = gremlin.v(d._id).inE().outV().toJSON();
+				console.log(ar_nodes);
 				
 				var ar_edges = gremlin.v(id).inE().outV().inE().toJSON();
 				var d_edges = gremlin.v(d._id).inE().outV().inE().toJSON();
@@ -253,5 +283,32 @@ module.exports = function(models, io, logger) {
 		});
 		
 		return parsed;
+	};
+	
+	me.del = function(id, callback){
+		var vertex = gremlin.v(id).iterator().nextSync();
+		var error = false;
+		if (vertex) {
+			vertex.removeSync();
+			graphDB.commitSync();
+		} else { 
+			error = true;
+		}
+		
+		callback(error, {_id: id});
+	};
+	
+	me.deleteAll = function(callback) {
+		var vertices = gremlin.V().iterator();
+		var element;
+		var count = 0;
+		while (vertices.hasNextSync()) {
+			element = vertices.nextSync();
+			element.removeSync();
+			count++;
+		}
+		graphDB.commitSync();
+		
+		callback(null, {deleted_count: count});
 	};
 };
