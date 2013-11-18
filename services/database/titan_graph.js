@@ -66,23 +66,23 @@ module.exports = function(models, io, logger) {
 		}
 		
 		//async.each(keys, function(k){
-	    keys.forEach(function(k){
-	    	if (object[k]){
-		    	if (k === '_id'){
-		    		v.setPropertySync(id_replace, object[k]);
-		    	} else {
-		        	v.setPropertySync(k, object[k]);
-				}
-			}
-	    });
-	    object._titan_id = gremlin.v(v).toJSON()[0]._id; 
-	    graphDB.commitSync();
-	    
-	    if (callback) {
-	    	callback(null, object);
-	    }
-	    
-	    return v;
+    keys.forEach(function(k){
+        if (object[k]){
+            if (k === '_id'){
+                v.setPropertySync(id_replace, object[k]);
+            } else {
+                v.setPropertySync(k, object[k]);
+            }
+        }
+    });
+    object._titan_id = gremlin.v(v).toJSON()[0]._id; 
+    graphDB.commitSync();
+    
+    if (callback) {
+        callback(null, object);
+    }
+    
+    return v;
 	};
 	
 	me.addEdge = function(object, id_replace, callback) {
@@ -94,8 +94,8 @@ module.exports = function(models, io, logger) {
 		graphDB.commitSync();
 		
 		if (callback) {
-	    	callback(null, object);
-	    }
+        callback(null, object);
+    }
 	};
 	
 	me.create = function(assertion_object, callback){
@@ -135,9 +135,9 @@ module.exports = function(models, io, logger) {
 				
 				var rel = graphDB.addEdgeSync(null, v1, v2, assertion_object.relationship);
 				relationship._titan_id = gremlin.e(rel).toJSON()[0]._id;
-			    graphDB.commitSync();
-			    
-			    me.compareAll(ar._titan_id);
+        graphDB.commitSync();
+        
+        me.compareAll(ar._titan_id);
 				
 				callback(null, { 
 					metadata: ar, 
@@ -256,13 +256,23 @@ module.exports = function(models, io, logger) {
 					item_id: id,
 					score: 100 * score / 8
 				}));
+				
+				d_comparedTo.sort(function(a, b) {
+					var ja = JSON.parse(a);
+					var jb = JSON.parse(b);
+					if (jb.score === ja.score){
+						return ja.item_id - jb.item_id;
+					} else {
+						return jb.score - ja.score;
+					}
+				});
 								
 				gremlin.v(d._id).iterator().nextSync().setPropertySync('comparedTo', d_comparedTo);
-		  	  	graphDB.commitSync();	
-	  	  	}
+				graphDB.commitSync();	
+			}
 		});
 		
-		comparedTo.sort(function(a,b){
+		comparedTo.sort(function(a, b) {
 			var ja = JSON.parse(a);
 			var jb = JSON.parse(b);
 			if (jb.score === ja.score){
@@ -272,6 +282,7 @@ module.exports = function(models, io, logger) {
 			}
 		});
 		
+		console.log(comparedTo);
 		gremlin.v(id).iterator().nextSync().setPropertySync('comparedTo', comparedTo);
 		graphDB.commitSync();
 		
