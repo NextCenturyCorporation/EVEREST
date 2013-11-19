@@ -66,23 +66,23 @@ module.exports = function(models, io, logger) {
 		}
 		
 		//async.each(keys, function(k){
-    keys.forEach(function(k){
-        if (object[k]){
-            if (k === '_id'){
-                v.setPropertySync(id_replace, object[k]);
-            } else {
-                v.setPropertySync(k, object[k]);
-            }
-        }
-    });
-    object._titan_id = gremlin.v(v).toJSON()[0]._id; 
-    graphDB.commitSync();
-    
-    if (callback) {
-        callback(null, object);
-    }
-    
-    return v;
+	    keys.forEach(function(k){
+	        if (object[k]){
+	            if (k === '_id'){
+	                v.setPropertySync(id_replace, object[k]);
+	            } else {
+	                v.setPropertySync(k, object[k]);
+	            }
+	        }
+	    });
+	    object._titan_id = gremlin.v(v).toJSON()[0]._id; 
+	    graphDB.commitSync();
+	    
+	    if (callback) {
+	        callback(null, object);
+	    }
+	    
+	    return v;
 	};
 	
 	me.addEdge = function(object, id_replace, callback) {
@@ -164,7 +164,9 @@ module.exports = function(models, io, logger) {
 	me.getMatchingEdges = function(id, array){
 		var edges = [];
 		for (var i = 0; i < array.length; i++){
-			var match = gremlin.v(id).inE().outV().inE().has("label", array[i]._label);
+			var match = gremlin.v(id).inE().outV().inE()
+				.has("label", array[i]._label);
+				
 			if ( match.toJSON().length !== 0 ){
 				edges.push(match.toJSON());
 			}
@@ -175,7 +177,11 @@ module.exports = function(models, io, logger) {
 	me.getMatchingOrientation = function(id, array){
 		var assertions = [];
 		for (var i = 0; i < array.length; i++){
-			var match = gremlin.v(id).inE().outV().has("name", array[i][2].name).inE().has("label", array[i][3]._label).outV().has("name", array[i][4].name);
+			var match = gremlin.v(id).inE().outV()
+				.has("name", array[i][2].name).inE()
+				.has("label", array[i][3]._label).outV()
+				.has("name", array[i][4].name);
+				
 			if ( match.toJSON().length !== 0 ){
 				assertions.push(match.toJSON());
 			}
