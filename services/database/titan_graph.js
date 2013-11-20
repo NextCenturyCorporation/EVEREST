@@ -135,9 +135,9 @@ module.exports = function(models, io, logger) {
 				
 				var rel = graphDB.addEdgeSync(null, v1, v2, assertion_object.relationship);
 				relationship._titan_id = gremlin.e(rel).toJSON()[0]._id;
-        graphDB.commitSync();
-        
-        me.compareAll(ar._titan_id);
+		        graphDB.commitSync();
+		        
+		        me.compareAll(ar._titan_id);
 				
 				callback(null, { 
 					metadata: ar, 
@@ -255,12 +255,14 @@ module.exports = function(models, io, logger) {
 				
 				comparedTo.push(JSON.stringify({
 					item_id: d._id,
-					score: 100 * score / 8
+					score: 100 * score / 8,
+					type: d.name
 				}));
 				
 				d_comparedTo.push(JSON.stringify({
 					item_id: id,
-					score: 100 * score / 8
+					score: 100 * score / 8,
+					type: d.name
 				}));
 				
 				d_comparedTo.sort(function(a, b) {
