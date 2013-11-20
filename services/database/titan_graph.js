@@ -256,13 +256,13 @@ module.exports = function(models, io, logger) {
 				comparedTo.push(JSON.stringify({
 					item_id: d._id,
 					score: 100 * score / 8,
-					type: d.name
+					name: d.name
 				}));
 				
 				d_comparedTo.push(JSON.stringify({
 					item_id: id,
 					score: 100 * score / 8,
-					type: d.name
+					name: a_json.name
 				}));
 				
 				d_comparedTo.sort(function(a, b) {
