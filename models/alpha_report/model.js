@@ -3,12 +3,12 @@ var Schema = mongoose.Schema;
 var ObjectId = Schema.ObjectId;
 
 var alphaReportModel = {
-	createdDate: {type: Date, "default": Date.now},
+	createdDate: {type: Date, "default": Date.now, index: true},
 	updatedDate: {type: Date, "default": Date.now},
 	raw_data_id: {type: ObjectId},
 	source_name: {type: String, enum: ['Twitter', 'Email', 'RSS'], required: true},
 	source_id: {type: String, required: true}, //FIXME   what is this? id from source
-	message_date: {type: Date},
+	message_date: {type: Date, index: true},
 	message_body: {type: String},
 	reporter_id: {type: ObjectId},
 	place_name: {type: String}, //FIXME   why is this here? name from twitter
