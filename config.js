@@ -24,7 +24,8 @@ config.paramDefaults = {
 	listSort: 1,
 	listSortKey: "_id",
 	listStart: new Date(0),
-	listEnd: new Date('01/01/3000')
+	listEnd: new Date('01/01/3000'),
+	listDate: 'createdDate'
 };
 
 module.exports = config;
