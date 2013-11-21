@@ -51,6 +51,24 @@ module.exports = function(app, models, io, logger) {
 	});
 
 	/**
+	 * List all date attributes for the Raw Feed object
+	 */
+	app.get("/rawfeed/datetypes/?", function(req, res) {
+		if (logger.DO_LOG) {
+			logger.info("Request for list of date attributes for the Raw Feed object");
+		}
+	
+		rawFeedService.getDateTypes(function(datetypes) {
+			if (!datetypes) {
+				responseHandler.send500(res, "Error getting date attributes for the Raw Feed object");
+			} else {
+				res.jsonp(datetypes);
+				res.end();
+			}
+		});
+	});
+
+	/**
 	 * List createdDate for all of the Raw Feeds (in milliseconds)
 	 */
 	app.get("/rawfeed/dates/?", function(req, res) {

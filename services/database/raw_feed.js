@@ -50,6 +50,21 @@ module.exports = function(models, io, logger) {
 	};
 	
 	/**
+	*	Returns a list of date attributes for Raw Feed
+	*/
+	me.getDateTypes = function(callback) {
+		var keys = Object.keys(models.rawFeed.schema.paths);
+		var dateTypes = [];
+		for (var i = 0; i < keys.length; i++) {
+			if (models.rawFeed.schema.tree[keys[i]].type === Date) {
+				dateTypes.push(keys[i].toString());
+			}
+		}
+	
+		callback(dateTypes);
+	};
+	
+	/**
 	 *	Returns a sorted list containing _id and createdDate for all Raw Feeds
 	 */
 	me.findDates = function(callback) {
