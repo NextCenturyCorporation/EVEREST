@@ -25,11 +25,10 @@ module.exports = function(models, io, logger) {
 				var sortObject = {};
 				sortObject[params.sortKey] = params.sort;
 				
-				var config = {
-					createdDate : {
-						$gte: params.start,
-						$lte: params.end
-					}
+				var config = {}
+				config[params.date] = {
+					$gte: params.start,
+					$lte: params.end
 				};
 				
 				models.alphaReport.find(config).skip(params.offset).sort(sortObject).limit(params.count).exec(function(err, res) {
