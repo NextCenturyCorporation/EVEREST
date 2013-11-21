@@ -1,9 +1,6 @@
 var AlphaReportService = require('./alpha_report.js');
-var TargetAssertionService = require('./target_assertion.js');
-var TargetEventService = require('./target_event.js');
-
 var gremlin = require('gremlin');
-var async = require('async');
+//var async = require('async');
 var TitanFactory = gremlin.java.import('com.thinkaurelius.titan.core.TitanFactory');
 var graphDB = TitanFactory.openSync('titan/assertions');	//from same dir as app.js?
 //var graphDB = TitanFactory.openSync('/titan/assertions');	//root directory alternative
@@ -21,8 +18,6 @@ var indexOfId = function(array, id){
 module.exports = function(models, io, logger) {
 	var me = this;
 	var alphaReportService = new AlphaReportService(models, io, logger);
-	var targetAssertionService = new TargetAssertionService(models, io, logger);
-	var targetEventService = new TargetEventService(models, io, logger);
 	
 	me.list = function(config, callback) {
 		var verts = gremlin.V().toJSON();
@@ -61,32 +56,33 @@ module.exports = function(models, io, logger) {
 	me.addVertex = function(object, id_replace, callback){
 		var v = graphDB.addVertexSync(null);
 		var keys = Object.keys(object);
-		console.log(object);
+		
 		if (object.type === 'metadata') {
 			v.setPropertySync('comparedTo', []);
 		}
 		
 		//async.each(keys, function(k){
-	    keys.forEach(function(k){
-	        if (object[k]){
-	            if (k === '_id'){
-	                v.setPropertySync(id_replace, object[k]);
-	            } else {
-	                v.setPropertySync(k, object[k]);
-	            }
-	        }
-	    });
-	    object._titan_id = gremlin.v(v).toJSON()[0]._id; 
-	    graphDB.commitSync();
-	    
-	    if (callback) {
-	        callback(null, object);
-	    }
-	    
-	    return v;
+		keys.forEach(function(k){
+			if (object[k]){
+				if (k === '_id'){
+					v.setPropertySync(id_replace, object[k]);
+				} else {
+					v.setPropertySync(k, object[k]);
+				}
+			}
+		});
+		
+		object._titan_id = gremlin.v(v).toJSON()[0]._id; 
+		graphDB.commitSync();
+
+		if (callback) {
+			callback(null, object);
+		}
+
+		return v;
 	};
 	
-	me.addEdge = function(object, id_replace, callback) {
+	me.addEdge = function(object, callback) {
 		console.log(object);
 		var v1 = gremlin.v(object.source_id).iterator().nextSync();
 		var v2 = gremlin.v(object.target_id).iterator().nextSync();
@@ -95,8 +91,8 @@ module.exports = function(models, io, logger) {
 		graphDB.commitSync();
 		
 		if (callback) {
-        callback(null, object);
-    }
+			callback(null, object);
+		}
 	};
 	
 	me.create = function(assertion_object, callback){
@@ -136,9 +132,9 @@ module.exports = function(models, io, logger) {
 				
 				var rel = graphDB.addEdgeSync(null, v1, v2, assertion_object.relationship);
 				relationship._titan_id = gremlin.e(rel).toJSON()[0]._id;
-		        graphDB.commitSync();
-		        
-		        me.compareAll(ar._titan_id);
+				graphDB.commitSync();
+
+				me.compareAll(ar._titan_id);
 				
 				callback(null, { 
 					metadata: ar, 

@@ -58,13 +58,11 @@ module.exports = function(app, models, io, logger) {
 			logger.info("Request for list of date attributes for the Alpha Report object");
 		}
 	
-		alphaReportService.getDates(function(dates) {
-			
-			console.log(dates);
-			if (!dates) {
+		alphaReportService.getDateTypes(function(datetypes) {
+			if (!datetypes) {
 				responseHandler.send500(res, "Error getting date attributes for the Alpha Report object");
 			} else {
-				res.jsonp(dates);
+				res.jsonp(datetypes);
 				res.end();
 			}
 		});

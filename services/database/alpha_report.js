@@ -61,16 +61,16 @@ module.exports = function(models, io, logger) {
 	/**
 	*	Returns a list of date attributes for Alpha Report
 	*/
-	me.getDates = function(callback) {
+	me.getDateTypes = function(callback) {
 		var keys = Object.keys(models.alphaReport.schema.paths);
-		var dates = [];
+		var dateTypes = [];
 		for (var i = 0; i < keys.length; i++) {
 			if (models.alphaReport.schema.tree[keys[i]].type === Date) {
-				dates.push(keys[i].toString());
+				dateTypes.push(keys[i].toString());
 			}
 		}
 	
-		callback(dates);
+		callback(dateTypes);
 	};
 
 	/**
