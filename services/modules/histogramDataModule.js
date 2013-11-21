@@ -1,7 +1,7 @@
 var async = require('async');
 
 module.exports = function(model) {
-	this.findDatesByFrequency = function(mode, basedate, query, callback){
+	this.findDatesByFrequency = function(mode, basedate, callback){
 	//Get the base year, month, day, hour, minute for comparision.	
 	var tempBasedate = new Date(parseInt(basedate)).getFullYear();
 	var tempBasedateMonth= new Date(parseInt(basedate)).getMonth();
