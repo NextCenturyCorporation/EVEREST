@@ -57,6 +57,21 @@ module.exports = function(models, io, logger) {
 		
 		callback(indexes);
 	};
+	
+	/**
+	*	Returns a list of date attributes for Alpha Report
+	*/
+	me.getDates = function(callback) {
+		var keys = Object.keys(models.alphaReport.schema.paths);
+		var dates = [];
+		for (var i = 0; i < keys.length; i++) {
+			if (models.alphaReport.schema.tree[keys[i]].type === Date) {
+				dates.push(keys[i].toString());
+			}
+		}
+	
+		callback(dates);
+	};
 
 	/**
 	 *	Returns a sorted list containing _id and createdDate for all Alpha Reports

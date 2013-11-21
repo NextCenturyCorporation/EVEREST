@@ -51,6 +51,26 @@ module.exports = function(app, models, io, logger) {
 	});
 
 	/**
+	 * List all date attributes for the Alpha Report object
+	 */
+	app.get("/alpha-report/datetypes/?", function(req, res) {
+		if (logger.DO_LOG) {
+			logger.info("Request for list of date attributes for the Alpha Report object");
+		}
+	
+		alphaReportService.getDates(function(dates) {
+			
+			console.log(dates);
+			if (!dates) {
+				responseHandler.send500(res, "Error getting date attributes for the Alpha Report object");
+			} else {
+				res.jsonp(dates);
+				res.end();
+			}
+		});
+	});
+	
+	/**
 	 * List createdDate for all of the Alpha Reports (in milliseconds)
 	 */
 	app.get("/alpha-report/dates/?", function(req, res) {
