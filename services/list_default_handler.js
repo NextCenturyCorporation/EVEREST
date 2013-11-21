@@ -11,33 +11,38 @@ var handleDefaultParams = function (incomingParams, handleCallback) {
 		sort : config.paramDefaults.listSort,
 		sortKey: config.paramDefaults.listSortKey,
 		start: config.paramDefaults.listStart,
-		end: config.paramDefaults.listEnd
+		end: config.paramDefaults.listEnd,
+		date: config.paramDefaults.listDate
 	};
   
-	if(queryData.count) {
+	if (queryData.count) {
 		params.count = queryData.count;
 	}
-	if(queryData.offset  && queryData.offset > 0) {
+	if (queryData.offset  && queryData.offset > 0) {
 		params.offset = queryData.offset;
 	}
-	if(queryData.sort) {
+	if (queryData.sort) {
 		params.sort = ((queryData.sort === 'desc') ? -1 : 1); 
 	}
-	if(queryData.sortKey) {
+	if (queryData.sortKey) {
 		params.sortKey = queryData.sortKey;
 	}
-	if(queryData.start) {
+	if (queryData.start) {
 		var d = new Date(queryData.start);
 		if (d){		
 			params.start = d;
 		}
 	}
-	if(queryData.end){
+	if (queryData.end) {
 		var d = new Date(queryData.end);
 		if (d && d > params.start){
 			params.end = d;
 		}
 	}
+	if (queryData.date) {
+		params.date = queryData.date;
+	}
+	
 	handleCallback(params);
 };	
 
