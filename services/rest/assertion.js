@@ -51,6 +51,24 @@ module.exports = function(app, models, io, logger) {
 	});
 
 	/**
+	 * List all date attributes for the Assertion object
+	 */
+	app.get("/assertion/datetypes/?", function(req, res) {
+		if (logger.DO_LOG) {
+			logger.info("Request for list of date attributes for the Assertion object");
+		}
+	
+		assertionService.getDateTypes(function(datetypes) {
+			if (!datetypes) {
+				responseHandler.send500(res, "Error getting date attributes for the Assertion object");
+			} else {
+				res.jsonp(datetypes);
+				res.end();
+			}
+		});
+	});
+	
+	/**
 	 * List createdDate for all of the Assertions (in milliseconds)
 	 */
 	app.get("/assertion/dates/?", function(req, res) {

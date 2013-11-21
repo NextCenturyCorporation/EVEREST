@@ -59,6 +59,21 @@ module.exports = function(models, io, logger) {
 		
 		callback(indexes);
 	};
+	
+	/**
+	*	Returns a list of date attributes for Assertion
+	*/
+	me.getDateTypes = function(callback) {
+		var keys = Object.keys(models.assertion.schema.paths);
+		var dateTypes = [];
+		for (var i = 0; i < keys.length; i++) {
+			if (models.assertion.schema.tree[keys[i]].type === Date) {
+				dateTypes.push(keys[i].toString());
+			}
+		}
+	
+		callback(dateTypes);
+	};
 
 	/**
 	 * Returns a sorted list containing _id and createdDate for all Assertions
