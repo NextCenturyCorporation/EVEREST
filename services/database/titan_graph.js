@@ -2,8 +2,8 @@ var AlphaReportService = require('./alpha_report.js');
 var gremlin = require('gremlin');
 //var async = require('async');
 var TitanFactory = gremlin.java.import('com.thinkaurelius.titan.core.TitanFactory');
-var graphDB = TitanFactory.openSync('titan/assertions');	//from same dir as app.js?
-//var graphDB = TitanFactory.openSync('/titan/assertions');	//root directory alternative
+//var graphDB = TitanFactory.openSync('titan/assertions');	//from same dir as app.js?
+var graphDB = TitanFactory.openSync('/titan/assertions');	//root directory alternative
 gremlin.SetGraph(graphDB);
 
 var indexOfId = function(array, id){
