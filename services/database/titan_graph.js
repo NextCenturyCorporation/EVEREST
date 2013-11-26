@@ -83,7 +83,6 @@ module.exports = function(models, io, logger) {
 	};
 	
 	me.addEdge = function(object, callback) {
-		console.log(object);
 		var v1 = gremlin.v(object.source_id).iterator().nextSync();
 		var v2 = gremlin.v(object.target_id).iterator().nextSync();
 		var rel = graphDB.addEdgeSync(null, v1, v2, object._label);
@@ -205,7 +204,6 @@ module.exports = function(models, io, logger) {
 				var d_comparedTo = gremlin.v(d._id).toJSON()[0].comparedTo;
 				var ar_nodes = gremlin.v(id).inE().outV().toJSON();
 				var d_nodes = gremlin.v(d._id).inE().outV().toJSON();
-				console.log(ar_nodes);
 				
 				var ar_edges = gremlin.v(id).inE().outV().inE().toJSON();
 				var d_edges = gremlin.v(d._id).inE().outV().inE().toJSON();
