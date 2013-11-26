@@ -214,8 +214,8 @@ module.exports = function(models, io, logger) {
 							}
 						});
 					} else {
-						valid.valid = false;
-						valid.errors = {expected: id, message: "Updated Alpha Report information not valid"};
+						//valid.valid = false;
+						//valid.errors = {expected: id, message: "Updated Alpha Report information not valid"};
 						updCallback(err, valid, data);
 					}
 				});

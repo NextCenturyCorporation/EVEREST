@@ -1,6 +1,6 @@
 var AlphaReportService = require('./alpha_report.js');
 var gremlin = require('gremlin');
-//var async = require('async');
+var async = require('async');
 var TitanFactory = gremlin.java.import('com.thinkaurelius.titan.core.TitanFactory');
 var graphDB = TitanFactory.openSync('titan/assertions');	//from same dir as app.js?
 //var graphDB = TitanFactory.openSync('/titan/assertions');	//root directory alternative
@@ -50,7 +50,7 @@ module.exports = function(models, io, logger) {
 	};
 	
 	me.compare = function(id, callback){
-		callback(null, me.compareAll(id));
+		me.compareAll(id, callback);
 	};
 	
 	me.addVertex = function(object, id_replace, callback){
@@ -134,13 +134,13 @@ module.exports = function(models, io, logger) {
 				relationship._titan_id = gremlin.e(rel).toJSON()[0]._id;
 				graphDB.commitSync();
 
-				me.compareAll(ar._titan_id);
-				
-				callback(null, { 
-					metadata: ar, 
-					entity1: entity1, 
-					entity2: entity2,
-					relationship: relationship
+				me.compareAll(ar._titan_id, function() {
+					callback(null, { 
+						metadata: ar, 
+						entity1: entity1, 
+						entity2: entity2,
+						relationship: relationship
+					});
 				});
 			}
 		});
@@ -186,23 +186,18 @@ module.exports = function(models, io, logger) {
 		return assertions;
 	};
 	
-	me.compareAll = function(id){
+	me.compareAll = function(id, callback){
 		id = parseInt(id, 10);
 		var alphas = gremlin.V().has('name', 'alpha report').toJSON();
 		var targets = gremlin.V().has('name', 'target event').toJSON();
 		var all = alphas.concat(targets);
 		var a_json = gremlin.v(id).toJSON()[0];
-		console.log('new');
-		console.log(a_json);
 		
 		//gremlin.v(id).iterator().nextSync().setPropertySync('comparedTo', []);
 		//graphDB.commitSync();
 		var comparedTo = a_json.comparedTo;
 		
-		//async.each(all, function(d){
-		all.forEach(function(d){
-			console.log('currently compared to');
-			console.log(d);
+		async.each(all, function(d, itCallback) {
 			var score = 0.0;
 			//gremlin.v(d._id).iterator().nextSync().setPropertySync('comparedTo', []);
 			//graphDB.commitSync();
@@ -273,32 +268,32 @@ module.exports = function(models, io, logger) {
 				});
 								
 				gremlin.v(d._id).iterator().nextSync().setPropertySync('comparedTo', d_comparedTo);
-				graphDB.commitSync();	
+				graphDB.commitSync();
 			}
+			itCallback();
+		}, function(err) {
+			comparedTo.sort(function(a, b) {
+				var ja = JSON.parse(a);
+				var jb = JSON.parse(b);
+				if (jb.score === ja.score){
+					return ja.item_id - jb.item_id;
+				} else {
+					return jb.score - ja.score;
+				}
+			});
+			
+			gremlin.v(id).iterator().nextSync().setPropertySync('comparedTo', comparedTo);
+			graphDB.commitSync();
+			
+			var parsed = [];
+			async.each(comparedTo, function(d, itCallback){
+			//comparedTo.forEach(function(d){
+				parsed.push(JSON.parse(d));
+				itCallback();
+			}, function(err){
+				callback(null, parsed);
+			});
 		});
-		
-		comparedTo.sort(function(a, b) {
-			var ja = JSON.parse(a);
-			var jb = JSON.parse(b);
-			if (jb.score === ja.score){
-				return ja.item_id - jb.item_id;
-			} else {
-				return jb.score - ja.score;
-			}
-		});
-		
-		console.log(comparedTo);
-		gremlin.v(id).iterator().nextSync().setPropertySync('comparedTo', comparedTo);
-		graphDB.commitSync();
-		
-		var parsed = [];
-		
-		//async.each(comparedTo, function(d){
-		comparedTo.forEach(function(d){
-			parsed.push(JSON.parse(d));
-		});
-		
-		return parsed;
 	};
 	
 	me.del = function(id, callback){
