@@ -21,7 +21,7 @@ var targetEventModel = {
 	updatedDate: {type: Date, "default": Date.now},	// value supplied by the service
 	name: {type: String, required: true},			// text identifier of the event
 	description: {type: String},					// description of the event
-	eventHorizon: {type: [event_horizon]},			// temporal aspect of target event
+	eventHorizon: {type: [eventHorizon]},			// temporal aspect of target event
 	place: {type: [place]},							// spatial aspect of target event
 	tags: {type: [String]},							// tag category cloud for target event
 	assertions: {type: [ObjectId]}					// collection of target_assertion ids that apply to this target_event -- structural aspect
