@@ -116,7 +116,7 @@ module.exports = function(app, models, io, logger) {
 		assertionService.create(req.body, function(err, val, newAssertion) {
 			if (err) {
 				logger.error("Error saving Assertion", err);
-				responseHandler.send500(res, "Error saving Assertion");
+				responseHandler.send500(res, "Error saving Assertion " + err);
 			} else if (!val.valid) {
 				logger.info("Invalid Assertion " + JSON.stringify(val.errors));
 				responseHandler.send500(res, "Invalid Assertion " + JSON.stringify(val.errors));
@@ -161,7 +161,7 @@ module.exports = function(app, models, io, logger) {
 		assertionService.update(req.params.id, req.body, function(err, val, updated) {
 			if (err) {
 				logger.error("Error updating Assertion", err);
-				responseHandler.send500(res, "Error updating Assertion");
+				responseHandler.send500(res, "Error updating Assertion " + err);
 			} else if (!val.valid) {
 				logger.info("Invalid Assertion " + JSON.stringify(val.errors));
 				responseHandler.send500(res, "Invalid Assertion " + JSON.stringify(val.errors));

@@ -142,7 +142,7 @@ module.exports = function(app, models, io, logger) {
 		targetEventService.update(req.params.id, req.body, function(err, val, updated) {
 			if (err) {
 				logger.error("Error updating Target Event", err);
-				responseHandler.send500(res, "Error updating Target Event");
+				responseHandler.send500(res, "Error updating Target Event " + err);
 			} else if (val && !val.valid) {
 				logger.info("Invalid Target Event " + JSON.stringify(val.errors));
 				responseHandler.send500(res, "Invalid Target Event " + JSON.stringify(val.errors));

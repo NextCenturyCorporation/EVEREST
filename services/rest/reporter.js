@@ -136,7 +136,7 @@ module.exports = function(app, models, io, logger){
 		reporterService.create(req.body, function(err, val, newReporter) {
 			if (err) {
 				logger.error("Error saving Reporter", err);
-				responseHandler.send500(res, "Error saving Reporter");
+				responseHandler.send500(res, "Error saving Reporter " + err);
 			} else if (!val.valid) {
 				logger.info("Invalid Reporter " + JSON.stringify(val.errors));
 				responseHandler.send500(res, "Invalid Reporter " + JSON.stringify(val.errors));
@@ -181,7 +181,7 @@ module.exports = function(app, models, io, logger){
 		reporterService.update(req.params.id, req.body, function(err, val, updated) {
 			if (err) {
 				logger.error("Error updating Reporter", err);
-				responseHandler.send500(res, "Error updating Reporter");
+				responseHandler.send500(res, "Error updating Reporter " + err);
 			} else if (val && !val.valid) {
 				logger.info("Invalid Reporter " + JSON.stringify(val.errors));
 				responseHandler.send500(res, " Invalid Reporter " + JSON.stringify(val.errors));

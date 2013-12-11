@@ -136,7 +136,7 @@ module.exports = function(app, models, io, logger) {
 		alphaReportService.create(req.body, function(err, val, newAlphaReport) {
 			if (err) {
 				logger.error("Error saving Alpha Report", err);
-				responseHandler.send500(res, "Error saving Alpha Report");
+				responseHandler.send500(res, "Error saving Alpha Report " + err);
 			} else if (!val.valid) {
 				logger.info("Invalid Alpha Report " + JSON.stringify(val.errors));
 				responseHandler.send500(res, "Invalid Alpha Report " + JSON.stringify(val.errors));
@@ -181,7 +181,7 @@ module.exports = function(app, models, io, logger) {
 		alphaReportService.update(req.params.id, req.body, function(err, val, updated) {
 			if (err) {
 				logger.error("Error updating Alpha Report", err);
-				responseHandler.send500(res, "Error updating Alpha Report");
+				responseHandler.send500(res, "Error updating Alpha Report " + err);
 			} else if (val && !val.valid) {
 				logger.info("Invalid Alpha Report " + JSON.stringify(val.errors));
 				responseHandler.send500(res, " Invalid Alpha Report " + JSON.stringify(val.errors));

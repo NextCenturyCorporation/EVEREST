@@ -85,7 +85,7 @@ module.exports = function(app, models, io, logger) {
 		confirmedReportService.create(data, function(err, val, newConfirmedReport) {
 			if (err) {
 				logger.error("Error saving Confirmed Report", err);
-				responseHandler.send500(res, "Error saving Confirmed Report");
+				responseHandler.send500(res, "Error saving Confirmed Report " + err);
 			} else if ( !val.valid ){
 				logger.info("Invalid Confirmed Report " + JSON.stringify(val.errors));
 				responseHandler.send500(res, "Invalid Confirmed Report " + JSON.stringify(val.errors));
@@ -135,7 +135,7 @@ module.exports = function(app, models, io, logger) {
 		confirmedReportService.update(req.params.id, data, function(err, val, updated) {
 			if (err) {
 				logger.error("Error updating Confirmed Report", err);
-				responseHandler.send500(res, "Error updating Confirmed Report");
+				responseHandler.send500(res, "Error updating Confirmed Report " + err);
 			} else if (val && !val.valid) {
 				logger.info("Invalid Confirmed Report " + JSON.stringify(val.errors));
 				responseHandler.send500(res, "Invalid Confirmed Report " + JSON.stringify(val.errors));

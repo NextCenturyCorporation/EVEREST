@@ -97,7 +97,7 @@ module.exports = function(app, models, io, logger) {
 		eventService.create(req.body, function(err, val, newEvent) {
 			if (err) {
 				logger.error("Error saving Event", err);
-				responseHandler.send500(res, "Error saving Event");
+				responseHandler.send500(res, "Error saving Event " + err);
 			} else if (!val.valid) {
 				logger.info("Invalid Event " + JSON.stringify(val.errors));
 				responseHandler.send500(res, "Invalid Event " + JSON.stringify(val.errors));
@@ -142,7 +142,7 @@ module.exports = function(app, models, io, logger) {
 		eventService.update(req.params.id, req.body, function(err, val, updated) {
 			if (err) {
 				logger.error("Error updating Event", err);
-				responseHandler.send500(res, "Error updating Event");
+				responseHandler.send500(res, "Error updating Event " + err);
 			} else if (!val.valid) {
 				logger.info("Invalid Event " + JSON.stringify(val.errors));
 				responseHandler.send500(res, "Invalid Event " + JSON.stringify(val.errors));
