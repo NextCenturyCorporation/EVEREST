@@ -29,19 +29,20 @@ module.exports = function(services, logger){
 	me.validateObject = function(object, errors, done){
 		// TODO: put in the logic checks against the object (ie., does the name attribute exist)
 		//       to insulate the lower level functions from bad data
+		var id = object._id;
 		var value = object.name;
-		me.nameExists(value, errors, function (err, found) {
+		me.nameExists(id, value, errors, function (err, found) {
 			var property = 'name';
 			if (found) {
 				me.error(property, value, errors, "Place " + property + " already exists.");
-				logger.info("nameExists " + value);
+				logger.debug("nameExists " + value);
 			}
 	
 			me.placeExists(object, errors, function (err, found) {
 				var property = 'record';
 				if (found) {
 					me.error(property, value, errors, "Place already exists.");
-					logger.info("placeExists " + JSON.stringify(object));
+					logger.debug("placeExists " + JSON.stringify(object));
 				}
 				done();
 			});
@@ -55,17 +56,22 @@ module.exports = function(services, logger){
 	 ** Returns in the callback any system error and a boolean indicating whether
 	 **   or not the name was found. 
 	**/
-	me.nameExists = function(value, errors, callback){
-		services.placeService.findWhere({name: value}, function(err, locs) {
+	me.nameExists = function(id, value, errors, callback){
+		services.placeService.findWhere({name: value}, function(err, docs) {
 			if (err) {
 				me.error('name', value, errors, 'Error reading place name ' + err);
-				logger.info({ error : "Error getting placeByName " + err });
+				logger.debug({ error : "Error getting placeByName " + err });
 				callback(err, false);
-			} else if (0 !== locs.length) {
-				logger.info("Place found for nameExists" + JSON.stringify(locs));
-				callback(err, true);
+			} else if (0 !== docs.length) {
+				if (id && id.toString() === docs[0]._id.toString()){
+					logger.debug("Place found for nameExists matching current _id" + JSON.stringify(docs));
+					callback(err, false);
+				} else {
+					logger.debug("Place found for nameExists" + JSON.stringify(docs));
+					callback(err, true);
+				}
 			} else {
-				logger.info("Place name not found " + value);
+				logger.debug("Place name not found " + value);
 				callback(err, false);
 			}
 		});
@@ -80,16 +86,16 @@ module.exports = function(services, logger){
 	 **   or not the place was found. 
 	**/
 	me.placeExists = function(object, errors, callback){
-		services.placeService.findWhere(object, function(err, locs){
+		services.placeService.findWhere(object, function(err, docs){
 			if (err) {
 				me.error('record', object, errors, 'Error reading place ' + err);
-				logger.info({ error : "Error getting placeByObject " + err });
+				logger.debug({ error : "Error getting placeByObject " + err });
 				callback(err, false);
-			} else if (0 !== locs.length) {
-				logger.info("Place found for placeExists" + JSON.stringify(locs));
+			} else if (0 !== docs.length) {
+				logger.debug("Place found for placeExists" + JSON.stringify(docs));
 				callback(err, true);
 			} else {
-				logger.info("Place not found " + JSON.stringify(object));
+				logger.debug("Place not found " + JSON.stringify(object));
 				callback(err, false);
 			}
 		});

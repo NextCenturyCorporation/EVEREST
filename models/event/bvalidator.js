@@ -63,7 +63,7 @@ module.exports = function(services, logger) {
 					logger.error({ error : "Error getting eventByName " + err });
 					callback(err, false);
 				} else if (0 !== docs.length) {
-					if (id && id.toString() === docs[0]._id.toString()){
+					if (id && id.toString() === docs[0]._id.toString()) {
 						logger.debug("Event found for nameExists matching current _id" + JSON.stringify(docs));
 						callback(err, false);
 					} else {

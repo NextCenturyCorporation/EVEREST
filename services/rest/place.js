@@ -167,7 +167,7 @@ module.exports = function(app, models, io, logger) {
 				responseHandler.send500(res, "Error updating Place");
 			} else if (val && !val.valid) {
 				logger.info("Invalid Place " + JSON.stringify(val.errors));
-				responseHandler.send500(res, "Invalid Place");
+				responseHandler.send500(res, "Invalid Place " + JSON.stringify(val.errors));
 			} else {
 				logger.info("Place updated " + JSON.stringify(updated));
 				res.jsonp({_id: updated._id});
