@@ -1,4 +1,4 @@
-var Event_Service = require("../database/event.js");
+var Event_Service = require("../database/event_.js");
 var responseHandler = require("../general_response");
 
 module.exports = function(app, models, io, logger) {
