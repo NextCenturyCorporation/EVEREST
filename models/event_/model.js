@@ -21,14 +21,14 @@ var event_Model = {
 	updatedDate: {type: Date, "default": Date.now},	// value supplied by the service
 	name: {type: String, required: true},			// text identifier of the event
 	description: {type: String},					// description of the event
-	eventHorizon: {type: [event_horizon]},			// temporal aspect of event
+	eventHorizon: {type: [eventHorizon]},			// temporal aspect of event
 	place: {type: [place]},							// spatial aspect of event
 	tags: {type: [String]},							// tag category cloud for event
 	assertions: {type: [ObjectId]}					// collection of assertion ids that apply to this event -- structural aspect
 };
 
-var event_Schema = new Schema(eventModel);
-var event_ = mongoose.model('Event_', EventSchema);
+var event_Schema = new Schema(event_Model);
+var event_ = mongoose.model('Event_', event_Schema);
 
 //Describe the JSON semantic validation schema
 var event_Validation = {

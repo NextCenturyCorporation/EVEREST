@@ -20,8 +20,8 @@ module.exports = function(app, io, logger){
 	var ConfirmedReport = require('./rest/confirmed_report.js');
 	new ConfirmedReport(app, models, io, logger);
 
-	var Event = require('./rest/event.js');
-	new Event(app, models, io, logger);
+	var Event_ = require('./rest/event_.js');
+	new Event_(app, models, io, logger);
 
 	var Incident = require('./rest/incident.js');
 	new Incident(app, models, io, logger);

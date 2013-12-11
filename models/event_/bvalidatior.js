@@ -1,8 +1,6 @@
 /*
  * Event_ business validation library
  */
-var async = require('async');
-
 module.exports = function(services, logger) {
 	var me = this;
 
