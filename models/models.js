@@ -50,6 +50,11 @@ var rawFeedModel = require('./raw_feed/model.js');
 exports.rawFeed = rawFeedModel.rawFeed;
 exports.rawFeedValidation = rawFeedModel.rawFeedValidation;
 
+//report
+var reportModel = require('./report/model.js');
+exports.report = reportModel.report;
+exports.reportValidation = reportModel.reportValidation;
+
 //reporter
 var reporterModel = require('./reporter/model.js');
 exports.reporter = reporterModel.reporter;
