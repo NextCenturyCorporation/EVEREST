@@ -30,8 +30,9 @@ module.exports = function(services, logger) {
 	me.validateObject = function(object, errors, done) {
 		// TODO: put in the logic checks against the object (ie., does the name attribute exist)
 		//       to insulate the lower level functions from bad data
+		var id = object._id;
 		var value = object.name;
-		me.nameExists(value, errors, function(err, found) {
+		me.nameExists(id, value, errors, function(err, found) {
 			var property = 'name';
 			if (found) {
 				me.error(property, value, errors, "Target Event " + property + " already exists.");
@@ -67,7 +68,7 @@ module.exports = function(services, logger) {
 	 * Returns in the callback any system error and a boolean indicating whether
 	 *   or not the name was found. 
 	 */
-	me.nameExists = function (value, errors, callback) {
+	me.nameExists = function (id, value, errors, callback) {
 		if (value !== undefined) {
 			services.targetEventService.findWhere({name: value}, function(err, docs) {
 				if (err) {
@@ -75,8 +76,13 @@ module.exports = function(services, logger) {
 					logger.error({ error : "Error getting targetEventByName " + err });
 					callback(err, false);
 				} else if (0 !== docs.length) {
-					logger.debug("Target Event found for nameExists" + JSON.stringify(docs));
-					callback(err, true);
+					if (id && id.toString() === docs[0]._id.toString()) {
+						logger.debug("Target Event found for nameExists matching current _id" + JSON.stringify(docs));
+						callback(err, false);
+					} else {
+						logger.debug("Target Event found for nameExists" + JSON.stringify(docs));
+						callback(err, true);
+					}
 				} else {
 					logger.debug("Target Event name not found " + value);
 					callback(err, false);
