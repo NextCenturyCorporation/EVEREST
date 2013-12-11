@@ -27,8 +27,8 @@ exports.confirmedReportValidation = confirmedReportModel.confirmedReportValidati
 
 //event
 var event_Model = require('./event_/model.js');
-exports.event_ = eventModel.event_;
-exports.event_Validation = eventModel.event_Validation;
+exports.event_ = event_Model.event_;
+exports.event_Validation = event_Model.event_Validation;
 
 //incident
 var incidentModel = require('./incident/model.js');
