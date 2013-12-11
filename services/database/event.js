@@ -1,3 +1,0 @@
-/**
-	*  new node file
-**/

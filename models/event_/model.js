@@ -14,24 +14,24 @@ var place = new Schema({
 	radius: {type: Number, "default": 0, required: true}
 });
 
-var targetEventModel = {
+var event_Model = {
 	createdBy: {type: ObjectId},					// value supplied by the service of the profile creating the object
 	updatedBy: {type: ObjectId},					// value supplied by the service of the profile updating the object
 	createdDate: {type: Date, "default": Date.now},	// value supplied by the service
 	updatedDate: {type: Date, "default": Date.now},	// value supplied by the service
 	name: {type: String, required: true},			// text identifier of the event
 	description: {type: String},					// description of the event
-	eventHorizon: {type: [event_horizon]},			// temporal aspect of target event
-	place: {type: [place]},							// spatial aspect of target event
-	tags: {type: [String]},							// tag category cloud for target event
-	assertions: {type: [ObjectId]}					// collection of target_assertion ids that apply to this target_event -- structural aspect
+	eventHorizon: {type: [event_horizon]},			// temporal aspect of event
+	place: {type: [place]},							// spatial aspect of event
+	tags: {type: [String]},							// tag category cloud for event
+	assertions: {type: [ObjectId]}					// collection of assertion ids that apply to this event -- structural aspect
 };
 
-var TargetEventSchema = new Schema(targetEventModel);
-var targetEvent = mongoose.model('TargetEvent', TargetEventSchema);
+var event_Schema = new Schema(eventModel);
+var event_ = mongoose.model('Event_', EventSchema);
 
 //Describe the JSON semantic validation schema
-var targetEventValidation = {
+var event_Validation = {
 	properties: {
 		createdDate: {
 			description: 'Date this was created in datastore',
@@ -53,5 +53,5 @@ var targetEventValidation = {
 	}
 };
 
-exports.targetEvent = targetEvent;
-exports.targetEventValidation = targetEventValidation;
+exports.event_ = event_;
+exports.event_Validation = event_Validation;
