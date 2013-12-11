@@ -5,7 +5,7 @@ module.exports = function(app, models, io, logger) {
 	var eventService = new Event_Service(models, io, logger);
 
 	/**
-	 * List all Event_s
+	 * List all Events
 	 */
 	app.get("/event/?", function(req, res) {
 		if (logger.DO_LOG) {
@@ -15,7 +15,7 @@ module.exports = function(app, models, io, logger) {
 		eventService.list(req.query, function(err, docs, config) {
 			if (err) {
 				logger.error("Error listing Events", err);
-				responseHandler.send500(res, "Error listing Events");
+				responseHandler.send500(res, "Error listing Events " + err);
 			} else {
 				eventService.getTotalCount(config, function(err, count) {
 					if (err) {

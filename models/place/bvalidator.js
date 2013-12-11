@@ -26,7 +26,7 @@ module.exports = function(services, logger){
 		record: "There is a record-level error"
 	};
 	
-	me.validateObject = function(object, errors, done){
+	me.validateObject = function(object, errors, done) {
 		// TODO: put in the logic checks against the object (ie., does the name attribute exist)
 		//       to insulate the lower level functions from bad data
 		var id = object._id;
@@ -63,7 +63,7 @@ module.exports = function(services, logger){
 				logger.debug({ error : "Error getting placeByName " + err });
 				callback(err, false);
 			} else if (0 !== docs.length) {
-				if (id && id.toString() === docs[0]._id.toString()){
+				if (id && id.toString() === docs[0]._id.toString()) {
 					logger.debug("Place found for nameExists matching current _id" + JSON.stringify(docs));
 					callback(err, false);
 				} else {

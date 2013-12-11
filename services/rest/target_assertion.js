@@ -67,6 +67,26 @@ module.exports = function(app, models, io, logger) {
 	}); 
 	
 	/**
+	 * List the _id and name of all Target Assertions
+	 */
+	app.get("/target-assertion/names/?", function(req, res) {
+		if (logger.DO_LOG) {
+			logger.info("Request for Target Assertion name list");
+		}
+		
+		var params = {};
+		targetAssertionService.listFields(params, "_id name", function(err, docs) {
+			if (err) {
+				logger.error("Error listing Target Assertion id - name ", err);
+				responseHandler.send500(res, "Error listing Target Assertion id - name");
+			} else {
+				res.jsonp(docs);
+				res.end();
+			}
+		});
+	});
+
+	/**
 	 * Create a new Target Assertion
 	 */
 	app.post("/target-assertion/?", function(req, res) {
@@ -77,7 +97,7 @@ module.exports = function(app, models, io, logger) {
 		targetAssertionService.create(req.body, function(err, val, newTargetAssertion) {
 			if (err) {
 				logger.error("Error saving Target Assertion", err);
-				responseHandler.send500(res, "Error saving Target Assertion");
+				responseHandler.send500(res, "Error saving Target Assertion " + err);
 			} else if (!val.valid) {
 				logger.info("Invalid Target Assertion " + JSON.stringify(val.errors));
 				responseHandler.send500(res, "Invalid Target Assertion " + JSON.stringify(val.errors));

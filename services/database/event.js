@@ -91,7 +91,7 @@ module.exports = function(models, io, logger) {
 	};
 	
 	/**
-	 * Returns only the fields specified in field_string for each event_
+	 * Returns only the fields specified in field_string for each event
 	 */
 	me.listFields = function(params, field_string, callback) {
 		models.event_.find(params, field_string, callback);
@@ -109,17 +109,17 @@ module.exports = function(models, io, logger) {
 	me.create = function(data, saveCallback) {
 		me.validateEvent(data, function(valid) {
 			if (valid.valid) {
-				logger.info("Valid event_");
+				logger.info("Valid Event");
 				
-				var newevent_ = new models.event_(data);
-				newevent_.save(function(err) {
+				var newEvent = new models.event_(data);
+				newEvent.save(function(err) {
 					if (err) {
-						logger.error("Error saving event_", err);
+						logger.error("Error saving Event", err);
 					} else {
 						//actionEmitter
 					}
 					
-					saveCallback(err, valid, newevent_);
+					saveCallback(err, valid, newEvent);
 				});
 			} else {
 				saveCallback(undefined, valid, data);
@@ -142,7 +142,7 @@ module.exports = function(models, io, logger) {
 		// is the JSON semantically valid for the event object?
 		var valid = revalidator.validate(data, validationModel);
 		if (valid.valid) {
-			// does the event_ object comply with business validation logic
+			// does the Event object comply with business validation logic
 			bvalidator.validate(data, function(valid) {
 				valCallback(valid);
 			});

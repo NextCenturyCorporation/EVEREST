@@ -29,7 +29,7 @@ module.exports = function(models, io, logger) {
 						$lte: params.end
 					}
 				};
-				
+
 				models.targetAssertion.find(config).skip(params.offset).sort(sortObject).limit(params.count).exec(function(err, res) {
 					callback(err, res, config);
 				});

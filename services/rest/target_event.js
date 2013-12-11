@@ -97,7 +97,7 @@ module.exports = function(app, models, io, logger) {
 		targetEventService.create(req.body, function(err, val, newTargetEvent) {
 			if (err) {
 				logger.error("Error saving Target Event", err);
-				responseHandler.send500(res, "Error saving Target Event");
+				responseHandler.send500(res, "Error saving Target Event " + err);
 			} else if (!val.valid) {
 				logger.info("Invalid Target Event " + JSON.stringify(val.errors));
 				responseHandler.send500(res, "Invalid Target Event " + JSON.stringify(val.errors));

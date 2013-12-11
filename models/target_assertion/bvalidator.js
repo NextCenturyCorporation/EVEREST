@@ -23,8 +23,9 @@ module.exports = function(services, logger) {
 	};
 	
 	me.validateObject = function(object, errors, done) {
+		var id = object._id;
 		var value = object.name;
-		me.nameExists(value, errors, function (err, found) {
+		me.nameExists(id, value, errors, function (err, found) {
 			var property = 'name';
 			if (value !== undefined) {
 				if (found) {
@@ -52,16 +53,21 @@ module.exports = function(services, logger) {
 	 ** Returns in the callback any system error and a boolean indicating whether
 	 **   or not the name was found. 
 	**/
-	me.nameExists = function (value, errors, callback) {
+	me.nameExists = function (id, value, errors, callback) {
 		if (value !== undefined) {
-			targetAssertionService.findWhere({name: value}, function(err, locs) {
+			targetAssertionService.findWhere({name: value}, function(err, docs) {
 				if (err) {
 					me.error('name', value, errors, 'Error reading Target Assertion name ' + err);
 					logger.error({error : "Error getting Target Assertion " + err});
 					callback(err, false);
-				} else if (0 !== locs.length) {
-					logger.debug("Target Assertion found for nameExists" + JSON.stringify(locs));
-					callback(err, true);
+				} else if (0 !== docs.length) {
+					if (id && id.toString() === docs[0]._id.toString()) {
+						logger.debug("Target Assertion found for nameExists matching current _id" + JSON.stringify(docs));
+						callback(err, false);
+					} else {
+						logger.debug("Target Assertion found for nameExists" + JSON.stringify(docs));
+						callback(err, true);
+					}
 				} else {
 					logger.debug("Target Assertion name not found " + value);
 					callback(err, false);
