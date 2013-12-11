@@ -1,4 +1,4 @@
-var Bvalidator = require("../../models/event_/bvalidator.js");
+var Bvalidator = require("../../models/event/bvalidator.js");
 var revalidator = require("revalidator");
 //var actionEmitter = require("../action_emitter.js");
 var paramHandler = require("../list_default_handler.js");
@@ -6,16 +6,16 @@ var async = require("async");
 
 module.exports = function(models, io, logger) {
 	var me = this;
-	var validationModel = models.event_Validation;
+	var validationModel = models.eventValidation;
 
 	var services = {
-		event_Service: me
+		eventService: me
 	};
 
 	var bvalidator = new Bvalidator(services, logger);
 	
 	/**
-	 * Returns a list of all event_s
+	 * Returns a list of all events
 	 */
 	me.list = function(req, callback) {
 		paramHandler.handleDefaultParams(req, function(params) {
@@ -57,11 +57,11 @@ module.exports = function(models, io, logger) {
 	};
 	
 	/**
-	 *	Returns a sorted list containing _id and createdDate for all event_
+	 *	Returns a sorted list containing _id and createdDate for all event
 	 */
 	me.findDates = function(callback) {
 		models.event_.find({}, {_id: 0, createdDate:1}, function(err, dates) {
-			var errorMsg = new Error("Could not get event_ Dates: " + err);
+			var errorMsg = new Error("Could not get event Dates: " + err);
 			if (err) {
 				callback(errorMsg);
 			} else {
@@ -84,7 +84,7 @@ module.exports = function(models, io, logger) {
 	};
 	
 	/**
-	 * Returns the number of event_s that fit the specified config
+	 * Returns the number of events that fit the specified config
 	 */
 	me.getTotalCount = function(config, callback) {
 		models.event_.count(config, callback);
@@ -99,15 +99,15 @@ module.exports = function(models, io, logger) {
 
 	/**
 	 * create is a "generic" save method callable from both
-	 * request-response methods and parser-type methods for population of event_ data
+	 * request-response methods and parser-type methods for population of event data
 	 * 
-	 * create calls the validateEvent_ module to ensure that the
-	 * event_ data being saved to the database is complete and has integrity.
+	 * create calls the validateEvent module to ensure that the
+	 * event data being saved to the database is complete and has integrity.
 	 * 
-	 * saveCallback takes the form function(err, valid object, event_ object)
+	 * saveCallback takes the form function(err, valid object, event object)
 	 */
 	me.create = function(data, saveCallback) {
-		me.validateEvent_(data, function(valid) {
+		me.validateEvent(data, function(valid) {
 			if (valid.valid) {
 				logger.info("Valid event_");
 				
@@ -128,18 +128,18 @@ module.exports = function(models, io, logger) {
 	};
 
 	/**
-	 * validateEvent_ validates a event_ object against the Event_ 
-	 * semantic rules and the business rules associated with a event_
+	 * validateEvent validates a event object against the Event 
+	 * semantic rules and the business rules associated with a event
 	 *
-	 * validateEvent_ calls the JSON validation module revalidator and
-	 * calls the business validation module bvalidator for the event_ object
+	 * validateEvent calls the JSON validation module revalidator and
+	 * calls the business validation module bvalidator for the event object
 
-	 * data is the event_ object being validated
+	 * data is the event object being validated
 	 * 
 	 * valCallback takes the form of function(valid structure)
 	 */
-	me.validateEvent_ = function(data, valCallback) {
-		// is the JSON semantically valid for the event_ object?
+	me.validateEvent = function(data, valCallback) {
+		// is the JSON semantically valid for the event object?
 		var valid = revalidator.validate(data, validationModel);
 		if (valid.valid) {
 			// does the event_ object comply with business validation logic
@@ -169,17 +169,17 @@ module.exports = function(models, io, logger) {
 	};
 	
 	/**
-	 * update gets the event_ by the specified id then calls validateEvent_
+	 * update gets the event by the specified id then calls validateEvent
 	 *
-	 * callback takes the form function(err, valid object, event_ object)
+	 * callback takes the form function(err, valid object, event object)
 	 */
 	me.update = function(id, data, updCallback) {
 		me.get(id, function(err, docs) {
 			if (err) {
-				logger.error("Error getting event_", err);
+				logger.error("Error getting event", err);
 				updCallback(err, null, data);
 			} else if (docs[0]) {
-				docs = docs[0]; //there will only be one event_ from the get
+				docs = docs[0]; //there will only be one event from the get
 				for (var e in data) {
 					if (e !== "_id") {
 						docs[e] = data[e];
@@ -187,7 +187,7 @@ module.exports = function(models, io, logger) {
 				}
 				
 				docs.updatedDate = new Date();
-				me.validateEvent_(docs, function(valid) {
+				me.validateEvent(docs, function(valid) {
 					if (valid.valid) {
 						docs.save(function(err) {
 							if (err) {
@@ -201,14 +201,14 @@ module.exports = function(models, io, logger) {
 					}
 				});
 			} else {
-				var errorMsg = new Error("Could not find event_ to update");
+				var errorMsg = new Error("Could not find event to update");
 				updCallback(errorMsg, null, data);
 			}
 		});
 	};
 
 	/**
-	 * Remove all event_s that match the specified config
+	 * Remove all events that match the specified config
 	 */
 	me.del = function(config, callback) {
 		models.event_.remove(config, callback);

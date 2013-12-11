@@ -32,15 +32,15 @@ module.exports = function(services, logger) {
 		me.nameExists(id, value, errors, function(err, found) {
 			var property = 'name';
 			if (found) {
-				me.error(property, value, errors, "Event_ " + property + " already exists.");
+				me.error(property, value, errors, "Event " + property + " already exists.");
 				logger.debug("nameExists " + value);
 			}
 	
-			me.event_Exists(object, errors, function(err, found) {
+			me.eventExists(object, errors, function(err, found) {
 				var property = 'record';
 				if (found) {
-					me.error(property, value, errors, "Event_ already exists.");
-					logger.debug("event_Exists " + JSON.stringify(object));
+					me.error(property, value, errors, "Event already exists.");
+					logger.debug("eventExists " + JSON.stringify(object));
 				}
 				
 				done();
@@ -57,21 +57,21 @@ module.exports = function(services, logger) {
 	 */
 	me.nameExists = function (id, value, errors, callback) {
 		if (value !== undefined) {
-			services.event_Service.findWhere({name: value}, function(err, docs) {
+			services.eventService.findWhere({name: value}, function(err, docs) {
 				if (err) {
-					me.error('name', value, errors, 'Error reading Event_ name ' + err);
-					logger.error({ error : "Error getting event_ByName " + err });
+					me.error('name', value, errors, 'Error reading Event name ' + err);
+					logger.error({ error : "Error getting eventByName " + err });
 					callback(err, false);
 				} else if (0 !== docs.length) {
 					if (id.toString() !== docs[0]._id.toString()){
-						logger.debug("Event_ found for nameExists" + JSON.stringify(docs));
+						logger.debug("Event found for nameExists" + JSON.stringify(docs));
 						callback(err, true);
 					} else {
-						logger.debug("Event_ found for nameExists matching current _id" + JSON.stringify(docs));
+						logger.debug("Event found for nameExists matching current _id" + JSON.stringify(docs));
 						callback(err, false);
 					}
 				} else {
-					logger.debug("Event_ name not found " + value);
+					logger.debug("Event name not found " + value);
 					callback(err, false);
 				}
 			});
@@ -79,24 +79,24 @@ module.exports = function(services, logger) {
 	};
   
 	/**
-	 * event_Exists verifies the uniqueness of the entire object.
+	 * eventExists verifies the uniqueness of the entire object.
 	 * Makes an async call to the data service to retrieve a matching object
 	 *   matching against all object attributes.
 	 * If found, submits an error to the errors collection.
 	 * Returns in the callback any system error and a boolean indicating whether
 	 *   or not the target event was found. 
 	 */
-	me.event_Exists = function(object, errors, callback) {
-		services.event_Service.findWhere(object, function(err, docs) {
+	me.eventExists = function(object, errors, callback) {
+		services.eventService.findWhere(object, function(err, docs) {
 			if (err) {
 				me.error('record', object, errors, 'Error reading Event_ ' + err);
-				logger.error({ error : "Error getting Event_ by object " + err });
+				logger.error({ error : "Error getting Event by object " + err });
 				callback(err, false);
 			} else if (0 !== docs.length) {
-				logger.debug("Event_ found for event_Exists" + JSON.stringify(docs));
+				logger.debug("Event found for event_Exists" + JSON.stringify(docs));
 				callback(err, true);
 			} else {
-				logger.debug("Event_ not found " + JSON.stringify(object));
+				logger.debug("Event not found " + JSON.stringify(object));
 				callback(err, false);
 			}
 		});
