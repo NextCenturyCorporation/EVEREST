@@ -77,21 +77,43 @@ module.exports = function(models, io, logger) {
 	};
 
 	me.flattenReport = function(report, callback) {
-		var fieldsToFlatten = ["alpha_report_id"/*, "target_event_id"*/, "profile_id"];
+		var fieldsToFlatten = ["alpha_report_id"/*, "target_event_id"*/, "profile_id", "assertions"];
 
 		async.each(fieldsToFlatten, function(field, fieldCallback) {
-			if(typeof(report[field]) !== "undefined" && report[field] !== null) {
-				me.flattenField(report, field, function(err, flattenedField) {
-					if (err) {
+			if (field === "assertions") {
+				if (report.assertions.length > 0) {
+					var flattenedAssertions = [];
+					async.each(report.assertions, function(assertion, assertionCallback) {
+						me.flattenField(report, assertion, function(err, flattenedField) {
+							if (err) {
+								assertionCallback(err);
+							} else {
+								flattenedAssertions.put(flattenedField);
+								assertionCallback();
+							}
+						});
+					}, function(err) {
+						report.assertions = flattenedAssertions;
 						fieldCallback(err);
-					} else {
-						report[field] = flattenedField[0];
-						fieldCallback();
-					}
-				});
+					});
+				} else {
+					//no assertions in array -- leave report as is
+					fieldCallback();
+				}
 			} else {
-				//TODO Add error to callback
-				fieldCallback();
+				if(typeof(report[field]) !== "undefined" && report[field] !== null) {
+					me.flattenField(report, field, function(err, flattenedField) {
+						if (err) {
+							fieldCallback(err);
+						} else {
+							report[field] = flattenedField[0];
+							fieldCallback();
+						}
+					});
+				} else {
+					//TODO Add error to callback
+					fieldCallback();
+				}
 			}
 		}, function(err) {
 			console.log("end");

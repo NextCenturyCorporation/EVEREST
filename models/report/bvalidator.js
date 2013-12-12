@@ -23,7 +23,8 @@ module.exports = function(services, logger) {
 	me.messages = {
 		alpha_report_id: "Alpha Report id is invalid",
 		target_event_id: "Target Event id is invalid",
-		profile_id: "Profile id is invalid"
+		profile_id: "Profile id is invalid",
+		assertions: "Assertions are invalid"
 	};
 
 	me.validateObject = function(object, errors, done) {
@@ -57,7 +58,18 @@ module.exports = function(services, logger) {
 						}
 					}
 					
-					done();
+					value = object.assertions;
+					me.assertionsExist(value, errors, function(err, found) {
+						var property = 'assertions';
+						if (value !== undefined) {
+							if (!found) {
+								me.error(property, value, errors, "Assertions do not exist.");
+								logger.info("assertionsExist " + value + " do not exist");
+							}
+						}
+						
+						done();
+					});
 				});
 			});
 		});
@@ -116,6 +128,34 @@ module.exports = function(services, logger) {
 				} else {
 					logger.info("Profile string not found " + value);
 					callback(err, false);
+				}
+			});
+		}
+	};
+
+	me.assertionsExist = function(value, errors, callback) {
+		if (typeof(value) === 'undefined' || value.length === 0) {
+			callback(null, true);
+		} else {
+			async.each(value, function(assertion, eachCallback) {
+				services.assertionService.get(assertion, function(err, assertionDoc) {
+					if (err) {
+						me.error('assertions', value, errors, 'Error reading assertion ' + err);
+						logger.error("Error getting assertion by id ", err);
+						eachCallback(err);
+					} else if (0 !== assertionDoc.length) {
+						logger.info("Assertion found for assertionsAreValid" + JSON.stringify(assertionDoc));
+						eachCallback(err);
+					} else {
+						logger.info("Assertion not found " + value);
+						eachCallback(err);
+					}
+				});
+			}, function (err) {
+				if (err) {
+					callback(err, false);
+				} else {
+					callback(err, true);
 				}
 			});
 		}

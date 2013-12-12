@@ -34,7 +34,7 @@ module.exports = function(app, models, io, logger) {
 	});
 	
 	/**
-	 * List all indexes for the Confirmed Report object
+	 * List all indexes for the Report object
 	 */
 	app.get("/report/indexes/?", function(req, res) {
 		if (logger.DO_LOG) {
@@ -70,7 +70,7 @@ module.exports = function(app, models, io, logger) {
 	});
 
 	/**
-	 * Create a new Confirmed Report
+	 * Create a new Report
 	 */
 	app.post("/report/?", function(req,res) {
 		if (logger.DO_LOG) {
@@ -99,7 +99,7 @@ module.exports = function(app, models, io, logger) {
 	
 	/**
 	 * Review a Report specified by id
-	 * /confirmed-report/:{param_name}(contents go in param_name)
+	 * /report/:{param_name}(contents go in param_name)
 	 */
 	app.get("/report/:id([0-9a-f]+)", function(req, res) {     
 		if (logger.DO_LOG ) {

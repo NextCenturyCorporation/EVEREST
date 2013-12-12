@@ -20,11 +20,6 @@ var commentModel = require('./comment/model.js');
 exports.comment = commentModel.comment;
 exports.commentValidatoin = commentModel.commentValidatoin;
 
-//confirmed report
-var confirmedReportModel = require('./confirmed_report/model.js');
-exports.confirmedReport = confirmedReportModel.confirmedReport;
-exports.confirmedReportValidation = confirmedReportModel.confirmedReportValidation;
-
 //event
 var eventModel = require('./event/model.js');
 exports.event_ = eventModel.event_;

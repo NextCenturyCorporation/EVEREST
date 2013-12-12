@@ -17,9 +17,6 @@ module.exports = function(app, io, logger){
 	var Comment = require('./rest/comment.js');
 	new Comment(app, models, io, logger);
 
-	var ConfirmedReport = require('./rest/confirmed_report.js');
-	new ConfirmedReport(app, models, io, logger);
-
 	var Event = require('./rest/event.js');
 	new Event(app, models, io, logger);
 

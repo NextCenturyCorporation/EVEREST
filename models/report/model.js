@@ -8,8 +8,9 @@ var reportModel = {
 	alpha_report_id: {type: ObjectId, required: true},
 	target_event_id: {type: ObjectId},
 	target_event_percentage: {type: Number, "default": 1.0},
-	profile_id: {type: ObjectId}
-	//confirmed_date: {type: Date}
+	profile_id: {type: ObjectId},
+	confirmed_date: {type: Date},
+	assertions: [{type: ObjectId}]
 };
 
 
@@ -51,11 +52,15 @@ var reportValidation = {
 		profile_id: {
 			description: 'person confirming the report',
 			type: 'string'
-		}/*,
+		},
 		confirmed_date: {
 			description: 'date the report was confirmed (or re-confirmed)',
 			type: 'date'
-		}*/
+		},
+		assertions: {
+			description: '_id list of the assertions that were used as basis for this confirmed_report',
+			type: 'objectId'
+		}
 	}
 };
 
