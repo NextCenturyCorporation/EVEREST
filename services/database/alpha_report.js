@@ -42,6 +42,28 @@ module.exports = function(models, io, logger) {
 		});
 	};
 	
+	me.getTags = function(callback) {
+		var o = {
+			map : function () { 
+				if (!this.message_body) { return; }
+				var words = this.message_body.split(' ');
+				for (index in words) {
+					emit( words[index], 1);
+				}
+			}, 
+			reduce: function(k, vals) { 
+				var count = 0;
+				for (index in vals){
+					count += vals[index]
+				}
+
+				return count;
+			},
+		};
+
+		models.alphaReport.mapReduce(o, callback);
+	};
+
 	/**
 	 *	Returns a list of indexed attributes for Alpha Report
 	 */

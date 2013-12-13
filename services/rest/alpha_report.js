@@ -32,6 +32,21 @@ module.exports = function(app, models, io, logger) {
 		});
 	});
 
+	app.get('/alpha-report/tags/?', function(req, res){
+		if (logger.DO_LOG) {
+			logger.info("Request for list of tags for the Alpha Report object");
+		}
+		
+		alphaReportService.getTags(function(err, tags) {
+			if (!tags) {
+				responseHandler.send500(res, "Error getting tags for the Alpha Report object");
+			} else {
+				res.jsonp(tags);
+				res.end();
+			}
+		});
+	});
+
 	/**
 	 * List all indexes for the Alpha Report object
 	 */

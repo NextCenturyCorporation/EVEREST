@@ -44,7 +44,18 @@ module.exports = function(models, io, logger) {
 			}
 		});
 	};
-	
+
+	me.getTags = function(callback) {
+		var o = {
+			map: function() { 
+				if (this.entity1) { emit(this.entity1, 1); }
+				if (this.entity2) { emit(this.entity2, 1); }
+			},
+			reduce: function(k, vals) { return vals.length; }
+		}
+		models.assertion.mapReduce(o, callback);
+	};
+
 	/**
 	 * Returns a list of all indexed attributes for Assertion
 	 */

@@ -52,26 +52,16 @@ module.exports = function(models, io, logger) {
 			}, 
 			reduce: function(k, vals) { 
 				var count = 0;
-
 				for (index in vals){
 					count += vals[index]
 				}
 
 				return count;
 			},
-			out: { replace: 'tags' }
 		};
 
-		models.event_.mapReduce(o, function(err, model, stats) {
-			if (err) {
-				callback(err, []);
-			} else {
-				model.find({}).exec(function(err, docs) {
-					callback(err, docs);
-				})
-			}
-		});
-	}
+		models.event_.mapReduce(o, callback);
+	};
 
 	/**
 	 * Returns a list of indexed attributes for event_
