@@ -5,6 +5,8 @@ var ObjectId = Schema.ObjectId;
 var event_horizon = new Schema({
 	start_date: {type: Date, required: true},
 	end_date: {type: Date},		//what if end_date and range are provided
+	latestStart: {type: Date},
+	earliestEnd: {type: Date},
 	range: {type: Number}
 });
 
