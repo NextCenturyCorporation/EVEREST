@@ -9,6 +9,7 @@ var event_horizon = new Schema({
 });
 
 var place = new Schema({
+	name: {type: String, required: true},
 	latitude: {type: Number, required: true},
 	longitude: {type: Number, required: true},
 	radius: {type: Number, "default": 0, required: true}
@@ -24,7 +25,8 @@ var eventModel = {
 	event_horizon: {type: [event_horizon]},			// temporal aspect of event
 	place: {type: [place]},							// spatial aspect of event
 	tags: {type: [String]},							// tag category cloud for event
-	assertions: {type: [ObjectId]}					// collection of assertion ids that apply to this event -- structural aspect
+	assertions: {type: [ObjectId]},					// collection of assertion ids that apply to this event -- structural aspect
+	reports: {type: [ObjectId]}
 };
 
 var eventSchema = new Schema(eventModel);

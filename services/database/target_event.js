@@ -1,6 +1,6 @@
 var Bvalidator = require("../../models/target_event/bvalidator.js");
 var revalidator = require("revalidator");
-var TargetAssertionService = require("../../services/database/target_assertion.js");
+var EventAssertionService = require("../../services/database/event_assertion.js");
 //var actionEmitter = require("../action_emitter.js");
 var paramHandler = require("../list_default_handler.js");
 var async = require("async");
@@ -11,7 +11,7 @@ module.exports = function(models, io, logger) {
 
 	var services = {
 		targetEventService: me,
-		targetAssertionService: new TargetAssertionService(models, io, logger)
+		eventAssertionService: new EventAssertionService(models, io, logger)
 	};
 
 	var bvalidator = new Bvalidator(services, logger);

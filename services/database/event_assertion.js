@@ -1,4 +1,4 @@
-var Bvalidator = require("../../models/target_assertion/bvalidator.js");
+var Bvalidator = require("../../models/event_assertion/bvalidator.js");
 var revalidator = require("revalidator");
 //var actionEmitter = require("../action_emitter.js");
 var paramHandler = require("../list_default_handler.js");
@@ -6,16 +6,16 @@ var async = require("async");
 
 module.exports = function(models, io, logger) {
 	var me = this;
-	var validationModel = models.targetAssertionValidation;
+	var validationModel = models.eventAssertionValidation;
 	
 	var services = {
-		targetAssertionService: me
+		eventAssertionService: me
 	};
 
 	var bvalidator = new Bvalidator(services, logger);
 
 	/**
-	 *	Returns a list of all Target Assertions
+	 *	Returns a list of all Event Assertions
 	 */
 	me.list = function(req, callback) {
 		paramHandler.handleDefaultParams(req, function(params) {
@@ -30,11 +30,11 @@ module.exports = function(models, io, logger) {
 					}
 				};
 
-				models.targetAssertion.find(config).skip(params.offset).sort(sortObject).limit(params.count).exec(function(err, res) {
+				models.eventAssertion.find(config).skip(params.offset).sort(sortObject).limit(params.count).exec(function(err, res) {
 					callback(err, res, config);
 				});
 			} else {
-				models.targetAssertion.find({}, function(err, res) {
+				models.eventAssertion.find({}, function(err, res) {
 					callback(err, res, {});
 				});
 			}
@@ -42,13 +42,13 @@ module.exports = function(models, io, logger) {
 	};
 		
 	/**
-	 *	Returns a list of indexed attributes for Target Assertion
+	 *	Returns a list of indexed attributes for Event Assertion
 	 */
 	me.getIndexes = function(callback){
-		var keys = Object.keys(models.targetAssertion.schema.paths);
+		var keys = Object.keys(models.eventAssertion.schema.paths);
 		var indexes = ["_id"];
 		for (var i = 0; i < keys.length; i++) {
-			if (models.targetAssertion.schema.paths[keys[i]]._index) {
+			if (models.eventAssertion.schema.paths[keys[i]]._index) {
 				indexes.push(keys[i].toString());
 			}
 		}
@@ -57,11 +57,11 @@ module.exports = function(models, io, logger) {
 	};
 	
 	/**
-	 *	Returns a sorted list containing _id and createdDate for all Target Assertions
+	 *	Returns a sorted list containing _id and createdDate for all Event Assertions
 	 */
 	me.findDates = function(callback) {
-		models.targetAssertion.find({}, {_id: 0, createdDate:1}, function(err, dates) {
-			var errorMsg = new Error("Could not get Target Assertion Dates: " + err);
+		models.eventAssertion.find({}, {_id: 0, createdDate:1}, function(err, dates) {
+			var errorMsg = new Error("Could not get Event Assertion Dates: " + err);
 			if (err) {
 				callback(errorMsg);
 			} else {
@@ -84,42 +84,42 @@ module.exports = function(models, io, logger) {
 	};
 
 	/**
-	 *	Returns the number of Target Assertions that fit the specified config
+	 *	Returns the number of Event Assertions that fit the specified config
 	 */
 	me.getTotalCount = function(config, callback) {
-		models.targetAssertion.count(config, callback);
+		models.eventAssertion.count(config, callback);
 	};
 
 	/**
-	 * Returns only the fields specified in field_string for each Target Assertion
+	 * Returns only the fields specified in field_string for each Event Assertion
 	 */
 	me.listFields = function(params, field_string, callback) {
-		models.targetAssertion.find(params, field_string, callback);
+		models.eventAssertion.find(params, field_string, callback);
 	};
 
 	/**
 	 * create is a "generic" save method callable from both
-	 * request-response methods and parser-type methods for population of Target Assertion data
+	 * request-response methods and parser-type methods for population of Event Assertion data
 	 * 
-	 * saveTargetAssertion calls the validateTargetAssertion module to ensure that the
+	 * saveEventAssertion calls the validateEventAssertion module to ensure that the
 	 * data being saved to the database is complete and has integrity.
 	 * 
-	 * saveCallback takes the form function(err, valid object, Target Assertion object)
+	 * saveCallback takes the form function(err, valid object, Event Assertion object)
 	 */
 	me.create = function(data, saveCallback) {
-		me.validateTargetAssertion(data, function(valid) {
+		me.validateEventAssertion(data, function(valid) {
 			if (valid.valid) {
-				logger.info("Valid Target Assertion");
+				logger.info("Valid Event Assertion");
 				
-				var newTargetAssertion = new models.targetAssertion(data);
-				newTargetAssertion.save(function(err){
+				var newEventAssertion = new models.eventAssertion(data);
+				newEventAssertion.save(function(err){
 					if (err) {
-						logger.error("Error saving Target Assertion", err);
+						logger.error("Error saving Event Assertion", err);
 					} else {
 						//actionEmitter
 					}
 					
-					saveCallback(err, valid, newTargetAssertion);
+					saveCallback(err, valid, newEventAssertion);
 				});
 			} else {
 				saveCallback(undefined, valid, data);
@@ -128,21 +128,21 @@ module.exports = function(models, io, logger) {
 	};
 	
 	/**
-	 * validateTargetAssertion validates a Target Assertion object against the Target
-	 * Assertion semantic rules and the business rules associated with a Target Assertion
+	 * validateEventAssertion validates a Event Assertion object against the Event
+	 * Assertion semantic rules and the business rules associated with a Event Assertion
 	 *
-	 * validateTargetAssertion calls the JSON validation module revalidator and
-	 * calls the business validation module bvalidator for the Target Assertion object
+	 * validateEventAssertion calls the JSON validation module revalidator and
+	 * calls the business validation module bvalidator for the Event Assertion object
 
-	 * data is the Target Assertion object being validated
+	 * data is the Event Assertion object being validated
 	 * 
 	 * valCallback takes the form function(valid structure)
 	 */
-	me.validateTargetAssertion = function(data, valCallback) {
-		// is the JSON semantically valid for the Target Assertion object?
+	me.validateEventAssertion = function(data, valCallback) {
+		// is the JSON semantically valid for the Event Assertion object?
 		var valid = revalidator.validate(data, validationModel);
 		if (valid.valid) {
-			// does the Target Assertion object comply with business validation logic
+			// does the Event Assertion object comply with business validation logic
 			bvalidator.validate(data, function(valid) {
 				valCallback(valid);
 			});
@@ -152,10 +152,10 @@ module.exports = function(models, io, logger) {
 	};
 	
 	/**
-	 * Returns the Target Assertion object with the specified id
+	 * Returns the Event Assertion object with the specified id
 	 */
 	me.get = function(id, callback) {
-		models.targetAssertion.find({_id: id}, callback);
+		models.eventAssertion.find({_id: id}, callback);
 	};
 	
 	/**
@@ -165,21 +165,21 @@ module.exports = function(models, io, logger) {
 	 * callback takes the form function(err, docs)
 	 */
 	me.findWhere = function(config, callback) {
-		models.targetAssertion.find(config, callback);
+		models.eventAssertion.find(config, callback);
 	};
 	
 	/**
-	 * update gets the Target Assertion by the specified id then calls validateTargetAssertion
+	 * update gets the Event Assertion by the specified id then calls validateEventAssertion
 	 *
-	 * callback takes the form function(err, valid object, Target Assertion object)
+	 * callback takes the form function(err, valid object, Event Assertion object)
 	 */
 	me.update = function(id, data, updCallback) {
 		me.get(id, function(err, docs) {
 			if (err) {
-				logger.error("Error getting Target Assertion", err);
+				logger.error("Error getting Event Assertion", err);
 				updCallback(err, null, data);
 			} else if (docs[0]) {
-				docs = docs[0]; //There will only be one Target Assertion from the get
+				docs = docs[0]; //There will only be one Event Assertion from the get
 				for (var e in data) {
 					if (e !== "_id") {
 						docs[e] = data[e];
@@ -187,7 +187,7 @@ module.exports = function(models, io, logger) {
 				}
 				
 				docs.updatedDate = new Date();
-				me.validateTargetAssertion(docs, function(valid) {
+				me.validateEventAssertion(docs, function(valid) {
 					if (valid.valid) {
 						docs.save(function(err) {
 							if (err) {
@@ -201,16 +201,16 @@ module.exports = function(models, io, logger) {
 					}	
 				});	
 			} else {
-				var errorMsg = new Error("Could not find Target Assertion to update.");
+				var errorMsg = new Error("Could not find Event Assertion to update.");
 				updCallback(errorMsg, null, data);
 			}
 		});
 	};
 
 	/**
-	 * Remove all Target Assertions that match the specified config
+	 * Remove all Event Assertions that match the specified config
 	 */
 	me.del = function(config, callback) {
-		models.targetAssertion.remove(config, callback);
+		models.eventAssertion.remove(config, callback);
 	};
 };

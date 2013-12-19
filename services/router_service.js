@@ -20,6 +20,9 @@ module.exports = function(app, io, logger){
 	var Event = require('./rest/event.js');
 	new Event(app, models, io, logger);
 
+	var EventAssertion = require('./rest/event_assertion.js');
+	new EventAssertion(app, models, io, logger);
+
 	var Incident = require('./rest/incident.js');
 	new Incident(app, models, io, logger);
 
@@ -43,9 +46,6 @@ module.exports = function(app, io, logger){
 
 	var Reporter = require('./rest/reporter.js');
 	new Reporter(app, models, io, logger);
-
-	var TargetAssertion = require('./rest/target_assertion.js');
-	new TargetAssertion(app, models, io, logger);
 
 	var TargetEvent = require('./rest/target_event.js');
 	new TargetEvent(app, models, io, logger);

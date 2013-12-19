@@ -1,6 +1,6 @@
 module.exports = function(services, logger) {
 	var me = this;
-	var targetAssertionService = services.targetAssertionService;
+	var eventAssertionService = services.eventAssertionService;
 
 	me.validate = function(object, callback) {
 		var errors = [];
@@ -29,16 +29,16 @@ module.exports = function(services, logger) {
 			var property = 'name';
 			if (value !== undefined) {
 				if (found) {
-					me.error(property, value, errors, "Target Assertion " + property + " already exists.");
+					me.error(property, value, errors, "Event Assertion " + property + " already exists.");
 					logger.debug("nameExists " + value);
 				}
 			}
 			
-			me.targetAssertionExists(object, errors, function (err, found) {
+			me.eventAssertionExists(object, errors, function (err, found) {
 				var property = 'record';
 				if (found) {
-					me.error(property, value, errors, "TargetAssertion already exists.");
-					logger.debug("targetAssertionExists " + JSON.stringify(object));
+					me.error(property, value, errors, "EventAssertion already exists.");
+					logger.debug("eventAssertionExists " + JSON.stringify(object));
 				}
 				
 				done();
@@ -55,21 +55,21 @@ module.exports = function(services, logger) {
 	**/
 	me.nameExists = function (id, value, errors, callback) {
 		if (value !== undefined) {
-			targetAssertionService.findWhere({name: value}, function(err, docs) {
+			eventAssertionService.findWhere({name: value}, function(err, docs) {
 				if (err) {
-					me.error('name', value, errors, 'Error reading Target Assertion name ' + err);
-					logger.error({error : "Error getting Target Assertion " + err});
+					me.error('name', value, errors, 'Error reading Event Assertion name ' + err);
+					logger.error({error : "Error getting Event Assertion " + err});
 					callback(err, false);
 				} else if (0 !== docs.length) {
 					if (id && id.toString() === docs[0]._id.toString()) {
-						logger.debug("Target Assertion found for nameExists matching current _id" + JSON.stringify(docs));
+						logger.debug("Event Assertion found for nameExists matching current _id" + JSON.stringify(docs));
 						callback(err, false);
 					} else {
-						logger.debug("Target Assertion found for nameExists" + JSON.stringify(docs));
+						logger.debug("Event Assertion found for nameExists" + JSON.stringify(docs));
 						callback(err, true);
 					}
 				} else {
-					logger.debug("Target Assertion name not found " + value);
+					logger.debug("Event Assertion name not found " + value);
 					callback(err, false);
 				}
 			});
@@ -80,24 +80,24 @@ module.exports = function(services, logger) {
   
 
 	/**
-	 * targetAssertionExists verifies the uniqueness of the entire object.
+	 * eventAssertionExists verifies the uniqueness of the entire object.
 	 * Makes an async call to the data service to retrieve a matching object
 	 * matching against all object attributes.
 	 * If found, submits an error to the errors collection.
 	 * Returns in the callback any system error and a boolean indicating whether
-	 * or not the target assertion was found. 
+	 * or not the event assertion was found. 
 	**/
-	me.targetAssertionExists = function(object, errors, callback) {
-		targetAssertionService.findWhere(object, function(err, locs){
+	me.eventAssertionExists = function(object, errors, callback) {
+		eventAssertionService.findWhere(object, function(err, locs){
 			if (err) {
-				me.error('record', object, errors, 'Error reading Target Assertion ' + err);
-				logger.error({ error : "Error getting Target Assertion by object " + err });
+				me.error('record', object, errors, 'Error reading Event Assertion ' + err);
+				logger.error({ error : "Error getting Event Assertion by object " + err });
 				callback(err, false);
 			} else if (0 !== locs.length) {
-				logger.debug("Target Assertion found for Target Assertion exists" + JSON.stringify(locs));
+				logger.debug("Event Assertion found for Event Assertion exists" + JSON.stringify(locs));
 				callback(err, true);
 			} else {
-				logger.debug("Target Assertion not found " + JSON.stringify(object));
+				logger.debug("Event Assertion not found " + JSON.stringify(object));
 				callback(err, false);
 			}
 		});

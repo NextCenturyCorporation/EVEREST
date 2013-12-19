@@ -18,7 +18,7 @@ var relationship = new Schema({
 	class: {type: String}
 });
 
-var targetAssertionModel = {
+var eventAssertionModel = {
 	createdBy: {type: Schema.Types.ObjectId},		// value supplied by the service of the profile creating the object
 	updatedBy: {type: Schema.Types.ObjectId},		// value supplied by the service of the profile updating the object
 	createdDate: {type: Date, "default": Date.now},	// value supplied by the service
@@ -30,11 +30,11 @@ var targetAssertionModel = {
 	entity2: {type: [entity]}
 };
 
-var TargetAssertionSchema = new Schema(targetAssertionModel);
-var targetAssertion = mongoose.model('TargetAssertion', TargetAssertionSchema);
+var EventAssertionSchema = new Schema(eventAssertionModel);
+var eventAssertion = mongoose.model('EventAssertion', EventAssertionSchema);
 
 //Describe the JSON semantic validation schema
-var targetAssertionValidation = {
+var eventAssertionValidation = {
 	properties: {
 		createdDate: {
 			description: 'Date this was created in datastore',
@@ -56,5 +56,5 @@ var targetAssertionValidation = {
 	}
 };
 
-exports.targetAssertion = targetAssertion;
-exports.targetAssertionValidation = targetAssertionValidation;
+exports.eventAssertion = eventAssertion;
+exports.eventAssertionValidation = eventAssertionValidation;

@@ -25,6 +25,11 @@ var eventModel = require('./event/model.js');
 exports.event_ = eventModel.event_;
 exports.eventValidation = eventModel.eventValidation;
 
+//target_assertion
+var eventAssertionModel = require('./event_assertion/model.js');
+exports.eventAssertion = eventAssertionModel.eventAssertion;
+exports.eventAssertionValidation = eventAssertionModel.eventAssertionValidation;
+
 //incident
 var incidentModel = require('./incident/model.js');
 exports.incident = incidentModel.incident;
@@ -54,11 +59,6 @@ exports.reportValidation = reportModel.reportValidation;
 var reporterModel = require('./reporter/model.js');
 exports.reporter = reporterModel.reporter;
 exports.reporterValidation = reporterModel.reporterValidation;
-
-//target_assertion
-var targetAssertionModel = require('./target_assertion/model.js');
-exports.targetAssertion = targetAssertionModel.targetAssertion;
-exports.targetAssertionValidation = targetAssertionModel.targetAssertionValidation;
 
 //target_event
 var targetEventModel = require('./target_event/model.js');
