@@ -28,6 +28,9 @@ module.exports = function(serviceList, io ,logger){
 		io.sockets.to('EVEREST.data.workflow').emit('item_saved', {type: 'AlphaReport', eventObject: obj});
 		logger.debug('Emitted socket with item_saved for AlphaReport');
 		serviceList.NlpParserAsync.parseAndSave.callWithAllArgs(arguments);
+		console.log(serviceList);
+		console.log(arguments);
+		serviceList.AlphaReportToTags.addTags.callWithAllArgs(arguments);
 	};
 
 	this.saveAssertionEventHandler = function() {

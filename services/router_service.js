@@ -47,6 +47,9 @@ module.exports = function(app, io, logger){
 	var Reporter = require('./rest/reporter.js');
 	new Reporter(app, models, io, logger);
 
+	var Tag = require('./rest/tag.js');
+	new Tag(app, models, io, logger);
+
 	var TargetEvent = require('./rest/target_event.js');
 	new TargetEvent(app, models, io, logger);
 	

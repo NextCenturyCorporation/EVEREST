@@ -45,23 +45,44 @@ module.exports = function(models, io, logger) {
 	me.getTags = function(callback) {
 		var o = {
 			map : function () { 
-				if (!this.message_body) { return; }
-				var words = this.message_body.split(' ');
+				if (!this.message_body || !this._id) { return; }
+				var stripped = this.message_body.replace(/[\.,!$%\^&\*;:{}=`~()\[\]\"]/g, '');
+				stripped = stripped.replace(/[\n\t]/g, ' ');
+				var words = stripped.split(' ');
 				for (index in words) {
-					emit( words[index], 1);
+					if ( words[index] !== '') {
+						var value = {
+							reports: [{_id: this._id, type: 'alpha report'}],
+							count: 1
+						};
+						emit( words[index].toLowerCase(), value );
+					}
 				}
 			}, 
 			reduce: function(k, vals) { 
-				var count = 0;
-				for (index in vals){
-					count += vals[index]
+				var reducedObject = {
+					reports: [],
+					count: 0
+				};
+
+				for (index in vals) {
+					reducedObject.count += vals[index].count;
+					var ids = reducedObject.reports.map(function(r) { return r._id });
+					if (ids.indexOf(vals[index].reports[0]) === -1) {
+						reducedObject.reports.push(vals[index].reports[0]);
+					}
 				}
 
-				return count;
+				return reducedObject;
 			},
+			out: {
+				replace: 'tags'
+			}
 		};
 
-		models.alphaReport.mapReduce(o, callback);
+		models.alphaReport.mapReduce(o, function(err, model, stats) {
+			model.find().exec(callback)
+		});
 	};
 
 	/**
