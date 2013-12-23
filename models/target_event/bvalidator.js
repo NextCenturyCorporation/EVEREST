@@ -24,7 +24,7 @@ module.exports = function(services, logger) {
 		name: "Name value is incorrect",
 		description: "Description value is incorrect",
 		record: "There is a record-level error",
-		assertion: "A target Assertion does not exist"
+		assertion: "An Event Assertion does not exist"
 	};
 	
 	me.validateObject = function(object, errors, done) {
@@ -47,11 +47,11 @@ module.exports = function(services, logger) {
 				}
 				
 				value = object.assertions;
-				me.targetAssertionsExist( value, errors, function (err, found) {
+				me.eventAssertionsExist( value, errors, function (err, found) {
 					var property = 'assertions';
 					if (!found) {
-						me.error(property, value, errors, "Target Assertions are invalid.");
-						logger.debug("Target Assertions do not exist " + value);
+						me.error(property, value, errors, "Event Assertions are invalid.");
+						logger.debug("Event Assertions do not exist " + value);
 					}
 					
 					done();
@@ -114,13 +114,14 @@ module.exports = function(services, logger) {
 			}
 		});
 	};
+
 	/**
-	 * targetAssertionExists verifies that the value supplied points to
+	 * eventAssertionExists verifies that the value supplied points to
 	 * a valid Target Assertion 
 	 * Returns in the callback any system error and a boolean indicating whether
 	 * or not the target_assertion_id was found
 	 */
-	me.targetAssertionsExist = function(values, errors, callback){
+	me.eventAssertionsExist = function(values, errors, callback){
 		if (typeof(values) === 'undefined' || values.length < 1) {
 			callback(undefined, true);
 		} else {

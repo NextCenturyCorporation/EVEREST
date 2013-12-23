@@ -60,6 +60,11 @@ var reporterModel = require('./reporter/model.js');
 exports.reporter = reporterModel.reporter;
 exports.reporterValidation = reporterModel.reporterValidation;
 
+//tag
+var tagModel = require('./tag/model.js');
+exports.tag = tagModel.tag;
+exports.tagValidation = tagModel.tagValidation;
+
 //target_event
 var targetEventModel = require('./target_event/model.js');
 exports.targetEvent = targetEventModel.targetEvent;
