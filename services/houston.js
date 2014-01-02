@@ -112,7 +112,7 @@ Houston = {
      * @throws {String} a string error message
      *                  if the module name is falsey,
      *                  the module object is falsey, or
-     *                  the module name has already been registered.
+     *                  the module name has already been registered
      *
      * @example
      * Houston.registerModule('exampleModule', {
@@ -217,6 +217,8 @@ Houston = {
      *                                    element is the event which happened
      *                                    right before the current event.
      * @returns {Houston} the Houston object for method chaining
+     * @throws {String} a string error message
+     *                  if Houston cannot find a module or method
      *
      * @example
      * Houston.trigger('helloHouston', {
@@ -355,6 +357,8 @@ Houston = {
          * @param {String} [rule.returnEvent] the name of the event to trigger
          *                                    as soon as the method returns
          *                                    a value
+         * @throws {String} a string error message
+         *                  if Houston cannot find a module or method
          */
         evaluateRule = function(event, rule) {
             /*      *\
@@ -385,18 +389,19 @@ Houston = {
             eventData = event.eventData;
             eventNameStack = event.eventNameStack;
             // Grab the module name and look it up in the module dictionary.
-            // If we can't find anything, stop here!
+            // If we can't find anything, panic!
             moduleName = rule.module;
             module = modules[moduleName];
             if (!module) {
-                return;
+                throw 'Houston cannot find module "' + moduleName + '"';
             }
             // Grab the method name and look it up in the module.
-            // If we can't find anything, stop here!
+            // If we can't find anything, panic!
             methodName = rule.method;
             method = module[methodName];
             if (!method || typeof(method) !== 'function') {
-                return;
+                throw 'Houston cannot find method "' + moduleName +
+                      '.' + methodName + '"';
             }
             // Grab the return event name.
             returnEventName = rule.returnEvent;
