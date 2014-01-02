@@ -1,13 +1,17 @@
-//------------
-// houston.js
-//------------
-// a composable event engine for mediating
-// the interactions between node.js modules
+/**
+ * @fileOverview Houston.js is a composable event engine
+ *               for mediating the interactions between node.js modules.
+ * @author Next Century Corporation
+ * @version 0.0.2
+ */
 
 /*                     *\
 | module-wide variables |
 \*                     */
 
+/**
+ * @namespace
+ */
 var Houston;
 
 /*                         *\
@@ -24,10 +28,18 @@ Houston = {
     | member variables |
     \*                */
 
-    // the module dictionary which holds all the modules
+    /**
+     * the module dictionary which holds all the modules
+     * @type Object
+     * @private
+     */
     modules: {},
 
-    // the ruleset dictionary which holds all the rules
+    /**
+     * the ruleset dictionary which holds all the rules
+     * @type Object
+     * @private
+     */
     ruleset: {
         'onTwitter': {
             rules: [
@@ -91,16 +103,46 @@ Houston = {
     | methods |
     \*       */
 
-    // This function takes...
-    // (1) a module name
-    // (2) a module object
-    // and registers the module name and module object with Houston.
-    // This function throws an exception if...
-    // (1) the module name does not exist
-    // (2) the module object does not exist
-    // (3) the module name has already been registered
-    // This function returns a reference to the Houston object
-    // so that you can chain together calls to the Houston object.
+    /**
+     * Registers a module object with Houston.
+     * @param {String} moduleName the name Houston will associate
+     *                            with the module object
+     * @param {Object} moduleObject the module object
+     * @returns {Houston} the Houston object for method chaining
+     * @throws {String} a string error message
+     *                  if the module name is falsey,
+     *                  the module object is falsey, or
+     *                  the module name has already been registered.
+     *
+     * @example
+     * Houston.registerModule('exampleModule', {
+     *     exampleMethod: function(event) {
+     *         // An event has three properties.
+     *         console.log(event.eventName); // the current event name
+     *         console.log(event.eventData); // the current event data
+     *         console.log(event.eventNameStack); // the previous event names
+     *         // An event also has a chainable method called trigger
+     *         // for triggering additional events.
+     *         event.trigger('helloHouston', {
+     *             message: 'Hello, Houston!'
+     *         })
+     *         .trigger('goodbyeHouston', {
+     *             message: 'Goodbye, Houston!'
+     *         });
+     *     }
+     * })
+     * .registerModule('anotherExampleModule', {
+     *     exampleMethod: function(event) {
+     *         // If the ruleset specifies a return event, as soon as
+     *         // this method returns, the return event will be triggered.
+     *         // The return value of this method will serve as the event data
+     *         // for the return event.
+     *         return {
+     *             message: 'Thanks, Houston!'
+     *         };
+     *     }
+     * });
+     */
     registerModule: function(moduleName, moduleObject) {
         /*      *\
         | locals |
@@ -112,55 +154,84 @@ Houston = {
         /*          *\
         | end locals |
         \*          */
-        // No module?
+        // Safeguard against falsey parameters.
         if (!moduleName) {
-            throw 'module name does not exist';
+            throw 'no module name';
         }
-        // No module object?
         if (!moduleObject) {
-            throw 'module object does not exist';
+            throw 'no module object';
         }
         // Grab the module dictionary and look up the module name in it.
+        // Make sure the module name has not already been taken.
         modules = this.modules;
         previouslyRegisteredModuleObject = modules[moduleName];
-        // The module name has already been taken?
         if (previouslyRegisteredModuleObject) {
             throw 'module name "' + moduleName + '" has already been taken';
         }
         // Register the module name and module object with Houston.
         modules[moduleName] = moduleObject;
 
+        // Support method chaining.
         return this;
     },
 
-    // This function takes...
-    // - a module name
-    // and returns whether or not the module name is
-    // currently registered with Houston.
+    /**
+     * Determines whether or not a module name is registered with Houston.
+     * @param {String} moduleName the module name
+     * @returns {boolean} whether or not the module name is registered
+     *                    with Houston
+     */
     hasModule: function(moduleName) {
         return this.modules.hasOwnProperty(moduleName);
     },
 
-    // This function takes...
-    // - a module name
-    // and unregisters that module name from Houston.
-    // If the module name was never registered with Houston in the first place,
-    // this function will effectively do nothing.
-    // This function returns a reference to the Houston object
-    // so that you can chain together calls to the Houston object.
+    /**
+     * Unregisters a module name and its associated module object from Houston.
+     * If the module name was never registered with Houston in the first place,
+     * this function will effectively do nothing.
+     * @param {String} moduleName the module name
+     * @returns {Houston} the Houston object for method chaining
+     */
     unregisterModule: function(moduleName) {
         delete this.modules[moduleName];
+
+        // Support method chaining.
         return this;
     },
 
-    // This function takes...
-    // (1) an event name
-    // (2) event data
-    // and asynchronously propagates the event throughout Houston.
-    // This is pretty much the main entry point to Houston.
-    // This function returns a reference to the Houston object
-    // so that you can chain together calls to the Houston object.
-    trigger: function(eventName, eventData) {
+    /**
+     * Triggers an event.
+     * Houston will asynchronously propagate the event based upon
+     * its modules and ruleset.
+     * @param {String} eventName the event name
+     * @param {Object} eventData the event data
+     * @param {String[]} [eventNameStack] This optional parameter allows you
+     *                                    to "fool" Houston into thinking that
+     *                                    a brand new event has a rich history
+     *                                    of prior events.
+     *                                    Houston keeps track of the chain of
+     *                                    events in an array of strings called
+     *                                    the event name stack.
+     *                                    The first element in the array is
+     *                                    the very first event, and the last
+     *                                    element is the event which happened
+     *                                    right before the current event.
+     * @returns {Houston} the Houston object for method chaining
+     *
+     * @example
+     * Houston.trigger('helloHouston', {
+     *     message: 'Hello, Houston!'
+     * })
+     * .trigger('goodbyeHouston', {
+     *     message: 'Goodbye, Houston!'
+     * })
+     * .trigger('currentEvent', {
+     *     message: 'Fooling Houston!'
+     * }, [
+     *     'previousEvent'
+     * ]);
+     */
+    trigger: function(eventName, eventData, eventNameStack) {
         /*      *\
         | locals |
         \*      */
@@ -183,10 +254,17 @@ Houston = {
         | closures |
         \*        */
 
-        // This function takes...
-        // - an event
-        // and asynchronously propagates it throughout Houston.
-        // This function returns nothing.
+        /**
+         * Asynchronously propagates an event.
+         * Beware, this function uses a fair amount of recursion.
+         * This function calls evaluateRules and evaluatePreviousEvents.
+         * In turn, evaluatePreviousEvents calls itself and evaluateRules.
+         * In turn, evaluateRules calls evaluateRule which calls propagate.
+         * @param {Object} event the event
+         * @param {String} event.eventName the event name
+         * @param {Object} event.eventData the event data
+         * @param {String[]} event.eventNameStack the previous events
+         */
         propagate = function(event) {
             /*      *\
             | locals |
@@ -203,19 +281,18 @@ Houston = {
             | end locals |
             \*          */
             // Grab the event name and look it up in the ruleset dictionary.
+            // If we can't find anything, stop here!
             eventName = event.eventName;
             rulesetForEvent = ruleset[eventName];
-            // No ruleset for the event?
             if (!rulesetForEvent) {
-                // Stop!
                 return;
             }
             // From the ruleset for the event,
             // grab the rules and the previous events.
             rulesFromRuleset = rulesetForEvent.rules;
             previousEventsFromRuleset = rulesetForEvent.previousEvents;
-            // Asynchronously evaluate the rules and the previous events
-            // if needed.
+            // If needed, asynchronously evaluate
+            // the rules and the previous events.
             if (rulesFromRuleset && rulesFromRuleset.length > 0) {
                 setTimeout(
                     function() {
@@ -230,7 +307,7 @@ Houston = {
                         evaluatePreviousEvents(
                             event,
                             previousEventsFromRuleset,
-                            0
+                            0 // the stack offset must start at 0
                         );
                     },
                     0
@@ -238,11 +315,14 @@ Houston = {
             }
         };
 
-        // This function takes...
-        // (1) an event
-        // (2) rules
-        // and evaluates the rules.
-        // This function returns nothing.
+        /**
+         * Evaluates an array of rules.
+         * @param {Object} event the event
+         * @param {String} event.eventName the event name
+         * @param {Object} event.eventData the event data
+         * @param {String[]} event.eventNameStack the previous events
+         * @param {Object[]} rules the rules
+         */
         evaluateRules = function(event, rules) {
             /*      *\
             | locals |
@@ -256,20 +336,26 @@ Houston = {
             /*          *\
             | end locals |
             \*          */
-            // Loop through the rules.
             numRules = rules.length;
             for (i = 0; i < numRules; i++) {
-                // Grab the current rule and evaluate it.
                 rule = rules[i];
                 evaluateRule(event, rule);
             }
         };
 
-        // This function takes...
-        // (1) an event
-        // (2) a rule
-        // and asynchronously evaluates the rule.
-        // This function returns nothing.
+        /**
+         * Asynchronously evaluates a rule.
+         * @param {Object} event the event
+         * @param {String} event.eventName the event name
+         * @param {Object} event.eventData the event data
+         * @param {String[]} event.eventNameStack the previous events
+         * @param {Object} rule the rule
+         * @param {String} rule.module the module name
+         * @param {String} rule.method the method name
+         * @param {String} [rule.returnEvent] the name of the event to trigger
+         *                                    as soon as the method returns
+         *                                    a value
+         */
         evaluateRule = function(event, rule) {
             /*      *\
             | locals |
@@ -278,17 +364,17 @@ Houston = {
             var eventName;
             // the event data
             var eventData;
-            // the list of the previous event names in the chain of events
+            // the previous event names
             var eventNameStack;
-            // the name of the module to execute
+            // the module name
             var moduleName;
-            // the module to execute
+            // the module
             var module;
-            // the name of the method to execute
+            // the method name
             var methodName;
-            // the method to execute
+            // the method
             var method;
-            // the name of the event to propagate
+            // the name of the event to trigger
             // as soon as the method returns a value
             var returnEventName;
             /*          *\
@@ -299,19 +385,17 @@ Houston = {
             eventData = event.eventData;
             eventNameStack = event.eventNameStack;
             // Grab the module name and look it up in the module dictionary.
+            // If we can't find anything, stop here!
             moduleName = rule.module;
             module = modules[moduleName];
-            // No module?
             if (!module) {
-                // Stop!
                 return;
             }
             // Grab the method name and look it up in the module.
+            // If we can't find anything, stop here!
             methodName = rule.method;
             method = module[methodName];
-            // No method?
             if (!method || typeof(method) !== 'function') {
-                // Stop!
                 return;
             }
             // Grab the return event name.
@@ -322,34 +406,36 @@ Houston = {
                     /*      *\
                     | locals |
                     \*      */
+                    // the return value
                     var returnValue;
                     /*          *\
                     | end locals |
                     \*          */
                     // Call the method.
-                    // Make sure the module is the "this" pointer.
+                    // Make sure the module is the "this" pointer of
+                    // the method call.
                     // Pass a safe copy of the event object to the method.
-                    // Add an extra trigger function to the event object
-                    // so that the method can asynchronously propagate
-                    // new events as they happen.
+                    // Add an extra chainable trigger method to the event object
+                    // so that the method can trigger additional events.
                     returnValue = method.call(module, {
                         eventName: eventName,
                         eventData: eventData,
                         eventNameStack: eventNameStack,
                         trigger: function(newEventName, newEventData) {
-                            // Asynchronously propagate
-                            // the new event throughout Houston.
+                            // Asynchronously propagate the new event.
                             propagate({
                                 eventName: newEventName,
                                 eventData: newEventData,
                                 eventNameStack: eventNameStack.concat(eventName)
                             });
+
+                            // Support method chaining.
+                            return this;
                         }
                     });
-                    // There's a return event name?
+                    // If there's a return event name,
+                    // asynchronously propagate the return event.
                     if (returnEventName) {
-                        // Asynchronously propagate
-                        // the return event throughout Houston.
                         propagate({
                             eventName: returnEventName,
                             eventData: returnValue,
@@ -361,28 +447,33 @@ Houston = {
             );
         };
 
-        // This function takes...
-        // (1) an event
-        // (2) the previous events
-        //     (This is a highly recursive structure which holds
-        //      rules which should only be evaluated after
-        //      a specific sequence of events has occurred.)
-        // (3) an offset from the last event name in the event name stack
-        //     (This offset starts at 0 and increases
-        //      with each recursive call.)
-        // and evaluates the previous events.
-        // This function returns nothing.
+        /**
+         * Evaluates a dictionary of previous events.
+         * Beware, this function calls itself.
+         * @param {Object} event the event
+         * @param {String} event.eventName the event name
+         * @param {Object} event.eventData the event data
+         * @param {String[]} event.eventNameStack the previous events
+         * @param {Object} previousEvents This is a recursive dictionary
+         *                                which holds rules which should
+         *                                only be evaluated after a specific
+         *                                sequence of events has occurred.
+         * @param {number} stackOffset This is an integer offset from
+         *                             the last event in the event name stack.
+         *                             It must start at 0 and increase with each
+         *                             recursive call.
+         */
         evaluatePreviousEvents = function(event, previousEvents, stackOffset) {
             /*      *\
             | locals |
             \*      */
             // the name of the event
             var eventName;
-            // the list of the previous event names in the chain of events
+            // the previous event names
             var eventNameStack;
             // the number of previous event names
             var numEventNames;
-            // the index into the list of previous event names
+            // the index into the array of previous event names
             var i;
             // the current previous event name
             var previousEventName;
@@ -395,20 +486,19 @@ Houston = {
             /*          *\
             | end locals |
             \*          */
-            // Grab the event name and the event name stack.
+            // Grab the event name, the event name stack, and
+            // the number of previous event names.
             eventName = event.eventName;
             eventNameStack = event.eventNameStack;
-            // Grab the number of previous event names.
             numEventNames = eventNameStack.length;
-            // Start the index at the last event name
-            // in the event name stack minus the stack offset.
+            // Start the index at the last event name minus the stack offset and
+            // loop it down to 0.
             i = numEventNames - 1 - stackOffset;
-            // Loop the index down to 0.
             while (i >= 0) {
-                // Grab the current previous event name.
+                // Grab the current previous event name and check whether
+                // the current previous event name is one of the previous events
+                // we are looking for.
                 previousEventName = eventNameStack[i];
-                // The current previous event name is one of the previous events
-                // we are looking for?
                 if (previousEvents.hasOwnProperty(previousEventName)) {
                     // Grab the ruleset for the previous event, the rules, and
                     // the previous events.
@@ -416,7 +506,7 @@ Houston = {
                     rulesFromRuleset = rulesetForPreviousEvent.rules;
                     previousEventsFromRuleset =
                         rulesetForPreviousEvent.previousEvents;
-                    // Evaluate the rules and the previous events if needed.
+                    // If needed, evaluate the rules and the previous events.
                     // Make sure to update the stack offset.
                     // The stack offset should equal
                     // the number of previous event names minus the index.
@@ -431,7 +521,6 @@ Houston = {
                         );
                     }
                 }
-                // Decrement the index.
                 i--;
             }
         };
@@ -440,18 +529,17 @@ Houston = {
         | end closures |
         \*            */
 
-        // Grab...
-        // (1) the module dictionary
-        // (2) the ruleset dictionary
+        // Grab the module dictionary and the ruleset dictionary, and
+        // asynchronously propagate the event.
         modules = this.modules;
         ruleset = this.ruleset;
-        // Asynchronously propagate the event throughout Houston.
         propagate({
             eventName: eventName,
             eventData: eventData,
-            eventNameStack: []
+            eventNameStack: eventNameStack || []
         });
 
+        // Support method chaining.
         return this;
     }
 
@@ -464,6 +552,16 @@ Houston = {
 /*                              *\
 | end creation of Houston object |
 \*                              */
+
+/*       *\
+| exports |
+\*       */
+
+module.exports = Houston;
+
+/*           *\
+| end exports |
+\*           */
 
 /*                      *\
 | simple test of Houston |
