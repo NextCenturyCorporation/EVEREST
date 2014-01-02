@@ -40,60 +40,7 @@ Houston = {
      * @type Object
      * @private
      */
-    ruleset: {
-        'onTwitter': {
-            rules: [
-                {
-                    module: 'Parser',
-                    method: 'parse'
-                }
-            ]
-        },
-        'onRSS': {
-            rules: [
-                {
-                    module: 'Parser',
-                    method: 'parse'
-                }
-            ]
-        },
-        'onParsed': {
-            previousEvents: {
-                'onTwitter': {
-                    rules: [
-                        {
-                            module: 'TwitterCounter',
-                            method: 'count'
-                        }
-                    ]
-                },
-                'onRSS': {
-                    rules: [
-                        {
-                            module: 'RSSCounter',
-                            method: 'count'
-                        }
-                    ]
-                }
-            }
-        },
-        'onTwitterCounted': {
-            previousEvents: {
-                'onParsed': {
-                    previousEvents: {
-                        'onTwitter': {
-                            rules: [
-                                {
-                                    module: 'FinalTwitter',
-                                    method: 'final'
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        }
-    },
+    ruleset: {},
 
     /*                    *\
     | end member variables |
@@ -188,6 +135,181 @@ Houston = {
      */
     unregisterModule: function(moduleName) {
         delete this.modules[moduleName];
+
+        // Support method chaining.
+        return this;
+    },
+
+    /**
+     * Merges a new ruleset dictionary into Houston's master ruleset dictionary.
+     * @param {Object} newRuleset the new ruleset dictionary
+     * @returns {Houston} the Houston object for method chaining
+     */
+    addRuleset: function(newRuleset) {
+        /*      *\
+        | locals |
+        \*      */
+
+        // the master ruleset
+        var masterRuleset;
+        // the closures
+        var mergeRulesets;
+        var areSameRule;
+
+        /*          *\
+        | end locals |
+        \*          */
+
+        /*        *\
+        | closures |
+        \*        */
+
+        /**
+         * Merges a new ruleset dictionary into a master ruleset dictionary.
+         * Beware, this function calls itself.
+         * @param {Object} masterRuleset the master ruleset dictionary
+         * @param {Object} newRuleset the new ruleset dictionary
+         */
+        mergeRulesets = function(masterRuleset, newRuleset) {
+            /*      *\
+            | locals |
+            \*      */
+            // the current event name
+            var eventName;
+            // the ruleset for the current event in the new ruleset
+            var newRulesetForEvent;
+            // the ruleset for the current event in the master ruleset
+            var masterRulesetForEvent;
+            // the rules from the new ruleset
+            var newRules;
+            // the rules from the master ruleset
+            var masterRules;
+            // the number of rules from the new ruleset
+            var numNewRules;
+            // the number of rules from the master ruleset
+            var numMasterRules;
+            // loop variable
+            var i;
+            // the current rule from the new ruleset
+            var newRule;
+            // loop variable
+            var j;
+            // the current rule from the master ruleset
+            var masterRule;
+            // whether the current rule from the new ruleset is a duplicate
+            // of the current rule from the master ruleset
+            var duplicateRule;
+            // the previous events for the new ruleset
+            var newPreviousEvents;
+            // the previous events for the master ruleset
+            var masterPreviousEvents;
+            /*          *\
+            | end locals |
+            \*          */
+            // Loop through the events in the new ruleset using
+            // the for-in-has-own-property trick.
+            for (eventName in newRuleset) {
+                if (newRuleset.hasOwnProperty(eventName)) {
+                    // Grab the new ruleset for the event.
+                    newRulesetForEvent = newRuleset[eventName];
+                    // The event is already defined
+                    // in the master ruleset?
+                    if (masterRuleset.hasOwnProperty(eventName)) {
+                        // Grab the master ruleset for the event.
+                        masterRulesetForEvent = masterRuleset[eventName];
+                        //--------------------------------------------
+                        // Merge the new rules into the master rules.
+                        //--------------------------------------------
+                        // Grab the new and master rules.
+                        // Default the master rules to an empty array.
+                        newRules = newRulesetForEvent.rules;
+                        masterRules = masterRulesetForEvent.rules || [];
+                        // There are new rules?
+                        if (newRules) {
+                            // Grab the number of new rules and
+                            // the number of master rules.
+                            numNewRules = newRules.length;
+                            numMasterRules = masterRules.length;
+                            // Loop through the new rules.
+                            for (i = 0; i < numNewRules; i++) {
+                                newRule = newRules[i];
+                                // Loop through the master rules.
+                                for (j = 0; j < numMasterRules; j++) {
+                                    masterRule = masterRules[j];
+                                    // Determine whether the new rule is
+                                    // a duplicate of the master rule.
+                                    duplicateRule =
+                                        areSameRule(masterRule, newRule);
+                                    // Add the new rule to the master rules
+                                    // only if it's not a duplicate.
+                                    if (!duplicateRule) {
+                                        masterRules.push(newRule);
+                                    }
+                                }
+                            }
+                            // Update the master ruleset for the event.
+                            masterRulesetForEvent.rules = masterRules;
+                        }
+                        //------------------------------------
+                        // Merge the new previous events into
+                        // the master events.
+                        //------------------------------------
+                        // Grab the new and master previous events.
+                        newPreviousEvents = newRulesetForEvent.previousEvents;
+                        masterPreviousEvents =
+                            masterRulesetForEvent.previousEvents;
+                        // If needed, recursively merge the new previous events
+                        // into the master events.
+                        if (newPreviousEvents) {
+                            mergeRulesets(
+                                masterPreviousEvents,
+                                newPreviousEvents
+                            );
+                        }
+                    }
+                    // Else?
+                    else {
+                        // Add the new event to the master ruleset.
+                        masterRuleset[eventName] = newRulesetForEvent;
+                    }
+                }
+            }
+        };
+
+        /**
+         * Determines whether or not two rules are the same rule.
+         * @param {Object} firstRule the first rule
+         * @param {String} firstRule.module the module name for the first rule
+         * @param {String} firstRule.method the method name for the first rule
+         * @param {Object} secondRule the second rule
+         * @param {String} secondRule.module the module name for the second rule
+         * @param {String} secondRule.method the method name for the second rule
+         * @return {boolean} whether or not the two rules are the same rule
+         */
+        areSameRule = function(firstRule, secondRule) {
+            return firstRule.module === secondRule.module &&
+                   firstRule.method === secondRule.method;
+        };
+
+        /*            *\
+        | end closures |
+        \*            */
+
+        // Grab the master ruleset and recursively merge
+        // the new ruleset into it.
+        masterRuleset = this.ruleset;
+        mergeRulesets(masterRuleset, newRuleset);
+
+        // Support method chaining.
+        return this;
+    },
+
+    /**
+     * Clears Houston's master ruleset dictionary.
+     * @returns {Houston} the Houston object for method chaining
+     */
+    clearRuleset: function() {
+        this.ruleset = {};
 
         // Support method chaining.
         return this;
@@ -570,6 +692,61 @@ Houston.registerModule('FinalTwitter', {
         console.log('Entering FinalTwitter.final');
         console.log(event);
         console.log('Leaving FinalTwitter.final');
+    }
+});
+
+Houston.addRuleset({
+    'onTwitter': {
+        rules: [
+            {
+                module: 'Parser',
+                method: 'parse'
+            }
+        ]
+    },
+    'onRSS': {
+        rules: [
+            {
+                module: 'Parser',
+                method: 'parse'
+            }
+        ]
+    },
+    'onParsed': {
+        previousEvents: {
+            'onTwitter': {
+                rules: [
+                    {
+                        module: 'TwitterCounter',
+                        method: 'count'
+                    }
+                ]
+            },
+            'onRSS': {
+                rules: [
+                    {
+                        module: 'RSSCounter',
+                        method: 'count'
+                    }
+                ]
+            }
+        }
+    },
+    'onTwitterCounted': {
+        previousEvents: {
+            'onParsed': {
+                previousEvents: {
+                    'onTwitter': {
+                        rules: [
+                            {
+                                module: 'FinalTwitter',
+                                method: 'final'
+                            }
+                        ]
+                    }
+                }
+            }
+        }
     }
 });
 
