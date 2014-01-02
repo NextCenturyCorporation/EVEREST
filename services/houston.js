@@ -133,13 +133,7 @@ Houston = {
      * })
      * .registerModule('anotherExampleModule', {
      *     exampleMethod: function(event) {
-     *         // If the ruleset specifies a return event, as soon as
-     *         // this method returns, the return event will be triggered.
-     *         // The return value of this method will serve as the event data
-     *         // for the return event.
-     *         return {
-     *             message: 'Thanks, Houston!'
-     *         };
+     *         event.trigger('Method chaining is fun!');
      *     }
      * });
      */
@@ -354,9 +348,6 @@ Houston = {
          * @param {Object} rule the rule
          * @param {String} rule.module the module name
          * @param {String} rule.method the method name
-         * @param {String} [rule.returnEvent] the name of the event to trigger
-         *                                    as soon as the method returns
-         *                                    a value
          * @throws {String} a string error message
          *                  if Houston cannot find a module or method
          */
@@ -378,9 +369,6 @@ Houston = {
             var methodName;
             // the method
             var method;
-            // the name of the event to trigger
-            // as soon as the method returns a value
-            var returnEventName;
             /*          *\
             | end locals |
             \*          */
@@ -403,26 +391,16 @@ Houston = {
                 throw 'Houston cannot find method "' + moduleName +
                       '.' + methodName + '"';
             }
-            // Grab the return event name.
-            returnEventName = rule.returnEvent;
             // Asynchronously...
             setTimeout(
                 function() {
-                    /*      *\
-                    | locals |
-                    \*      */
-                    // the return value
-                    var returnValue;
-                    /*          *\
-                    | end locals |
-                    \*          */
                     // Call the method.
                     // Make sure the module is the "this" pointer of
                     // the method call.
                     // Pass a safe copy of the event object to the method.
                     // Add an extra chainable trigger method to the event object
                     // so that the method can trigger additional events.
-                    returnValue = method.call(module, {
+                    method.call(module, {
                         eventName: eventName,
                         eventData: eventData,
                         eventNameStack: eventNameStack,
@@ -438,15 +416,6 @@ Houston = {
                             return this;
                         }
                     });
-                    // If there's a return event name,
-                    // asynchronously propagate the return event.
-                    if (returnEventName) {
-                        propagate({
-                            eventName: returnEventName,
-                            eventData: returnValue,
-                            eventNameStack: eventNameStack.concat(eventName)
-                        });
-                    }
                 },
                 0
             );
