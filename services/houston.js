@@ -127,6 +127,16 @@ Houston = {
     },
 
     /**
+     * Retrieves a module object registered with Houston.
+     * @param {String} moduleName the module name
+     * @returns {(Object|undefined)} the module object or
+     *                               undefined if Houston cannot find it
+     */
+    getModule: function(moduleName) {
+        return this.modules[moduleName];
+    },
+
+    /**
      * Unregisters a module name and its associated module object from Houston.
      * If the module name was never registered with Houston in the first place,
      * this function will effectively do nothing.
