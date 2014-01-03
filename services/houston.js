@@ -1,8 +1,8 @@
 /**
- * @fileOverview Houston.js is a composable event engine
+ * @fileOverview houston.js is a composable event engine
  *               for mediating the interactions between node.js modules.
  * @author Next Century Corporation
- * @version 0.0.2
+ * @version 0.0.3
  */
 
 /*                     *\
@@ -164,7 +164,7 @@ Houston = {
         var masterRuleset;
         // the closures
         var mergeRulesets;
-        var areSameRule;
+        var areSameAction;
 
         /*          *\
         | end locals |
@@ -190,25 +190,25 @@ Houston = {
             var newRulesetForEvent;
             // the ruleset for the current event in the master ruleset
             var masterRulesetForEvent;
-            // the rules from the new ruleset
-            var newRules;
-            // the rules from the master ruleset
-            var masterRules;
-            // the number of rules from the new ruleset
-            var numNewRules;
-            // the number of rules from the master ruleset
-            var numMasterRules;
+            // the actions from the new ruleset
+            var newActions;
+            // the actions from the master ruleset
+            var masterActions;
+            // the number of actions from the new ruleset
+            var numNewActions;
+            // the number of actions from the master ruleset
+            var numMasterActions;
             // loop variable
             var i;
-            // the current rule from the new ruleset
-            var newRule;
+            // the current action from the new ruleset
+            var newAction;
             // loop variable
             var j;
-            // the current rule from the master ruleset
-            var masterRule;
-            // whether the current rule from the new ruleset is a duplicate
-            // of the current rule from the master ruleset
-            var duplicateRule;
+            // the current action from the master ruleset
+            var masterAction;
+            // whether the current action from the new ruleset is a duplicate
+            // of the current action from the master ruleset
+            var duplicateAction;
             // the previous events for the new ruleset
             var newPreviousEvents;
             // the previous events for the master ruleset
@@ -227,38 +227,38 @@ Houston = {
                     if (masterRuleset.hasOwnProperty(eventName)) {
                         // Grab the master ruleset for the event.
                         masterRulesetForEvent = masterRuleset[eventName];
-                        //--------------------------------------------
-                        // Merge the new rules into the master rules.
-                        //--------------------------------------------
-                        // Grab the new and master rules.
-                        // Default the master rules to an empty array.
-                        newRules = newRulesetForEvent.rules;
-                        masterRules = masterRulesetForEvent.rules || [];
-                        // There are new rules?
-                        if (newRules) {
-                            // Grab the number of new rules and
-                            // the number of master rules.
-                            numNewRules = newRules.length;
-                            numMasterRules = masterRules.length;
-                            // Loop through the new rules.
-                            for (i = 0; i < numNewRules; i++) {
-                                newRule = newRules[i];
-                                // Loop through the master rules.
-                                for (j = 0; j < numMasterRules; j++) {
-                                    masterRule = masterRules[j];
-                                    // Determine whether the new rule is
-                                    // a duplicate of the master rule.
-                                    duplicateRule =
-                                        areSameRule(masterRule, newRule);
-                                    // Add the new rule to the master rules
+                        //----------------------------------------------
+                        // Merge the new actions into the master rules.
+                        //----------------------------------------------
+                        // Grab the new and master actions.
+                        // Default the master actions to an empty array.
+                        newActions = newRulesetForEvent.actions;
+                        masterActions = masterRulesetForEvent.actions || [];
+                        // There are new actions?
+                        if (newActions) {
+                            // Grab the number of new actions and
+                            // the number of master actions.
+                            numNewActions = newActions.length;
+                            numMasterActions = masterActions.length;
+                            // Loop through the new actions.
+                            for (i = 0; i < numNewActions; i++) {
+                                newAction = newActions[i];
+                                // Loop through the master actions.
+                                for (j = 0; j < numMasterActions; j++) {
+                                    masterAction = masterActions[j];
+                                    // Determine whether the new action is
+                                    // a duplicate of the master action.
+                                    duplicateAction =
+                                        areSameAction(masterAction, newAction);
+                                    // Add the new action to the master actions
                                     // only if it's not a duplicate.
-                                    if (!duplicateRule) {
-                                        masterRules.push(newRule);
+                                    if (!duplicateAction) {
+                                        masterActions.push(newAction);
                                     }
                                 }
                             }
                             // Update the master ruleset for the event.
-                            masterRulesetForEvent.rules = masterRules;
+                            masterRulesetForEvent.actions = masterActions;
                         }
                         //------------------------------------
                         // Merge the new previous events into
@@ -287,18 +287,22 @@ Houston = {
         };
 
         /**
-         * Determines whether or not two rules are the same rule.
-         * @param {Object} firstRule the first rule
-         * @param {String} firstRule.module the module name for the first rule
-         * @param {String} firstRule.method the method name for the first rule
-         * @param {Object} secondRule the second rule
-         * @param {String} secondRule.module the module name for the second rule
-         * @param {String} secondRule.method the method name for the second rule
-         * @return {boolean} whether or not the two rules are the same rule
+         * Determines whether or not two actions are the same action.
+         * @param {Object} firstAction the first action
+         * @param {String} firstAction.module the module name for
+         *                                    the first action
+         * @param {String} firstAction.method the method name for
+         *                                    the first action
+         * @param {Object} secondAction the second action
+         * @param {String} secondAction.module the module name for
+         *                                     the second action
+         * @param {String} secondAction.method the method name for
+         *                                     the second action
+         * @return {boolean} whether or not the two actions are the same action
          */
-        areSameRule = function(firstRule, secondRule) {
-            return firstRule.module === secondRule.module &&
-                   firstRule.method === secondRule.method;
+        areSameAction = function(firstAction, secondAction) {
+            return firstAction.module === secondAction.module &&
+                   firstAction.method === secondAction.method;
         };
 
         /*            *\
@@ -370,8 +374,8 @@ Houston = {
         var ruleset;
         // the closures
         var propagate;
-        var evaluateRules;
-        var evaluateRule;
+        var evaluateActions;
+        var evaluateAction;
         var evaluatePreviousEvents;
 
         /*          *\
@@ -385,9 +389,9 @@ Houston = {
         /**
          * Asynchronously propagates an event.
          * Beware, this function uses a fair amount of recursion.
-         * This function calls evaluateRules and evaluatePreviousEvents.
-         * In turn, evaluatePreviousEvents calls itself and evaluateRules.
-         * In turn, evaluateRules calls evaluateRule which calls propagate.
+         * This function calls evaluateActions and evaluatePreviousEvents.
+         * In turn, evaluatePreviousEvents calls itself and evaluateActions.
+         * In turn, evaluateActions calls evaluateAction which calls propagate.
          * @param {Object} event the event
          * @param {String} event.eventName the event name
          * @param {Object} event.eventData the event data
@@ -424,7 +428,7 @@ Houston = {
             if (rulesFromRuleset && rulesFromRuleset.length > 0) {
                 setTimeout(
                     function() {
-                        evaluateRules(event, rulesFromRuleset);
+                        evaluateActions(event, rulesFromRuleset);
                     },
                     0
                 );
@@ -444,46 +448,46 @@ Houston = {
         };
 
         /**
-         * Evaluates an array of rules.
+         * Evaluates an array of actions.
          * @param {Object} event the event
          * @param {String} event.eventName the event name
          * @param {Object} event.eventData the event data
          * @param {String[]} event.eventNameStack the previous events
-         * @param {Object[]} rules the rules
+         * @param {Object[]} actions the actions
          */
-        evaluateRules = function(event, rules) {
+        evaluateActions = function(event, actions) {
             /*      *\
             | locals |
             \*      */
-            // the number of rules
-            var numRules;
+            // the number of actions
+            var numActions;
             // loop variable
             var i;
-            // the current rule
-            var rule;
+            // the current action
+            var action;
             /*          *\
             | end locals |
             \*          */
-            numRules = rules.length;
-            for (i = 0; i < numRules; i++) {
-                rule = rules[i];
-                evaluateRule(event, rule);
+            numActions = actions.length;
+            for (i = 0; i < numActions; i++) {
+                action = actions[i];
+                evaluateAction(event, action);
             }
         };
 
         /**
-         * Asynchronously evaluates a rule.
+         * Asynchronously evaluates an action.
          * @param {Object} event the event
          * @param {String} event.eventName the event name
          * @param {Object} event.eventData the event data
          * @param {String[]} event.eventNameStack the previous events
-         * @param {Object} rule the rule
-         * @param {String} rule.module the module name
-         * @param {String} rule.method the method name
+         * @param {Object} action the action
+         * @param {String} action.module the module name
+         * @param {String} action.method the method name
          * @throws {String} a string error message
          *                  if Houston cannot find a module or method
          */
-        evaluateRule = function(event, rule) {
+        evaluateAction = function(event, action) {
             /*      *\
             | locals |
             \*      */
@@ -510,14 +514,14 @@ Houston = {
             eventNameStack = event.eventNameStack;
             // Grab the module name and look it up in the module dictionary.
             // If we can't find anything, panic!
-            moduleName = rule.module;
+            moduleName = action.module;
             module = modules[moduleName];
             if (!module) {
                 throw 'Houston cannot find module "' + moduleName + '"';
             }
             // Grab the method name and look it up in the module.
             // If we can't find anything, panic!
-            methodName = rule.method;
+            methodName = action.method;
             method = module[methodName];
             if (!method || typeof(method) !== 'function') {
                 throw 'Houston cannot find method "' + moduleName +
@@ -561,7 +565,7 @@ Houston = {
          * @param {Object} event.eventData the event data
          * @param {String[]} event.eventNameStack the previous events
          * @param {Object} previousEvents This is a recursive dictionary
-         *                                which holds rules which should
+         *                                which holds actions which should
          *                                only be evaluated after a specific
          *                                sequence of events has occurred.
          * @param {number} stackOffset This is an integer offset from
@@ -585,8 +589,8 @@ Houston = {
             var previousEventName;
             // the ruleset for the previous event
             var rulesetForPreviousEvent;
-            // the rules from the ruleset
-            var rulesFromRuleset;
+            // the actions from the ruleset
+            var actionsFromRuleset;
             // the previous events from the ruleset
             var previousEventsFromRuleset;
             /*          *\
@@ -606,18 +610,18 @@ Houston = {
                 // we are looking for.
                 previousEventName = eventNameStack[i];
                 if (previousEvents.hasOwnProperty(previousEventName)) {
-                    // Grab the ruleset for the previous event, the rules, and
+                    // Grab the ruleset for the previous event, the actions, and
                     // the previous events.
                     rulesetForPreviousEvent = previousEvents[previousEventName];
-                    rulesFromRuleset = rulesetForPreviousEvent.rules;
+                    actionsFromRuleset = rulesetForPreviousEvent.actions;
                     previousEventsFromRuleset =
                         rulesetForPreviousEvent.previousEvents;
                     // If needed, evaluate the rules and the previous events.
                     // Make sure to update the stack offset.
                     // The stack offset should equal
                     // the number of previous event names minus the index.
-                    if (rulesFromRuleset && rulesFromRuleset.length > 0) {
-                        evaluateRules(event, rulesFromRuleset);
+                    if (actionsFromRuleset && actionsFromRuleset.length > 0) {
+                        evaluateActions(event, actionsFromRuleset);
                     }
                     if (previousEvents) {
                         evaluatePreviousEvents(
@@ -707,7 +711,7 @@ Houston.registerModule('FinalTwitter', {
 
 Houston.addRuleset({
     'onTwitter': {
-        rules: [
+        actions: [
             {
                 module: 'Parser',
                 method: 'parse'
@@ -715,7 +719,7 @@ Houston.addRuleset({
         ]
     },
     'onRSS': {
-        rules: [
+        actions: [
             {
                 module: 'Parser',
                 method: 'parse'
@@ -725,7 +729,7 @@ Houston.addRuleset({
     'onParsed': {
         previousEvents: {
             'onTwitter': {
-                rules: [
+                actions: [
                     {
                         module: 'TwitterCounter',
                         method: 'count'
@@ -733,7 +737,7 @@ Houston.addRuleset({
                 ]
             },
             'onRSS': {
-                rules: [
+                actions: [
                     {
                         module: 'RSSCounter',
                         method: 'count'
@@ -747,7 +751,7 @@ Houston.addRuleset({
             'onParsed': {
                 previousEvents: {
                     'onTwitter': {
-                        rules: [
+                        actions: [
                             {
                                 module: 'FinalTwitter',
                                 method: 'final'
