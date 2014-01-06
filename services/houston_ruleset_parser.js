@@ -447,8 +447,9 @@ HoustonRulesetParser = {
             | end closures |
             \*            */
 
-            // Start collecting ruleset dictionarys, grab the number of tokens,
-            // and start the token index.
+            // Start collecting ruleset dictionaries,
+            // grab the number of tokens, and
+            // start the token index.
             rulesets = [];
             numTokens = tokens.length;
             i = 0;
@@ -570,6 +571,10 @@ HoustonRulesetParser = {
                     else {
                         panic();
                     }
+                }
+                // Else, panic!
+                else {
+                    panic();
                 }
             }
 
