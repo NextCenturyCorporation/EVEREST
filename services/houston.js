@@ -405,8 +405,8 @@ Houston = {
             var eventName;
             // the ruleset for the event in the ruleset dictionary
             var rulesetForEvent;
-            // the rules from the ruleset
-            var rulesFromRuleset;
+            // the actions from the ruleset
+            var actionsFromRuleset;
             // the previous events from the ruleset
             var previousEventsFromRuleset;
             /*          *\
@@ -420,15 +420,15 @@ Houston = {
                 return;
             }
             // From the ruleset for the event,
-            // grab the rules and the previous events.
-            rulesFromRuleset = rulesetForEvent.rules;
+            // grab the actions and the previous events.
+            actionsFromRuleset = rulesetForEvent.actions;
             previousEventsFromRuleset = rulesetForEvent.previousEvents;
             // If needed, asynchronously evaluate
-            // the rules and the previous events.
-            if (rulesFromRuleset && rulesFromRuleset.length > 0) {
+            // the actions and the previous events.
+            if (actionsFromRuleset && actionsFromRuleset.length > 0) {
                 setTimeout(
                     function() {
-                        evaluateActions(event, rulesFromRuleset);
+                        evaluateActions(event, actionsFromRuleset);
                     },
                     0
                 );
