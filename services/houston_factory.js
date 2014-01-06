@@ -4,47 +4,54 @@
 // a composable event engine for mediating
 // the interactions between node.js modules
 
-
+/**
+ * @namespace
+ */
 var HoustonFactory;
 
 
 HoustonFactory = {
-
-	var Houston;
-
 	// Creates a Houston instance and populates it with modules and rule sets
 	createHouston: function(){
 
-		Houston = require('./houston.js');
-		console.log('Creating modules');
+		this.Houston = require('./houston.js');
+		//console.log(this.Houston);
+		//console.log('Creating modules');
 		this.createModules('./database/');
-		console.log('Creating rule sets');
-		this.createRulesets('.');
+		//console.log('Creating rule sets');
+		this.createRulesets('./rulesets/');
 
-	};
+		return this.Houston;
+	},
 
 	// Create modules for Houston
 	// @param {String} moduleDir the directory to look for modules
 	createModules: function(moduleDir){
+		var me = this;
 		var fs = require('fs');
 		//Comment this out if you want to just manually require each service
 		//this will just require every service defined in the database folder.
 
 		fs.readdirSync(moduleDir).forEach(function(file) {
-			var filename = file.stripFileDesignation();
+			var fileparts = file.split('.');
+			var filename = fileparts[0];
 			try {
-				var module = require(file);
+				//console.log(file);
+
+				var module = require(moduleDir + file);
 			} catch (e){
-				console.log("error creating module " + filename);
+				console.log("error creating module " + filename + ": " + e);
 				return;
 			}
-			Houston.registerModule(filename, module);
+
+			me.Houston.registerModule(filename, module);
 		});
-	};
+	},
 
 	// Create the rulesets from the given directory location
 	// @param {String} rulesetDir the directory to look for rulesets
-	createRulesets = function(rulesetDir){
+	createRulesets: function(rulesetDir){
+		var me = this;
 
 	 	var HoustonRuleSetParser = require('./houston_ruleset_parser.js');
 	 	var fs = require('fs');
@@ -52,8 +59,8 @@ HoustonFactory = {
 	 	fs.readdirSync(rulesetDir).forEach(function(file){
 	 		
 	 		// get file extension
-	 		var ext = path.extname(file).split('.');
-	 		ext = ext[ext.length - 1];
+	 		var fileparts = file.split(".");
+	 		var ext = fileparts[1];
 	 		
 	 		// get contents of file
 	 		var contents = fs.readFileSync(file);
@@ -68,21 +75,26 @@ HoustonFactory = {
  			} else if(ext === "json"){
  				try {
  					json = JSON.parse(contents);
-					} catch (e){
-						console.log("error creating rulesets from hrs file " + file + ": " + e);
-						return;
+				} catch (e){
+					console.log("error creating rulesets from hrs file " + file + ": " + e);
+					return;
  				}
  			} else {
  				return;
  			}
  			var jsonArray = [].concat(json);
 	 		for (var i = jsonArray.length - 1; i >= 0; i--) {
-	 			Houston.addRulset(jsonArray[i]);
+	 			me.Houston.addRuleset(jsonArray[i]);
 	 		};
 	 	});
-
-	};
+		console.log(me.Houston);
+	}
 
 }
 
 module.exports = HoustonFactory;
+
+
+var hf = HoustonFactory;
+var houston = hf.createHouston();
+houston.trigger('onTwitter', 'twitter');
