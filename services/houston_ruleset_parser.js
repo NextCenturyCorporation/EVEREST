@@ -79,6 +79,24 @@ HoustonRulesetParser = {
      *     ModuleC.doStuff;
      *     ModuleC.doMoreStuff;
      * }
+     * // Like CSS selectors in web browsers, it is possible to combine
+     * // event selectors using commas.
+     * // For those familiar with boolean logic, this is similar to
+     * // the OR operator.
+     * // For those familar with set theory, this is similar to
+     * // the union of two sets.
+     * // When eventD or eventE occurs, Houston will execute all of the actions
+     * // contained within the curly brackets.
+     * // Keep in mind that this is really just a simplication of two HRS rules
+     * // with the exact same actions.
+     * eventD, eventE {
+     *     ModuleA.doStuff;
+     *     ModuleA.doMoreStuff;
+     *     ModuleB.doStuff;
+     *     ModuleB.doMoreStuff;
+     *     ModuleC.doStuff;
+     *     ModuleC.doMoreStuff;
+     * }
      * //--------------
      * // end HRS rule
      * //--------------
@@ -116,7 +134,7 @@ HoustonRulesetParser = {
             | constants |
             \*         */
 
-            var OPERATOR_REGEX = /[{}.;]/;
+            var OPERATOR_REGEX = /[,{}.;]/;
             var COMMENT_REGEX = /[\/\\*]/;
             var WHITESPACE_REGEX = /\s/;
 
@@ -328,12 +346,16 @@ HoustonRulesetParser = {
             var expecting;
             // the current token from the array of tokens
             var token;
-            // the event selectors for the current HRS rule
-            var eventSelectors;
+            // the number of event selector commas
+            var numEventSelectorCommas;
+            // the event selectors between commas for the current HRS rule
+            var eventSelectorsBetweenCommas;
             // the actions for the current HRS rule
             var actions;
             // the module name for the current HRS action
             var moduleName;
+            // loop variable
+            var j;
             // the method name for the current HRS action
             var methodName;
             // the closures
@@ -453,6 +475,11 @@ HoustonRulesetParser = {
             rulesets = [];
             numTokens = tokens.length;
             i = 0;
+            // Reset the number of event selector commas and
+            // the event selectors between commas for the current HRS rule.
+            numEventSelectorCommas = 0;
+            eventSelectorsBetweenCommas = [];
+            eventSelectorsBetweenCommas[numEventSelectorCommas] = [];
             // Expect event selector tokens!
             expect('event selectors');
             // Loop through the tokens.
@@ -462,11 +489,10 @@ HoustonRulesetParser = {
                 if (isExpecting('event selectors')) {
                     // The token is an identifier?
                     if (token.type === 'identifier') {
-                        // Reset the event selectors for the current HRS rule.
-                        eventSelectors = [];
                         // Grab all the event selectors.
                         while (token.type === 'identifier') {
-                            eventSelectors.push(token.value);
+                            eventSelectorsBetweenCommas[numEventSelectorCommas]
+                                .push(token.value);
                             advance();
                         }
                         // Expect a "{" token!
@@ -477,7 +503,7 @@ HoustonRulesetParser = {
                         panic();
                     }
                 }
-                // Else, expecting a "}" token?
+                // Else, expecting a "{" token?
                 else if (isExpecting('{')) {
                     // The token is a "{"?
                     if (token.type === '{') {
@@ -487,6 +513,19 @@ HoustonRulesetParser = {
                         advance();
                         // Expect a module name token!
                         expect('module name');
+                    }
+                    // Else, the token is a ","?
+                    else if (token.type === ',') {
+                        // Update the number of event selector commas and
+                        // the event selectors between commas
+                        // for the current HRS rule.
+                        numEventSelectorCommas++;
+                        eventSelectorsBetweenCommas[numEventSelectorCommas] =
+                            [];
+                        // Advance to the next token.
+                        advance();
+                        // Expect event selector tokens!
+                        expect('event selectors');
                     }
                     // Else, panic!
                     else {
@@ -506,12 +545,25 @@ HoustonRulesetParser = {
                     }
                     // Else, the token is a "}"?
                     else if (token.type === '}') {
-                        // Convert the event selectors and actions into
-                        // a ruleset dictionary and add it to the array
-                        // of ruleset dictionaries.
-                        rulesets.push(
-                            convertToRuleset(eventSelectors, actions)
-                        );
+                        // Loop through the event selectors between commas.
+                        for (j = 0; j <= numEventSelectorCommas; j++) {
+                            // Convert the event selectors and actions into
+                            // a ruleset dictionary and add it to the array
+                            // of ruleset dictionaries.
+                            rulesets.push(
+                                convertToRuleset(
+                                    eventSelectorsBetweenCommas[j],
+                                    actions
+                                )
+                            );
+                        }
+                        // Reset the number of event selector commas and
+                        // the event selectors between commas
+                        // for the current HRS rule.
+                        numEventSelectorCommas = 0;
+                        eventSelectorsBetweenCommas = [];
+                        eventSelectorsBetweenCommas[numEventSelectorCommas] =
+                            [];
                         // Advance to the next token.
                         advance();
                         // Expect event selector tokens.
@@ -609,7 +661,9 @@ module.exports = HoustonRulesetParser;
 | simple test of HoustonRulesetParser |
 \*                                   */
 
-console.log(HoustonRulesetParser.parse('onA onB { C.c; D.d; }'));
+/*
+console.log(HoustonRulesetParser.parse('onA onB, onA onC { C.c; D.d; }'));
+*/
 
 /*                                       *\
 | end simple test of HoustonRulesetParser |
