@@ -178,7 +178,9 @@ Houston = {
          * Merges a new ruleset dictionary into a master ruleset dictionary.
          * Beware, this function calls itself.
          * @param {Object} masterRuleset the master ruleset dictionary
+         *                               (written to)
          * @param {Object} newRuleset the new ruleset dictionary
+         *                            (read from)
          */
         mergeRulesets = function(masterRuleset, newRuleset) {
             /*      *\
@@ -322,7 +324,7 @@ Houston = {
      * Clears Houston's master ruleset dictionary.
      * @returns {Houston} the Houston object for method chaining
      */
-    clearRuleset: function() {
+    clearRulesets: function() {
         this.ruleset = {};
 
         // Support method chaining.
@@ -372,6 +374,8 @@ Houston = {
         var modules;
         // the ruleset dictionary
         var ruleset;
+        // the action stack
+        var actionStack;
         // the closures
         var propagate;
         var evaluateActions;
@@ -497,6 +501,8 @@ Houston = {
             var eventData;
             // the previous event names
             var eventNameStack;
+            // the previous actions
+            var actionStack;
             // the module name
             var moduleName;
             // the module
@@ -508,10 +514,12 @@ Houston = {
             /*          *\
             | end locals |
             \*          */
-            // Grab the event name, event data, and event name stack.
+            // Grab the event name, event data, event name stack, and
+            // action stack.
             eventName = event.eventName;
             eventData = event.eventData;
             eventNameStack = event.eventNameStack;
+            actionStack = event.actionStack;
             // Grab the module name and look it up in the module dictionary.
             // If we can't find anything, panic!
             moduleName = action.module;
@@ -530,6 +538,17 @@ Houston = {
             // Asynchronously...
             setTimeout(
                 function() {
+                    /*      *\
+                    | locals |
+                    \*      */
+                    // the start time of the method call
+                    // in milliseconds since UNIX
+                    var startTime;
+                    /*          *\
+                    | end locals |
+                    \*          */
+                    // Grab the start time.
+                    startTime = Date.now();
                     // Call the method.
                     // Make sure the module is the "this" pointer of
                     // the method call.
@@ -540,12 +559,31 @@ Houston = {
                         eventName: eventName,
                         eventData: eventData,
                         eventNameStack: eventNameStack,
+                        actionStack: actionStack,
                         trigger: function(newEventName, newEventData) {
+                            /*      *\
+                            | locals |
+                            \*      */
+                            // the end time of the method call
+                            // in milliseconds since UNIX
+                            var endTime;
+                            /*          *\
+                            | end locals |
+                            \*          */
+                            // Grab the end time.
+                            endTime = Date.now();
                             // Asynchronously propagate the new event.
                             propagate({
                                 eventName: newEventName,
                                 eventData: newEventData,
-                                eventNameStack: eventNameStack.concat(eventName)
+                                eventNameStack:
+                                    eventNameStack.concat(eventName),
+                                actionStack: actionStack.concat({
+                                    moduleName: moduleName,
+                                    methodName: methodName,
+                                    startTime: startTime,
+                                    endTime: endTime
+                                })
                             });
 
                             // Support method chaining.
@@ -623,7 +661,7 @@ Houston = {
                     if (actionsFromRuleset && actionsFromRuleset.length > 0) {
                         evaluateActions(event, actionsFromRuleset);
                     }
-                    if (previousEvents) {
+                    if (previousEventsFromRuleset) {
                         evaluatePreviousEvents(
                             event,
                             previousEventsFromRuleset,
@@ -639,14 +677,25 @@ Houston = {
         | end closures |
         \*            */
 
-        // Grab the module dictionary and the ruleset dictionary, and
-        // asynchronously propagate the event.
+        // Grab the module dictionary and the ruleset dictionary.
         modules = this.modules;
         ruleset = this.ruleset;
+        // Default the event name stack to an empty array.
+        eventNameStack = eventNameStack || [];
+        // The action stack array and the event name stack array
+        // must be kept in parallel.
+        // Since we have no way of knowing what actions happened alongside
+        // fake event names, we must fill the action stack with as many nulls
+        // as there are fake event names in the event name stack.
+        actionStack = eventNameStack.map(function() {
+            return null;
+        });
+        // Asynchronously propagate the event.
         propagate({
             eventName: eventName,
             eventData: eventData,
-            eventNameStack: eventNameStack || []
+            eventNameStack: eventNameStack,
+            actionStack: actionStack
         });
 
         // Support method chaining.
@@ -677,6 +726,7 @@ module.exports = Houston;
 | simple test of Houston |
 \*                      */
 
+/*
 Houston.registerModule('Parser', {
     parse: function(event) {
         console.log('Entering Parser.parse');
@@ -766,6 +816,7 @@ Houston.addRuleset({
 
 Houston.trigger('onTwitter', 'twitter');
 Houston.trigger('onRSS', 'RSS');
+*/
 
 /*                          *\
 | end simple test of Houston |
