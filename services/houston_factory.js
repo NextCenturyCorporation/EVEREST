@@ -63,7 +63,7 @@ HoustonFactory = {
 	 		var ext = fileparts[1];
 	 		
 	 		// get contents of file
-	 		var contents = fs.readFileSync(file);
+	 		var contents = fs.readFileSync(rulesetDir + file);
 	 		var json;
  			if(ext === "hrs"){
  				try {
@@ -98,3 +98,4 @@ module.exports = HoustonFactory;
 var hf = HoustonFactory;
 var houston = hf.createHouston();
 houston.trigger('onTwitter', 'twitter');
+houston.trigger('onRSS', 'RSS');
