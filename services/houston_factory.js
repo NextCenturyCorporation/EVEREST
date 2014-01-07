@@ -67,7 +67,7 @@ HoustonFactory = {
 	 		var json;
  			if(ext === "hrs"){
  				try {
- 					json = Houston.HoustonRuleSetParser.parser(contents);
+ 					json = HoustonRuleSetParser.parse(contents);
  				} catch (e){
  					console.log("error creating rulesets from hrs file " + file + ": " + e);
  					return;
