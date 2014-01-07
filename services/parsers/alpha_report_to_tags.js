@@ -13,6 +13,7 @@ module.exports = function(models, io, logger) {
 		var text = stripped.split(' ');
 
 		text.forEach(function(word){
+			word = word.toLowerCase();
 			if (word !== ''){
 				tagService.get(word, function(err, docs) {
 					if (!docs[0]) {
@@ -20,7 +21,7 @@ module.exports = function(models, io, logger) {
 							_id: word,
 							value: {
 								count: 1,
-								reports: [{ _id: id, type: 'alpha report' }]
+								reports: [id]
 							}
 						};
 
@@ -33,7 +34,7 @@ module.exports = function(models, io, logger) {
 							}
 						};
 
-						data.value.reports.push({ _id: id, type: 'alpha report' });
+						data.value.reports.push(id);
 						tagService.update(word, data, console.log);
 					}
 				});

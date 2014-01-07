@@ -49,41 +49,49 @@ module.exports = function(models, io, logger) {
 				var stripped = this.message_body.replace(/[\.,!$%\^&\*;:{}=`~()\[\]\"]/g, '');
 				stripped = stripped.replace(/[\n\t]/g, ' ');
 				var words = stripped.split(' ');
+				var counts = {};
 				for (index in words) {
-					if ( words[index] !== '') {
-						var value = {
-							reports: [{_id: this._id, type: 'alpha report'}],
-							count: 1
-						};
-						emit( words[index].toLowerCase(), value );
+					var text = words[index].toLowerCase();
+					if (counts.hasOwnProperty(text)) {
+						counts[text].count++;
+					} else {
+						counts[text] = {
+							count: 1, 
+							reports: [this._id]
+						}
 					}
+				}
+
+				for (key in counts) {
+					emit(key, counts[key]);
 				}
 			}, 
 			reduce: function(k, vals) { 
-				var reducedObject = {
+				var reduced = {
 					reports: [],
 					count: 0
 				};
 
 				for (index in vals) {
-					reducedObject.count += vals[index].count;
-					var ids = reducedObject.reports.map(function(r) { return r._id });
-					if (ids.indexOf(vals[index].reports[0]) === -1) {
-						reducedObject.reports.push(vals[index].reports[0]);
-					}
+					reduced.count += vals[index].count;
+					reduced.reports.push(vals[index].reports[0]);
 				}
 
-				return reducedObject;
+				return reduced;
 			},
 			out: {
 				replace: 'tags'
-			}
+			},
+			verbose: true
 		};
 
 		models.alphaReport.mapReduce(o, function(err, model, stats) {
+			console.log(stats);
 			model.find().exec(callback)
 		});
 	};
+
+	/*;*/
 
 	/**
 	 *	Returns a list of indexed attributes for Alpha Report
