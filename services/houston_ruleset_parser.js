@@ -1,5 +1,5 @@
 /**
- * @fileOverview houston_ruleset_parser.js is a lexer and parser for the
+ * @fileOverview HoustonRulesetParser is a lexer and parser for the
  *               Houston Ruleset (HRS) domain-specific language (DSL).
  *               HRS is a convenient web-developer-friendly representation
  *               of Houston's ruleset dictionary inspired by
@@ -11,7 +11,13 @@
  *               HRS is a higher-level language which sits on top of the
  *               lower-level ruleset dictionary.
  * @author Next Century Corporation
- * @version 0.0.1
+ * @version 0.0.2
+ *
+ * @example
+ * var houstonRulesetParser = require('houston_ruleset_parser');
+ * var json = houstonRulesetParser.parse(
+ *     'exampleEvent { ExampleModule.exampleMethod; }'
+ * );
  */
 
 /*                     *\
@@ -167,6 +173,7 @@ HoustonRulesetParser = {
             var isOperator;
             var isComment;
             var isIdentifier;
+            var panic;
 
             /*          *\
             | end locals |
@@ -244,6 +251,14 @@ HoustonRulesetParser = {
                        !isWhiteSpace(c);
             };
 
+            /**
+             * Throws a string error message explaining what went wrong.
+             * @throws a string error message explaining what went wrong
+             */
+            panic = function() {
+                throw 'unrecognized token at character "' + c + '"';
+            };
+
             /*            *\
             | end closures |
             \*            */
@@ -295,7 +310,7 @@ HoustonRulesetParser = {
                     }
                     // Else, panic!
                     else {
-                        throw 'unrecognized token at "' + c + '"';
+                        panic();
                     }
                 }
                 // Else, if operator, add the token and
@@ -317,7 +332,7 @@ HoustonRulesetParser = {
                 }
                 // Else, panic!
                 else {
-                    throw 'unrecognized token at "' + c + '"';
+                    panic();
                 }
             }
 
