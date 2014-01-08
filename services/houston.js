@@ -448,7 +448,7 @@ createHouston = function() {
             // Grab the Houston ruleset dictionary.
             houstonRuleset = this.ruleset;
             // Coerce the rulesets variable into an array.
-            rulesets = [].concat(ruleset);
+            rulesets = [].concat(rulesets);
             // Loop through the ruleset dictionaries.
             numRulesets = rulesets.length;
             for (i = 0; i < numRulesets; i++) {
@@ -680,14 +680,14 @@ createHouston = function() {
                 // Grab the module name and look it up in the module
                 // dictionary.
                 // If we can't find anything, panic!
-                moduleName = action.module;
+                moduleName = action.moduleName;
                 module = modules[moduleName];
                 if (!module) {
                     throw 'Houston cannot find module "' + moduleName + '"';
                 }
                 // Grab the method name and look it up in the module.
                 // If we can't find anything, panic!
-                methodName = action.method;
+                methodName = action.methodName;
                 method = module[methodName];
                 if (!method || typeof(method) !== 'function') {
                     throw 'Houston cannot find method "' + moduleName +
