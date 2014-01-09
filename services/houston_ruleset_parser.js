@@ -140,7 +140,7 @@ HoustonRulesetParser = {
             | constants |
             \*         */
 
-            var OPERATOR_REGEX = /[,{}.;]/;
+            var OPERATOR_REGEX = /[,{};]/;
             var COMMENT_REGEX = /[\/\\*]/;
             var WHITESPACE_REGEX = /\s/;
 
@@ -367,12 +367,16 @@ HoustonRulesetParser = {
             var eventSelectorsBetweenCommas;
             // the actions for the current HRS rule
             var actions;
+            // the module name and method name for the current HRS action
+            var moduleNameAndMethodName;
+            // the index of the dot for the current HRS action
+            var dotIndex;
             // the module name for the current HRS action
             var moduleName;
-            // loop variable
-            var j;
             // the method name for the current HRS action
             var methodName;
+            // loop variable
+            var j;
             // the closures
             var advance;
             var expect;
@@ -526,8 +530,8 @@ HoustonRulesetParser = {
                         actions = [];
                         // Advance to the next token.
                         advance();
-                        // Expect a module name token!
-                        expect('module name');
+                        // Expect a module name and method name token!
+                        expect('module name and method name');
                     }
                     // Else, the token is a ","?
                     else if (token.type === ',') {
@@ -547,16 +551,21 @@ HoustonRulesetParser = {
                         panic();
                     }
                 }
-                // Else, expecting a module name token?
-                else if (isExpecting('module name')) {
+                // Else, expecting a module name and method name token?
+                else if (isExpecting('module name and method name')) {
                     // The token is an identifier?
                     if (token.type === 'identifier') {
-                        // Grab the module name for the current HRS action.
-                        moduleName = token.value;
+                        // Grab the module name and method name
+                        // for the current HRS action.
+                        moduleNameAndMethodName = token.value;
+                        dotIndex = moduleNameAndMethodName.indexOf('.');
+                        moduleName = moduleNameAndMethodName.slice(0, dotIndex);
+                        methodName =
+                            moduleNameAndMethodName.slice(dotIndex + 1);
                         // Advance to the next token.
                         advance();
-                        // Expect a "." token!
-                        expect('.');
+                        // Expect a ";" token!
+                        expect(';');
                     }
                     // Else, the token is a "}"?
                     else if (token.type === '}') {
@@ -589,36 +598,6 @@ HoustonRulesetParser = {
                         panic();
                     }
                 }
-                // Else, expecting a "." token?
-                else if (isExpecting('.')) {
-                    // The token is a "."?
-                    if (token.type === '.') {
-                        // Advance to the next token.
-                        advance();
-                        // Expect a method name token!
-                        expect('method name');
-                    }
-                    // Else, panic!
-                    else {
-                        panic();
-                    }
-                }
-                // Else, expecting a method name token?
-                else if (isExpecting('method name')) {
-                    // The token is an identifier?
-                    if (token.type === 'identifier') {
-                        // Grab the method name for the current HRS action.
-                        methodName = token.value;
-                        // Advance to the next token.
-                        advance();
-                        // Expect a ";" token!
-                        expect(';');
-                    }
-                    // Else, panic!
-                    else {
-                        panic();
-                    }
-                }
                 // Else, expecting a ";" token?
                 else if (isExpecting(';')) {
                     // The token is a ";"?
@@ -631,8 +610,8 @@ HoustonRulesetParser = {
                         });
                         // Advance to the next token.
                         advance();
-                        // Expect a module name token!
-                        expect('module name');
+                        // Expect a module name and method name token!
+                        expect('module name and method name');
                     }
                     // Else, panic!
                     else {
