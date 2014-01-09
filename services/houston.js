@@ -372,22 +372,30 @@ createHouston = function() {
                                 // Loop through the new actions.
                                 for (i = 0; i < numNewActions; i++) {
                                     newAction = newActions[i];
+                                    // Start out by assuming that
+                                    // the new action is not a duplicate
+                                    // of the master action.
+                                    duplicateAction = false;
                                     // Loop through the master actions.
                                     for (j = 0; j < numMasterActions; j++) {
                                         masterAction = masterActions[j];
                                         // Determine whether the new action
                                         // is a duplicate of the master
                                         // action.
+                                        // If duplicate, stop looping!
                                         duplicateAction = areSameAction(
                                             masterAction,
                                             newAction
                                         );
-                                        // Add the new action to the master
-                                        // actions only if it's not a
-                                        // duplicate.
-                                        if (!duplicateAction) {
-                                            masterActions.push(newAction);
+                                        if (duplicateAction) {
+                                            break;
                                         }
+                                    }
+                                    // Add the new action to the master
+                                    // actions only if it's not a
+                                    // duplicate.
+                                    if (!duplicateAction) {
+                                        masterActions.push(newAction);
                                     }
                                 }
                                 // Update the master ruleset for the event.
@@ -424,21 +432,21 @@ createHouston = function() {
             /**
              * Determines whether or not two actions are the same action.
              * @param {Object} firstAction the first action
-             * @param {String} firstAction.module the module name for
-             *                                    the first action
-             * @param {String} firstAction.method the method name for
-             *                                    the first action
+             * @param {String} firstAction.moduleName the module name for
+             *                                        the first action
+             * @param {String} firstAction.methodName the method name for
+             *                                        the first action
              * @param {Object} secondAction the second action
-             * @param {String} secondAction.module the module name for
-             *                                     the second action
-             * @param {String} secondAction.method the method name for
-             *                                     the second action
+             * @param {String} secondAction.moduleName the module name for
+             *                                         the second action
+             * @param {String} secondAction.methodName the method name for
+             *                                         the second action
              * @return {boolean} whether or not the two actions are
              *                   the same action
              */
             areSameAction = function(firstAction, secondAction) {
-                return firstAction.module === secondAction.module &&
-                       firstAction.method === secondAction.method;
+                return firstAction.moduleName === secondAction.moduleName &&
+                       firstAction.methodName === secondAction.methodName;
             };
 
             /*            *\
