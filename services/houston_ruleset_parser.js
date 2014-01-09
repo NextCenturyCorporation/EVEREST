@@ -574,10 +574,12 @@ HoustonRulesetParser = {
                             // Convert the event selectors and actions into
                             // a ruleset dictionary and add it to the array
                             // of ruleset dictionaries.
+                            // Make sure that each ruleset has a different
+                            // copy of the actions.
                             rulesets.push(
                                 convertToRuleset(
                                     eventSelectorsBetweenCommas[j],
-                                    actions
+                                    actions.slice()
                                 )
                             );
                         }
