@@ -1,12 +1,109 @@
 <html>
+<head>
+	<script type="text/javascript" src="./houston.js"></script>
+	<script type="text/javascript" src="./houston_ruleset_parser.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<style>
+		.col {
+			width: 40%;
+			float: left;
+			margin: 20px;
+		}
+		body, textarea, button, input {
+			font-size: 18px;
+		}
+	</style> 
+</head>
+<body>
+	<script type="text/javascript">
 
-<script type="text/javascript" src="./houston.js"></script>
-<script type="text/javascript" src="./houston_ruleset_parser.js"></script>
-<script type="text/javascript">
+	var BatComputer = {
 
-	var houston = createHouston();
+		tokenize: function(event) {
+			//console.log(event.eventData);
+			//console.log("tokenize!");
+			event.trigger("onTokenize", event.eventData.split(" "));
+		}, 
 
+		analyzeReport: function(event){
+			var reportArray = event.eventData;
+			for (var i = reportArray.length - 1; i >= 0; i--) {
+				//console.log(reportArray[i]);
+				var triggerName = "on" + reportArray[i].charAt(0).toUpperCase() + reportArray[i].slice(1);
+				event.trigger(triggerName);
+				// if(reportArray[i] === "parents"){
+				// 	event.trigger("onParents", "hello");
+				// }
+			};
+		}
+	}
 
+	var Batman = {
 
-</script>
+		cry: function(event){
+			$('#image').append('<img src="http://i56.tinypic.com/3328d8n.jpg">');
+			//console.log("http://i56.tinypic.com/3328d8n.jpg")
+		},
+
+		findGordon: function(event){
+			$('#image').append('<img src="http://upload.wikimedia.org/wikipedia/en/9/93/DetectiveComics779.jpg">');
+			//console.log("http://upload.wikimedia.org/wikipedia/en/9/93/DetectiveComics779.jpg");
+		},
+
+		foilThePenguin: function(event) {
+			$('#image').append('<img src="http://static2.wikia.nocookie.net/__cb20090721072541/batman/images/7/79/ThePenguin_01.jpg">');
+		},
+
+		foilTheJoker: function(event) {
+			$('#image').append('<img src="http://images1.wikia.nocookie.net/__cb20090721072605/batman/images/d/da/TheJoker_01.jpg">');
+
+		},
+
+		clear: function(){
+			$('#image').empty();
+		}
+	}
+
+	</script>
+	<script type="text/javascript">
+
+		var houston = createHouston();
+
+		houston.addModule("BatComputer", BatComputer);
+		houston.addModule("Batman", Batman);
+		//houston.trigger("onPoliceReport", "new police report parents");
+
+	</script>
+
+	<div class="col">
+		<input type="text" id="input">
+		<input type="radio" name="type" value="onPoliceReport">Police Report
+		<input type="radio" name="type" value="onTwitter">Twitter
+		<input type="radio" name="type" value="onBatSignal">BatSignal
+		<button id="submit">Submit</button>
+
+		<div id="image"></div>
+	</div>
+	<div class="col">
+		<textarea rows="20" cols="50" id="rulesets"></textarea>
+		<button id="change">Change Rules</button>
+	</div>
+	<script>
+		$("#submit").click(function() {
+			var type = $('input[name=type]:checked').val();
+			var data = $('#input').val();
+			houston.trigger(type, data);
+			$('#image').empty();
+		});
+
+		$('#change').click(function() {
+			var rules = $('#rulesets').val();
+			var ruleset = HoustonRulesetParser.parse(rules);
+			houston.clearAllRulesets();
+			houston.addRuleset(ruleset);
+		});
+
+	</script>
+
+</body>
 </html>
