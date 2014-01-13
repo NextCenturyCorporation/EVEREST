@@ -69,8 +69,8 @@
 
 		var houston = createHouston();
 
-		houston.addModule("BatComputer", BatComputer);
-		houston.addModule("Batman", Batman);
+		houston.addModuleSync("BatComputer", BatComputer);
+		houston.addModuleSync("Batman", Batman);
 		//houston.trigger("onPoliceReport", "new police report parents");
 
 	</script>
@@ -92,7 +92,10 @@
 		$("#submit").click(function() {
 			var type = $('input[name=type]:checked').val();
 			var data = $('#input').val();
-			houston.trigger(type, data);
+			houston.trigger(type, data, function(error, event) {
+				console.log(error);
+				console.log(event);
+			});
 			$('#image').empty();
 		});
 
@@ -100,7 +103,7 @@
 			var rules = $('#rulesets').val();
 			var ruleset = HoustonRulesetParser.parse(rules);
 			houston.clearAllRulesets();
-			houston.addRuleset(ruleset);
+			houston.addRulesetSync(ruleset);
 		});
 
 	</script>

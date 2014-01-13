@@ -168,7 +168,7 @@ HoustonFactory = {
                 modules[moduleName] = moduleObject;
             }
             // Add the module dictionary to Houston.
-            houston.addModule(modules);
+            houston.addModuleSync(modules);
         };
 
         /**
@@ -361,7 +361,7 @@ HoustonFactory = {
                 // Coerce the rulesets variable into an array and
                 // add it to Houston.
                 rulesets = [].concat(rulesets);
-                houston.addRuleset(rulesets);
+                houston.addRulesetSync(rulesets);
             }
         };
 

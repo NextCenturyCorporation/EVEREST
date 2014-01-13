@@ -1,51 +1,34 @@
 /**
- * @fileOverview Houston is a composable event engine
- *               for mediating the interactions between node.js modules.
+ * @fileOverview Houston is a composable event engine for mediating the
+ *               interactions between node.js modules.
  * @author Next Century Corporation
- * @version 0.0.4
+ * @version 0.0.5
  *
  * @example
  * var createHouston = require('houston');
  * var houston = createHouston();
- * houston.addModule({
- *     ExampleModule: {
- *         exampleMethod: function(event) {
- *             console.log('Hello, Houston!');
- *         }
- *     }
- * });
- * houston.addRuleset({
- *     'exampleEvent': {
- *         rules: [
- *             {
- *                 module: 'ExampleModule',
- *                 method: 'exampleMethod'
- *             }
- *         ]
- *      }
- * });
- * houston.trigger('exampleEvent', {
- *     data: 'exampleData'
- * });
  */
 
 /*                     *\
 | module-wide variables |
 \*                     */
 
+// the function which creates Houston objects
+// (This function is exported at the bottom of this file.
+//  The only way to create a Houston object is to call createHouston.)
 var createHouston;
 
 /*                         *\
 | end module-wide variables |
 \*                         */
 
-/*                                    *\
-| definition of createHouston function |
-\*                                    */
+/*                      *\
+| createHouston function |
+\*                      */
 
 /**
  * Creates a Houston object.
- * @returns {Houston} a Houston object
+ * @returns {createHouston~Houston} a Houston object
  */
 createHouston = function() {
     /*      *\
@@ -61,9 +44,9 @@ createHouston = function() {
     | end locals |
     \*          */
 
-    /*                          *\
-    | creation of Houston object |
-    \*                          */
+    /*              *\
+    | Houston object |
+    \*              */
 
     Houston = {
 
@@ -93,52 +76,136 @@ createHouston = function() {
         \*       */
 
         /**
-         * Registers a single module object
+         * The callback function for the
+         * [Houston.addModule]{@link createHouston~Houston.addModule}
+         * method.
+         * @callback houstonAddModuleCallback
+         * @param {Error} error the error (<code>undefined</code> if successful)
+         */
+        /**
+         * Asynchronously adds a single module
          * <strong>OR</strong>
-         * an entire module dictionary with Houston.
+         * an entire module dictionary to Houston.
+         * If successful, this function will pass nothing to the callback.
+         * Else, this function will pass the error to the callback.
+         * If no callback is provided, this function will execute silently.
          * @param {String|Object} moduleName the module name
          *                                   <strong>OR</strong>
          *                                   the module dictionary
-         * @param {Object} [moduleObject] the module object
-         * @returns {Houston} the Houston object for method chaining
-         * @throws {String} a string error message if
-         *                  no module name provided,
-         *                  no module object provided,
-         *                  no module dictionary provided, or
-         *                  a module name has already been registered
+         * @param {Object} [moduleObject] the module object (optional)
+         * @param {houstonAddModuleCallback} [callback] the callback function
+         *                                              (optional)
+         * @returns {createHouston~Houston} the Houston object for method
+         *                                  chaining
          *
          * @example
-         * Houston.addModule('ExampleModule', {
+         * // Add a module.
+         * houston.addModule('ExampleModule', {
          *     exampleMethod: function(event) {
-         *         // An event has four properties.
-         *         console.log(event.eventName); // the current event name
-         *         console.log(event.eventData); // the current event data
-         *         console.log(event.eventNameStack); // the previous event names
-         *         console.log(event.actionStack); // the previous actions
+         *         // An event has 4 properties.
+         *         // (1) the event name
+         *         console.log(event.eventName);
+         *         // (2) the event data
+         *         console.log(event.eventData);
+         *         // (3) the previous event names
+         *         console.log(event.eventNameStack);
+         *         // (4) the previous actions
+         *         console.log(event.actionStack);
          *         // An event also has a chainable method called trigger
          *         // for triggering additional events.
          *         event.trigger('helloHouston', {
          *             message: 'Hello, Houston!'
-         *         })
-         *         .trigger('goodbyeHouston', {
-         *             message: 'Goodbye, Houston!'
          *         });
          *     }
-         * })
-         * .addModule({
+         * }, function(error) {
+         *     if (error) {
+         *         console.log('Failed to add module: ' + error);
+         *     }
+         *     else {
+         *         console.log('Successfully added module!');
+         *     }
+         * });
+         *
+         * // Add a module dictionary.
+         * houston.addModule({
          *     AnotherModule: {
-         *         exampleMethod: function(event) {
+         *         anotherMethod: function(event) {
          *             console.log('Hello, Houston!');
          *         }
-         *     },
-         *     YetAnotherModule: {
-         *         exampleMethod: function(event) {
-         *             console.log('Goodbye, Houston!');
-         *         }
+         *     }
+         * }, function(error) {
+         *     if (error) {
+         *         console.log('Failed to add module dictionary: ' + error);
+         *     }
+         *     else {
+         *         console.log('Successfully added module dictionary!');
          *     }
          * });
          */
-        addModule: function(moduleName, moduleObject) {
+        addModule: function(moduleName, moduleObject, callback) {
+            /*      *\
+            | locals |
+            \*      */
+            // whether we can call the callback function
+            var canCallCallback;
+            // the this pointer
+            var me;
+            /*          *\
+            | end locals |
+            \*          */
+            // If the module object is a function,
+            // assume the module object is the callback function.
+            if (typeof(moduleObject) === 'function') {
+                callback = moduleObject;
+                moduleObject = undefined;
+            }
+            // Determine whether we can call the callback function.
+            canCallCallback = typeof(callback) === 'function';
+            // Save the this pointer.
+            me = this;
+            // Asynchronously...
+            process.nextTick(function() {
+                // Synchronously...
+                try {
+                    // Call the synchronous version of this method.
+                    me.addModuleSync(moduleName, moduleObject);
+                    // Success!
+                    if (canCallCallback) {
+                        callback();
+                    }
+                }
+                // Panic!
+                catch (e) {
+                    // Error!
+                    if (canCallCallback) {
+                        callback(e);
+                    }
+                }
+            });
+
+            // Support method chaining.
+            return this;
+        },
+
+        /**
+         * Synchronously adds a single module
+         * <strong>OR</strong>
+         * an entire module dictionary to Houston.
+         * @param {String|Object} moduleName the module name
+         *                                   <strong>OR</strong>
+         *                                   the module dictionary
+         * @param {Object} [moduleObject] the module object (optional)
+         * @returns {createHouston~Houston} the Houston object for method
+         *                                  chaining
+         * @throws {Error} an error if
+         *                 no module name provided,
+         *                 no module object provided, or
+         *                 no module dictionary provided
+         *
+         * @see [Houston.addModule]{@link createHouston~Houston.addModule} for
+         *      example code
+         */
+        addModuleSync: function(moduleName, moduleObject) {
             /*      *\
             | locals |
             \*      */
@@ -150,57 +217,47 @@ createHouston = function() {
             var newModuleObject;
             // the Houston module dictionary
             var houstonModules;
-            // the module object previously registered with Houston
-            var previouslyRegisteredModuleObject;
             /*          *\
             | end locals |
             \*          */
-            // No module object?
-            if (!moduleObject) {
-                // Assume the module name is actually
-                // the new module dictionary.
+            // Module object?
+            if (moduleObject) {
+                // Safeguard against falsey parameters.
+                if (!moduleName) {
+                    throw new Error('no module name');
+                }
+                if (!moduleObject) {
+                    throw new Error('no module object');
+                }
+                // Grab the Houston module dictionary and
+                // add the module to it.
+                houstonModules = this.modules;
+                houstonModules[moduleName] = moduleObject;
+            }
+            // Else?
+            else {
+                // Assume the module name is a module dictionary.
                 newModules = moduleName;
                 // Safeguard against falsey parameters.
                 if (!newModules) {
-                    throw 'no module dictionary';
+                    throw new Error('no module dictionary');
                 }
                 // Loop through the new module dictionary.
                 for (newModuleName in newModules) {
                     if (newModules.hasOwnProperty(newModuleName)) {
-                        // Grab the new module object.
                         newModuleObject = newModules[newModuleName];
-                        // If no new module object, skip this new module!
+                        // If no new module object, skip it!
                         if (!newModuleObject) {
                             continue;
                         }
                         // Register the new module.
+                        //--------------------------------------------------
                         // NOTE: No need to worry about stack overflow.
                         // This will result in only one level of recursion.
+                        //--------------------------------------------------
                         this.addModule(newModuleName, newModuleObject);
                     }
                 }
-            }
-            // Else?
-            else {
-                // Safeguard against falsey parameters.
-                if (!moduleName) {
-                    throw 'no module name';
-                }
-                if (!moduleObject) {
-                    throw 'no module object';
-                }
-                // Grab the Houston module dictionary and look up
-                // the module name in it.
-                // Make sure the module name has not already been taken.
-                houstonModules = this.modules;
-                previouslyRegisteredModuleObject =
-                    houstonModules[moduleName];
-                if (previouslyRegisteredModuleObject) {
-                    throw 'module name "' + moduleName +
-                          '" has already been taken';
-                }
-                // Register the module name and module object with Houston.
-                houstonModules[moduleName] = moduleObject;
             }
 
             // Support method chaining.
@@ -243,7 +300,8 @@ createHouston = function() {
          * If the module name was never registered with Houston
          * in the first place, this function will effectively do nothing.
          * @param {String} moduleName the module name
-         * @returns {Houston} the Houston object for method chaining
+         * @returns {createHouston~Houston} the Houston object for
+         *                                  method chaining
          */
         removeModule: function(moduleName) {
             delete this.modules[moduleName];
@@ -254,7 +312,8 @@ createHouston = function() {
 
         /**
          * Unregisters all the modules registered with Houston.
-         * @returns {Houston} the Houston object for method chaining
+         * @returns {createHouston~Houston} the Houston object for
+         *                                  method chaining
          */
         clearAllModules: function() {
             this.modules = {};
@@ -264,16 +323,120 @@ createHouston = function() {
         },
 
         /**
-         * Adds a ruleset dictionary
+         * The callback function for the
+         * [Houston.addRuleset]{@link createHouston~Houston.addRuleset}
+         * method.
+         * @callback houstonAddRulesetCallback
+         * @param {Error} error the error (<code>undefined</code> if successful)
+         */
+        /**
+         * Asynchronously adds a ruleset dictionary
          * <strong>OR</strong>
-         * an array of rulesets dictionaries
-         * to the Houston ruleset dictionary.
+         * an array of ruleset dictionaries to the Houston ruleset dictionary.
+         * If successful, this function will pass nothing to the callback.
+         * Else, this function will pass the error to the callback.
+         * If no callback is provided, this function will execute silently.
          * @param {Object|Array} rulesets the ruleset dictionary
          *                                <strong>OR</strong>
          *                                the array of ruleset dictionaries
-         * @returns {Houston} the Houston object for method chaining
+         * @param {houstonAddRulesetCallback} [callback] the callback (optional)
+         * @returns {createHouston~Houston} the Houston object for
+         *                                  method chaining
+         *
+         * @example
+         * // Add a ruleset dictionary.
+         * houston.addRuleset({
+         *     onEvent: {
+         *         actions: [
+         *             {
+         *                 moduleName: 'ExampleModule',
+         *                 methodName: 'exampleMethod'
+         *             }
+         *         ]
+         *     }
+         * }, function(error) {
+         *     if (error) {
+         *         console.log('Failed to add ruleset dictionary: ' + error);
+         *     }
+         *     else {
+         *         console.log('Successfully added ruleset dictionary!');
+         *     }
+         * });
+         *
+         * // Add an array of ruleset dictionaries.
+         * houston.addRuleset([
+         *     {
+         *         onAnotherEvent: {
+         *             actions: [
+         *                 {
+         *                     moduleName: 'AnotherModule',
+         *                     methodName: 'anotherMethod'
+         *                 }
+         *             ]
+         *         }
+         *     }
+         * ], function(error) {
+         *     if (error) {
+         *         console.log('Failed to add array of ruleset dictionaries: ' + error);
+         *     }
+         *     else {
+         *         console.log('Successfully added array of ruleset dictionaries!');
+         *     }
+         * });
          */
-        addRuleset: function(rulesets) {
+        addRuleset: function(rulesets, callback) {
+            /*      *\
+            | locals |
+            \*      */
+            // whether we can call the callback function
+            var canCallCallback;
+            // the this pointer
+            var me;
+            /*          *\
+            | end locals |
+            \*          */
+            // Determine whether we can call the callback function.
+            canCallCallback = typeof(callback) === 'function';
+            // Save the this pointer.
+            me = this;
+            // Asynchronously...
+            process.nextTick(function() {
+                // Synchronously...
+                try {
+                    // Call the synchronous version of this method.
+                    me.addRulesetSync(rulesets);
+                    // Success!
+                    if (canCallCallback) {
+                        callback();
+                    }
+                }
+                // Panic!
+                catch (e) {
+                    // Error!
+                    if (canCallCallback) {
+                        callback(e);
+                    }
+                }
+            });
+
+            // Support method chaining.
+            return this;
+        },
+
+        /**
+         * Synchronously adds a ruleset dictionary
+         * <strong>OR</strong>
+         * an array of ruleset dictionaries to the Houston ruleset dictionary.
+         * @param {Object|Array} rulesets the ruleset dictionary
+         *                                <strong>OR</strong>
+         *                                the array of ruleset dictionaries
+         * @returns {createHouston~Houston} the Houston object for
+         *                                  method chaining
+         *
+         * @see [Houston.addRuleset]{@link createHouston~Houston.addRuleset} for
+         *      example code
+         */
+        addRulesetSync: function(rulesets) {
             /*      *\
             | locals |
             \*      */
@@ -480,7 +643,8 @@ createHouston = function() {
 
         /**
          * Clears the Houston ruleset dictionary.
-         * @returns {Houston} the Houston object for method chaining
+         * @returns {createHouston~Houston} the Houston object for
+         *                                  method chaining
          */
         clearAllRulesets: function() {
             this.ruleset = {};
@@ -490,53 +654,52 @@ createHouston = function() {
         },
 
         /**
-         * Triggers an event.
-         * Houston will asynchronously propagate the event based upon
-         * its modules and ruleset.
+         * The callback function for the
+         * [Houston.trigger]{@link createHouston~Houston.trigger}
+         * method.
+         * @callback houstonTriggerCallback
+         * @param {Error} error the error
+         * @param {Object} event the event object
+         * @param {String} event.eventName the event name
+         * @param {Object} event.eventData the event data
+         * @param {String[]} event.eventNameStack the previous events
+         * @param {Array} event.actionStack the previous actions
+         */
+        /**
+         * Asynchronously triggers an event and propagates it based upon
+         * Houston's modules and rulesets.
+         * If successful, this function never calls the callback because
+         * it is impossible to know for sure when a chain of events is over.
+         * Else, this function passes the error to the callback.
+         * If no callback is provided, this function executes silently.
          * @param {String} eventName the event name
          * @param {Object} eventData the event data
-         * @param {String[]} [eventNameStack] This optional parameter allows
-         *                                    you to "fool" Houston into
-         *                                    thinking that a brand new
-         *                                    event has a rich history of
-         *                                    prior events.
-         *                                    Houston keeps track of the
-         *                                    chain of events in an array of
-         *                                    strings called the event name
-         *                                    stack.
-         *                                    The first element in the array
-         *                                    is the very first event, and
-         *                                    the last element is the event
-         *                                    which happened right before
-         *                                    the current event.
-         * @returns {Houston} the Houston object for method chaining
-         * @throws {String} a string error message
-         *                  if Houston cannot find a module or method
+         * @param {String[]} [eventNameStack] fake previous events (optional)
+         * @param {houstonTriggerCallback} [callback] the callback (optional)
+         * @returns {createHouston~Houston} the Houston object for
+         *                                  method chaining
          *
          * @example
-         * Houston.trigger('helloHouston', {
+         * Houston.trigger('onMessageSent', {
          *     message: 'Hello, Houston!'
-         * })
-         * .trigger('goodbyeHouston', {
-         *     message: 'Goodbye, Houston!'
-         * })
-         * .trigger('currentEvent', {
-         *     message: 'Fooling Houston!'
-         * }, [
-         *     'previousEvent'
-         * ]);
+         * }, function(error, event) {
+         *     console.log('Failed to propagate event: ' + error);
+         *     console.log('The event object is: ' + event);
+         * });
          */
-        trigger: function(eventName, eventData, eventNameStack) {
+        trigger: function(eventName, eventData, eventNameStack, callback) {
             /*      *\
             | locals |
             \*      */
 
+            // the action stack
+            var actionStack;
+            // whether we can call the callback function
+            var canCallCallback;
             // the module dictionary
             var modules;
             // the ruleset dictionary
             var ruleset;
-            // the action stack
-            var actionStack;
             // the closures
             var propagate;
             var evaluateActions;
@@ -551,19 +714,31 @@ createHouston = function() {
             | closures |
             \*        */
 
+            //---------------------------------------------------------------
+            // WARNING: The execution flow below may be confusing to you.
+            // Let me try to help.
+            // Propagate is always called first.
+            // If there are any actions to evaluate, propagate
+            // asynchronously calls evaluateActions.
+            // If there are any previous events to evaluate, propagate also
+            // asynchronously calls evaluatePreviousEvents.
+            // For each action, evaluateActions calls evaluateAction.
+            // EvaluateAction asynchronously executes the appropriate method
+            // and calls propagate whenever the method invokes the
+            // "event.trigger" function.
+            // EvaluatePreviousEvents keeps calling itself until all the
+            // previous events have been evaluated.
+            // If evaluatePreviousEvents finds actions to evaluate, it calls
+            // evaluateActions.
+            //---------------------------------------------------------------
+
             /**
              * Asynchronously propagates an event.
-             * Beware, this function uses a fair amount of recursion.
-             * This function calls evaluateActions and
-             * evaluatePreviousEvents.
-             * In turn, evaluatePreviousEvents calls itself and
-             * evaluateActions.
-             * In turn, evaluateActions calls evaluateAction which calls
-             * propagate.
              * @param {Object} event the event
              * @param {String} event.eventName the event name
              * @param {Object} event.eventData the event data
              * @param {String[]} event.eventNameStack the previous events
+             * @param {Array} event.actionStack the previous actions
              */
             propagate = function(event) {
                 /*      *\
@@ -595,33 +770,28 @@ createHouston = function() {
                 // If needed, asynchronously evaluate
                 // the actions and the previous events.
                 if (actionsFromRuleset && actionsFromRuleset.length > 0) {
-                    setTimeout(
-                        function() {
-                            evaluateActions(event, actionsFromRuleset);
-                        },
-                        0
-                    );
+                    process.nextTick(function() {
+                        evaluateActions(event, actionsFromRuleset);
+                    });
                 }
                 if (previousEventsFromRuleset) {
-                    setTimeout(
-                        function() {
-                            evaluatePreviousEvents(
-                                event,
-                                previousEventsFromRuleset,
-                                0 // the stack offset must start at 0
-                            );
-                        },
-                        0
-                    );
+                    process.nextTick(function() {
+                        evaluatePreviousEvents(
+                            event,
+                            previousEventsFromRuleset,
+                            0 // the stack offset must start at 0
+                        );
+                    });
                 }
             };
 
             /**
-             * Evaluates an array of actions.
+             * Synchronously evaluates an array of actions.
              * @param {Object} event the event
              * @param {String} event.eventName the event name
              * @param {Object} event.eventData the event data
              * @param {String[]} event.eventNameStack the previous events
+             * @param {Array} event.actionStack the previous actions
              * @param {Object[]} actions the actions
              */
             evaluateActions = function(event, actions) {
@@ -650,11 +820,10 @@ createHouston = function() {
              * @param {String} event.eventName the event name
              * @param {Object} event.eventData the event data
              * @param {String[]} event.eventNameStack the previous events
+             * @param {Array} event.actionStack the previous actions
              * @param {Object} action the action
              * @param {String} action.module the module name
              * @param {String} action.method the method name
-             * @throws {String} a string error message
-             *                  if Houston cannot find a module or method
              */
             evaluateAction = function(event, action) {
                 /*      *\
@@ -687,34 +856,49 @@ createHouston = function() {
                 actionStack = event.actionStack;
                 // Grab the module name and look it up in the module
                 // dictionary.
-                // If we can't find anything, panic!
+                // If we can't find anything, panic and stop!
                 moduleName = action.moduleName;
                 module = modules[moduleName];
                 if (!module) {
-                    throw 'Houston cannot find module "' + moduleName + '"';
+                    // Panic!
+                    if (canCallCallback) {
+                        callback(new Error(
+                            'Houston cannot find module "' + moduleName + '"'
+                        ), event);
+                    }
+                    // Stop!
+                    return;
                 }
                 // Grab the method name and look it up in the module.
-                // If we can't find anything, panic!
+                // If we can't find anything, panic and stop!
                 methodName = action.methodName;
                 method = module[methodName];
                 if (!method || typeof(method) !== 'function') {
-                    throw 'Houston cannot find method "' + moduleName +
-                          '.' + methodName + '"';
+                    // Panic!
+                    if (canCallCallback) {
+                        callback(new Error(
+                            'Houston cannot find method "' + moduleName +
+                            '.' + methodName + '"'
+                        ), event);
+                    }
+                    // Stop!
+                    return;
                 }
                 // Asynchronously...
-                setTimeout(
-                    function() {
-                        /*      *\
-                        | locals |
-                        \*      */
-                        // the start time of the method call
-                        // in milliseconds since UNIX
-                        var startTime;
-                        /*          *\
-                        | end locals |
-                        \*          */
-                        // Grab the start time.
-                        startTime = Date.now();
+                process.nextTick(function() {
+                    /*      *\
+                    | locals |
+                    \*      */
+                    // the start time of the method call
+                    // in milliseconds since UNIX
+                    var startTime;
+                    /*          *\
+                    | end locals |
+                    \*          */
+                    // Grab the start time.
+                    startTime = Date.now();
+                    // Here we go...
+                    try {
                         // Call the method.
                         // Make sure the module is the "this" pointer of
                         // the method call.
@@ -726,8 +910,8 @@ createHouston = function() {
                         method.call(module, {
                             eventName: eventName,
                             eventData: eventData,
-                            eventNameStack: eventNameStack,
-                            actionStack: actionStack,
+                            eventNameStack: eventNameStack.slice(),
+                            actionStack: actionStack.slice(),
                             trigger: function(newEventName, newEventData) {
                                 /*      *\
                                 | locals |
@@ -758,14 +942,21 @@ createHouston = function() {
                                 return this;
                             }
                         });
-                    },
-                    0
-                );
+                    }
+                    // Panic!
+                    catch (e) {
+                        // Panic!
+                        if (canCallCallback) {
+                            callback(e, event);
+                        }
+                        // Stop!
+                        return;
+                    }
+                });
             };
 
             /**
              * Evaluates a dictionary of previous events.
-             * Beware, this function calls itself.
              * @param {Object} event the event
              * @param {String} event.eventName the event name
              * @param {Object} event.eventData the event data
@@ -846,6 +1037,7 @@ createHouston = function() {
                             );
                         }
                     }
+                    // Update the index.
                     i--;
                 }
             };
@@ -854,11 +1046,22 @@ createHouston = function() {
             | end closures |
             \*            */
 
-            // Grab the module dictionary and the ruleset dictionary.
-            modules = this.modules;
-            ruleset = this.ruleset;
+            // Safeguard against falsey parameters.
+            if (!eventName) {
+                throw new Error('no event name');
+            }
             // Default the event name stack to an empty array.
             eventNameStack = eventNameStack || [];
+            // If event name stack is a function,
+            // assume the event name stack is the callback function.
+            if (typeof(eventNameStack) === 'function') {
+                callback = eventNameStack;
+                eventNameStack = [];
+            }
+            // Else, coerce the event name stack to an array.
+            else {
+                eventNameStack = [].concat(eventNameStack);
+            }
             // The action stack array and the event name stack array
             // must be kept in parallel.
             // Since we have no way of knowing what actions happened
@@ -868,6 +1071,11 @@ createHouston = function() {
             actionStack = eventNameStack.map(function() {
                 return null;
             });
+            // Determine whether we can call the callback function.
+            canCallCallback = typeof(callback) === 'function';
+            // Grab the module dictionary and the ruleset dictionary.
+            modules = this.modules;
+            ruleset = this.ruleset;
             // Asynchronously propagate the event.
             propagate({
                 eventName: eventName,
@@ -886,16 +1094,16 @@ createHouston = function() {
 
     };
 
-    /*                              *\
-    | end creation of Houston object |
-    \*                              */
+    /*                  *\
+    | end Houston object |
+    \*                  */
 
     return Houston;
 };
 
-/*                                        *\
-| end definition of createHouston function |
-\*                                        */
+/*                          *\
+| end createHouston function |
+\*                          */
 
 /*       *\
 | exports |
@@ -914,7 +1122,7 @@ module.exports = createHouston;
 /*
 var Houston = createHouston();
 
-Houston.addModule('Parser', {
+Houston.addModuleSync('Parser', {
     parse: function(event) {
         console.log('Entering Parser.parse');
         console.log(event);
@@ -922,7 +1130,7 @@ Houston.addModule('Parser', {
         console.log('Leaving Parser.parse');
     }
 });
-Houston.addModule('TwitterCounter', {
+Houston.addModuleSync('TwitterCounter', {
     count: function(event) {
         console.log('Entering TwitterCounter.count');
         console.log(event);
@@ -930,7 +1138,7 @@ Houston.addModule('TwitterCounter', {
         console.log('Leaving TwitterCounter.count');
     }
 });
-Houston.addModule('RSSCounter', {
+Houston.addModuleSync('RSSCounter', {
     count: function(event) {
         console.log('Entering RSSCounter.count');
         console.log(event);
@@ -938,7 +1146,7 @@ Houston.addModule('RSSCounter', {
         console.log('Leaving RSSCounter.count');
     }
 });
-Houston.addModule('FinalTwitter', {
+Houston.addModuleSync('FinalTwitter', {
     final: function(event) {
         console.log('Entering FinalTwitter.final');
         console.log(event);
@@ -946,20 +1154,20 @@ Houston.addModule('FinalTwitter', {
     }
 });
 
-Houston.addRuleset({
+Houston.addRulesetSync({
     'onTwitter': {
         actions: [
             {
-                module: 'Parser',
-                method: 'parse'
+                moduleName: 'Parser',
+                methodName: 'parse'
             }
         ]
     },
     'onRSS': {
         actions: [
             {
-                module: 'Parser',
-                method: 'parse'
+                moduleName: 'Parser',
+                methodName: 'parse'
             }
         ]
     },
@@ -968,16 +1176,16 @@ Houston.addRuleset({
             'onTwitter': {
                 actions: [
                     {
-                        module: 'TwitterCounter',
-                        method: 'count'
+                        moduleName: 'TwitterCounter',
+                        methodName: 'count'
                     }
                 ]
             },
             'onRSS': {
                 actions: [
                     {
-                        module: 'RSSCounter',
-                        method: 'count'
+                        moduleName: 'RSSCounter',
+                        methodName: 'count'
                     }
                 ]
             }
@@ -990,8 +1198,8 @@ Houston.addRuleset({
                     'onTwitter': {
                         actions: [
                             {
-                                module: 'FinalTwitter',
-                                method: 'final'
+                                moduleName: 'FinalTwitter',
+                                methodName: 'final'
                             }
                         ]
                     }
