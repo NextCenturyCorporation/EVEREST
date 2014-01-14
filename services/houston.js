@@ -601,6 +601,7 @@
                     var numNewActions;
                     // the number of actions from the master ruleset
                     var numMasterActions;
+
                     // loop variable
                     var i;
                     // the current action from the new ruleset
@@ -635,12 +636,17 @@
                                 // Merge the new actions into the master rules.
                                 //----------------------------------------------
                                 // Grab the new and master actions.
-                                // Default the master actions to an empty array.
                                 newActions = newRulesetForEvent.actions;
-                                masterActions =
-                                    masterRulesetForEvent.actions || [];
+                                masterActions = masterRulesetForEvent.actions;
                                 // There are new actions?
                                 if (newActions) {
+                                    // Default the master actions to
+                                    // an empty array.
+                                    if (!masterActions) {
+                                        masterActions = [];
+                                        masterRulesetForEvent.actions =
+                                            masterActions;
+                                    }
                                     // Grab the number of new actions and
                                     // the number of master actions.
                                     numNewActions = newActions.length;
@@ -655,9 +661,10 @@
                                         // Loop through the master actions.
                                         for (j = 0; j < numMasterActions; j++) {
                                             masterAction = masterActions[j];
-                                            // Determine whether the new action
-                                            // is a duplicate of the master
-                                            // action.
+                                            // Determine whether
+                                            // the new action
+                                            // is a duplicate of
+                                            // the master action.
                                             // If duplicate, stop looping!
                                             duplicateAction = areSameAction(
                                                 masterAction,
@@ -674,9 +681,6 @@
                                             masterActions.push(newAction);
                                         }
                                     }
-                                    // Update the master ruleset for the event.
-                                    masterRulesetForEvent.actions =
-                                        masterActions;
                                 }
                                 //------------------------------------
                                 // Merge the new previous events into
