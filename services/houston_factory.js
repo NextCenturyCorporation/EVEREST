@@ -37,7 +37,7 @@ var path;
 | initialization of module-wide variables |
 \*                                       */
 
-createHouston = require('./houston');
+Houston = require('./houston');
 houstonRulesetParser = require('./houston_ruleset_parser');
 dependable = require('dependable');
 fs = require('fs');
@@ -443,7 +443,7 @@ HoustonFactory = {
         moduleNames = [];
         modules = {};
         // Create the Houston object and the dependency injection container.
-        houston = createHouston();
+        houston = Houston();
         container = dependable.container();
         // Grab the logger from the dependencies.
         // If no logger, just use the console instead.
