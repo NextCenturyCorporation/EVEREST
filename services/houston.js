@@ -601,7 +601,6 @@
                     var numNewActions;
                     // the number of actions from the master ruleset
                     var numMasterActions;
-
                     // loop variable
                     var i;
                     // the current action from the new ruleset
