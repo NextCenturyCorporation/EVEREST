@@ -1,7 +1,6 @@
 <html>
 <head>
 	<script type="text/javascript" src="./houston.js"></script>
-	<script type="text/javascript" src="./houston_ruleset_parser.js"></script>
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 	<style>
 		.col {
@@ -101,9 +100,8 @@
 
 		$('#change').click(function() {
 			var rules = $('#rulesets').val();
-			var ruleset = HoustonRulesetParser.parse(rules);
 			houston.clearAllRulesets();
-			houston.addRulesetSync(ruleset);
+			houston.addRuleset(rules);
 		});
 
 	</script>
