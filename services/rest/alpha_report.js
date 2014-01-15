@@ -36,7 +36,7 @@ module.exports = function(app, models, io, logger) {
 		if (logger.DO_LOG) {
 			logger.info("Request for list of tags for the Alpha Report object");
 		}
-		
+
 		alphaReportService.getTags(function(err, tags) {
 			if (!tags) {
 				responseHandler.send500(res, "Error getting tags for the Alpha Report object");
@@ -72,7 +72,7 @@ module.exports = function(app, models, io, logger) {
 		if (logger.DO_LOG) {
 			logger.info("Request for list of date attributes for the Alpha Report object");
 		}
-	
+
 		alphaReportService.getDateTypes(function(datetypes) {
 			if (!datetypes) {
 				responseHandler.send500(res, "Error getting date attributes for the Alpha Report object");
@@ -82,12 +82,12 @@ module.exports = function(app, models, io, logger) {
 			}
 		});
 	});
-	
+
 	/**
 	 * List createdDate for all of the Alpha Reports (in milliseconds)
 	 */
 	app.get("/alpha-report/dates/?", function(req, res) {
-		if (logger.DO_LOG) { 
+		if (logger.DO_LOG) {
 			logger.info("Request for list of dates for all Alpha Reports");
 		}
 
@@ -101,33 +101,32 @@ module.exports = function(app, models, io, logger) {
 		});
 	});
 
-	/** 
-	 * A mode and base date are passed in, the will return the dates that
-	 *  fall within that mode, given the base date
+	/**
+	 * A mode and base date are passed in, the will return the dates that fall
+	 * within that mode, given the basedate.
 	 */
-	app.get("/alpha-report/dates/:mode/:date/?", function(req, res) {
-		if (logger.DO_LOG) { 
-			logger.info("Request for list of dates");
+	app.post("/alpha-report/dates/?", function(req, res){
+		if(logger.DO_LOG){
+			logger.info("Request for list of dates for all Raw Feeds");
 		}
-
-		alphaReportHistogram.findDatesByFrequency(req.params.mode, req.params.date, function(dates) {
-			if (!dates) {
-				responseHandler.send500(res, "Error getting dates for Alpha Reports");
+		alphaReportHistogram.findDatesByFrequency(req.body, function(dates) {
+			if (!dates){
+				responseHandler.send500(res, "Error getting dates for Raw Feeds");
 			} else {
 				res.jsonp(dates);
 				res.end();
 			}
 		});
 	});
-	
-	/** 
-	 * list the _id and source_id of all Alpha Reports 
+
+	/**
+	 * list the _id and source_id of all Alpha Reports
 	 */
 	app.get("/alpha-report/source_ids/?", function(req, res) {
 		if (logger.DO_LOG) {
 			logger.info("Request for Alpha Report source_id list");
 		}
-		
+
 		var params = {};
 		alphaReportService.listFields(params, "_id source_id", function(err, docs) {
 			if (err) {
@@ -139,7 +138,7 @@ module.exports = function(app, models, io, logger) {
 			}
 		});
 	});
-	
+
 	/**
 	 * Create a new Alpha Report
 	 */
@@ -147,7 +146,7 @@ module.exports = function(app, models, io, logger) {
 		if (logger.DO_LOG) {
 			logger.info("Receiving new Alpha Report ", req.body);
 		}
-		
+
 		alphaReportService.create(req.body, function(err, val, newAlphaReport) {
 			if (err) {
 				logger.error("Error saving Alpha Report", err);
@@ -162,7 +161,7 @@ module.exports = function(app, models, io, logger) {
 			}
 		});
 	});
-	
+
 	/**
 	 * Review a Alpha Report specified by id
 	 * /alpha-report/:{param_name}(contents go in param_name)
@@ -171,7 +170,7 @@ module.exports = function(app, models, io, logger) {
 		if (logger.DO_LOG) {
 			logger.info("Request for Alpha Report " + req.params.id);
 		}
-		
+
 		alphaReportService.get(req.params.id, function(err, docs) {
 			if (err) {
 				logger.error("Error getting Alpha Report", err);
@@ -184,7 +183,7 @@ module.exports = function(app, models, io, logger) {
 			}
 		});
 	});
-	
+
 	/**
 	 * Update Alpha Report with specified id
 	 */
@@ -207,7 +206,7 @@ module.exports = function(app, models, io, logger) {
 			}
 		});
 	});
-	
+
 	/**
 	 * Delete a single Alpha Report with specified id
 	 */
@@ -215,13 +214,13 @@ module.exports = function(app, models, io, logger) {
 		if (logger.DO_LOG) {
 			logger.info("Deleting Alpha Report with id: " + req.params.id);
 		}
-		
+
 		alphaReportService.del({_id: req.params.id}, function(err, count) {
 			res.jsonp({deleted_count: count});
 			res.end();
 		});
 	});
-	
+
 	/**
 	 * Delete all Alpha Reports
 	 */
@@ -229,7 +228,7 @@ module.exports = function(app, models, io, logger) {
 		if (logger.DO_LOG) {
 			logger.info("Deleting all Alpha Reports");
 		}
-		
+
 		alphaReportService.del({}, function(err, count) {
 			res.jsonp({deleted_count: count});
 			res.end();

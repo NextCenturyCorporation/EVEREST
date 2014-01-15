@@ -10,7 +10,7 @@ module.exports = function(app, models, io, logger) {
 	 * List all Raw Feed
 	 */
 	app.get("/rawfeed/?", function(req, res) {
-		if (logger.DO_LOG) { 
+		if (logger.DO_LOG) {
 			logger.info("Request for list of Raw Feeds");
 		}
 
@@ -31,15 +31,15 @@ module.exports = function(app, models, io, logger) {
 			}
 		});
 	});
-	
+
 	/**
 	 * List all indexes for the Raw Feed object
 	 */
 	app.get("/rawfeed/indexes/?", function(req, res) {
-		if (logger.DO_LOG) { 
+		if (logger.DO_LOG) {
 			logger.info("Request for list of indexes for the Raw Feed object");
 		}
-		
+
 		rawFeedService.getIndexes(function(indexes) {
 			if (!indexes) {
 				responseHandler.send500(res, "Error getting indexes for the Raw Feed object");
@@ -57,7 +57,7 @@ module.exports = function(app, models, io, logger) {
 		if (logger.DO_LOG) {
 			logger.info("Request for list of date attributes for the Raw Feed object");
 		}
-	
+
 		rawFeedService.getDateTypes(function(datetypes) {
 			if (!datetypes) {
 				responseHandler.send500(res, "Error getting date attributes for the Raw Feed object");
@@ -72,7 +72,7 @@ module.exports = function(app, models, io, logger) {
 	 * List createdDate for all of the Raw Feeds (in milliseconds)
 	 */
 	app.get("/rawfeed/dates/?", function(req, res) {
-		if (logger.DO_LOG) { 
+		if (logger.DO_LOG) {
 			logger.info("Request for list of dates for all Raw Feeds");
 		}
 
@@ -90,12 +90,11 @@ module.exports = function(app, models, io, logger) {
 	 * A mode and base date are passed in, the will return the dates that fall
 	 * within that mode, given the basedate.
 	 */
-	app.get("/rawfeed/dates/:mode/:date/?", function(req, res){
-		if(logger.DO_LOG){ 
+	app.post("/rawfeed/dates/?", function(req, res){
+		if(logger.DO_LOG){
 			logger.info("Request for list of dates for all Raw Feeds");
 		}
-
-		rawFeedHistogram.findDatesByFrequency(req.params.mode, req.params.date, function(dates) {
+		rawFeedHistogram.findDatesByFrequency(req.body, function(dates) {
 			if (!dates){
 				responseHandler.send500(res, "Error getting dates for Raw Feeds");
 			} else {
@@ -104,7 +103,7 @@ module.exports = function(app, models, io, logger) {
 			}
 		});
 	});
-	
+
 	/**
 	 * Create a new Raw Feed
 	 */
@@ -112,7 +111,7 @@ module.exports = function(app, models, io, logger) {
 		if (logger.DO_LOG) {
 			logger.info("Receiving new Raw Feed", req.body);
 		}
-		
+
 		rawFeedService.create(req.body, function(err, val, newFeed) {
 			if (err) {
 				logger.error("Error saving Raw Feed", err);
@@ -136,7 +135,7 @@ module.exports = function(app, models, io, logger) {
 		if (logger.DO_LOG) {
 			logger.info("Request for Raw Feed " + req.params.id);
 		}
-		
+
 		rawFeedService.get(req.params.id, function(err, docs) {
 			if (err) {
 				logger.error("Error getting Raw Feed", err);
@@ -186,7 +185,7 @@ module.exports = function(app, models, io, logger) {
 			res.end();
 		});
 	});
-	
+
 	/**
 	 * Delete all Raw Feeds
 	 */
@@ -194,7 +193,7 @@ module.exports = function(app, models, io, logger) {
 		if (logger.DO_LOG) {
 			logger.info("Deleting all Raw Feeds");
 		}
-		
+
 		rawFeedService.del({}, function(err, count) {
 			res.jsonp({deleted_count: count});
 			res.end();

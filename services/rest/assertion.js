@@ -5,7 +5,7 @@ var histogramDataModule = require("../modules/histogramDataModule.js");
 module.exports = function(app, models, io, logger) {
 	var assertionService = new AssertionService(models, io, logger);
 	var assertionHistogram = new histogramDataModule(models.assertion);
-	
+
 	/**
 	 * List all Assertions
 	 */
@@ -36,7 +36,7 @@ module.exports = function(app, models, io, logger) {
 		if (logger.DO_LOG) {
 			logger.info("Request for list of tags for the Assertion object");
 		}
-		
+
 		assertionService.getTags(function(err, tags) {
 			if (!tags) {
 				responseHandler.send500(res, "Error getting tags for the Assertion object");
@@ -54,7 +54,7 @@ module.exports = function(app, models, io, logger) {
 		if (logger.DO_LOG) {
 			logger.info("Request for list of indexes for the Assertion object");
 		}
-		
+
 		assertionService.getIndexes(function(indexes) {
 			if (!indexes) {
 				responseHandler.send500(res, "Error getting indexes for the Assertion object");
@@ -72,7 +72,7 @@ module.exports = function(app, models, io, logger) {
 		if (logger.DO_LOG) {
 			logger.info("Request for list of date attributes for the Assertion object");
 		}
-	
+
 		assertionService.getDateTypes(function(datetypes) {
 			if (!datetypes) {
 				responseHandler.send500(res, "Error getting date attributes for the Assertion object");
@@ -82,15 +82,15 @@ module.exports = function(app, models, io, logger) {
 			}
 		});
 	});
-	
+
 	/**
 	 * List createdDate for all of the Assertions (in milliseconds)
 	 */
 	app.get("/assertion/dates/?", function(req, res) {
-		if (logger.DO_LOG) { 
+		if (logger.DO_LOG) {
 			logger.info("Request for list of dates for all Assertions");
 		}
-		
+
 		assertionService.findDates(function(dates) {
 			if (!dates) {
 				responseHandler.send500(res, "Error getting dates for Assertions");
@@ -101,25 +101,24 @@ module.exports = function(app, models, io, logger) {
 		});
 	});
 
-	/** 
-	 * A mode and base date are passed in, the will return the dates that
-	 *  fall within that mode, given the base date
+	/**
+	 * A mode and base date are passed in, the will return the dates that fall
+	 * within that mode, given the basedate.
 	 */
-	app.get("/assertion/dates/:mode/:date/?", function(req, res) {
-		if(logger.DO_LOG) { 
-			logger.info("Request for list of dates for Assertions");
+	app.post("/assertion/dates/?", function(req, res){
+		if(logger.DO_LOG){
+			logger.info("Request for list of dates for all Raw Feeds");
 		}
-
-		assertionHistogram.findDatesByFrequency(req.params.mode, req.params.date, function(dates) {
-			if (!dates) {
-				responseHandler.send500(res, "Error getting dates for Assertions");
+		assertionHistogram.findDatesByFrequency(req.body, function(dates) {
+			if (!dates){
+				responseHandler.send500(res, "Error getting dates for Raw Feeds");
 			} else {
 				res.jsonp(dates);
 				res.end();
 			}
 		});
 	});
-	
+
 	/**
 	 * Create a new Assertion
 	 */
@@ -151,7 +150,7 @@ module.exports = function(app, models, io, logger) {
 		if (logger.DO_LOG) {
 			logger.info("Request for Assertion " + req.params.id);
 		}
-		
+
 		assertionService.get(req.params.id, function(err, docs) {
 			if (err) {
 				logger.error("Error getting Assertion", err);
@@ -164,7 +163,7 @@ module.exports = function(app, models, io, logger) {
 			}
 		});
 	});
-	
+
 	/**
 	 * Update Assertion with specified id
 	 */
@@ -172,7 +171,7 @@ module.exports = function(app, models, io, logger) {
 		if (logger.DO_LOG) {
 			logger.info("Update Assertion " + req.params.id);
 		}
-		
+
 		assertionService.update(req.params.id, req.body, function(err, val, updated) {
 			if (err) {
 				logger.error("Error updating Assertion", err);
@@ -187,7 +186,7 @@ module.exports = function(app, models, io, logger) {
 			}
 		});
 	});
-	
+
 	/**
 	 * Delete a single Assertion with specified id
 	 */
@@ -195,13 +194,13 @@ module.exports = function(app, models, io, logger) {
 		if (logger.DO_LOG) {
 			logger.info("Deleting Assertion with id: " + req.params.id);
 		}
-		
+
 		assertionService.del({_id: req.params.id}, function(err, count) {
 			res.jsonp({deleted_count: count});
 			res.end();
 		});
 	});
-	
+
 	/**
 	 * Delete all Assertions
 	 */
@@ -209,7 +208,7 @@ module.exports = function(app, models, io, logger) {
 		if (logger.DO_LOG) {
 			logger.info("Deleting all Assertions");
 		}
-		
+
 		assertionService.del({}, function(err, count) {
 			res.jsonp({deleted_count: count});
 			res.end();
