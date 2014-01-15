@@ -3,10 +3,10 @@ var ReporterService = require('../database/reporter.js');
 var AssertionService = require('../database/assertion.js');
 var actionEmitter = require('../action_emitter.js');
 
-module.exports = function(models, io, logger) {
+module.exports = function(models, io, logger, houston) {
 	var me = this;
 
-	var alphaReportService = new AlphaReportService(models, io, logger);
+	var alphaReportService = new AlphaReportService(models, io, logger, houston);
 	var reporterService = new ReporterService(models, io, logger);
 
 	me.parseTwitterDate = function(text) {

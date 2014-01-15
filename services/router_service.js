@@ -3,7 +3,7 @@
 
 var models = require('../models/models');
 
-module.exports = function(app, io, logger){
+module.exports = function(app, io, logger, houston){
 
 	var AlphaReport = require('./rest/alpha_report.js');
 	new AlphaReport(app, models, io, logger);

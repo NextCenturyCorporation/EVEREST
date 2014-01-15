@@ -8,7 +8,7 @@ String.prototype.stripHTMLFromFeed = function() {
 };
 
 
-module.exports = function(models, io, logger) {
+module.exports = function(models, io, logger, houston) {
 	
 	// bbn 10-08-13  I changed this self = this pattern back to just using "this"
 	//               The call to createAlphaReportCallback did not seem to be finding
@@ -17,7 +17,7 @@ module.exports = function(models, io, logger) {
 	
 	//var self = this;
 
-	var alphaReportService = new AlphaReportService(models, io, logger);
+	var alphaReportService = new AlphaReportService(models, io, logger, houston);
 	
 	this.parseAndSave = function(raw_feed_object) {
 		var alpha_report_object = {};

@@ -43,6 +43,20 @@ requiredServicesList["twitter_to_alpha_report"] = require('./parsers/twitter_to_
 //**requiredServicesList['alpha_report'] = require("./database/alpha_report.js");**
 
 module.exports = function(models, io, logger) {
+
+	//--------------------------------------------------------------
+	// Manually hack Houston into EVEREST.
+	// Eventually, once everything has been properly Houston-ified,
+	// we should use houston_factory.js to automagically
+	// fill in the dependencies using the Dependable npm module.
+	// This is just a proof of concept.
+	//--------------------------------------------------------------
+	var Houston = require('./houston');
+	var houston = Houston();
+	//-----------
+	// End hack.
+	//-----------
+
 	var serviceList = {};
 	//var self = this;
 	//This loop will automatically create a new Object of the type of the service using standard Object notation
@@ -50,7 +64,7 @@ module.exports = function(models, io, logger) {
 	//var AlphaReport = new requiredServicesList['alpha_report'](models,io,logger,actionEmitter);
 	for(var service in requiredServicesList) {
 		if(typeof(requiredServicesList[service.toString()]) === typeof(Function)) {//eval("var " + service.toObjectNotation() + "= new "+ "requiredServicesList['" + service + "'](models,io,logger);");
-			serviceList[service.toObjectNotation()] = new requiredServicesList[service.toString()](models,io,logger);
+			serviceList[service.toObjectNotation()] = new requiredServicesList[service.toString()](models,io,logger,houston);
 		}
 	}
 	var Listener = require('./action_implementations.js');
@@ -77,4 +91,27 @@ module.exports = function(models, io, logger) {
 			logger.error('Handler:  ' + fun + ' defined but ' + fun.deHandlerify() +' not defined in action_emitter.js \n');
 		}
 	}
+
+	//--------------------------------------------------------------
+	// Manually hack Houston into EVEREST.
+	// Eventually, once everything has been properly Houston-ified,
+	// we should use houston_factory.js to automagically
+	// fill in the dependencies using the Dependable npm module.
+	// This is just a proof of concept.
+	//--------------------------------------------------------------
+	houston.addModuleSync(serviceList);
+	houston.addModuleSync({
+		SocketIo: require('./modules/socket_io')(io, logger)
+	});
+	houston.addRulesetSync(
+		'onAlphaReportCreated {' +
+			'SocketIo.emit;' +
+			'NlpParserAsync.parseAndSaveHouston;' +
+			'AlphaReportToTags.addTagsHouston;' +
+		'}'
+	);
+	//-----------
+	// End hack.
+	//-----------
+
 };

@@ -2,12 +2,12 @@ var TwitterParser = require('./twitter_to_alpha_report.js');
 var AtomRssParser = require('./atom_rss_to_alpha_report.js');
 var RawFeedService = require('../database/raw_feed.js');
 
-module.exports = function(models, io, logger) {
+module.exports = function(models, io, logger, houston) {
 	var me = this;
 
 	var raw_feed_service = new RawFeedService(models, io, logger);
-	var twitter_parser = new TwitterParser(models, io, logger);
-	var rss_atom_parser = new AtomRssParser(models, io, logger);
+	var twitter_parser = new TwitterParser(models, io, logger, houston);
+	var rss_atom_parser = new AtomRssParser(models, io, logger, houston);
 
 	me.parsers = {
 		"twitter": twitter_parser,

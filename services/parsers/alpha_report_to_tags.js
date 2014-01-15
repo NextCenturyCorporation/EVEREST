@@ -3,6 +3,11 @@ module.exports = function(models, io, logger) {
 	var me = this;
 	var tagService = new TagService(models, io, logger);
 
+	this.addTagsHouston = function(event) {
+		var alphaReportObject = event.eventData.alphaReportObject;
+		this.addTags(alphaReportObject);
+	};
+
 	me.addTags = function(obj) {
 		if (!obj.message_body || !obj._id) {
 			return ;

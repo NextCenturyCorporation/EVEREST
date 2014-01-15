@@ -18,6 +18,17 @@ module.exports = function(models, io, logger) {
 
 	//var assertion_service = services.assertionService;
 	
+	//--------------------------------------------------------
+	// Intercept the Houston event onAlphaReportCreated here.
+	//--------------------------------------------------------
+	this.parseAndSaveHouston = function(event) {
+		var alphaReportObject = event.eventData.alphaReportObject;
+		this.parseAndSave(alphaReportObject);
+	}
+	//----------------
+	// End intercept.
+	//----------------
+
 	/*me.parseAndSave = function(alpha_report_object){
 		logger.info('Attempting to parse alpha_report_object with id ' + alpha_report_object._id);		
 		var assertion_object = {};

@@ -5,7 +5,7 @@ var actionEmitter = require("../action_emitter.js");
 var paramHandler = require("../list_default_handler.js");
 var async = require("async");
 
-module.exports = function(models, io, logger) {
+module.exports = function(models, io, logger, houston) {
 	var me = this;
 	var validationModel = models.alphaReportValidation;
 
@@ -184,7 +184,16 @@ module.exports = function(models, io, logger) {
 					if (err) {
 						logger.error("Error saving Alpha Report ", err);
 					} else {
-						actionEmitter.saveAlphaReportEvent(newAlphaReport);
+						//----------------------------
+						// Trigger the Houston event
+						// onAlphaReportCreated here.
+						//----------------------------
+						houston.trigger('onAlphaReportCreated', {
+							alphaReportObject: newAlphaReport
+						});
+						//--------------
+						// End trigger.
+						//--------------
 					}
 
 					saveCallback(err, valid, newAlphaReport);
