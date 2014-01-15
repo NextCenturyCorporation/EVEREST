@@ -655,6 +655,7 @@
              *                                          the array of ruleset
              *                                          dictionaries
              * @returns {HoustonObject} the Houston object for method chaining
+             * @throws {Error} an error if no rulesets provided
              *
              * @see [HoustonObject.addRuleset]{@link HoustonObject#addRuleset}
              *      for example code
@@ -844,6 +845,10 @@
 
                 // Grab the Houston ruleset dictionary.
                 houstonRuleset = this.ruleset;
+                // If the rulesets variable is falsey, panic!
+                if (!rulesets) {
+                    throw new Error('no rulesets');
+                }
                 // If the rulesets variable is a string,
                 // parse it using Houston.parse.
                 if (typeof rulesets === 'string') {
@@ -1485,7 +1490,9 @@
      * @memberof HoustonStatic
      * @param {String} input the HRS input string
      * @returns {Object[]} an array of ruleset dictionaries
-     * @throws {Error} an error if unable to lex or parse the input string
+     * @throws {Error} an error if
+     *                 no input provided or
+     *                 unable to lex or parse the input string
      *
      * @example
      * //--------------------
@@ -1960,7 +1967,7 @@
                     // The token is an identifier?
                     if (token.type === 'identifier') {
                         // Grab all the event selectors.
-                        while (token.type === 'identifier') {
+                        while (token && token.type === 'identifier') {
                             eventSelectorsBetweenCommas[numEventSelectorCommas]
                                 .push(token.value);
                             advance();
@@ -2080,6 +2087,11 @@
         /*            *\
         | end closures |
         \*            */
+
+        // Safeguard against falsey parameters.
+        if (!input) {
+            throw new Error('no input');
+        }
 
         // Lex and then parse the input string.
         // Return the output.
