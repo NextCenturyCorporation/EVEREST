@@ -27,6 +27,8 @@ module.exports = function(model) {
 			baseDate = bucketDate.format('YYYY-MM-DD');
 		} else if(mode === 'hour') {
 			baseDate = bucketDate.format('YYYY-MM-DD HH:mm');
+		} else if(mode === 'minute') {
+			baseDate = bucketDate.format('YYYY-MM-DD HH:mm');
 		}
 		var config = { createdDate: { $gte: startRange, $lte: endRange } };
 		model.count(config, function(err, count) {
