@@ -1,25 +1,25 @@
 var java = require('java');
 var async = require('async');
-var actionEmitter = require('../action_emitter.js');
+var eventing = require('../../eventing/eventing');
 
 module.exports = function(models, io, logger) {
 	var me = this;
 
 	//java.classpath.push('./java_lib/Triplet_Extraction.jar');
-	
+
 	var Parser = java.import('com.nextcentury.TripletExtraction.CoreNlpParser');
 	var parser = new Parser();
-	
+
 	var PosTagger = java.import('com.nextcentury.TripletExtraction.CoreNlpPOSTagger');
 	var posTagger = new PosTagger();
 
-	var ArrayList = java.import('java.util.ArrayList');
-	var Triplet = java.import('com.nextcentury.TripletExtraction.Triplet');
+	//var ArrayList = java.import('java.util.ArrayList');
+	//var Triplet = java.import('com.nextcentury.TripletExtraction.Triplet');
 
 	//var assertion_service = services.assertionService;
-	
+
 	/*me.parseAndSave = function(alpha_report_object){
-		logger.info('Attempting to parse alpha_report_object with id ' + alpha_report_object._id);		
+		logger.info('Attempting to parse alpha_report_object with id ' + alpha_report_object._id);
 		var assertion_object = {};
 		if(alpha_report_object.message_body){
 			parser.parseAndRemovePeriods(alpha_report_object.message_body, function(err, tree) {
@@ -54,7 +54,7 @@ module.exports = function(models, io, logger) {
 	me.parseAndSave = function(alpha_report_object) {
 		logger.info('Attempting to parse alpha_report_object with id ' + alpha_report_object._id);
 		if(alpha_report_object.message_body) {
-			
+
 			parser.parseText(alpha_report_object.message_body, function(err, results) {
 				var tuples = results.toArraySync();
 
@@ -68,7 +68,7 @@ module.exports = function(models, io, logger) {
 						logger.debug("Converting tuple result to array for handling");
 						tuples = [results];
 					}
-					
+
 					async.each(tuples, function(tuple, callback) {
 						var assertion_object = {};
 
@@ -84,10 +84,11 @@ module.exports = function(models, io, logger) {
 						assertion_object.entity1 = tuple.getEntity1StringSync().toString();
 						assertion_object.relationship = tuple.getRelationStringSync().toString();
 						assertion_object.entity2 = tuple.getEntity2StringSync().toString();
-						
+
 						console.log("calling the built");
 
-						actionEmitter.assertionBuiltEvent(assertion_object, callback);
+						eventing.fire('assertion-built', assertion_object);
+						callback();
 					});
 				}
 			});

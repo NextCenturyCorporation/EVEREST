@@ -1,7 +1,7 @@
 var Bvalidator = require("../../models/alpha_report/bvalidator.js");
 var revalidator = require("revalidator");
 var RawFeedService = require("./raw_feed");
-var actionEmitter = require("../action_emitter.js");
+var eventing = require("../../eventing/eventing");
 var paramHandler = require("../list_default_handler.js");
 var async = require("async");
 
@@ -24,13 +24,13 @@ module.exports = function(models, io, logger) {
 			if (params !== null) {
 				var sortObject = {};
 				sortObject[params.sortKey] = params.sort;
-				
-				var config = {}
+
+				var config = {};
 				config[params.date] = {
 					$gte: params.start,
 					$lte: params.end
 				};
-				
+
 				models.alphaReport.find(config).skip(params.offset).sort(sortObject).limit(params.count).exec(function(err, res) {
 					callback(err, res, config);
 				});
@@ -41,10 +41,11 @@ module.exports = function(models, io, logger) {
 			}
 		});
 	};
-	
+
 	me.getTags = function(callback) {
 		var o = {
-			map : function () { 
+
+			map : function () {
 				if (!this.message_body || !this._id) { return; }
 				var stripped = this.message_body.replace(/[\.,!$%\^&\*;:{}=`~()\[\]\"]/g, '');
 				stripped = stripped.replace(/[\n\t]/g, ' ');
@@ -79,6 +80,7 @@ module.exports = function(models, io, logger) {
 
 				return reduced;
 			},
+
 			out: {
 				replace: 'tags'
 			},
@@ -87,7 +89,7 @@ module.exports = function(models, io, logger) {
 
 		models.alphaReport.mapReduce(o, function(err, model, stats) {
 			console.log(stats);
-			model.find().exec(callback)
+			model.find().exec(callback);
 		});
 	};
 
@@ -104,10 +106,10 @@ module.exports = function(models, io, logger) {
 				indexes.push(keys[i].toString());
 			}
 		}
-		
+
 		callback(indexes);
 	};
-	
+
 	/**
 	*	Returns a list of date attributes for Alpha Report
 	*/
@@ -119,7 +121,7 @@ module.exports = function(models, io, logger) {
 				dateTypes.push(keys[i].toString());
 			}
 		}
-	
+
 		callback(dateTypes);
 	};
 
@@ -149,7 +151,7 @@ module.exports = function(models, io, logger) {
 	me.flattenArray = function (string, callback) {
 		callback(null, Date.parse(string.createdDate));
 	};
-	
+
 	/**
 	 *	Returns the number of Alpha Reports that fit the specified config
 	 */
@@ -168,23 +170,23 @@ module.exports = function(models, io, logger) {
 	 * create is a "generic" save method callable from both
 	 * request-response methods and parser-type methods for population 
 	 * of Alpha Report data
-	 * 
+	 *
 	 * create calls the validateAlphaReport module to ensure that the
 	 * data being saved to the database is complete and has integrity.
-	 * 
+	 *
 	 * saveCallback takes the form function(err, valid object, Alpha Report object)
 	 */
 	me.create = function(data, saveCallback) {
 		me.validateAlphaReport(data, function(valid) {
 			if (valid.valid) {
 				logger.info("Valid Alpha Report");
-				
+
 				var newAlphaReport = new models.alphaReport(data);
 				newAlphaReport.save(function(err) {
 					if (err) {
 						logger.error("Error saving Alpha Report ", err);
 					} else {
-						actionEmitter.saveAlphaReportEvent(newAlphaReport);
+						eventing.fire('alpha-report-saved', newAlphaReport);
 					}
 
 					saveCallback(err, valid, newAlphaReport);
@@ -203,7 +205,7 @@ module.exports = function(models, io, logger) {
 	 * calls the business validation module bvalidator for the AlphaReport object
 
 	 * data is the object being validated
-	 * 
+	 *
 	 * valCallback takes the form function(valid structure)
 	 */
 	me.validateAlphaReport = function(data, valCallback) {
@@ -229,7 +231,7 @@ module.exports = function(models, io, logger) {
 	/**
 	 * generic read method to return all documents that have a matching
 	 * set of key, value pairs specified by config
-	 * 
+	 *
 	 * callback takes the form function(err, docs)
 	 */
 	me.findWhere = function(config, callback) {
@@ -253,7 +255,7 @@ module.exports = function(models, io, logger) {
 						docs[e] = data[e];
 					}
 				}
-				
+
 				docs.updatedDate = new Date();
 				me.validateAlphaReport(docs, function(valid) {
 					if (valid.valid) {

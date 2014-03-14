@@ -1,8 +1,7 @@
 var AlphaReportService = require('../database/alpha_report.js');
 var Nlp_Parser = require('../parsers/nlp_parser_async.js');
 var general = require('../general_response');
-var actionEmitter = require('../action_emitter.js');
-
+var eventing = require('../../eventing/eventing');
 var async = require('async');
 
 module.exports = function(app, models, io, logger){
@@ -14,16 +13,16 @@ module.exports = function(app, models, io, logger){
 	me.models = models;
 
 	var alphaReportService = new AlphaReportService(models, io, logger);
-	
+
 	//var services = {assertion: new AssertionService(models, io, logger)};
 	var nlp_parser = new Nlp_Parser(models, io, logger);
-	
+
 	// start the parser
 	app.get('/nlp-parser/parse', function(req, res){
 		if(logger.DO_LOG){
 			logger.info('Request for nlp parser start.');
 		}
-		
+
 		me.parse_reports(req.query, res);
 	});
 
@@ -39,14 +38,14 @@ module.exports = function(app, models, io, logger){
 				logger.info({error: "Not found"});
 			}
 		});
-	};	
+	};
 
 	// start the parser
 	app.get('/nlp-parser/parse-raw-feeds/?', function(req, res){
 		if(logger.DO_LOG){
 			logger.info('Request for nlp parser start on raw feeds.');
 		}
-		
+
 		me.parse_raw_feeds(0);
 
 		res.json({success: true});
@@ -59,12 +58,10 @@ module.exports = function(app, models, io, logger){
 			async.each(rawFeeds, function(feed, asyncCallback) {
 				models.alphaReport.find({raw_data_id: feed._id}, function(err, alpha) {
 					if(alpha.length === 0) {
-						process.nextTick(function() {
-							actionEmitter.rawFeedParseEvent(feed._id);
-						});
+						eventing.fire('raw-feed-saved', feed);
 					}
 					asyncCallback();
-				})
+				});
 			});
 		});
 
@@ -77,13 +74,13 @@ module.exports = function(app, models, io, logger){
 			}
 		});
 	};
-	
+
 	// post text to get back tuples
 	app.post('/nlp-parser/parse/?', function(req, res){
 		if(logger.DO_LOG){
 			logger.info('Request for nlp parser to parse text.');
 		}
-		
+
 		nlp_parser.parseToTuples(req.body.text, function(err, tuples) {
 			var results = [];
 			var tuple;
@@ -135,7 +132,7 @@ module.exports = function(app, models, io, logger){
 		if(logger.DO_LOG){
 			logger.info('Request for nlp parser to parse text to a semanticgraph.');
 		}
-		
+
 		nlp_parser.parseToAnnotationGraphs(req.body.text, function(err, graphs) {
 			if(err) {
 				var msg = "There was an error attempting to annotate sentence";
@@ -161,14 +158,14 @@ module.exports = function(app, models, io, logger){
 		if(logger.DO_LOG){
 			logger.info('Request for nlp parser to parse text to a dependency graph.');
 		}
-		
+
 		nlp_parser.parseToDependencyGraphs(req.body.text, function(err, graphs) {
 			if(err) {
 				var msg = "There was an error attempting to parse sentence";
 				logger.error(msg, err);
 				return general.send500(res, msg);
 			}
-			
+
 			var graphArray = graphs.toArraySync();
 
 			var result = [];
@@ -187,7 +184,7 @@ module.exports = function(app, models, io, logger){
 		if(logger.DO_LOG){
 			logger.info('Request for nlp parser to parse text to a root and child details.');
 		}
-		
+
 		nlp_parser.parseRootChildData(req.body.text, function(err, result) {
 			if(err) {
 				var msg = "There was an error attempting to mark root and children";
@@ -205,7 +202,7 @@ module.exports = function(app, models, io, logger){
 		if(logger.DO_LOG){
 			logger.info('Request for nlp parser to parse text to a dot product graph string.');
 		}
-		
+
 		nlp_parser.parseToDotProductGraph(req.body.text, function(err, result) {
 			if(err) {
 				var msg = "There was an error attempting to parse sentence";
@@ -222,7 +219,7 @@ module.exports = function(app, models, io, logger){
 		if(logger.DO_LOG){
 			logger.info('Request for nlp parser to parse text to edges and vertices.');
 		}
-		
+
 		nlp_parser.parseToEdgeVertex(req.body.text, function(err, result) {
 			if(err) {
 				var msg = "There was an error attempting to get edges and vertices";
@@ -238,7 +235,7 @@ module.exports = function(app, models, io, logger){
 		if(logger.DO_LOG){
 			logger.info('Request for nlp parser full results.');
 		}
-		
+
 		var result = {};
 
 		async.series([function(callback) {
@@ -298,7 +295,7 @@ module.exports = function(app, models, io, logger){
 					}, function() {
 						result.annotation = internalResult;
 						callback();
-					});	
+					});
 				});
 			});
 		}, function(callback) {
@@ -309,7 +306,7 @@ module.exports = function(app, models, io, logger){
 					result.dependency = msg;
 					callback();
 				}
-				
+
 				graphs.toArray(function(err, graphArray) {
 					var internalResult = [];
 					async.eachSeries(graphArray, function(graph, internalCallback) {
@@ -349,7 +346,7 @@ module.exports = function(app, models, io, logger){
 					result.dependency = msg;
 					callback();
 				}
-				
+
 				output.toArray(function(err, resultArray) {
 					var internalResult = [];
 					async.eachSeries(resultArray, function(sentence, internalCallback) {
@@ -369,7 +366,7 @@ module.exports = function(app, models, io, logger){
 					result.edge_vertex = msg;
 					callback();
 				}
-				
+
 
 				output.toArray(function(err, resultArray) {
 					var internalResult = [];
@@ -392,9 +389,9 @@ module.exports = function(app, models, io, logger){
 		if(logger.DO_LOG){
 			logger.info('Request for nlp parser full results.');
 		}
-		
+
 		alphaReportService.get(req.params.id, function(err, reports) {
-			if(err || reports.length == 0) {
+			if(err || reports.length === 0) {
 				var msg = ("Could not find alpha report with id: " + req.params.id);
 				logger.error(msg, err);
 				return general.send500(res, msg);
@@ -462,7 +459,7 @@ module.exports = function(app, models, io, logger){
 							}, function() {
 								result.annotation = internalResult;
 								callback();
-							});	
+							});
 						});
 					});
 				}, function(callback) {
@@ -473,7 +470,7 @@ module.exports = function(app, models, io, logger){
 							result.dependency = msg;
 							callback();
 						}
-						
+
 						graphs.toArray(function(err, graphArray) {
 							var internalResult = [];
 							async.eachSeries(graphArray, function(graph, internalCallback) {
@@ -513,7 +510,7 @@ module.exports = function(app, models, io, logger){
 							result.dependency = msg;
 							callback();
 						}
-						
+
 						output.toArray(function(err, resultArray) {
 							var internalResult = [];
 							async.eachSeries(resultArray, function(sentence, internalCallback) {
@@ -533,7 +530,7 @@ module.exports = function(app, models, io, logger){
 							result.edge_vertex = msg;
 							callback();
 						}
-						
+
 
 						output.toArray(function(err, resultArray) {
 							var internalResult = [];

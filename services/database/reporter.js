@@ -1,19 +1,18 @@
 var Bvalidator = require("../../models/reporter/bvalidator.js");
 var revalidator = require("revalidator");
-//var actionEmitter = require("../action_emitter.js");
 var paramHandler = require("../list_default_handler.js");
 var async = require("async");
 
 module.exports = function(models, io, logger) {
 	var me = this;
 	var validationModel = models.reporterValidation;
-	 
+
 	var services = {
 		reporterService: me
 	};
-	
+
 	var bvalidator = new Bvalidator(services, logger);
-	
+
 	/**
 	 * Returns a list of all Reporters
 	 */
@@ -22,7 +21,7 @@ module.exports = function(models, io, logger) {
 			if (params !== null) {
 				var sortObject = {};
 				sortObject[params.sortKey] = params.sort;
-				
+
 				var config = {
 					createdDate: {
 						$gte: params.start,
@@ -40,7 +39,7 @@ module.exports = function(models, io, logger) {
 			}
 		});
 	};
-	
+
 	/**
 	 *	Returns a list of indexed attributes for Reporter
 	 */
@@ -52,7 +51,7 @@ module.exports = function(models, io, logger) {
 				indexes.push(keys[i].toString());
 			}
 		}
-		
+
 		callback(indexes);
 	};
 
@@ -82,7 +81,7 @@ module.exports = function(models, io, logger) {
 	me.flattenArray = function (string, callback) {
 		callback(null, Date.parse(string.createdDate));
 	};
-	
+
 	/**
 	 *	Returns the number of Reporter that fit the parameter config
 	 */
@@ -100,24 +99,25 @@ module.exports = function(models, io, logger) {
 	/**
 	 * create is a "generic" save method callable from both
 	 * request-response methods and parser-type methods for population of Reporter data
-	 * 
+	 *
 	 * create calls the validateReporter module to ensure that the
 	 * data being saved to the database is complete and has integrity.
-	 * 
+	 *
 	 * saveCallback takes the form function(err, valid object, Reporter object)
 	 */
 	me.create = function(data, saveCallback) {
 		me.validateReporter(data, function(valid) {
 			if (valid.valid) {
 				logger.info("Valid Reporter");
-				
+
 				var newReporter = new models.reporter(data);
 				newReporter.save(function(err){
 					if (err){
 						logger.error("Error saving Reporter ", err);
-					} else {
-						//actionEmitter.saveReporterEvent(newReporter);
 					}
+					//else {
+					//	actionEmitter.saveReporterEvent(newReporter);
+					//}
 
 					saveCallback(err, valid, newReporter);
 				});
@@ -135,7 +135,7 @@ module.exports = function(models, io, logger) {
 	 * calls the business validation module bvalidator for the Reporter object
 
 	 * data is the object being validated
-	 * 
+	 *
 	 * valCallback takes the form function(valid structure)
 	 */
 	me.validateReporter = function(data, valCallback) {
@@ -161,7 +161,7 @@ module.exports = function(models, io, logger) {
 	/**
 	 * generic read method to return all documents that have a matching
 	 * set of key, value pairs specified by config
-	 * 
+	 *
 	 * callback takes the form function(err, docs)
 	 */
 	me.findWhere = function(config, callback) {
@@ -185,7 +185,7 @@ module.exports = function(models, io, logger) {
 						docs[e] = data[e];
 					}
 				}
-				
+
 				docs.updatedDate = new Date();
 				me.validateReporter(docs, function(valid) {
 					if (valid.valid) {

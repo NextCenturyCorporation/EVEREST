@@ -1,6 +1,4 @@
 var revalidator = require("revalidator");
-var AlphaReportService = require("./alpha_report");
-var actionEmitter = require("../action_emitter.js");
 var paramHandler = require("../list_default_handler.js");
 var async = require("async");
 
@@ -16,7 +14,7 @@ module.exports = function(models, io, logger) {
 			if (params !== null) {
 				var sortObject = {};
 				sortObject[params.sortKey] = params.sort;
-				
+
 				models.tag.find({}).skip(params.offset).sort(sortObject).limit(params.count).exec(function(err, res) {
 					callback(err, res, {});
 				});
@@ -39,10 +37,10 @@ module.exports = function(models, io, logger) {
 				indexes.push(keys[i].toString());
 			}
 		}
-		
+
 		callback(indexes);
 	};
-	
+
 	/**
 	*	Returns a list of date attributes for Tag
 	*/
@@ -54,7 +52,7 @@ module.exports = function(models, io, logger) {
 				dateTypes.push(keys[i].toString());
 			}
 		}
-	
+
 		callback(dateTypes);
 	};
 
@@ -84,7 +82,7 @@ module.exports = function(models, io, logger) {
 	me.flattenArray = function (string, callback) {
 		callback(null, Date.parse(string.createdDate));
 	};
-	
+
 	/**
 	 *	Returns the number of Tags that fit the specified config
 	 */
@@ -101,24 +99,24 @@ module.exports = function(models, io, logger) {
 
 	/**
 	 * create is a "generic" save method callable from both
-	 * request-response methods and parser-type methods for population 
+	 * request-response methods and parser-type methods for population
 	 * of Tag data
-	 * 
+	 *
 	 * create calls the validateTag module to ensure that the
 	 * data being saved to the database is complete and has integrity.
-	 * 
+	 *
 	 * saveCallback takes the form function(err, valid object, Tag object)
 	 */
 	me.create = function(data, saveCallback) {
 		me.validateTag(data, function(valid) {
 			if (valid.valid) {
 				logger.info("Valid Tag");
-				
+
 				var newTag = new models.tag(data);
 				newTag.save(function(err) {
 					if (err) {
 						logger.error("Error saving Tag ", err);
-					} 
+					}
 
 					saveCallback(err, valid, newTag);
 				});
@@ -136,7 +134,7 @@ module.exports = function(models, io, logger) {
 	 * calls the business validation module bvalidator for the Tag object
 
 	 * data is the object being validated
-	 * 
+	 *
 	 * valCallback takes the form function(valid structure)
 	 */
 	me.validateTag = function(data, valCallback) {
@@ -162,7 +160,7 @@ module.exports = function(models, io, logger) {
 	/**
 	 * generic read method to return all documents that have a matching
 	 * set of key, value pairs specified by config
-	 * 
+	 *
 	 * callback takes the form function(err, docs)
 	 */
 	me.findWhere = function(config, callback) {
@@ -186,7 +184,7 @@ module.exports = function(models, io, logger) {
 						docs[e] = data[e];
 					}
 				}
-				
+
 				docs.updatedDate = new Date();
 				me.validateTag(docs, function(valid) {
 					if (valid.valid) {

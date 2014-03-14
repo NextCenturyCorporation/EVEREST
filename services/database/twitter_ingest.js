@@ -2,8 +2,8 @@
 var async = require('async');
 var paramHandler = require('../list_default_handler');
 var twitter = require('ntwitter');
-var actionEmitter = require('../action_emitter.js');
 var config = require('../../config.js');
+var eventing = require('../../eventing/eventing');
 
 module.exports = function(models, io, logger, createDefault) {
 	var me = this;
@@ -92,7 +92,7 @@ module.exports = function(models, io, logger, createDefault) {
 					access_token_key: newFeed.access_token_key,
 					access_token_secret: newFeed.access_token_secret
 				});
-				
+
 				me.twitStreams[newFeed._id] = newStream;
 
 				callback(err, newFeed);
@@ -113,16 +113,7 @@ module.exports = function(models, io, logger, createDefault) {
 						if(data && data.user && data.user.screen_name) {
 							me.logger.debug("Saving feed item: " + data.user.screen_name + ": " + data.text);
 
-							actionEmitter.rawFeedDataRecievedEvent({feedSource: 'Twitter', text:JSON.stringify(data)}, function(err, valid, newfeed){
-								if(err){
-									me.logger.error('Error saving raw feed', err);
-								} else if(!valid.valid) {
-									me.logger.error('Validation error with ' + JSON.stringify(valid.errors));
-								} else {
-									me.logger.debug('Saved raw feed object ' + newfeed._id);
-									me.callParser(newfeed._id);
-								}
-							});
+							eventing.fire('raw-data-received', {feedSource: 'Twitter', text:JSON.stringify(data)});
 						}
 					});
 					newStream.on('end', function () {
@@ -145,30 +136,6 @@ module.exports = function(models, io, logger, createDefault) {
 			var errMsg = "Cannot find known twitter stream for key with id " + id;
 			callback(new Error(errMsg));
 		}
-	};
-
-	// me.handleIncomingData = function(data) {
-	//	var me = this;
-	
-	//	me.logger.debug("Saving feed item: " + data.user.screen_name + ": " + data.text);
-		
-	//	me.rawFeedService.saveFeed({feedSource: 'Twitter', text:JSON.stringify(data)}, function(err, valid, newfeed){
-	//		if(err){
-	//			me.logger.error('Error saving raw feed', err);
-	//		} else if(!valid.valid) {
-	//			me.logger.error('Validation error with ' + JSON.stringify(valid.errors));
-	//		} else {
-	//			me.logger.debug('Saved raw feed object ' + newfeed._id);
-	//			me.callParser(newfeed._id);
-	//		}
-	//	});
-	// };
-
-	me.callParser = function(id) {
-		me.logger.debug("Parser to be called with id: " + id);
-		process.nextTick(function() {
-			actionEmitter.rawFeedParseEvent(id);
-		});
 	};
 
 	me.stopIngest = function(id, callback) {

@@ -11,7 +11,7 @@ String.prototype.tryToFixURI = function() {
 	}
 	return this.toString();
 };
- 
+
 module.exports = function(models, io, logger) {
 	var me = this;
 	me.models = models;
@@ -20,7 +20,7 @@ module.exports = function(models, io, logger) {
 	me.feed.feedInterval = {};
 	me.feed.links = {};
 	var async = require('async');
-	var actionEmitter = require('../action_emitter.js');
+	var eventing = require('../../eventing/eventing');
 	var FeedParser = require('feedparser'),
 		request = require('request');
 
@@ -41,7 +41,7 @@ module.exports = function(models, io, logger) {
 				} else {
 					callback(null, newFeed);
 				}
-				
+
 			}
 		});
 	};
@@ -119,13 +119,15 @@ module.exports = function(models, io, logger) {
 			.on('readable', function() {
 				//TODO: refactor.  Not certain that we want an assignment in the boolean check in the while statement
 				//      Do not want to declare a function inside a loop.  Will create the function with each pass.
+
 				var stream = this, item;
-				while (item = stream.read()) {
+				while (null !== (item = stream.read())) {
 					var link = item.link;
 					if(link && !me.feed.links[link]) {
 						me.feed.links[link] = link;
-							actionEmitter.rawFeedDataRecievedEvent({feedSource: 'RSS', text:JSON.stringify(item)}, function(err, valid, newfeed){
-							actionEmitter.rawFeedParseEvent(newfeed._id);
+						eventing.fire('raw-data-received',{
+							feedSource: 'RSS',
+							text:JSON.stringify(item)
 						});
 					}
 				}

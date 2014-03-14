@@ -2,7 +2,7 @@ var Bvalidator = require("../../models/assertion/bvalidator.js");
 var revalidator = require("revalidator");
 var AlphaReportService = require("./alpha_report.js");
 var ReporterService = require("./reporter.js");
-var actionEmitter = require("../action_emitter.js");
+var eventing = require('../../eventing/eventing');
 var paramHandler = require("../list_default_handler.js");
 var async = require("async");
 
@@ -15,7 +15,7 @@ module.exports = function(models, io, logger) {
 		alphaReportService: new AlphaReportService(models, io, logger),
 		reporterService: new ReporterService(models, io, logger)
 	};
-	
+
 	var bvalidator = new Bvalidator(services, logger);
 
 	/**
@@ -26,14 +26,14 @@ module.exports = function(models, io, logger) {
 			if (params !== null) {
 				var sortObject = {};
 				sortObject[params.sortKey] = params.sort;
-				
+
 				var config = {
 					createdDate : {
 						$gte: params.start,
 						$lte: params.end
 					}
 				};
-				
+
 				models.assertion.find(config).skip(params.offset).sort(sortObject).limit(params.count).exec(function(err, res) {
 					callback(err, res, config);
 				});
@@ -47,12 +47,13 @@ module.exports = function(models, io, logger) {
 
 	me.getTags = function(callback) {
 		var o = {
-			map: function() { 
+			map: function() {
+				/* global emit */  // TODO: not certain why JSHint cannot see emit
 				if (this.entity1) { emit(this.entity1, 1); }
 				if (this.entity2) { emit(this.entity2, 1); }
 			},
 			reduce: function(k, vals) { return vals.length; }
-		}
+		};
 		models.assertion.mapReduce(o, callback);
 	};
 
@@ -67,10 +68,10 @@ module.exports = function(models, io, logger) {
 				indexes.push(keys[i].toString());
 			}
 		}
-		
+
 		callback(indexes);
 	};
-	
+
 	/**
 	*	Returns a list of date attributes for Assertion
 	*/
@@ -82,7 +83,7 @@ module.exports = function(models, io, logger) {
 				dateTypes.push(keys[i].toString());
 			}
 		}
-	
+
 		callback(dateTypes);
 	};
 
@@ -119,7 +120,7 @@ module.exports = function(models, io, logger) {
 	me.getTotalCount = function(config, callback) {
 		models.assertion.count(config, callback);
 	};
-	
+
 	/**
 	 * Returns only the fields specified in field_string for each Assertion
 	 */
@@ -130,25 +131,25 @@ module.exports = function(models, io, logger) {
 	/**
 	 * create is a "generic" save method callable from both
 	 * request-response methods and parser-type methods for population of Assertions data
-	 * 
+	 *
 	 * create calls the validateAssertion module to ensure that the
 	 * data being saved to the database is complete and has integrity.
-	 * 
+	 *
 	 * saveCallback takes the form function(err, valid object, Assertion object)
 	 */
 	me.create = function(data, saveCallback) {
 		me.validateAssertion(data, function(valid) {
 			if (valid.valid) {
 				logger.info("Valid Assertion");
-				
+
 				var newAssertion = new models.assertion(data);
 				newAssertion.save(function(err){
 					if (err) {
 						logger.error("Error saving Assertion ", err);
 					} else {
-						actionEmitter.saveAssertionEvent(newAssertion);
+						eventing.fire('assertion-saved', newAssertion);
 					}
-					
+
 					saveCallback(err, valid, newAssertion);
 				});
 			} else {
@@ -165,7 +166,7 @@ module.exports = function(models, io, logger) {
 	 * calls the business validation module bvalidator for the Assertions object
 
 	 * data is the object being validated
-	 * 
+	 *
 	 * valCallback takes the form of function(valid structure)
 	 */
 	me.validateAssertion = function(data, valCallback) {
@@ -200,7 +201,7 @@ module.exports = function(models, io, logger) {
 
 	/**
 	 * update gets the Assertion by the specified id then calls validateAssertion
-	 * 
+	 *
 	 * callback takes the form function(err, valid object, Assertion object)
 	 */
 	me.update = function(id, data, updCallback) {
@@ -216,7 +217,7 @@ module.exports = function(models, io, logger) {
 						docs[e] = data[e];
 					}
 				}
-				
+
 				docs.updatedDate = new Date();
 				me.validateAssertion(docs, function(valid) {
 					if (valid.valid) {

@@ -1,7 +1,7 @@
 var AlphaReportService = require('../database/alpha_report.js');
 var reporter_service = require('../database/reporter.js');
 //var AssertionService = require('../database/assertion.js');  // not used
-var actionEmitter = require('../action_emitter.js');
+var eventing = require('../../eventing/eventing');
 
 String.prototype.stripHTMLFromFeed = function() {
   return this.replace(/(<([^>]+)>)/ig, '').replace(/\&.+\;/ig, '').replace(/(\r\n|\n|\r)/gm,'').trim();
@@ -9,16 +9,16 @@ String.prototype.stripHTMLFromFeed = function() {
 
 
 module.exports = function(models, io, logger) {
-	
+
 	// bbn 10-08-13  I changed this self = this pattern back to just using "this"
 	//               The call to createAlphaReportCallback did not seem to be finding
 	//               the function and the JavaScript parser indicated that the
 	//               "var createAlphaReportCallback = function" was never being read/called
-	
+
 	//var self = this;
 
 	var alphaReportService = new AlphaReportService(models, io, logger);
-	
+
 	this.parseAndSave = function(raw_feed_object) {
 		var alpha_report_object = {};
 
@@ -33,7 +33,7 @@ module.exports = function(models, io, logger) {
 		var feedContent = parsed_text.description || parsed_text.content || parsed_text.summary;
 		alpha_report_object.source_id = feedId;
 		alpha_report_object.message_date = parsedDate;
-		
+
 		if(feedContent) {
 			var content = feedContent.stripHTMLFromFeed();
 			//This makes an attempt to clean up some of the extra things reuters likes to 
@@ -78,13 +78,11 @@ module.exports = function(models, io, logger) {
 
 	this.createAlphaReportCallback = function(err, valid, res) {
 		if (err) {
-			logger.debug(res);
+			logger.debug(err);
 		} else if (!valid.valid) {
 			logger.info('Invalid alpha_report ' + JSON.stringify(valid.errors));
 		} else {
-			process.nextTick(function() {
-				actionEmitter.saveAlphaReportEvent(res);
-			});
+			eventing.fire('alpha-report-saved', res);
 		}
 	};
 };

@@ -1,12 +1,12 @@
 var revalidator = require("revalidator");
-var actionEmitter = require("../action_emitter.js");
 var paramHandler = require("../list_default_handler.js");
 var async = require("async");
+var eventing = require('../../eventing/eventing');
 
 module.exports = function(models, io, logger) {
 	var me = this;
 	var validationModel = models.rawFeedValidation;
-	
+
 	/**
 	 * Returns a list of all Raw Feeds
 	 */
@@ -15,14 +15,14 @@ module.exports = function(models, io, logger) {
 			if (params !== null) {
 				var sortObject = {};
 				sortObject[params.sortKey] = params.sort;
-				
+
 				var config = {
 					createdDate: {
 						$gte: params.start,
 						$lte: params.end
 					}
 				};
-				
+
 				models.rawFeed.find(config).skip(params.offset).sort(sortObject).limit(params.count).exec(function(err, res) {
 					callback(err, res, config);
 				});
@@ -33,7 +33,7 @@ module.exports = function(models, io, logger) {
 			}
 		});
 	};
-			
+
 	/**
 	 *	Returns a list of indexed attributes for Raw Feed
 	 */
@@ -45,10 +45,10 @@ module.exports = function(models, io, logger) {
 				indexes.push(keys[i].toString());
 			}
 		}
-		
+
 		callback(indexes);
 	};
-	
+
 	/**
 	*	Returns a list of date attributes for Raw Feed
 	*/
@@ -60,10 +60,10 @@ module.exports = function(models, io, logger) {
 				dateTypes.push(keys[i].toString());
 			}
 		}
-	
+
 		callback(dateTypes);
 	};
-	
+
 	/**
 	 *	Returns a sorted list containing _id and createdDate for all Raw Feeds
 	 */
@@ -97,21 +97,21 @@ module.exports = function(models, io, logger) {
 	me.getTotalCount = function(config, callback) {
 		models.rawFeed.count(config, callback);
 	};
-	
+
 	/**
 	 * Returns only the fields specified in field_string for each Raw Feed
 	 */
 	me.listFields = function(params, field_string, callback) {
 		models.rawFeed.find(params, field_string, callback);
 	};
-	
+
 	/**
 	 * create is a "generic" save method callable from both
 	 * request-response methods and parser-type methods for population of Raw Feed data
-	 * 
+	 *
 	 * create calls the validateRawFeed module to ensure that the
 	 * data being saved to the database is complete and has integrity.
-	 * 
+	 *
 	 * saveCallback takes the form function(err, valid object, Raw Feed object)
 	 */
 	me.create = function(data, callback) {
@@ -124,9 +124,9 @@ module.exports = function(models, io, logger) {
 					if (err) {
 						logger.error("Error saving Raw Feed", err);
 					} else {
-						actionEmitter.saveFeedEvent(newFeed);
+						eventing.fire('raw-feed-saved', newFeed);
 					}
-	
+
 					callback(err, valid, newFeed);
 				});
 			} else {
@@ -134,7 +134,7 @@ module.exports = function(models, io, logger) {
 			}
 		});
 	};
-	
+
 	/**
 	 * validateRawFeed validates an Alpha Report object against the Raw Feed
 	 * semantic rules and the business rules associated with a Raw Feed
@@ -142,7 +142,7 @@ module.exports = function(models, io, logger) {
 	 * validateRawFeed calls the JSON validation module revalidator
 	 *
 	 * data is the object being validated
-	 * 
+	 *
 	 * valCallback takes the form function(valid structure)
 	 */
 	me.validateRawFeed = function(data, valCallback) {
@@ -156,26 +156,26 @@ module.exports = function(models, io, logger) {
 			valCallback(valid);
 		} else {
 			valCallback(valid);
-		}	
+		}
 	};
-	
+
 	/**
 	 * Returns the Raw Feed object with the specified id
 	 */
 	me.get = function(id, callback) {
 		me.findWhere({_id: id}, callback);
 	};
-	
+
 	/**
 	 * generic read method to return all documents that have a matching
 	 * set of key, value pairs specified by config
-	 * 
+	 *
 	 * callback takes the form function(err, docs)
 	 */
 	me.findWhere = function(config, callback) {
 		models.rawFeed.find(config, callback);
 	};
-	
+
 	/**
 	 * update gets the Raw Feed by the specified id then calls validateRawFeed
 	 *
@@ -194,7 +194,7 @@ module.exports = function(models, io, logger) {
 						docs[e] = data[e];
 					}
 				}
-				
+
 				docs.updatedDate = new Date();
 				me.validateRawFeed(docs, function(valid) {
 					if (valid.valid) {
@@ -204,20 +204,20 @@ module.exports = function(models, io, logger) {
 							} else {
 								updCallback(err, valid, docs);
 							}
-						});	
+						});
 					} else {
 						valid.valid = false;
 						valid.errors = {expected: id, message: "Updated Raw Feed information not valid"};
 						updCallback(err, valid, data);
 					}
-				});		
+				});
 			} else {
 				var errorMsg = new Error("Could not find Raw Feed to update.");
 				updCallback(errorMsg, null, data);
 			}
 		});
 	};
-	
+
 	/**
 	 * Remove all Raw Feeds that match the specified config
 	 */
